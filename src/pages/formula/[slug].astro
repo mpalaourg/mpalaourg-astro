@@ -1,0 +1,28 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+
+export async function getStaticPaths() {
+  const seasons = await getCollection("formula");
+
+  return seasons.map((season) => ({
+    params: { slug: season.slug },
+    props: { season },
+  }));
+}
+
+const { season } = Astro.props;
+const { Content } = await season.render();
+---
+
+<BaseLayout title={`${season.data.title} | Formula`}>
+  <article class="mx-auto max-w-3xl px-4 py-12 prose prose-neutral">
+    <h1>{season.data.title}</h1>
+
+    {season.data.summary && (
+      <p class="text-gray-500">{season.data.summary}</p>
+    )}
+
+    <Content />
+  </article>
+</BaseLayout>
