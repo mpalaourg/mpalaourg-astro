@@ -1,5 +1,13 @@
 ---
+import "../styles/global.css";
+
 const { title = "Georgios Balaouras" } = Astro.props;
+const pathname = Astro.url.pathname;
+const isEl = pathname.startsWith("/el/");
+
+// Build language switch URLs
+const enPath = isEl ? pathname.replace(/^\/el/, "") : pathname;
+const elPath = isEl ? pathname : `/el${pathname}`;
 ---
 
 <!DOCTYPE html>
@@ -8,9 +16,114 @@ const { title = "Georgios Balaouras" } = Astro.props;
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
     <title>{title}</title>
+
+    <!-- Theme script (runs before paint) -->
+    <script>
+      const theme = localStorage.getItem("theme");
+      if (
+        theme === "dark" ||
+        (!theme &&
+          window.matchMedia("(prefers-color-scheme: dark)").matches)
+      ) {
+        document.documentElement.classList.add("dark");
+      }
+    </script>
   </head>
 
-  <body class="bg-white text-gray-900">
-    <slot />
+  <body
+    class="bg-white text-gray-900
+           dark:bg-slate-900 dark:text-slate-100 transition-colors"
+  >
+    <header class="border-b border-gray-200 dark:border-gray-800">
+      <div
+        class="mx-auto flex max-w-5xl items-center justify-between px-4 py-4"
+      >
+        <a href="/" class="font-semibold">Georgios Balaouras</a>
+
+        <nav class="flex items-center gap-4 text-sm">
+            <a
+                href="/formula"
+                class="text-gray-700 hover:text-black
+                    dark:text-gray-300 dark:hover:text-white"
+            >
+                Formula
+            </a>
+            <a
+                href="/about"
+                class="text-gray-700 hover:text-black
+                    dark:text-gray-300 dark:hover:text-white"
+            >
+                About
+            </a>
+
+          <!-- Language switcher -->
+          <div class="relative group">
+            <button
+              type="button"
+              aria-label="Change language"
+              tabindex="0"
+              class="flex items-center gap-1 rounded-md border px-2 py-1 text-sm
+                     border-gray-300 bg-gray-100 text-gray-800
+                     hover:bg-gray-200
+                     dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100
+                     dark:hover:bg-gray-700"
+            >
+              🌐
+            </button>
+
+            <div
+              class="absolute right-0 mt-2 hidden w-40 rounded-md border pt-1
+                     bg-white dark:bg-slate-900
+                     border-gray-200 dark:border-gray-700
+                     group-hover:block group-focus-within:block"
+            >
+              <a
+                href={enPath}
+                class="flex items-center gap-2 px-3 py-2 text-sm
+                       hover:bg-gray-100 dark:hover:bg-slate-800"
+              >
+                <img src="/icons/gb.svg" alt="English" class="h-4 w-4" />
+                English
+              </a>
+
+              <a
+                href={elPath}
+                class="flex items-center gap-2 px-3 py-2 text-sm
+                       hover:bg-gray-100 dark:hover:bg-slate-800"
+              >
+                <img src="/icons/gr.svg" alt="Ελληνικά" class="h-4 w-4" />
+                Ελληνικά
+              </a>
+            </div>
+          </div>
+
+          <button
+            id="theme-toggle"
+            type="button"
+            aria-label="Toggle dark mode"
+            class="cursor-pointer rounded-md border px-2 py-1 text-sm
+                    border-gray-300 bg-gray-100 text-gray-800
+                    hover:bg-gray-200
+                    dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100
+                    dark:hover:bg-gray-700"
+            >
+            🌓
+          </button>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <slot />
+    </main>
+
+    <script>
+      const toggle = document.getElementById("theme-toggle");
+      toggle?.addEventListener("click", () => {
+        const root = document.documentElement;
+        const isDark = root.classList.toggle("dark");
+        localStorage.setItem("theme", isDark ? "dark" : "light");
+      });
+    </script>
   </body>
 </html>

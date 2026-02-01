@@ -1,12 +1,35 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+
+const posts = await getCollection("formula");
 ---
 
 <BaseLayout title="Home | Georgios Balaouras">
-  <main class="mx-auto max-w-3xl px-4 py-12">
+  <main class="mx-auto max-w-4xl px-4 py-12">
     <h1 class="text-4xl font-bold mb-4">Georgios Balaouras</h1>
-    <p class="text-gray-600">
+    <p class="text-gray-600 dark:text-slate-400 mb-10">
       Data Scientist · Machine Learning · Formula 1 analysis
     </p>
+
+    <section class="space-y-8">
+      {posts.map((post) => (
+        <article>
+          <a href={`/formula/${post.slug}`}>
+            <h2 class="text-2xl font-semibold mb-1">
+              {post.data.title}
+            </h2>
+            <p class="text-gray-600 dark:text-slate-400">
+              {post.data.summary}
+            </p>
+            <ul class="mt-2 flex gap-2 text-sm text-sky-600">
+              {post.data.tags?.map((tag) => (
+                <li>#{tag}</li>
+              ))}
+            </ul>
+          </a>
+        </article>
+      ))}
+    </section>
   </main>
 </BaseLayout>

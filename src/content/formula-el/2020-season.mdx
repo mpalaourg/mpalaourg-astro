@@ -1,0 +1,267 @@
+---
+title: Η χρονιά ρεκόρ του Lewis
+summary: Δύσκολη σεζόν, περιορισμοί λόγω Covid‑19, έβδομος τίτλος για τον Hamilton.
+date: 2020-12-14
+featuredImage: /formula/2020-season/featured.png
+tags:
+  - formula1
+  - lewis-hamilton
+external:
+  code: https://github.com/mpalaourg/F1_DataAnalysis/blob/main/2020-Season/Season%20Analysis.ipynb
+---
+
+Η σεζόν της Formula 1 το 2020 επηρεάστηκε σε μεγάλο βαθμό από την παγκόσμια εξάπλωση
+του ιού Covid‑19. Η έναρξη του πρωταθλήματος, που αρχικά είχε προγραμματιστεί για
+τον Μάρτιο, αναβλήθηκε για αρκετούς μήνες και τελικά ξεκίνησε τον Ιούλιο. Οι πρώτοι
+οκτώ αγώνες διεξήχθησαν χωρίς θεατές, ενώ οι υπόλοιποι πραγματοποιήθηκαν με
+περιορισμένη παρουσία κοινού ή κεκλεισμένων των θυρών λόγω του δεύτερου κύματος
+της πανδημίας.
+
+## Αγωνιστικό Ημερολόγιο
+
+Η σεζόν περιλάμβανε αρκετές σημαντικές εξελίξεις. Το **Grand Prix Αυστραλίας**,
+που είχε οριστεί ως ο εναρκτήριος αγώνας, ακυρώθηκε λίγες ώρες πριν από την πρώτη
+περίοδο ελεύθερων δοκιμών. Επιπλέον, ακυρώθηκαν τα **Grand Prix Βιετνάμ** και
+**Ολλανδίας**, το οποίο θα επέστρεφε μετά από απουσία άνω των 30 ετών.
+
+Αρχικά, το πρόγραμμα περιλάμβανε οκτώ ευρωπαϊκές πίστες, όμως στη συνέχεια
+προστέθηκαν και άλλες. Νέες τοποθεσίες όπως το **Mugello (GP Τοσκάνης)** και
+το **Algarve (GP Πορτογαλίας)** έκαναν την εμφάνισή τους, ενώ ιστορικές πίστες
+όπως το **Nürburgring**, η **Imola** και το **Istanbul Park** επέστρεψαν.
+
+Ένα ιδιαίτερο χαρακτηριστικό της σεζόν ήταν η διεξαγωγή περισσότερων του ενός
+αγώνων στην ίδια πίστα. Τα **Red Bull Ring**, **Silverstone** και **Bahrain**
+φιλοξένησαν δύο Grand Prix με διαφορετικές ονομασίες.
+
+Συνολικά, η σεζόν του 2020 περιλάμβανε 17 Grand Prix.
+
+<figure class="my-8">
+  <div class="overflow-x-auto">
+| Round | Grand Prix          | Country       | City        | Circuit                          | Date        | Length (km) | Laps |
+|------:|---------------------|---------------|-------------|----------------------------------|-------------|-------------:|-----:|
+| 1     | Austrian            | Austria       | Spielberg   | Red Bull Ring                    | 5 Jul 2020  | 4.318        | 71   |
+| 2     | Styrian             | Austria       | Spielberg   | Red Bull Ring                    | 12 Jul 2020 | 4.318        | 71   |
+| 3     | Hungarian           | Hungary       | Budapest    | Hungaroring                      | 19 Jul 2020 | 4.381        | 70   |
+| 4     | British             | Great Britain | Silverstone | Silverstone Circuit              | 2 Aug 2020  | 5.891        | 52   |
+| 5     | 70th Anniversary    | Great Britain | Silverstone | Silverstone Circuit              | 9 Aug 2020  | 5.891        | 52   |
+| 6     | Spanish             | Spain         | Barcelona   | Circuit de Barcelona‑Catalunya   | 16 Aug 2020 | 4.655        | 66   |
+| 7     | Belgian             | Belgium       | Spa         | Circuit de Spa‑Francorchamps     | 30 Aug 2020 | 7.004        | 44   |
+| 8     | Italian             | Italy         | Monza       | Autodromo Nazionale Monza        | 6 Sep 2020  | 5.793        | 53   |
+| 9     | Tuscan              | Italy         | Mugello     | Mugello Circuit                  | 13 Sep 2020 | 5.245        | 59   |
+| 10    | Russian             | Russia        | Sochi       | Sochi Autodrom                   | 27 Sep 2020 | 5.848        | 53   |
+| 11    | Eifel               | Germany       | Nürburg     | Nürburgring                      | 11 Oct 2020 | 5.148        | 60   |
+| 12    | Portuguese          | Portugal      | Portimão    | Autódromo Internacional do Algarve | 25 Oct 2020 | 4.653        | 66   |
+| 13    | Emilia Romagna      | Italy         | Imola       | Autodromo Enzo e Dino Ferrari    | 1 Nov 2020  | 4.909        | 63   |
+| 14    | Turkish             | Turkey        | Istanbul    | Intercity Istanbul Park          | 15 Nov 2020 | 5.338        | 58   |
+| 15    | Bahrain             | Bahrain       | Sakhir      | Bahrain International Circuit   | 29 Nov 2020 | 5.412        | 57   |
+| 16    | Sakhir              | Bahrain       | Sakhir      | Bahrain Int. Circuit (Outer)     | 6 Dec 2020  | 3.543        | 87   |
+| 17    | Abu Dhabi           | UAE           | Yas Island  | Yas Marina Circuit               | 13 Dec 2020 | 5.554        | 55   |
+</div>
+  <figcaption class="mt-2 text-sm text-gray-500 dark:text-slate-400 text-center">
+    Αγωνιστικό ημερολόγιο Formula 1 2020 με πίστες, ημερομηνίες και χαρακτηριστικά αγώνων.
+  </figcaption>
+</figure>
+
+## Οδηγοί και Κατασκευαστές
+
+Το grid αποτελούνταν από 10 ομάδες και 23 οδηγούς, συμπεριλαμβανομένων τριών
+αναπληρωματικών οδηγών. Σε σύγκριση με το 2019, σημειώθηκαν αρκετές σημαντικές
+αλλαγές:
+
+- **Ο Esteban Ocon** αντικατέστησε τον **Nico Hülkenberg** στη Renault
+- **Ο Nicholas Latifi** αντικατέστησε τον **Robert Kubica** στη Williams
+- Η **Toro Rosso** μετονομάστηκε σε **AlphaTauri**
+- Η **Mercedes AMG Petronas** υιοθέτησε μαύρο livery το 2020
+
+Κατά τη διάρκεια της σεζόν, ο **Nico Hülkenberg** κλήθηκε τρεις φορές από τη
+**Racing Point** ως αντικαταστάτης οδηγών που προσβλήθηκαν από Covid‑19.
+Επιπλέον, οι **Jack Aitken** και **Pietro Fittipaldi** πραγματοποίησαν το
+ντεμπούτο τους στη Formula 1.
+
+<figure class="my-8">
+  <div class="overflow-x-auto">
+| Abbr. | No. | Driver            | Team           | Nationality        | Date of Birth | Place of Birth              | GPs Entered | Best Finish |
+|:-----:|----:|-------------------|----------------|--------------------|---------------|-----------------------------|------------:|------------:|
+| HAM   | 44  | Lewis Hamilton    | Mercedes       | United Kingdom     | 07/01/1985    | Stevenage, England          | 266         | 1st (×95)   |
+| BOT   | 77  | Valtteri Bottas   | Mercedes       | Finland            | 28/08/1989    | Nastola, Finland            | 157         | 1st (×9)    |
+| VER   | 33  | Max Verstappen    | Red Bull       | Netherlands        | 30/09/1997    | Hasselt, Belgium            | 119         | 1st (×10)   |
+| PER   | 11  | Sergio Pérez      | Racing Point   | Mexico             | 26/01/1990    | Guadalajara, Mexico         | 193         | 1st (×1)    |
+| RIC   | 3   | Daniel Ricciardo  | Renault        | Australia          | 01/07/1989    | Perth, Australia            | 188         | 1st (×7)    |
+| SAI   | 55  | Carlos Sainz      | McLaren        | Spain              | 01/09/1994    | Madrid, Spain               | 119         | 2nd (×1)    |
+| ALB   | 23  | Alexander Albon   | Red Bull       | Thailand           | 23/03/1996    | London, England             | 38          | 3rd (×2)    |
+| LEC   | 16  | Charles Leclerc   | Ferrari        | Monaco             | 16/10/1997    | Monte Carlo, Monaco         | 59          | 1st (×2)    |
+| NOR   | 4   | Lando Norris      | McLaren        | United Kingdom     | 13/11/1999    | Bristol, England            | 38          | 3rd (×1)    |
+| GAS   | 10  | Pierre Gasly      | AlphaTauri     | France             | 07/02/1996    | Rouen, France               | 64          | 1st (×1)    |
+| STR   | 18  | Lance Stroll      | Racing Point   | Canada             | 29/10/1998    | Montreal, Canada            | 78          | 3rd (×3)    |
+| OCO   | 31  | Esteban Ocon      | Renault        | France             | 17/09/1996    | Évreux, France              | 67          | 2nd (×1)    |
+| VET   | 5   | Sebastian Vettel  | Ferrari        | Germany            | 03/07/1987    | Heppenheim, Germany         | 258         | 1st (×53)   |
+| KVY   | 26  | Daniil Kvyat      | AlphaTauri     | Russia             | 26/04/1994    | Ufa, Russia                 | 112         | 2nd (×1)    |
+| HUL   | 27  | Nico Hülkenberg   | Racing Point   | Germany            | 19/08/1987    | Emmerich am Rhein, Germany  | 182         | 4th (×3)    |
+| RAI   | 7   | Kimi Räikkönen    | Alfa Romeo     | Finland            | 17/10/1979    | Espoo, Finland              | 332         | 1st (×21)   |
+| GIO   | 99  | Antonio Giovinazzi| Alfa Romeo     | Italy              | 14/12/1993    | Martina Franca, Italy       | 40          | 5th (×1)    |
+| RUS   | 63  | George Russell    | Williams       | United Kingdom     | 15/02/1998    | King’s Lynn, England        | 38          | 9th (×1)    |
+| GRO   | 8   | Romain Grosjean   | Haas           | France             | 17/04/1986    | Geneva, Switzerland         | 181         | 2nd (×2)    |
+| MAG   | 20  | Kevin Magnussen   | Haas           | Denmark            | 05/10/1992    | Roskilde, Denmark           | 120         | 2nd (×1)    |
+| LAT   | 6   | Nicholas Latifi   | Williams       | Canada             | 29/06/1995    | Montreal, Canada            | 17          | 11th (×3)   |
+| AIT   | 89  | Jack Aitken       | Williams       | United Kingdom     | —             | —                           | 1           | 16th (×1)   |
+| FIT   | 51  | Pietro Fittipaldi | Haas           | Brazil             | —             | —                           | 2           | 17th (×1)   |
+</div>
+  <figcaption class="mt-2 text-sm text-gray-500 dark:text-slate-400 text-center">
+  Σύνθεση οδηγών για τη σεζόν 2020, με εμπειρία καριέρας και καλύτερα αποτελέσματα.
+  </figcaption>
+</figure>
+
+## Ανάλυση Σεζόν 2020
+
+Ανάμεσα στις 17 πίστες, ο **Lewis Hamilton** ξεχώρισε με τον μεγαλύτερο αριθμό
+νικών, συμπεριλαμβανομένου ενός εντυπωσιακού σερί πέντε συνεχόμενων νικών από το
+**Grand Prix Eifel** έως το **Grand Prix Μπαχρέιν**. Ο ομόσταυλός του,
+**Valtteri Bottas**, σημείωσε επίσης δύο νίκες, συμβάλλοντας στις συνολικά 13
+νίκες της **Mercedes AMG Petronas**.
+
+Ο **Max Verstappen** πέτυχε δύο νίκες για τη **Red Bull Racing**, ενώ οι
+**Pierre Gasly** και **Sergio Pérez** σημείωσαν αξέχαστες νίκες στα
+**Monza** και **Sakhir**, αντίστοιχα.
+
+<figure class="my-8">
+  <div class="overflow-x-auto">
+| Grand Prix                     | Winner            | Constructor   | Race Time   | Fastest Lap | Grid Pos. |
+|--------------------------------|-------------------|---------------|-------------|-------------|----------:|
+| Austrian Grand Prix            | Valtteri Bottas   | Mercedes      | 1:30:55.739 | No          | 1         |
+| Styrian Grand Prix             | Lewis Hamilton    | Mercedes      | 1:22:50.683 | No          | 1         |
+| Hungarian Grand Prix           | Lewis Hamilton    | Mercedes      | 1:36:12.473 | Yes         | 1         |
+| British Grand Prix             | Lewis Hamilton    | Mercedes      | 1:28:01.283 | No          | 1         |
+| 70th Anniversary Grand Prix    | Max Verstappen    | Red Bull      | 1:19:41.993 | No          | 4         |
+| Spanish Grand Prix             | Lewis Hamilton    | Mercedes      | 1:31:45.279 | No          | 1         |
+| Belgian Grand Prix             | Lewis Hamilton    | Mercedes      | 1:24:08.761 | No          | 1         |
+| Italian Grand Prix             | Pierre Gasly      | AlphaTauri    | 1:47:06.056 | No          | 10        |
+| Tuscan Grand Prix              | Lewis Hamilton    | Mercedes      | 2:19:35.060 | Yes         | 1         |
+| Russian Grand Prix             | Valtteri Bottas   | Mercedes      | 1:34:00.364 | Yes         | 3         |
+| Eifel Grand Prix               | Lewis Hamilton    | Mercedes      | 1:35:49.641 | No          | 2         |
+| Portuguese Grand Prix          | Lewis Hamilton    | Mercedes      | 1:29:56.828 | Yes         | 1         |
+| Emilia Romagna Grand Prix      | Lewis Hamilton    | Mercedes      | 1:28:32.430 | Yes         | 2         |
+| Turkish Grand Prix             | Lewis Hamilton    | Mercedes      | 1:42:19.313 | No          | 6         |
+| Bahrain Grand Prix             | Lewis Hamilton    | Mercedes      | 2:59:47.515 | No          | 1         |
+| Sakhir Grand Prix              | Sergio Pérez      | Racing Point  | 1:31:15.114 | No          | 5         |
+| Abu Dhabi Grand Prix           | Max Verstappen    | Red Bull      | 1:36:28.645 | No          | 1         |
+</div>
+  <figcaption class="mt-2 text-sm text-gray-500 dark:text-slate-400 text-center">
+  Νικητές αγώνων της σεζόν 2020, με χρόνο αγώνα, ένδειξη ταχύτερου γύρου και θέση εκκίνησης.
+  </figcaption>
+</figure>
+
+Οι pole‑sitters κατάφεραν να διατηρήσουν την πρώτη θέση σε 10 αγώνες, με τον
+**Hamilton** να ηγείται με οκτώ επιτυχημένες άμυνες. Σε πέντε αγώνες, ο νικητής
+σημείωσε επίσης τον ταχύτερο γύρο, συγκεντρώνοντας το μέγιστο δυνατό αριθμό
+βαθμών.
+
+Μία από τις πιο δραματικές στιγμές της σεζόν σημειώθηκε στο **Grand Prix
+Μπαχρέιν**, όπου το
+[**σφοδρό ατύχημα του Romain Grosjean**](https://www.youtube.com/watch?v=7YMjw2sjXqU)
+στον πρώτο γύρο οδήγησε σε κόκκινη σημαία και διακοπή του αγώνα για περισσότερο
+από μία ώρα.
+
+## Βαθμοί, Βάθρα και Εγκαταλείψεις
+
+Συνολικά, 13 οδηγοί από επτά ομάδες ανέβηκαν στο βάθρο τουλάχιστον μία φορά.
+Η **Scuderia Ferrari** είχε μια δύσκολη σεζόν, καταγράφοντας μόλις τρία βάθρα,
+ενώ οι **Albon, Norris, Gasly** και **Ocon** πανηγύρισαν το πρώτο τους βάθρο
+στη Formula 1.
+
+<figure class="my-8 text-center">
+  <img
+    src="https://raw.githubusercontent.com/mpalaourg/F1_DataAnalysis/main/2020-Season/imgs/podium_finishes.png"
+    alt="Number of podium finishes per driver during the 2020 Formula 1 season"
+    class="mx-auto"
+  />
+  <figcaption class="mt-2 text-sm text-gray-500 dark:text-slate-400">
+    Βάθρα ανά οδηγό στη σεζόν 2020, αναδεικνύοντας την κυριαρχία του Hamilton και της Mercedes.
+  </figcaption>
+</figure>
+
+Κατά τη διάρκεια της σεζόν, 20 οδηγοί κατάφεραν να τερματίσουν τουλάχιστον μία
+φορά εντός βαθμών. Ο **Hamilton** κατέγραψε 16 τερματισμούς εντός δεκάδας σε 17
+αγώνες, απουσιάζοντας μόνο από το **Grand Prix Sakhir**.
+
+<figure class="my-8 text-center">
+  <img
+    src="https://raw.githubusercontent.com/mpalaourg/F1_DataAnalysis/main/2020-Season/imgs/point_finishes.png"
+    alt="Number of points‑scoring finishes per driver in the 2020 Formula 1 season"
+    class="mx-auto"
+  />
+  <figcaption class="mt-2 text-sm text-gray-500 dark:text-slate-400">
+    Συνολικός αριθμός τερματισμών εντός δεκάδας ανά οδηγό στη διάρκεια του πρωταθλήματος 2020.
+  </figcaption>
+</figure>
+
+Συνολικά καταγράφηκαν 57 εγκαταλείψεις (DNFs). Ο **Kevin Magnussen** είχε τις
+περισσότερες, με επτά εγκαταλείψεις, ενώ ο **Verstappen** ξεχώρισε, καθώς
+τερμάτισε στο βάθρο στους 11 από τους 12 αγώνες που ολοκλήρωσε.
+
+<figure class="my-8 text-center">
+  <img
+    src="https://raw.githubusercontent.com/mpalaourg/F1_DataAnalysis/main/2020-Season/imgs/dnfs.png"
+    alt="Number of race retirements (DNFs) per driver during the 2020 Formula 1 season"
+    class="mx-auto"
+  />
+  <figcaption class="mt-2 text-sm text-gray-500 dark:text-slate-400">
+    Κατανομή εγκαταλείψεων (DNFs) ανά οδηγό το 2020, αποτυπώνοντας την αξιοπιστία και τα περιστατικά κάθε οδηγού.
+  </figcaption>
+</figure>
+
+## Τελική Κατάταξη
+
+Ο **Lewis Hamilton** κατέκτησε τον **έβδομο παγκόσμιο τίτλο** της καριέρας του,
+ισοφαρίζοντας το ρεκόρ του **Michael Schumacher**. Η **Mercedes** κυριάρχησε
+ξανά στο Πρωτάθλημα Κατασκευαστών, τερματίζοντας με διαφορά άνω των 200 βαθμών από
+τη **Red Bull Racing**.
+
+<figure class="my-16">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+
+    <div class="overflow-x-auto">
+      <h4 class="text-center mb-2">(a) Κατάταξη Οδηγών</h4>
+
+| Pos. | Driver            | Constructor   | Points |
+|----:|-------------------|---------------|-------:|
+| 1 | Lewis Hamilton | Mercedes | 347 |
+| 2 | Valtteri Bottas | Mercedes | 223 |
+| 3 | Max Verstappen | Red Bull | 214 |
+| 4 | Sergio Pérez | Racing Point | 125 |
+| 5 | Daniel Ricciardo | Renault | 119 |
+| 6 | Alexander Albon | Red Bull | 105 |
+| 7 | Carlos Sainz | McLaren | 105 |
+| 8 | Charles Leclerc | Ferrari | 98 |
+| 9 | Lando Norris | McLaren | 97 |
+| 10 | Pierre Gasly | AlphaTauri | 75 |
+
+    </div>
+
+    <div class="overflow-x-auto">
+      <h4 class="text-center mb-2">(b) Κατάταξη Κατασκευαστών</h4>
+
+| Pos. | Constructor | Points |
+|----:|-------------|-------:|
+| 1 | Mercedes | 573 |
+| 2 | Red Bull | 319 |
+| 3 | McLaren | 202 |
+| 4 | Racing Point | 195 |
+| 5 | Renault | 181 |
+| 6 | Ferrari | 131 |
+| 7 | AlphaTauri | 107 |
+| 8 | Alfa Romeo | 8 |
+| 9 | Haas F1 Team | 3 |
+| 10 | Williams | 0 |
+
+    </div>
+
+  </div>
+
+  <figcaption class="mt-6 text-center text-sm text-gray-500 dark:text-slate-400">
+    Τελική κατάταξη του Παγκόσμιου Πρωταθλήματος Formula 1 2020: οδηγοί (a) και κατασκευαστές (b).
+  </figcaption>
+</figure>
+
+---
+
+_Σημείωση: Τα δεδομένα προέρχονται από το F1 Developer API (http://ergast.com/mrd/)._

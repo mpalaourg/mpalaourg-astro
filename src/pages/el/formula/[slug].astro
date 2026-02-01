@@ -1,9 +1,9 @@
 ---
-import BaseLayout from "../../layouts/BaseLayout.astro";
+import BaseLayout from "../../../layouts/BaseLayout.astro";
 import { getCollection } from "astro:content";
 
 export async function getStaticPaths() {
-  const seasons = await getCollection("formula");
+  const seasons = await getCollection("formula-el");
 
   return seasons.map((season) => ({
     params: { slug: season.slug },
@@ -17,7 +17,6 @@ const { Content } = await season.render();
 
 <BaseLayout title={`${season.data.title} | Formula`}>
   <article class="mx-auto px-6 py-12">
-    <!-- Article header -->
     <header class="mb-12">
       <div class="mx-auto max-w-6xl">
         {season.data.featuredImage && (
@@ -31,8 +30,9 @@ const { Content } = await season.render();
         <h1 class="text-4xl font-bold mb-2">
           {season.data.title}
         </h1>
+
         <p class="text-sm text-gray-500 dark:text-slate-400 mb-4">
-          Published on {season.data.date.toLocaleDateString("en-GB")}
+          Δημοσιεύθηκε στις {season.data.date.toLocaleDateString("el-GR")}
         </p>
 
         {season.data.external?.code && (
@@ -43,16 +43,16 @@ const { Content } = await season.render();
                    border-gray-300 dark:border-gray-700
                    hover:bg-gray-100 dark:hover:bg-slate-800"
           >
-            Code
+            Κώδικας
           </a>
         )}
       </div>
     </header>
 
-    <!-- Article body -->
     <div class="mx-auto max-w-6xl">
       <div
-        class="prose prose-neutral prose-tight max-w-none dark:prose-invert text-justify
+        class="prose prose-neutral prose-tight max-w-none
+               dark:prose-invert text-justify
                dark:prose-headings:text-slate-100
                dark:prose-p:text-slate-300"
       >

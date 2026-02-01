@@ -1,0 +1,259 @@
+---
+title: Lewis's record‑breaking year
+summary: Challenging season, Covid‑19 limiting spectators, Hamilton's seventh title.
+date: 2020-12-14
+featuredImage: /formula/2020-season/featured.png
+tags:
+  - formula1
+  - lewis-hamilton
+external:
+  code: https://github.com/mpalaourg/F1_DataAnalysis/blob/main/2020-Season/Season%20Analysis.ipynb
+---
+
+The 2020 Formula 1 season was significantly impacted by the global spread of the
+Covid‑19 virus. The season, originally scheduled to begin in March, was postponed
+for several months until July. The first eight rounds of the Championship were
+held without spectators, and the remaining races were either run with limited
+capacity or behind closed doors due to the second wave of the pandemic.
+
+## Race Calendar
+
+The season witnessed several significant developments. The **Australian Grand
+Prix**, scheduled to be the season opener, was canceled just hours before the
+first FP session. Other notable cancellations included the **Vietnam Grand Prix
+at Hanoi Street Circuit** and the **Netherlands Grand Prix at Zandvoort**, which
+was set to return after a hiatus of more than 30 years.
+
+Initially, the calendar featured eight European tracks, but as time progressed,
+more circuits were added. New venues such as **Mugello (Tuscany GP)** and
+**Algarve (Portugal GP)** made their debut, while iconic circuits like
+**Nürburgring**, **Imola**, and **Istanbul Park** returned.
+
+An interesting aspect of the season was the hosting of multiple Grands Prix on
+the same track. **Red Bull Ring**, **Silverstone**, and **Bahrain** each hosted
+two races under different names.
+
+Overall, the 2020 season comprised 17 Grands Prix.
+
+<figure class="my-8">
+  <div class="overflow-x-auto">
+| Round | Grand Prix          | Country       | City        | Circuit                          | Date        | Length (km) | Laps |
+|------:|---------------------|---------------|-------------|----------------------------------|-------------|-------------:|-----:|
+| 1     | Austrian            | Austria       | Spielberg   | Red Bull Ring                    | 5 Jul 2020  | 4.318        | 71   |
+| 2     | Styrian             | Austria       | Spielberg   | Red Bull Ring                    | 12 Jul 2020 | 4.318        | 71   |
+| 3     | Hungarian           | Hungary       | Budapest    | Hungaroring                      | 19 Jul 2020 | 4.381        | 70   |
+| 4     | British             | Great Britain | Silverstone | Silverstone Circuit              | 2 Aug 2020  | 5.891        | 52   |
+| 5     | 70th Anniversary    | Great Britain | Silverstone | Silverstone Circuit              | 9 Aug 2020  | 5.891        | 52   |
+| 6     | Spanish             | Spain         | Barcelona   | Circuit de Barcelona‑Catalunya   | 16 Aug 2020 | 4.655        | 66   |
+| 7     | Belgian             | Belgium       | Spa         | Circuit de Spa‑Francorchamps     | 30 Aug 2020 | 7.004        | 44   |
+| 8     | Italian             | Italy         | Monza       | Autodromo Nazionale Monza        | 6 Sep 2020  | 5.793        | 53   |
+| 9     | Tuscan              | Italy         | Mugello     | Mugello Circuit                  | 13 Sep 2020 | 5.245        | 59   |
+| 10    | Russian             | Russia        | Sochi       | Sochi Autodrom                   | 27 Sep 2020 | 5.848        | 53   |
+| 11    | Eifel               | Germany       | Nürburg     | Nürburgring                      | 11 Oct 2020 | 5.148        | 60   |
+| 12    | Portuguese          | Portugal      | Portimão    | Autódromo Internacional do Algarve | 25 Oct 2020 | 4.653        | 66   |
+| 13    | Emilia Romagna      | Italy         | Imola       | Autodromo Enzo e Dino Ferrari    | 1 Nov 2020  | 4.909        | 63   |
+| 14    | Turkish             | Turkey        | Istanbul    | Intercity Istanbul Park          | 15 Nov 2020 | 5.338        | 58   |
+| 15    | Bahrain             | Bahrain       | Sakhir      | Bahrain International Circuit   | 29 Nov 2020 | 5.412        | 57   |
+| 16    | Sakhir              | Bahrain       | Sakhir      | Bahrain Int. Circuit (Outer)     | 6 Dec 2020  | 3.543        | 87   |
+| 17    | Abu Dhabi           | UAE           | Yas Island  | Yas Marina Circuit               | 13 Dec 2020 | 5.554        | 55   |
+</div>
+  <figcaption class="mt-2 text-sm text-gray-500 dark:text-slate-400 text-center">
+    2020 Formula 1 race calendar including venues, circuit characteristics, and race distances.
+  </figcaption>
+</figure>
+
+## Drivers and Constructors
+
+The grid consisted of 10 teams and 23 drivers, including three reserve drivers.
+Compared to 2019, several notable changes took place:
+
+- **Esteban Ocon** replaced **Nico Hülkenberg** at Renault
+- **Nicholas Latifi** replaced **Robert Kubica** at Williams
+- **Toro Rosso** was rebranded as **AlphaTauri**
+- **Mercedes AMG Petronas** adopted a black livery in 2020
+
+Throughout the season, **Nico Hülkenberg** was called by **Racing Point** three
+times as a replacement for drivers who contracted Covid‑19. Additionally,
+**Jack Aitken** and **Pietro Fittipaldi** made their Formula 1 debuts.
+
+<figure class="my-8">
+  <div class="overflow-x-auto">
+| Abbr. | No. | Driver            | Team           | Nationality        | Date of Birth | Place of Birth              | GPs Entered | Best Finish |
+|:-----:|----:|-------------------|----------------|--------------------|---------------|-----------------------------|------------:|------------:|
+| HAM   | 44  | Lewis Hamilton    | Mercedes       | United Kingdom     | 07/01/1985    | Stevenage, England          | 266         | 1st (×95)   |
+| BOT   | 77  | Valtteri Bottas   | Mercedes       | Finland            | 28/08/1989    | Nastola, Finland            | 157         | 1st (×9)    |
+| VER   | 33  | Max Verstappen    | Red Bull       | Netherlands        | 30/09/1997    | Hasselt, Belgium            | 119         | 1st (×10)   |
+| PER   | 11  | Sergio Pérez      | Racing Point   | Mexico             | 26/01/1990    | Guadalajara, Mexico         | 193         | 1st (×1)    |
+| RIC   | 3   | Daniel Ricciardo  | Renault        | Australia          | 01/07/1989    | Perth, Australia            | 188         | 1st (×7)    |
+| SAI   | 55  | Carlos Sainz      | McLaren        | Spain              | 01/09/1994    | Madrid, Spain               | 119         | 2nd (×1)    |
+| ALB   | 23  | Alexander Albon   | Red Bull       | Thailand           | 23/03/1996    | London, England             | 38          | 3rd (×2)    |
+| LEC   | 16  | Charles Leclerc   | Ferrari        | Monaco             | 16/10/1997    | Monte Carlo, Monaco         | 59          | 1st (×2)    |
+| NOR   | 4   | Lando Norris      | McLaren        | United Kingdom     | 13/11/1999    | Bristol, England            | 38          | 3rd (×1)    |
+| GAS   | 10  | Pierre Gasly      | AlphaTauri     | France             | 07/02/1996    | Rouen, France               | 64          | 1st (×1)    |
+| STR   | 18  | Lance Stroll      | Racing Point   | Canada             | 29/10/1998    | Montreal, Canada            | 78          | 3rd (×3)    |
+| OCO   | 31  | Esteban Ocon      | Renault        | France             | 17/09/1996    | Évreux, France              | 67          | 2nd (×1)    |
+| VET   | 5   | Sebastian Vettel  | Ferrari        | Germany            | 03/07/1987    | Heppenheim, Germany         | 258         | 1st (×53)   |
+| KVY   | 26  | Daniil Kvyat      | AlphaTauri     | Russia             | 26/04/1994    | Ufa, Russia                 | 112         | 2nd (×1)    |
+| HUL   | 27  | Nico Hülkenberg   | Racing Point   | Germany            | 19/08/1987    | Emmerich am Rhein, Germany  | 182         | 4th (×3)    |
+| RAI   | 7   | Kimi Räikkönen    | Alfa Romeo     | Finland            | 17/10/1979    | Espoo, Finland              | 332         | 1st (×21)   |
+| GIO   | 99  | Antonio Giovinazzi| Alfa Romeo     | Italy              | 14/12/1993    | Martina Franca, Italy       | 40          | 5th (×1)    |
+| RUS   | 63  | George Russell    | Williams       | United Kingdom     | 15/02/1998    | King’s Lynn, England        | 38          | 9th (×1)    |
+| GRO   | 8   | Romain Grosjean   | Haas           | France             | 17/04/1986    | Geneva, Switzerland         | 181         | 2nd (×2)    |
+| MAG   | 20  | Kevin Magnussen   | Haas           | Denmark            | 05/10/1992    | Roskilde, Denmark           | 120         | 2nd (×1)    |
+| LAT   | 6   | Nicholas Latifi   | Williams       | Canada             | 29/06/1995    | Montreal, Canada            | 17          | 11th (×3)   |
+| AIT   | 89  | Jack Aitken       | Williams       | United Kingdom     | —             | —                           | 1           | 16th (×1)   |
+| FIT   | 51  | Pietro Fittipaldi | Haas           | Brazil             | —             | —                           | 2           | 17th (×1)   |
+</div>
+  <figcaption class="mt-2 text-sm text-gray-500 dark:text-slate-400 text-center">
+    Driver lineup for the 2020 Formula 1 season, including career experience and best race results.
+  </figcaption>
+</figure>
+
+## 2020 Season Analysis
+
+Among the 17 tracks, **Lewis Hamilton** stood out with the highest number of wins,
+including an impressive five‑race winning streak from the **Eifel GP** to the
+**Bahrain GP**. His teammate **Valtteri Bottas** crossed the finish line first
+twice, contributing to **Mercedes AMG Petronas**’ total of 13 victories.
+
+**Max Verstappen** secured two wins for **Red Bull Racing**, while **Pierre
+Gasly** and **Sergio Pérez** claimed memorable victories at **Monza** and
+**Sakhir**, respectively.
+
+<figure class="my-8">
+  <div class="overflow-x-auto">
+| Grand Prix                     | Winner            | Constructor   | Race Time   | Fastest Lap | Grid Pos. |
+|--------------------------------|-------------------|---------------|-------------|-------------|----------:|
+| Austrian Grand Prix            | Valtteri Bottas   | Mercedes      | 1:30:55.739 | No          | 1         |
+| Styrian Grand Prix             | Lewis Hamilton    | Mercedes      | 1:22:50.683 | No          | 1         |
+| Hungarian Grand Prix           | Lewis Hamilton    | Mercedes      | 1:36:12.473 | Yes         | 1         |
+| British Grand Prix             | Lewis Hamilton    | Mercedes      | 1:28:01.283 | No          | 1         |
+| 70th Anniversary Grand Prix    | Max Verstappen    | Red Bull      | 1:19:41.993 | No          | 4         |
+| Spanish Grand Prix             | Lewis Hamilton    | Mercedes      | 1:31:45.279 | No          | 1         |
+| Belgian Grand Prix             | Lewis Hamilton    | Mercedes      | 1:24:08.761 | No          | 1         |
+| Italian Grand Prix             | Pierre Gasly      | AlphaTauri    | 1:47:06.056 | No          | 10        |
+| Tuscan Grand Prix              | Lewis Hamilton    | Mercedes      | 2:19:35.060 | Yes         | 1         |
+| Russian Grand Prix             | Valtteri Bottas   | Mercedes      | 1:34:00.364 | Yes         | 3         |
+| Eifel Grand Prix               | Lewis Hamilton    | Mercedes      | 1:35:49.641 | No          | 2         |
+| Portuguese Grand Prix          | Lewis Hamilton    | Mercedes      | 1:29:56.828 | Yes         | 1         |
+| Emilia Romagna Grand Prix      | Lewis Hamilton    | Mercedes      | 1:28:32.430 | Yes         | 2         |
+| Turkish Grand Prix             | Lewis Hamilton    | Mercedes      | 1:42:19.313 | No          | 6         |
+| Bahrain Grand Prix             | Lewis Hamilton    | Mercedes      | 2:59:47.515 | No          | 1         |
+| Sakhir Grand Prix              | Sergio Pérez      | Racing Point  | 1:31:15.114 | No          | 5         |
+| Abu Dhabi Grand Prix           | Max Verstappen    | Red Bull      | 1:36:28.645 | No          | 1         |
+</div>
+  <figcaption class="mt-2 text-sm text-gray-500 dark:text-slate-400 text-center">
+    Race winners of the 2020 Formula 1 season, including race time, fastest‑lap bonus, and starting grid position.
+  </figcaption>
+</figure>
+
+Pole‑sitters successfully defended their positions in 10 races, with **Hamilton**
+leading the way with eight successful defenses. In five races, the winner also
+set the fastest lap, collecting the maximum available points.
+
+One of the most dramatic moments of the season occurred at the **Bahrain GP**,
+where [**Romain Grosjean’s horrific accident**](https://www.youtube.com/watch?v=7YMjw2sjXqU)
+on lap 1 led to a red flag and halted the race for more than one hour.
+
+## Points, Podiums and DNFs
+
+A total of 13 drivers from seven teams achieved podium finishes. **Scuderia
+Ferrari** endured a challenging season with only three podiums, while **Albon,
+Norris, Gasly**, and **Ocon** celebrated their first Formula 1 podiums.
+
+<figure class="my-8 text-center">
+  <img
+    src="https://raw.githubusercontent.com/mpalaourg/F1_DataAnalysis/main/2020-Season/imgs/podium_finishes.png"
+    alt="Number of podium finishes per driver during the 2020 Formula 1 season"
+    class="mx-auto"
+  />
+  <figcaption class="mt-2 text-sm text-gray-500 dark:text-slate-400">
+    Podium finishes per driver in the 2020 season, highlighting the dominance of Hamilton and Mercedes.
+  </figcaption>
+</figure>
+
+Throughout the season, 20 drivers scored at least one points finish. **Hamilton**
+recorded 16 point‑finishes in 17 races, missing only the **Sakhir GP**.
+
+<figure class="my-8 text-center">
+  <img
+    src="https://raw.githubusercontent.com/mpalaourg/F1_DataAnalysis/main/2020-Season/imgs/point_finishes.png"
+    alt="Number of points‑scoring finishes per driver in the 2020 Formula 1 season"
+    class="mx-auto"
+  />
+  <figcaption class="mt-2 text-sm text-gray-500 dark:text-slate-400">
+    Total number of top‑10 finishes per driver across the 2020 championship.
+  </figcaption>
+</figure>
+
+A total of 57 DNFs were recorded. **Kevin Magnussen** led the count with seven
+retirements, while **Verstappen** stood out by finishing on the podium in 11 of
+the 12 races he completed.
+
+<figure class="my-8 text-center">
+  <img
+    src="https://raw.githubusercontent.com/mpalaourg/F1_DataAnalysis/main/2020-Season/imgs/dnfs.png"
+    alt="Number of race retirements (DNFs) per driver during the 2020 Formula 1 season"
+    class="mx-auto"
+  />
+  <figcaption class="mt-2 text-sm text-gray-500 dark:text-slate-400">
+    Distribution of DNFs among drivers in 2020, reflecting reliability and incident rates.
+  </figcaption>
+</figure>
+
+## Final Standings
+
+**Lewis Hamilton** secured his **seventh World Championship**, equalling
+**Michael Schumacher’s** record. **Mercedes** dominated the Constructors’
+Championship once again, finishing more than 200 points ahead of
+**Red Bull Racing**.
+
+<figure class="my-16">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+
+    <div class="overflow-x-auto">
+      <h4 class="text-center mb-2">(a) Drivers</h4>
+
+| Pos. | Driver            | Constructor   | Points |
+|----:|-------------------|---------------|-------:|
+| 1 | Lewis Hamilton | Mercedes | 347 |
+| 2 | Valtteri Bottas | Mercedes | 223 |
+| 3 | Max Verstappen | Red Bull | 214 |
+| 4 | Sergio Pérez | Racing Point | 125 |
+| 5 | Daniel Ricciardo | Renault | 119 |
+| 6 | Alexander Albon | Red Bull | 105 |
+| 7 | Carlos Sainz | McLaren | 105 |
+| 8 | Charles Leclerc | Ferrari | 98 |
+| 9 | Lando Norris | McLaren | 97 |
+| 10 | Pierre Gasly | AlphaTauri | 75 |
+
+    </div>
+
+    <div class="overflow-x-auto">
+      <h4 class="text-center mb-2">(b) Constructors</h4>
+
+| Pos. | Constructor | Points |
+|----:|-------------|-------:|
+| 1 | Mercedes | 573 |
+| 2 | Red Bull | 319 |
+| 3 | McLaren | 202 |
+| 4 | Racing Point | 195 |
+| 5 | Renault | 181 |
+| 6 | Ferrari | 131 |
+| 7 | AlphaTauri | 107 |
+| 8 | Alfa Romeo | 8 |
+| 9 | Haas F1 Team | 3 |
+| 10 | Williams | 0 |
+
+    </div>
+
+  </div>
+
+  <figcaption class="mt-6 text-center text-sm text-gray-500 dark:text-slate-400">
+    Final standings of the 2020 Formula 1 World Championship: drivers (a) and constructors (b).
+  </figcaption>
+</figure>
+
+---
+
+_Note: The data is compiled from the F1 Developer API (http://ergast.com/mrd/)._
