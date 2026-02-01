@@ -1,0 +1,134 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+import { getReadingTime } from "../../utils/readingTime";
+
+export const prerender = false;
+
+// Only EN formula posts
+const allPosts = await getCollection("formula");
+
+// Sort newest first
+const posts = allPosts.sort(
+  (a, b) => b.data.date.getTime() - a.data.date.getTime()
+);
+
+// Filters
+const activeTag = Astro.url.searchParams.get("tag");
+const activeYear = Astro.url.searchParams.get("year");
+const isActiveYear = (year) => activeYear === year;
+const buildUrl = (params) => {
+  const sp = new URLSearchParams(Astro.url.searchParams);
+  Object.entries(params).forEach(([k, v]) =>
+    v ? sp.set(k, v) : sp.delete(k)
+  );
+  return `/formula?${sp.toString()}`;
+};
+
+const filteredPosts = posts.filter((post) => {
+  const matchesTag = activeTag
+    ? post.data.tags?.includes(activeTag)
+    : true;
+
+  const postYear = post.slug.split("-")[0];
+  const matchesYear = activeYear
+    ? postYear === activeYear
+    : true;
+
+  return matchesTag && matchesYear;
+});
+---
+
+<BaseLayout title="Formula 1 | Georgios Balaouras">
+  <main class="mx-auto max-w-6xl px-6 py-12">
+    <h1 class="text-4xl font-bold mb-6">Formula 1</h1>
+
+   <div class="flex gap-4 mb-10">
+    {["2022", "2021", "2020"].map((year) => (
+        <a
+        href={buildUrl({ year })}
+        class={`px-3 py-1 rounded-md border text-sm
+            ${
+            isActiveYear(year)
+                ? "bg-slate-900 text-white dark:bg-white dark:text-black"
+                : "border-gray-300 dark:border-gray-700"
+            }`}
+        >
+        {year}
+        </a>
+    ))}
+    {(activeYear || activeTag) && (
+        <a
+        href="/formula"
+        class="ml-4 text-sm text-slate-400 hover:underline"
+        >
+        Clear filters
+        </a>
+    )}
+    </div>
+
+    <div class="grid grid-cols-1 gap-12 md:grid-cols-2">
+      {filteredPosts.map((post) => {
+        const minutes = getReadingTime(post.body);
+
+        return (
+        <article
+            class="group grid grid-cols-1 gap-6 rounded-xl
+                    transition-all hover:bg-slate-800/40
+                    md:grid-cols-[240px_1fr]"
+        >
+          {post.data.featuredImage && (
+            <a href={`/formula/${post.slug}`}>
+                <img
+                src={post.data.featuredImage}
+                alt={post.data.title}
+                class="h-full w-full rounded-lg object-cover"
+                />
+            </a>
+          )}
+
+          <div class="flex flex-col justify-between py-2">
+            <div>
+                <h2 class="text-2xl font-semibold mb-2 group-hover:underline">
+                    <a href={`/formula/${post.slug}`}>
+                        {post.data.title}
+                    </a>
+                </h2>
+
+            <p class="text-slate-400 mb-4">
+              {post.data.summary}
+            </p>
+
+            <div class="flex flex-wrap items-center gap-3 text-sm text-slate-400">
+                <span>{minutes} min read</span>
+
+                {post.data.tags?.map((tag) => (
+                    <a href={buildUrl({ tag })}
+                    class={`rounded-md px-2 py-0.5
+                        ${
+                        activeTag === tag
+                            ? "bg-white text-slate-900"
+                            : "bg-slate-700 hover:bg-slate-600"
+                        }`}
+                    >
+                    #{tag}
+                    </a>
+                ))}
+            </div>
+
+            {post.data.external?.code && (
+                <a
+                    href={post.data.external.code}
+                    target="_blank"
+                    class="mt-4 inline-block w-fit rounded-md px-3 py-1 text-sm
+                        bg-slate-700 hover:bg-slate-600"
+                >
+                    Code
+                </a>
+            )}
+          </div>
+        </article>
+      )})}
+    </div>
+  </main>
+</BaseLayout>

@@ -22,6 +22,7 @@ const formulaEl = defineCollection({
     title: z.string(),
     summary: z.string(),
     date: z.date(),
+    season: z.number(),
     featuredImage: z.string().optional(),
     tags: z.array(z.string()).optional(),
     external: z
