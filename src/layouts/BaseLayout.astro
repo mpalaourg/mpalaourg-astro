@@ -43,14 +43,21 @@ const elPath = isEl ? pathname : `/el${pathname}`;
         <nav class="flex items-center gap-4 text-sm">
             <a
                 href="/formula"
-                class="text-gray-700 hover:text-black
+                class="text-gray-600 hover:text-gray-900
                     dark:text-gray-300 dark:hover:text-white"
             >
                 Formula
             </a>
             <a
-                href="/about"
-                class="text-gray-700 hover:text-black
+                href="/publications"
+                class="text-gray-600 hover:text-gray-900
+                    dark:text-gray-300 dark:hover:text-white"
+            >
+                {isEl ? "Δημοσιεύσεις" : "Publications"}
+            </a>
+            <a
+                href={isEl ? "/el/about" : "/about"}
+                class="text-gray-600 hover:text-gray-900
                     dark:text-gray-300 dark:hover:text-white"
             >
                 About

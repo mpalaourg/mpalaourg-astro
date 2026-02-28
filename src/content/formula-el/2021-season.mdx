@@ -1,6 +1,6 @@
 ---
-title: A new F1 World Champion
-summary: Intense battles, Verstappen vs Hamilton, Max clinches his first championship.
+title: Ένας νέος Παγκόσμιος Πρωταθλητής στη Formula 1
+summary: Έντονες μάχες, Verstappen εναντίον Hamilton, ο Max κατακτά τον πρώτο τίτλο του.
 date: 2021-12-13
 season: 2021
 featuredImage: /formula/2021-season/featured.png
@@ -12,4 +12,207 @@ external:
   code: https://github.com/mpalaourg/F1_DataAnalysis/blob/main/2021-Season/Season%20Analysis.ipynb
 ---
 
-Placeholder
+Η σεζόν 2021 στη Formula 1 περιελάμβανε μια συναρπαστική μάχη για το πρωτάθλημα ανάμεσα στον **Verstappen** και τον **Hamilton**. Οι δύο οδηγοί εναλλάσσονταν στην κορυφή της βαθμολογίας πολλές φορές κατά τη διάρκεια της σεζόν, δημιουργώντας μια συναρπαστική μάχη. Ειδικότερα, συμμετείχαν σε σημαντικά ατυχήματα στα **Grand Prix της Μεγάλης Βρετανίας, Ουγγαρίας** και **Ιταλίας**, προσθέτοντας ακόμα περισσότερη ένταση στον ανταγωνισμό τους. Παρά τις προκλήσεις που προέκυψαν από τον Covid-19, η σεζόν του 2021 στη Formula 1 παρέδωσε συναρπαστικά σαββατοκύριακα γεμάτα με έντονες δράσεις, κρατώντας τους θεατές με κομμένη την ανάσα.
+
+## Ημερολόγιο Αγώνων
+
+Όπως φαίνεται παρακάτω, το ημερολόγιο αγώνων του 2021 περιλάμβανε μια συναρπαστική σειρά από 22 αγώνες σε 20 χώρες. Ειδικά, η Ιταλία φιλοξένησε δύο συναρπαστικούς αγώνες, αρχίζοντας από την **Imola** για το **Emilia Romagna Grand Prix**, ακολουθώντας με τη μυθική **Monza**, γνωστή ως τον Ναό της Ταχύτητας. Επιπλέον, το **Red Bull Ring** φιλοξένησε τόσο το **Αυστριακό Grand Prix** όσο και το **Grand Prix της Στυρίας**. Η σεζόν καλωσόρισε επίσης δύο νέες πίστες, τα **Grand Prix του Κατάρ** και **της Σαουδικής Αραβίας**, προσθέτοντας ακόμα περισσότερο ενδιαφέρον στο πρωτάθλημα.
+
+<figure class="my-8 text-center">
+  <img
+    src="https://raw.githubusercontent.com/mpalaourg/F1_DataAnalysis/main/2021-Season/imgs/calendar.png"
+    alt="2021 calendar"
+    class="mx-auto"
+  />
+  <figcaption class="mt-2 text-sm text-gray-500 dark:text-slate-400">
+    Αγωνιστικό ημερολόγιο Formula 1 2021 με πίστες σε 20 χώρες.
+  </figcaption>
+</figure>
+
+## Οδηγοί και Κατασκευαστές
+
+Το grid του 2021 απαρτίζοταν από 10 ομάδες και 21 οδηγούς, προσμετρώντας έναν επιπλέληρωματικόον αναπ οδηγό. Σημαντικές αλλαγές από την προηγούμενη σεζόν περιλάμβαναν:
+
+- Η **Racing Point** μετονομάστηκε σε **Aston Martin**, χρησιμοποιώντας σκούρα πράσινα χρώματα.
+- Η **Renault** παρουσιάστηκε ως **Alpine** υιοθετώντας μια μπλε εμφάνιση.
+- Ο **Sergio Perez** προσχώρησε στη **Red Bull Racing**, αντικαθιστώντας τον **Alexander Albon**.
+- Ο **Carlos Sainz** μετακόμισε από τη **McLaren** στη **Ferrari** για να συνεργαστεί με τον **Charles Leclerc**.
+- Ο **Sebastian Vettel** (4x Παγκόσμιος Πρωταθλητής) προσχώρησε στη **Aston Martin** μαζί με τον **Lance Stroll**.
+- Ο **Daniel Ricciardo** αποχώρησε από τη **Renault** και προσχώρησε στη **McLaren** μαζί με τον **Lando Norris**.
+- Ο **Fernando Alonso** (2x Παγκόσμιος Πρωταθλητής) επέστρεψε στην Formula 1 με τη **Alpine**.
+- Ο **Pierre Gasly** παρέμεινε στη **AlphaTauri**, τώρα συνοδευόμενος από τον rookie **Yuki Tsunoda**.
+- Η **Haas** υποδέχθηκε τους rookie **Mick Schumacher** και **Nikita Mazepin**.
+
+Ο **Robert Kubica** αγωνίστηκε σε δύο αγώνες για τη **Alfa Romeo**, αντικαθιστώντας τον **Kimi Raikkönen** που βρέθηκε θετικός στον κορωνοϊό.
+
+<figure class="my-8 text-center">
+  <img
+    src="https://raw.githubusercontent.com/mpalaourg/F1_DataAnalysis/main/2021-Season/imgs/drivers.png"
+    alt="2021 drivers"
+    class="mx-auto"
+  />
+  <figcaption class="mt-2 text-sm text-gray-500 dark:text-slate-400">
+    Πλήρης σύνθεση οδηγών για τη σεζόν 2021 της Formula 1.
+  </figcaption>
+</figure>
+
+## Ανάλυση σεζόν 2021
+
+Η σεζόν αυτή ήταν γεμάτη με συναρπαστικές στιγμές, καθώς έξι διαφορετικοί οδηγοί κατάφεραν να κερδίσουν αγώνες, πολλοί από αυτούς ξεκινώντας από την πρώτη σειρά εκκίνησης. Εντυπωσιακοί θρίαμβοι περιλάμβαναν την εντυπωσιακή νίκη του **Esteban Ocon** από την 8η θέση στον **Ουγγρικό Grand Prix**, και την εκπληκτική εμφάνιση του **Lewis Hamilton** που ξεκίνησε από την 10η θέση στον **Grand Prix της Βραζιλίας**. Ο **Max Verstappen** και ο **Lewis Hamilton** έντυσαν τη σεζόν με μια καθηλωτική αντιπαράθεση, κατακτώντας 10 και 8 νίκες αντίστοιχα. Ο **Sergio Perez** πρόσθεσε στον ενθουσιασμό με τη δεύτερη νίκη της καριέρας του, ενώ η νίκη του **Ocon** βοηθήθηκε από την μαεστρία του **Fernando Alonso** που υπερασπίστηκε θαυμάσια τη θέση του απέναντι στον **Hamilton**. Η νίκη του **Daniel Ricciardo** στη **Monza** ήταν ιστορική για τη **McLaren**, σηματοδοτώντας την πρώτη τους νίκη μετά από εννέα χρόνια και μια μακρά αναμονή για ένα 1-2 φινάλε, τερματίζοντας την αφλογιστία τους από το 2010. Η σεζόν αυτή έδειξε τον σφοδρό ανταγωνισμό και την απρόβλεπτη φύση που χαρακτηρίζει την Formula 1, με τους οδηγούς να επιδεικνύουν τις δεξιότητές τους και την αποφασιστικότητά τους από διάφορες θέσεις εκκίνησης.
+
+<figure class="my-8 text-center">
+  <img
+    src="https://raw.githubusercontent.com/mpalaourg/F1_DataAnalysis/main/2021-Season/imgs/race_winners.png"
+    alt="2021 race winners"
+    class="mx-auto"
+  />
+  <figcaption class="mt-2 text-sm text-gray-500 dark:text-slate-400">
+    Νικητές αγώνων της σεζόν 2021 της Formula 1.
+  </figcaption>
+</figure>
+
+Το βάθρο είναι η απόλυτη ανταμοιβή για τους οδηγούς, επιτρέποντάς τους να γιορτάσουν τον σκληρό τους κόπο και αυτόν των ομάδων τους. Αναλύοντας την εικόνα παρακάτω, γίνεται εμφανές ότι ο **Max Verstappen** και ο **Lewis Hamilton** κυριάρχησαν στην σεζόν με 18 και 17 βάθρα, αντίστοιχα. Επιπλέον, ο **George Russell** πέτυχε το πρώτο του βάθρο στην Formula 1 κατά το **Grand Prix του Βελγίου**, με την επιστροφή του διπλού Παγκόσμιου Πρωταθλητή **Fernando Alonso** στο βάθρο κατά το **Grand Prix του Κατάρ** να αποτελεί μια ακόμα σημαντική στιγμή.
+
+<figure class="my-8 text-center">
+  <img
+    src="https://raw.githubusercontent.com/mpalaourg/F1_DataAnalysis/main/2021-Season/imgs/podium_finishes.png"
+    alt="2021 podium finishes"
+    class="mx-auto"
+  />
+  <figcaption class="mt-2 text-sm text-gray-500 dark:text-slate-400">
+    Βάθρα ανά οδηγό στη σεζόν 2021.
+  </figcaption>
+</figure>
+
+Η εξασφάλιση βαθμών τερματίζοντας στις δέκα πρώτες θέσεις είναι ένα σημαντικό ορόσημο τόσο για τους οδηγούς όσο και για τις ομάδες κατά τη διάρκεια των αγωνιστικών σαββατοκύριακων. Εκπληκτικά, κάθε οδηγός, με εξαίρεση τους rookie οδηγούς της **Haas**, **Mick Schumacher** και **Nikita Mazepin**, κατάφερε να σημειώσει τουλάχιστον έναν βαθμό κατά τη σεζόν αυτή. Οι **Lewis Hamilton, Lando Norris** και **Carlos Sainz** αναδείχτηκαν πρώτοι στην απόδοση βαθμών, συγκεντρώνοντας βαθμούς σε 20 διαφορετικούς αγώνες, ακολουθούμενοι στενά από τον **Max Verstappen** με 19. Ο συμπαίκτης του **Verstappen, Sergio Perez**, τερμάτισε στις δέκα κορυφαίες θέσεις με συνέπεια 16 φορές, ενώ ο **Charles Leclerc** βρέθηκε μεταξύ των δύο οδηγών της **Red Bull**, με 18 τερματισμούς. Στην άλλη άκρη του φάσματος, ο **George Russell** και ο **Kimi Räikkönen** ηγήθηκαν για τις ομάδες τους, **Williams** και **Alfa Romeo**, αντίστοιχα, ενώ οι ομάδες τους συγκέντρωσαν βαθμούς σε αρκετούς αγώνες.
+
+<figure class="my-8 text-center">
+  <img
+    src="https://raw.githubusercontent.com/mpalaourg/F1_DataAnalysis/main/2021-Season/imgs/point_finishes.png"
+    alt="2021 point finishes"
+    class="mx-auto"
+  />
+  <figcaption class="mt-2 text-sm text-gray-500 dark:text-slate-400">
+    Τερματισμοί εντός βαθμών ανά οδηγό το 2021.
+  </figcaption>
+</figure>
+
+Μία από τις προσθήκες στη σεζόν 2021 της Formula 1 ήταν το Sprint Qualifying. Αυτό το φορματ περιλάμβανε ένα Quallifying Session την Παρασκευή που καθόριζε το grid για το Sprint Qualifying, με το αποτέλεσμα του τελευταίου να καθορίζει το grid εκκίνησης για τον κυριακάτικο αγώνα. Τρία Sprint σαββατοκύριακα πραγματοποιήθηκαν στις πίστες των **Silverstone, Monza** και **São Paulo**, όπου οι οδηγοί που τερμάτισαν στις τρεις πρώτες θέσεις βραβεύτηκαν με 3, 2 και 1 βαθμό αντίστοιχα.
+
+Σύμφωνα με το παρεχόμενο γράφημα, μόνο πέντε οδηγοί απόλαυσαν τα οφέλη των Sprint Qualifying session. Οι **Valtteri Bottas** και **Max Verstappen** κατάφεραν να κερδίσουν 7 βαθμούς, ενώ ο **Lewis Hamilton** κατάφερε να κατακτήσει μόνο 2. Ο **Daniel Ricciardo** και ο **Carlos Sainz** ήταν οι άλλοι οδηγοί που σκόραραν, περιορίζοντας όμως σε έναν βαθμό έκαστος. Μια ιδιαίτερα ενδιαφέρουσα στιγμή συνέβη στη Βραζιλία, όπου ο **Hamilton** ξεκίνησε το Sprint Qualifying τελευταίος, αλλά πραγματοποίησε μια εντυπωσιακή ανόδο στον αγώνα των 24 γύρων, τερματίζοντας τελικά στην 5η θέση. Αυτή η επίδοση ήταν κρίσιμη για τον **Hamilton** για να διατηρήσει τις ελπίδες του για τον τίτλο πρωταθλητή κόντρα στον **Verstappen** ζωντανές. Ωστόσο, η επιτυχία του **Hamilton** στο Sprint Qualifying περιορίστηκε από την ποινή των 5 θέσεων στο grid για τον κύριο αγώνα λόγω της χρήσης επιπλέον μονάδων ισχύος.
+
+<figure class="my-8 text-center">
+  <img
+    src="https://raw.githubusercontent.com/mpalaourg/F1_DataAnalysis/main/2021-Season/imgs/sprint_points.png"
+    alt="2021 sprint points"
+    class="mx-auto"
+  />
+  <figcaption class="mt-2 text-sm text-gray-500 dark:text-slate-400">
+    Βαθμοί από τα Sprint Qualifying sessions το 2021.
+  </figcaption>
+</figure>
+
+Όσον αφορά τους πιο γρήγορους οδηγούς στην πίστα, δεν είναι έκπληξη ότι οι **Lewis Hamilton** και **Max Verstappen** κυριάρχησαν και πάλι, καθένας εξασφαλίζοντας έξι ταχύτερους γύρους. Ο **Valtteri Bottas** και ο **Sergio Perez** ακολούθησαν με τέσσερις και δύο γρηγορότερους γύρους αντίστοιχα. Επιπλέον, οι **Daniel Ricciardo, Lando Norris** και **Pierre Gasly** κατέκτησαν αυτό το κατόρθωμα μία φορά μέσα στη σεζόν, προσθέτοντας τον τίτλο του *Γρηγορότερου Οδηγού* στην καριέρα τους.
+
+<figure class="my-8 text-center">
+  <img
+    src="https://raw.githubusercontent.com/mpalaourg/F1_DataAnalysis/main/2021-Season/imgs/fastest_laps.png"
+    alt="2021 fastest laps"
+    class="mx-auto"
+  />
+  <figcaption class="mt-2 text-sm text-gray-500 dark:text-slate-400">
+    Βαθμοί ταχύτερου γύρου στη σεζόν 2021 της Formula 1.
+  </figcaption>
+</figure>
+
+Στον κόσμο της Formula 1, οι αποχωρήσεις είναι αναπόφευκτο μέρος του αθλήματος, είτε λόγω λαθών είτε μηχανικών προβλημάτων. Κατά τη διάρκεια της σεζόν 2021, καταγράφηκαν συνολικά 59 DNFs. Από αυτά, 6 αποδίδονται σε ατυχήματα, ενώ 20 οφείλονται σε συγκρούσεις μεταξύ οδηγών. Οι υπόλοιπες αποχωρήσεις προκλήθηκαν από μηχανικά προβλήματα, συνήθως σχετιζόμενα με τα κιβώτια ταχυτήτων, τα φρένα ή βλάβες στον κινητήρα. Ενδεικτικά, οι **Nikita Mazepin** και **George Russell** σημείωσαν το μεγαλύτερο αριθμό αποχωρήσεων, με έξι καθένας. Ο **Max Verstappen** αντιμετώπισε τρεις DNFs, συμπεριλαμβανομένων ενός σκάσιμο ελαστικού κινούμενος με μεγάλη ταχύτητα στο **Grand Prix του Azerbaijan**, μιας σύγκρουσης με τον **Lewis Hamilton** στο **Silverstone** που οδήγησε σε μια δραματική [σύγκρουση 51G](https://www.youtube.com/watch?v=oIKel6jVD3Q), και [άλλης μιας σύγκρουσης με τον **Hamilton**](https://www.youtube.com/watch?v=_VSwwZYDW94) στο **Ιταλικό Grand Prix**. Παρά τις τρεις αποχωρήσεις, ο **Verstappen** επέτυχε 18 podiums στους 19 αγώνες που ολοκλήρωσε, αποδεικνύοντας την αξιοσημείωτη συνέπειά του στο να κατακτά τις τρεις πρώτες θέσεις κάθε φορά που ολοκληρώνει έναν αγώνα. Ενδιαφέρον παρουσιάζει το γεγονός πως η περιπέτεια του στο **Ιταλικό Grand Prix** σήμανε και τη μοναδική αποχώρηση του **Hamilton** κατά τη διάρκεια της σεζόν. Να σημειωθεί επίσης πως από το διάγραμμα απουσιάζει ο **Carlos Sainz** της **Ferrari**, που ολοκλήρωσε όλους τους αγώνες της σεζόν 2021 χωρίς καμία αποχώρηση.
+
+<figure class="my-8 text-center">
+  <img
+    src="https://raw.githubusercontent.com/mpalaourg/F1_DataAnalysis/main/2021-Season/imgs/dnfs.png"
+    alt="2021 DNFs"
+    class="mx-auto"
+  />
+  <figcaption class="mt-2 text-sm text-gray-500 dark:text-slate-400">
+    Αποχωρήσεις (DNFs) ανά οδηγό το 2021.
+  </figcaption>
+</figure>
+
+## Εξέλιξη της Βαθμολογίας
+
+Μια λεπτομερής ανάλυση των βαθμών των οδηγών κατά τη διάρκεια της σεζόν αποκαλύπτει μια έντονη μάχη ανάμεσα στους **Max Verstappen** και **Lewis Hamilton**, καθώς με τις αποδόσεις τους έναντι των άλλων οδηγών, εδραιώθηκαν ως οι μόνοι διεκδικητές του τίτλου. Ακολουθούν πίσω τους στην κατάταξη οι συμπαίκτες τους, **Valtteri Bottas** και **Sergio Perez**. Οι **Charles Leclerc, Lando Norris** και **Carlos Sainz** συμμετείχαν σε μια άκρως ανταγωνιστική μάχη, με τη θέση τους στην κατάταξη να κρίνεται στον τελευταίο αγώνα. Τελικά, ο **Sainz** κατάκτησε την πέμπτη θέση, καθιστώντας τον τον πιο επιτυχημένο οδηγό εκτός αυτών της **Mercedes** και της **Red Bull**.
+
+<figure class="my-8 text-center">
+  <img
+    src="https://raw.githubusercontent.com/mpalaourg/F1_DataAnalysis/main/2021-Season/imgs/points_progression_drivers.png"
+    alt="2021 drivers points progression"
+    class="mx-auto"
+  />
+  <figcaption class="mt-2 text-sm text-gray-500 dark:text-slate-400">
+    Εξέλιξη βαθμών οδηγών κατά τη διάρκεια του 2021.
+  </figcaption>
+</figure>
+
+Εξετάζοντας πιο αναλυτικά την έντονη αντιπαλότητα μεταξύ του **Max Verstappen** και του **Lewis Hamilton**, η πρωτοπορία στο πρωτάθλημα αντάλλαξε χέρια πέντε φορές κατά τη διάρκεια της σεζόν 2021, διαμορφώνοντας ένα επικό φινάλε. Στον τελευταίο αγώνα, με τους δύο οδηγούς να ισοβαθμούν, ένα Safety Car προς το τέλος του αγώνα οδήγησε τον **Verstappen** να μπει στα pits για φρέσκα μαλακά ελαστικά, ενώ ο **Hamilton** παρέμεινε στην πίστα. Με μόλις έναν γύρο να απομένει, ο **Verstappen** πραγματοποίησε μια αποφασιστική κίνηση στη στροφή 5, ξεπερνώντας με επιτυχία τον **Hamilton** και κατακτώντας τον πρώτο του τίτλο ως Παγκόσμιος Πρωταθλητής. Ωστόσο, οι τελευταίοι γύροι εγείρανε πολλά ερωτηματικά, με τη **Mercedes** να προσφεύγει κατά του αποτελέσματος του αγώνα λόγω των περιστατικών και των αμφιλεγόμενων αποφάσεων της FIA. Παρά την προσφυγή το αποτέλεσμα του αγώνα δεν άλλαξε, εδραιώνοντας έτσι την δίκαιη κατάκτηση του τίτλου από τον **Verstappen**.
+
+<figure class="my-8 text-center">
+  <img
+    src="https://raw.githubusercontent.com/mpalaourg/F1_DataAnalysis/main/2021-Season/imgs/ver_ham_head2head.png"
+    alt="2021 Verstappen vs Hamilton"
+    class="mx-auto"
+  />
+  <figcaption class="mt-2 text-sm text-gray-500 dark:text-slate-400">
+    Μάχη Verstappen vs Hamilton για το πρωτάθλημα το 2021.
+  </figcaption>
+</figure>
+
+Στρέφοντας την προσοχή μας στο Πρωτάθλημα των Κατασκευαστών, παρατηρούμε μια σφοδρή μάχη ανάμεσα στη **Mercedes** και την **Red Bull** καθ' όλη τη διάρκεια της σεζόν. Ωστόσο, στο τέλος, η **Mercedes** κατέκτησε τη νίκη, εξασφαλίζοντας το εντυπωσιακό 8ο συνεχόμενο πρωτάθλημα. Η **Ferrari**, μετά από μια καταστροφική προηγούμενη σεζόν, έκανε μια δυναμική επιστροφή το 2021, ξεπερνώντας την **McLaren** σε μια επική μάχη για την τρίτη θέση στην κατάταξη των Κατασκευαστών. Η βελτιωμένη τους απόδοση αποτελεί ένδειξη της αποφασιστικότητάς τους και της ικανότητάς τους να ξεπερνούν τις αντιξοότητες.
+
+<figure class="my-8 text-center">
+  <img
+    src="https://raw.githubusercontent.com/mpalaourg/F1_DataAnalysis/main/2021-Season/imgs/points_progression_constructors.png"
+    alt="2021 constructors points progression"
+    class="mx-auto"
+  />
+  <figcaption class="mt-2 text-sm text-gray-500 dark:text-slate-400">
+    Εξέλιξη βαθμών Κατασκευαστών το 2021.
+  </figcaption>
+</figure>
+
+## Συμπεράσματα και Τελικές Κατατάξεις
+
+Τα τελικά αποτελέσματα της Κατάταξης των Οδηγών για τη σεζόν 2021 είναι ως εξής: Ο **Max Verstappen** κατέκτησε το πρώτο του Παγκόσμιο Πρωτάθλημα, τερματίζοντας οκτώ πόντους μπροστά από τον **Lewis Hamilton**. Οι συμπαίκτες τους, **Valtteri Bottas** και **Sergio Perez**, εξασφάλισαν την τρίτη και τέταρτη θέση αντίστοιχα. Στη πέμπτη έως την όγδοη θέση, βρίσκουμε τους οδηγούς της **Ferrari** και της **McLaren**. Ο **Carlos Sainz** τερμάτισε μπροστά τους, ενώ ο **Lando Norris** τερμάτισε μπροστά από τον συμπαίκτη του, **Daniel Ricciardo**. Ο **Pierre Gasly** είχε μια δυνατή σεζόν με την **AlphaTauri**, πετυχαίνοντας πάνω από 100 πόντους. Οι οδηγοί της **Alpine** και της **Aston Martin** ακολούθησαν, με τους πολύπειρους βετεράνους **Fernando Alonso** και **Sebastian Vettel** να τερματίζουν μπροστά από τους συμπαίκτες τους στην κατάταξη.
+
+Στο Πρωτάθλημα των Κατασκευαστών, η **Mercedes** επέδειξε και πάλι την κυριαρχία της, επεκτείνοντας την αήττητη πορεία της από την εισαγωγή των κινητήρων 1.6 λίτρων V6 Turbo Hybrid το 2014. Η **Red Bull**, με εντυπωσιακές εμφανίσεις, κατέλαβε τη δεύτερη θέση, μειώνοντας σημαντικά τη διαφορά σε μόλις 28 πόντους σε σύγκριση με την περυσινή εποχή που ήταν πάνω από 200 πόντους. Η **Ferrari** πραγματοποίησε μια εντυπωσιακή επιστροφή, τερματίζοντας στην τρίτη θέση το 2021. Η ομάδα επέδειξε συνεπείς εμφανίσεις από τους **Charles Leclerc** και **Carlos Sainz**, ανακάμπτοντας από μια προβληματική σεζόν του 2020. Η **McLaren** επίσης είχε μια δυνατή εμφάνιση, καταλαμβάνοντας την τέταρτη θέση. Μια σφοδρή μάχη εκτυλίχθηκε για την πέμπτη θέση, με την ομάδα της **Alpine** να ξεπερνάει την **AlphaTauri**. Η **Williams** γιόρτασε ένα πολυπόθητο κατόρθωμα, καθώς κατάφερε να σκοράρει πόντους μετά από σχεδόν δυόμισι χρόνια, ανεβαίνοντας από τον πάτο της κατάταξης των Κατασκευαστών, ξεπερνώντας μια σχετικά αναξιόλογη σεζόν για την **Alfa Romeo**. Η **Haas**, δυστυχώς, απέτυχε να σκοράρει πόντους στη σεζόν 2021.
+
+<figure class="my-16">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+
+    <div class="overflow-x-auto">
+      <h4 class="text-center mb-2">(a) Κατάταξη Οδηγών</h4>
+      <img
+        src="https://raw.githubusercontent.com/mpalaourg/F1_DataAnalysis/main/2021-Season/imgs/drivers_standings.png"
+        alt="2021 driver standings"
+        class="mx-auto"
+      />
+    </div>
+
+    <div class="overflow-x-auto">
+      <h4 class="text-center mb-2">(b) Κατάταξη Κατασκευαστών</h4>
+      <img
+        src="https://raw.githubusercontent.com/mpalaourg/F1_DataAnalysis/main/2021-Season/imgs/constructor_standings.png"
+        alt="2021 constructor standings"
+        class="mx-auto"
+      />
+    </div>
+
+  </div>
+
+  <figcaption class="mt-6 text-center text-sm text-gray-500 dark:text-slate-400">
+    Τελική κατάταξη του Παγκόσμιου Πρωταθλήματος Formula 1 2021: οδηγοί (a) και κατασκευαστές (b).
+  </figcaption>
+</figure>
+
+---
+
+_Σημείωση: Τα δεδομένα προέρχονται από το F1 Developer API (http://ergast.com/mrd/)._

@@ -1,0 +1,135 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+
+export async function getStaticPaths() {
+  const posts = await getCollection("publications");
+
+  return posts.map((post) => ({
+    params: { slug: post.slug },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content } = await post.render();
+
+const formatAuthors = (authors: string[], authorNotes?: string[]) => {
+  if (!authorNotes || authorNotes.length === 0) {
+    return authors.join(", ");
+  }
+  
+  return authors.map((author, index) => {
+    if (authorNotes[index] && (authorNotes[index].toLowerCase().includes("equal") || authorNotes[index].toLowerCase().includes("ίση"))) {
+      return `${author}*`;
+    }
+    return author;
+  }).join(", ");
+};
+
+const showEqualContribution = post.data.author_notes && post.data.author_notes.some(n => n.toLowerCase().includes("equal"));
+const monthYear = post.data.date.toLocaleDateString("en-GB", { month: "long", year: "numeric" });
+---
+
+<BaseLayout title={`${post.data.title} | Publications`}>
+  <article class="mx-auto max-w-4xl px-6 py-12">
+    <header class="mb-8">
+      <a
+        href="/publications"
+        class="text-sm text-gray-500 dark:text-slate-400 hover:underline mb-4 inline-block"
+      >
+        ← Back to publications
+      </a>
+
+      {post.data.featuredImage && (
+        <img
+          src={post.data.featuredImage}
+          alt={post.data.title}
+          class="mb-6 w-full rounded-xl"
+        />
+      )}
+
+      <h1 class="text-3xl font-bold mb-2">
+        {post.data.title}
+      </h1>
+
+      <p class="text-gray-600 dark:text-slate-400 mb-1">
+        {post.data.publication} - <span class="italic">{monthYear}</span>
+      </p>
+
+      <p class="text-gray-700 dark:text-slate-300 mb-2">
+        {formatAuthors(post.data.authors, post.data.author_notes)}
+      </p>
+
+      {showEqualContribution && (
+        <p class="text-xs text-gray-500 dark:text-slate-500">* Equal contribution</p>
+      )}
+    </header>
+
+    <div class="flex flex-wrap gap-3 mb-8">
+      {post.data.doi && (
+        <a
+          href={`https://doi.org/${post.data.doi}`}
+          target="_blank"
+          class="inline-block rounded-md px-3 py-1.5 text-sm bg-slate-700 hover:bg-slate-600 text-white"
+        >
+          DOI
+        </a>
+      )}
+      
+      {post.data.url_pdf && (
+        <a
+          href={post.data.url_pdf}
+          target="_blank"
+          class="inline-block rounded-md px-3 py-1.5 text-sm bg-slate-700 hover:bg-slate-600 text-white"
+        >
+          PDF
+        </a>
+      )}
+
+      {post.data.url_code && (
+        <a
+          href={post.data.url_code}
+          target="_blank"
+          class="inline-block rounded-md px-3 py-1.5 text-sm bg-slate-700 hover:bg-slate-600 text-white"
+        >
+          Code
+        </a>
+      )}
+
+      {post.data.url_video && (
+        <a
+          href={post.data.url_video}
+          target="_blank"
+          class="inline-block rounded-md px-3 py-1.5 text-sm bg-slate-700 hover:bg-slate-600 text-white"
+        >
+          Video
+        </a>
+      )}
+
+      {post.data.url_slides && (
+        <a
+          href={post.data.url_slides}
+          target="_blank"
+          class="inline-block rounded-md px-3 py-1.5 text-sm bg-slate-700 hover:bg-slate-600 text-white"
+        >
+          Slides
+        </a>
+      )}
+
+      {post.data.url_project && (
+        <a
+          href={post.data.url_project}
+          target="_blank"
+          class="inline-block rounded-md px-3 py-1.5 text-sm bg-slate-700 hover:bg-slate-600 text-white"
+        >
+          Project
+        </a>
+      )}
+    </div>
+
+    <div class="prose prose-neutral prose-tight max-w-none dark:prose-invert text-justify">
+      <Content />
+    </div>
+  </article>
+</BaseLayout>
