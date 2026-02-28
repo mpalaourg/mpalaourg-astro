@@ -83,9 +83,41 @@ const publicationsEl = defineCollection({
   }),
 });
 
+const projects = defineCollection({
+  type: "content",
+  schema: z.object({
+    title: z.string(),
+    summary: z.string(),
+    date: z.date(),
+    tags: z.array(z.string()).optional(),
+    featuredImage: z.string().optional(),
+    url_code: z.string().optional(),
+    url_pdf: z.string().optional(),
+    url_slides: z.string().optional(),
+    url_video: z.string().optional(),
+  }),
+});
+
+const projectsEl = defineCollection({
+  type: "content",
+  schema: z.object({
+    title: z.string(),
+    summary: z.string(),
+    date: z.date(),
+    tags: z.array(z.string()).optional(),
+    featuredImage: z.string().optional(),
+    url_code: z.string().optional(),
+    url_pdf: z.string().optional(),
+    url_slides: z.string().optional(),
+    url_video: z.string().optional(),
+  }),
+});
+
 export const collections = {
   formula,
   formulaEl,
   publications,
   publicationsEl,
+  projects,
+  projectsEl,
 };

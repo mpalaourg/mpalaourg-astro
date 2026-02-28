@@ -1,0 +1,98 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+
+export const prerender = false;
+
+const allPosts = await getCollection("projects");
+
+const posts = allPosts.sort((a, b) => {
+  const weightA = a.data.weight || 999;
+  const weightB = b.data.weight || 999;
+  return weightA - weightB;
+});
+---
+
+<BaseLayout title="Projects | Georgios Balaouras">
+  <main class="mx-auto max-w-6xl px-6 py-12">
+    <h1 class="text-4xl font-bold mb-6">Projects</h1>
+
+    <div class="grid grid-cols-1 gap-8">
+      {posts.map((post) => (
+        <article class="rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+          <div class="flex flex-col md:flex-row gap-6">
+            <div class="shrink-0 flex flex-col items-center">
+              {post.data.featuredImage && (
+                <a href={`/projects/${post.slug}`}>
+                  <img
+                    src={post.data.featuredImage}
+                    alt={post.data.title}
+                    class="w-48 h-32 object-cover rounded-lg mb-4"
+                  />
+                </a>
+              )}
+              
+              <div class="flex flex-wrap gap-2 justify-center w-52">
+                {post.data.url_code && (
+                  <a
+                    href={post.data.url_code}
+                    target="_blank"
+                    class="inline-block rounded-md px-2 py-1.5 text-sm bg-slate-700 hover:bg-slate-600 text-white text-center min-w-[3.5rem]"
+                  >
+                    Code
+                  </a>
+                )}
+
+                {post.data.url_pdf && (
+                  <a
+                    href={post.data.url_pdf}
+                    target="_blank"
+                    class="inline-block rounded-md px-2 py-1.5 text-sm bg-slate-700 hover:bg-slate-600 text-white text-center min-w-[3.5rem]"
+                  >
+                    PDF
+                  </a>
+                )}
+
+                {post.data.url_slides && (
+                  <a
+                    href={post.data.url_slides}
+                    target="_blank"
+                    class="inline-block rounded-md px-2 py-1.5 text-sm bg-slate-700 hover:bg-slate-600 text-white text-center min-w-[3.5rem]"
+                  >
+                    Slides
+                  </a>
+                )}
+
+                {post.data.url_video && (
+                  <a
+                    href={post.data.url_video}
+                    target="_blank"
+                    class="inline-block rounded-md px-2 py-1.5 text-sm bg-slate-700 hover:bg-slate-600 text-white text-center min-w-[3.5rem]"
+                  >
+                    Video
+                  </a>
+                )}
+              </div>
+            </div>
+            
+            <div class="flex-1">
+              <h2 class="text-2xl font-semibold mb-2">
+                <a href={`/projects/${post.slug}`} class="hover:underline">
+                  {post.data.title}
+                </a>
+              </h2>
+              
+              <p class="text-gray-600 dark:text-slate-400 mb-1">
+                <span class="italic">{post.data.date.toLocaleDateString("en-GB", { year: "numeric", month: "long" })}</span>
+              </p>
+
+              <p class="text-gray-600 dark:text-slate-400">
+                {post.data.summary}
+              </p>
+            </div>
+          </div>
+        </article>
+      ))}
+    </div>
+  </main>
+</BaseLayout>
