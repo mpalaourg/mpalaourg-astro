@@ -138,7 +138,7 @@ const experiences = [
         <!-- Left: Photo -->
         <div class="shrink-0">
           <img
-            src="/media/avatar.jpg"
+            src="/mpalaourg-astro/media/avatar.jpg"
             alt="Γιώργος Μπαλαούρας"
             class="w-40 h-40 rounded-full object-cover border-4 border-slate-200 dark:border-slate-700"
           />
@@ -171,7 +171,7 @@ const experiences = [
               LinkedIn
             </a>
             <a
-              href="/el/media/files/resume_gr.pdf"
+              href="/mpalaourg-astro/el/media/files/resume_gr.pdf"
               target="_blank"
               class="flex items-center gap-2 text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white"
             >
@@ -288,12 +288,12 @@ const experiences = [
     <section class="py-8 px-6">
       <div class="flex justify-between items-center mb-6">
         <h2 class="text-2xl font-bold">Δημοσιεύσεις</h2>
-        <a href="/el/publications" class="text-sm text-gray-500 hover:underline">Προβολή όλων →</a>
+        <a href="/mpalaourg-astro/el/publications" class="text-sm text-gray-500 hover:underline">Προβολή όλων →</a>
       </div>
       
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         {sortedPublications.map((pub) => (
-          <a href={`/el/publications/${pub.slug}`} class="block group perspective-1000">
+          <a href={`/mpalaourg-astro/el/publications/${pub.slug}`} class="block group perspective-1000">
             <div class="relative w-full h-64 preserve-3d group-hover:rotate-y-180 transition-transform duration-500 transform-style-preserve-3d">
               <div class="absolute inset-0 backface-hidden rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-800 p-4 flex flex-col overflow-hidden">
                 {pub.data.featuredImage && (
@@ -337,13 +337,13 @@ const experiences = [
               ))}
             </div>
           </div>
-          <a href="/el/projects" class="text-sm text-gray-500 hover:underline">Προβολή όλων →</a>
+          <a href="/mpalaourg-astro/el/projects" class="text-sm text-gray-500 hover:underline">Προβολή όλων →</a>
         </div>
       </div>
       
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="projects-grid">
         {sortedProjects.map((proj) => (
-          <a href={`/el/projects/${proj.slug}`} class="project-card block rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden hover:border-slate-400 dark:hover:border-slate-500 transition-colors" data-title={proj.data.title.toLowerCase()} data-tags={JSON.stringify(proj.data.tags || [])}>
+          <a href={`/mpalaourg-astro/el/projects/${proj.slug}`} class="project-card block rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden hover:border-slate-400 dark:hover:border-slate-500 transition-colors" data-title={proj.data.title.toLowerCase()} data-tags={JSON.stringify(proj.data.tags || [])}>
             {proj.data.featuredImage && (
               <div class="aspect-video overflow-hidden">
                 <img
@@ -466,13 +466,13 @@ const experiences = [
               ))}
             </div>
           </div>
-          <a href="/el/formula" class="text-sm text-gray-500 hover:underline whitespace-nowrap">Προβολή όλων →</a>
+          <a href="/mpalaourg-astro/el/formula" class="text-sm text-gray-500 hover:underline whitespace-nowrap">Προβολή όλων →</a>
         </div>
       </div>
       
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="formula-grid">
         {sortedFormula.map((season) => (
-          <a href={`/el/formula/${season.slug}`} class="formula-card block rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden hover:border-slate-400 dark:hover:border-slate-500 transition-colors" data-title={season.data.title.toLowerCase()} data-tags={JSON.stringify(season.data.tags || [])}>
+          <a href={`/mpalaourg-astro/el/formula/${season.slug}`} class="formula-card block rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden hover:border-slate-400 dark:hover:border-slate-500 transition-colors" data-title={season.data.title.toLowerCase()} data-tags={JSON.stringify(season.data.tags || [])}>
             {season.data.featuredImage && (
               <img
                 src={season.data.featuredImage}
@@ -619,7 +619,7 @@ const experiences = [
     <section class="py-8 px-6">
       <div id="slider" class="relative h-64 rounded-xl overflow-hidden" data-interval="10000">
         <div class="absolute inset-0 bg-slate-800">
-          <img id="slider-bg" src="/media/images/coffee.jpg" alt="" class="w-full h-full object-cover opacity-50" />
+          <img id="slider-bg" src="/mpalaourg-astro/media/images/coffee.jpg" alt="" class="w-full h-full object-cover opacity-50" />
         </div>
         <div class="relative z-10 flex items-center justify-center h-full">
           <div class="text-center p-8">
@@ -636,14 +636,15 @@ const experiences = [
       </div>
     </section>
 
-    <script>
-      const slides = [
-        { text: "Ο καφές είναι η αδυναμία μου!", bg: "/media/images/coffee.jpg" },
-        { text: "Λατρεύω να ταξιδεύω και να ανακαλύπτω νέα μέρη!", bg: "/media/images/travel.jpg" },
-        { text: "Κολλημένος με τις σειρές!", bg: "/media/images/series.jpg" },
-        { text: "Φανατικός της Formula 1!", bg: "/media/images/f1.jpg" },
-        { text: "Η αγαπημένη μου μουσική είναι τα (απαγορευμένα) ρεμπέτικα!", bg: "/media/images/music.jpg" },
-      ];
+  <script>
+    const base = "/mpalaourg-astro";
+    const slides = [
+      { text: "Ο καφές είναι η αδυναμία μου!", bg: base + "/media/images/coffee.jpg" },
+      { text: "Λατρεύω να ταξιδεύω και να ανακαλύπτω νέα μέρη!", bg: base + "/media/images/travel.jpg" },
+      { text: "Κολλημένος με τις σειρές!", bg: base + "/media/images/series.jpg" },
+      { text: "Φανατικός της Formula 1!", bg: base + "/media/images/f1.jpg" },
+      { text: "Η αγαπημένη μου μουσική είναι τα (απαγορευμένα) ρεμπέτικα!", bg: base + "/media/images/music.jpg" },
+    ];
 
       let currentSlide = 0;
       const slider = document.getElementById('slider');

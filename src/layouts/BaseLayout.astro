@@ -3,11 +3,22 @@ import "../styles/global.css";
 
 const { title = "Georgios Balaouras" } = Astro.props;
 const pathname = Astro.url.pathname;
-const isEl = pathname.startsWith("/el/");
+const isEl = pathname.startsWith("/el/") || pathname.startsWith("/mpalaourg-astro/el/");
 
-// Build language switch URLs
-const enPath = isEl ? pathname.replace(/^\/el/, "") : pathname;
-const elPath = isEl ? pathname : `/el${pathname}`;
+const base = "/mpalaourg-astro";
+
+// Strip base from pathname for calculations
+let cleanPath = pathname;
+if (cleanPath.startsWith(base)) {
+  cleanPath = cleanPath.slice(base.length);
+}
+
+const enPath = isEl ? (cleanPath.replace(/^\/el/, "") || "/") : cleanPath;
+const elPath = isEl ? cleanPath : (cleanPath === "/" ? "/el/" : `/el${cleanPath}`);
+
+// Add base prefix for language switcher
+const enPathWithBase = enPath === "/" ? "/mpalaourg-astro/" : `/mpalaourg-astro${enPath}`;
+const elPathWithBase = `/mpalaourg-astro${elPath}`;
 ---
 
 <!DOCTYPE html>
@@ -38,32 +49,32 @@ const elPath = isEl ? pathname : `/el${pathname}`;
       <div
         class="mx-auto flex max-w-5xl items-center justify-between px-4 py-4"
       >
-        <a href="/" class="font-semibold">Georgios Balaouras</a>
+        <a href="/mpalaourg-astro/" class="font-semibold">Georgios Balaouras</a>
 
         <nav class="flex items-center gap-4 text-sm">
             <a
-                href={isEl ? "/el/formula" : "/formula"}
+                href="/mpalaourg-astro/formula"
                 class="text-gray-600 hover:text-gray-900
                     dark:text-gray-300 dark:hover:text-white"
             >
                 Formula
             </a>
             <a
-                href={isEl ? "/el/projects" : "/projects"}
+                href="/mpalaourg-astro/projects"
                 class="text-gray-600 hover:text-gray-900
                     dark:text-gray-300 dark:hover:text-white"
             >
                 Projects
             </a>
             <a
-                href={isEl ? "/el/publications" : "/publications"}
+                href="/mpalaourg-astro/publications"
                 class="text-gray-600 hover:text-gray-900
                     dark:text-gray-300 dark:hover:text-white"
             >
                 {isEl ? "Δημοσιεύσεις" : "Publications"}
             </a>
             <a
-                href={isEl ? "/el/media/files/resume_gr.pdf" : "/media/files/resume_en.pdf"}
+                href="/mpalaourg-astro/media/files/resume_en.pdf"
                 target="_blank"
                 class="text-gray-600 hover:text-gray-900
                     dark:text-gray-300 dark:hover:text-white"
@@ -93,20 +104,20 @@ const elPath = isEl ? pathname : `/el${pathname}`;
                      group-hover:block group-focus-within:block"
             >
               <a
-                href={enPath}
+                href={enPathWithBase}
                 class="flex items-center gap-2 px-3 py-2 text-sm
                        hover:bg-gray-100 dark:hover:bg-slate-800"
               >
-                <img src="/icons/gb.svg" alt="English" class="h-4 w-4" />
+                <img src="/mpalaourg-astro/icons/gb.svg" alt="English" class="h-4 w-4" />
                 English
               </a>
 
               <a
-                href={elPath}
+                href={elPathWithBase}
                 class="flex items-center gap-2 px-3 py-2 text-sm
                        hover:bg-gray-100 dark:hover:bg-slate-800"
               >
-                <img src="/icons/gr.svg" alt="Ελληνικά" class="h-4 w-4" />
+                <img src="/mpalaourg-astro/icons/gr.svg" alt="Ελληνικά" class="h-4 w-4" />
                 Ελληνικά
               </a>
             </div>

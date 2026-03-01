@@ -2,7 +2,7 @@
 title: "Bash-ic Shell"
 summary: "My own Unix shell implementation in C."
 date: 2018-05-01
-featuredImage: "/projects/bashic-shell/featured.png"
+featuredImage: "/mpalaourg-astro/projects/bashic-shell/featured.png"
 tags:
   - bash
   - terminal

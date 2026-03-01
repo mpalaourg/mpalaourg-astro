@@ -138,7 +138,7 @@ const experiences = [
         <!-- Left: Photo -->
         <div class="shrink-0">
           <img
-            src="/media/avatar.jpg"
+            src="/mpalaourg-astro/media/avatar.jpg"
             alt="Georgios Balaouras"
             class="w-40 h-40 rounded-full object-cover border-4 border-slate-200 dark:border-slate-700"
           />
@@ -172,7 +172,7 @@ const experiences = [
             </a>
             <a
               id="cv-link"
-              href="/media/files/resume.pdf"
+              href="/mpalaourg-astro/media/files/resume.pdf"
               target="_blank"
               class="flex items-center gap-2 text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white"
             >
@@ -289,9 +289,9 @@ const experiences = [
       // CV language detection
       const cvLink = document.getElementById('cv-link');
       if (cvLink && window.location.pathname.includes('/el/')) {
-        cvLink.href = '/el/media/files/resume_gr.pdf';
+        cvLink.href = '/mpalaourg-astro/el/media/files/resume_gr.pdf';
       } else if (cvLink) {
-        cvLink.href = '/media/files/resume_en.pdf';
+        cvLink.href = '/mpalaourg-astro/media/files/resume_en.pdf';
       }
     </script>
 
@@ -326,12 +326,12 @@ const experiences = [
     <section class="py-8 px-6">
       <div class="flex justify-between items-center mb-6">
         <h2 class="text-2xl font-bold">Publications</h2>
-        <a href="/publications" class="text-sm text-gray-500 hover:underline">View all →</a>
+        <a href="/mpalaourg-astro/publications" class="text-sm text-gray-500 hover:underline">View all →</a>
       </div>
       
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         {sortedPublications.map((pub) => (
-          <a href={`/publications/${pub.slug}`} class="block group perspective-1000">
+          <a href={`/mpalaourg-astro/publications/${pub.slug}`} class="block group perspective-1000">
             <div class="relative w-full h-66 preserve-3d group-hover:rotate-y-180 transition-transform duration-500 transform-style-preserve-3d">
               <div class="absolute inset-0 backface-hidden rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-800 p-4 flex flex-col overflow-hidden">
                 {pub.data.featuredImage && (
@@ -375,13 +375,13 @@ const experiences = [
               ))}
             </div>
           </div>
-          <a href="/projects" class="text-sm text-gray-500 hover:underline">View all →</a>
+          <a href="/mpalaourg-astro/projects" class="text-sm text-gray-500 hover:underline">View all →</a>
         </div>
       </div>
       
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="projects-grid">
         {sortedProjects.map((proj) => (
-          <a href={`/projects/${proj.slug}`} class="project-card block rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden hover:border-slate-400 dark:hover:border-slate-500 transition-colors" data-title={proj.data.title.toLowerCase()} data-tags={JSON.stringify(proj.data.tags || [])}>
+          <a href={`/mpalaourg-astro/projects/${proj.slug}`} class="project-card block rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden hover:border-slate-400 dark:hover:border-slate-500 transition-colors" data-title={proj.data.title.toLowerCase()} data-tags={JSON.stringify(proj.data.tags || [])}>
             {proj.data.featuredImage && (
               <div class="aspect-video overflow-hidden">
                 <img
@@ -420,13 +420,13 @@ const experiences = [
               ))}
             </div>
           </div>
-          <a href="/formula" class="text-sm text-gray-500 hover:underline whitespace-nowrap">View all →</a>
+          <a href="/mpalaourg-astro/formula" class="text-sm text-gray-500 hover:underline whitespace-nowrap">View all →</a>
         </div>
       </div>
       
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="formula-grid">
         {sortedFormula.map((season) => (
-          <a href={`/formula/${season.slug}`} class="formula-card block rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden hover:border-slate-400 dark:hover:border-slate-500 transition-colors" data-title={season.data.title.toLowerCase()} data-tags={JSON.stringify(season.data.tags || [])}>
+          <a href={`/mpalaourg-astro/formula/${season.slug}`} class="formula-card block rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden hover:border-slate-400 dark:hover:border-slate-500 transition-colors" data-title={season.data.title.toLowerCase()} data-tags={JSON.stringify(season.data.tags || [])}>
             {season.data.featuredImage && (
               <img
                 src={season.data.featuredImage}
@@ -516,7 +516,7 @@ const experiences = [
     <section class="py-8 px-6">
       <div id="slider" class="relative h-64 rounded-xl overflow-hidden" data-interval="10000">
         <div class="absolute inset-0 bg-slate-800">
-          <img id="slider-bg" src="/media/images/coffee.jpg" alt="" class="w-full h-full object-cover opacity-50" />
+          <img id="slider-bg" src="/mpalaourg-astro/media/images/coffee.jpg" alt="" class="w-full h-full object-cover opacity-50" />
         </div>
         <div class="relative z-10 flex items-center justify-center h-full">
           <div class="text-center p-8">
@@ -535,12 +535,13 @@ const experiences = [
   </main>
 
   <script>
+    const base = "/mpalaourg-astro";
     const slides = [
-      { text: "I'm practically addicted to coffee!", bg: "/media/images/coffee.jpg" },
-      { text: "I love traveling and visiting new places!", bg: "/media/images/travel.jpg" },
-      { text: "Certified TV series geek!", bg: "/media/images/series.jpg" },
-      { text: "An F1 superfan!", bg: "/media/images/f1.jpg" },
-      { text: "My favorite music genre is rembetika!", bg: "/media/images/music.jpg" },
+      { text: "I'm practically addicted to coffee!", bg: base + "/media/images/coffee.jpg" },
+      { text: "I love traveling and visiting new places!", bg: base + "/media/images/travel.jpg" },
+      { text: "Certified TV series geek!", bg: base + "/media/images/series.jpg" },
+      { text: "An F1 superfan!", bg: base + "/media/images/f1.jpg" },
+      { text: "My favorite music genre is rembetika!", bg: base + "/media/images/music.jpg" },
     ];
 
     let currentSlide = 0;

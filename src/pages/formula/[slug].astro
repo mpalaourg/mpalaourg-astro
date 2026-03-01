@@ -20,6 +20,13 @@ const { Content } = await season.render();
     <!-- Article header -->
     <header class="mb-12">
       <div class="mx-auto max-w-6xl">
+        <a
+          href="/mpalaourg-astro/formula"
+          class="text-sm text-gray-500 dark:text-slate-400 hover:underline mb-4 inline-block"
+        >
+          ← Back to Formula
+        </a>
+
         {season.data.featuredImage && (
           <img
             src={season.data.featuredImage}

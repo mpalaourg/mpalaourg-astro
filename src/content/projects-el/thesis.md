@@ -2,7 +2,7 @@
 title: "Διπλωματική εργασία"
 summary: "Συλλογή και Ανάλυση Δεδομένων Κατανάλωσης Ενέργειας Κινητών Τηλεφώνων με Χρήση Τεχνικών Μηχανικής Μάθησης"
 date: 2020-10-01
-featuredImage: "/projects/thesis/featured.png"
+featuredImage: "/mpalaourg-astro/projects/thesis/featured.png"
 tags:
   - battery
   - battery monitor
@@ -15,8 +15,8 @@ tags:
   - thesis
   - python
 url_code: "https://github.com/mpalaourg/Thesis"
-url_pdf: "/el/media/files/thesis.pdf"
-url_slides: "/el/media/slides/thesis.pptx"
+url_pdf: "/mpalaourg-astro/el/media/files/thesis.pdf"
+url_slides: "/mpalaourg-astro/el/media/slides/thesis.pptx"
 url_video: ""
 weight: 1
 ---

@@ -2,13 +2,13 @@
 title: "JPEG Image Compression"
 summary: "Implementation of JPEG standard (ISO/IEC 109181:1994)."
 date: 2020-02-01
-featuredImage: "/projects/JPEG/featured.png"
+featuredImage: "/mpalaourg-astro/projects/JPEG/featured.png"
 tags:
   - image compression
   - multimedia
   - MATLAB
 url_code: "https://github.com/mpalaourg/Multimedia"
-url_pdf: "/el/media/files/jpeg.pdf"
+url_pdf: "/mpalaourg-astro/el/media/files/jpeg.pdf"
 url_slides: ""
 url_video: ""
 weight: 2

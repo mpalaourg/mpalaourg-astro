@@ -32,7 +32,7 @@ const formatAuthors = (authors: string[], authorNotes?: string[]) => {
           <div class="flex flex-col md:flex-row gap-6">
             <div class="shrink-0 flex flex-col items-center">
               {post.data.featuredImage && (
-                <a href={`/el/publications/${post.slug}`}>
+                <a href={`/mpalaourg-astro/el/publications/${post.slug}`}>
                   <img
                     src={post.data.featuredImage}
                     alt={post.data.title}
@@ -106,7 +106,7 @@ const formatAuthors = (authors: string[], authorNotes?: string[]) => {
             
             <div class="flex-1">
               <h2 class="text-2xl font-semibold mb-2">
-                <a href={`/el/publications/${post.slug}`} class="hover:underline">
+                <a href={`/mpalaourg-astro/el/publications/${post.slug}`} class="hover:underline">
                   {post.data.title}
                 </a>
               </h2>

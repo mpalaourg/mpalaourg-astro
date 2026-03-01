@@ -1,9 +1,9 @@
 ---
+export const prerender = false;
 import BaseLayout from "../../../layouts/BaseLayout.astro";
 import { getCollection } from "astro:content";
 import { getReadingTime } from "../../../utils/readingTime";
 
-// Only EN formula posts
 const allPosts = await getCollection("formula");
 
 // Sort newest first
@@ -11,16 +11,20 @@ const posts = allPosts.sort(
   (a, b) => b.data.date.getTime() - a.data.date.getTime()
 );
 
+// Get all unique tags
+const allTags = [...new Set(allPosts.flatMap(post => post.data.tags || []))].sort();
+
 // Filters
 const activeTag = Astro.url.searchParams.get("tag");
 const activeYear = Astro.url.searchParams.get("year");
 const isActiveYear = (year) => activeYear === year;
+const isActiveTag = (tag) => activeTag === tag;
 const buildUrl = (params) => {
   const sp = new URLSearchParams(Astro.url.searchParams);
   Object.entries(params).forEach(([k, v]) =>
     v ? sp.set(k, v) : sp.delete(k)
   );
-  return `/formula?${sp.toString()}`;
+  return `/mpalaourg-astro/el/formula?${sp.toString()}`;
 };
 
 const filteredPosts = posts.filter((post) => {
@@ -57,13 +61,32 @@ const filteredPosts = posts.filter((post) => {
     ))}
     {(activeYear || activeTag) && (
         <a
-        href="/formula"
+        href="/mpalaourg-astro/el/formula"
         class="ml-4 text-sm text-slate-400 hover:underline"
         >
-        Clear filters
+        Καθαρισμός φίλτρων
         </a>
     )}
     </div>
+
+    {allTags.length > 0 && (
+    <div class="flex flex-wrap gap-2 mb-8">
+        <span class="text-sm text-gray-600 dark:text-slate-400 mr-2">Ετικέτες:</span>
+        {allTags.map((tag) => (
+        <a
+            href={buildUrl({ tag })}
+            class={`px-2 py-1 rounded-md text-xs
+            ${
+                isActiveTag(tag)
+                ? "bg-blue-600 text-white"
+                : "bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-slate-300 hover:bg-gray-300 dark:hover:bg-slate-600"
+            }`}
+        >
+            #{tag}
+        </a>
+        ))}
+    </div>
+    )}
 
     <div class="grid grid-cols-1 gap-12 md:grid-cols-2">
       {filteredPosts.map((post) => {
@@ -76,7 +99,7 @@ const filteredPosts = posts.filter((post) => {
                     md:grid-cols-[240px_1fr]"
         >
           {post.data.featuredImage && (
-            <a href={`/formula/${post.slug}`}>
+            <a href={`/mpalaourg-astro/el/formula/${post.slug}`}>
                 <img
                 src={post.data.featuredImage}
                 alt={post.data.title}
@@ -88,25 +111,25 @@ const filteredPosts = posts.filter((post) => {
           <div class="flex flex-col justify-between py-2">
             <div>
                 <h2 class="text-2xl font-semibold mb-2 group-hover:underline">
-                    <a href={`/formula/${post.slug}`}>
+                    <a href={`/mpalaourg-astro/el/formula/${post.slug}`}>
                         {post.data.title}
                     </a>
                 </h2>
 
-            <p class="text-slate-400 mb-4">
+            <p class="text-gray-600 dark:text-slate-400 mb-4">
               {post.data.summary}
             </p>
 
-            <div class="flex flex-wrap items-center gap-3 text-sm text-slate-400">
+            <div class="flex flex-wrap items-center gap-3 text-sm text-gray-500 dark:text-slate-400">
                 <span>{minutes} λεπτά ανάγνωσης</span>
 
                 {post.data.tags?.map((tag) => (
                     <a href={buildUrl({ tag })}
-                    class={`rounded-md px-2 py-0.5
+                    class={`rounded-md px-2 py-0.5 text-xs
                         ${
                         activeTag === tag
-                            ? "bg-white text-slate-900"
-                            : "bg-slate-700 hover:bg-slate-600"
+                            ? "bg-blue-600 text-white"
+                            : "bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-slate-300 hover:bg-gray-300 dark:hover:bg-slate-600"
                         }`}
                     >
                     #{tag}
@@ -119,9 +142,9 @@ const filteredPosts = posts.filter((post) => {
                     href={post.data.external.code}
                     target="_blank"
                     class="mt-4 inline-block w-fit rounded-md px-3 py-1 text-sm
-                        bg-slate-700 hover:bg-slate-600"
+                        bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-slate-300 hover:bg-gray-300 dark:hover:bg-slate-600"
                 >
-                    Code
+                    Κώδικας
                 </a>
             )}
           </div>

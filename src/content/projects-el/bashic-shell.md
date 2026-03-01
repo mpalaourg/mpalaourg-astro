@@ -2,7 +2,7 @@
 title: "Bash-ic Shell"
 summary: "Δική μου υλοποίηση Unix shell σε C."
 date: 2018-05-01
-featuredImage: "/projects/bashic-shell/featured.png"
+featuredImage: "/mpalaourg-astro/projects/bashic-shell/featured.png"
 tags:
   - bash
   - terminal
