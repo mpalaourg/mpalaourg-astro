@@ -115,9 +115,9 @@ const projectsEl = defineCollection({
 
 export const collections = {
   formula,
-  formulaEl,
+  "formula-el": formulaEl,
   publications,
-  publicationsEl,
+  "publications-el": publicationsEl,
   projects,
-  projectsEl,
+  "projects-el": projectsEl,
 };
