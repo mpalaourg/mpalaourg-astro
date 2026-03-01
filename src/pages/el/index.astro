@@ -187,10 +187,17 @@ const experiences = [
     <section class="py-8 px-6" id="experience">
       <h2 class="text-2xl font-bold mb-8">Εμπειρία</h2>
       
-      <div class="relative">
-        <div class="absolute left-[15px] top-0 bottom-0 md:left-1/2">
-          <div class="w-px h-full border-l-2 border-dashed border-slate-300 dark:border-slate-600 md:w-1/2 md:border-l-0 md:border-r-2"></div>
-          <div class="absolute top-0 right-0 w-px h-[calc(20%-2rem)] bg-blue-500 md:right-auto md:left-0"></div>
+      <div class="relative" id="timeline-container">
+        <!-- Timeline line -->
+        <div class="timeline-line absolute left-[15px] md:left-1/2 top-0 bottom-0 w-0.5 bg-slate-300 dark:bg-slate-600 md:-translate-x-1/2">
+          <!-- Blue solid line for current job -->
+          <div class="timeline-blue-line absolute top-0 w-0.5 bg-blue-500" style="height: 20%;"></div>
+          <!-- Arrow inside line container -->
+          <div class="timeline-arrow absolute left-1/2 -translate-x-1/2 -mt-2 w-5 h-5 text-orange-500">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clip-rule="evenodd"/>
+            </svg>
+          </div>
         </div>
         
         {experiences.map((exp, idx) => (
@@ -200,7 +207,7 @@ const experiences = [
                 <div class={`bg-white dark:bg-slate-800 rounded-xl p-5 shadow-sm hover:shadow-lg transition-all duration-300 ${exp.prominent ? 'border-2 border-blue-500 dark:border-blue-400 ring-2 ring-blue-100 dark:ring-blue-900 transform scale-105 md:mr-4' : exp.gapYear ? 'border-2 border-dashed border-amber-400 dark:border-amber-600' : exp.education ? 'border-2 border-emerald-500 dark:border-emerald-400 ring-2 ring-emerald-100 dark:ring-emerald-900' : 'border border-gray-200 dark:border-gray-700'}`}>
                   {exp.prominent && (
                     <div class="flex items-center gap-2 mb-3">
-                      <span class="text-xs px-2 py-1 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 text-white font-bold animate-pulse">ΣΗΜΕΡΑ</span>
+                      <span class="text-xs px-2 py-1 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 text-white font-bold">ΣΗΜΕΡΑ</span>
                     </div>
                   )}
                   <div class="flex items-center gap-3 mb-2">
@@ -238,14 +245,7 @@ const experiences = [
               </div>
               
               <div class="absolute left-[15px] md:left-1/2 transform -translate-x-1/2 mt-5">
-                <div class={`w-4 h-4 rounded-full ring-4 ring-white dark:ring-slate-800 ${exp.prominent ? 'bg-blue-500 animate-pulse' : exp.gapYear ? 'bg-amber-400' : exp.education ? 'bg-emerald-500' : 'bg-slate-400'} transition-all duration-500`}></div>
-                {idx < experiences.length - 1 && (
-                  <div class="absolute left-1/2 -translate-x-1/2 top-full mt-2">
-                    <svg class="w-5 h-5 text-slate-400 animate-bounce" fill="currentColor" viewBox="0 0 20 20">
-                      <path fill-rule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clip-rule="evenodd"/>
-                    </svg>
-                  </div>
-                )}
+                <div class={`w-4 h-4 rounded-full ring-4 ring-white dark:ring-slate-800 ${exp.prominent ? 'bg-blue-500' : exp.gapYear ? 'bg-amber-400' : exp.education ? 'bg-emerald-500' : 'bg-slate-400'}`}></div>
               </div>
               
               <div class="flex-1 hidden md:block"></div>
@@ -254,6 +254,35 @@ const experiences = [
         ))}
       </div>
     </section>
+
+    <script>
+      // Timeline arrow - follows scroll
+      const timelineContainer = document.getElementById('timeline-container');
+      const timelineArrow = timelineContainer?.querySelector('.timeline-arrow');
+      
+      function updateArrowPosition() {
+        if (!timelineContainer || !timelineArrow) return;
+        
+        const containerRect = timelineContainer.getBoundingClientRect();
+        
+        // Calculate scroll progress through the container (0% = top, 100% = bottom)
+        const scrollProgress = -containerRect.top;
+        const totalHeight = containerRect.height;
+        
+        let percent = (scrollProgress / totalHeight) * 100;
+        
+        // Add offset - 3% at top, 15% when scrolling further down
+        const baseOffset = percent < 10 ? 3 : 15;
+        percent = Math.max(baseOffset, percent + baseOffset);
+        percent = Math.min(100, percent);
+        
+        (timelineArrow as HTMLElement).style.top = `${percent}%`;
+      }
+      
+      window.addEventListener('scroll', updateArrowPosition);
+      window.addEventListener('resize', updateArrowPosition);
+      updateArrowPosition();
+    </script>
 
     <!-- Publications Section -->
     <section class="py-8 px-6">
