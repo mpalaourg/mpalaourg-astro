@@ -1,5 +1,4 @@
 ---
-export const prerender = false;
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { getCollection } from "astro:content";
 import { getReadingTime } from "../../utils/readingTime";
@@ -75,12 +74,13 @@ const filteredPosts = posts.filter((post) => {
         {allTags.map((tag) => (
         <a
             href={buildUrl({ tag })}
-            class={`px-2 py-1 rounded-md text-xs
+            class={`tag-filter px-2 py-1 rounded-md text-xs
             ${
                 isActiveTag(tag)
                 ? "bg-blue-600 text-white"
                 : "bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-slate-300 hover:bg-gray-300 dark:hover:bg-slate-600"
             }`}
+            data-tag={tag}
         >
             #{tag}
         </a>
@@ -91,12 +91,16 @@ const filteredPosts = posts.filter((post) => {
     <div class="grid grid-cols-1 gap-12 md:grid-cols-2">
       {filteredPosts.map((post) => {
         const minutes = getReadingTime(post.body);
+        const postYear = post.slug.split("-")[0];
+        const postTags = (post.data.tags || []).join(",");
 
         return (
         <article
-            class="group grid grid-cols-1 gap-6 rounded-xl
+            class="formula-post group grid grid-cols-1 gap-6 rounded-xl
                     transition-all hover:bg-slate-800/40
                     md:grid-cols-[240px_1fr]"
+            data-tags={postTags}
+            data-year={postYear}
         >
           {post.data.featuredImage && (
             <a href={`/mpalaourg-astro/formula/${post.slug}`}>
@@ -151,5 +155,39 @@ const filteredPosts = posts.filter((post) => {
         </article>
       )})}
     </div>
+
+    <script>
+      const urlParams = new URLSearchParams(window.location.search);
+      const activeTag = urlParams.get('tag');
+      const activeYear = urlParams.get('year');
+
+      // Filter posts based on URL params
+      document.querySelectorAll('.formula-post').forEach(post => {
+        const postTags = post.dataset.tags || '';
+        const postYear = post.dataset.year || '';
+        
+        let shouldShow = true;
+        
+        if (activeTag && !postTags.includes(activeTag)) {
+          shouldShow = false;
+        }
+        
+        if (activeYear && postYear !== activeYear) {
+          shouldShow = false;
+        }
+        
+        post.style.display = shouldShow ? '' : 'none';
+      });
+
+      // Update active states
+      if (activeTag) {
+        document.querySelectorAll('.tag-filter').forEach(btn => {
+          if (btn.dataset.tag === activeTag) {
+            btn.classList.remove('bg-gray-200', 'dark:bg-slate-700', 'text-gray-700', 'dark:text-slate-300');
+            btn.classList.add('bg-blue-600', 'text-white');
+          }
+        });
+      }
+    </script>
   </main>
 </BaseLayout>
