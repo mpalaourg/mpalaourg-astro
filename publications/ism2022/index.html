@@ -1,0 +1,47 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Explaining video summarization based on the focus of attention | Publications</title><!-- Theme script (runs before paint) --><script type="module">const e=document.getElementById("theme-toggle");e?.addEventListener("click",()=>{const t=document.documentElement.classList.toggle("dark");localStorage.setItem("theme",t?"dark":"light")});</script><link rel="stylesheet" href="/_astro/about.BfEv7GFA.css"></head> <body class="bg-white text-gray-900
+           dark:bg-slate-900 dark:text-slate-100 transition-colors"> <header class="border-b border-gray-200 dark:border-gray-800"> <div class="mx-auto flex max-w-5xl items-center justify-between px-4 py-4"> <a href="/" class="font-semibold">Georgios Balaouras</a> <nav class="flex items-center gap-4 text-sm"> <a href="/formula" class="text-gray-600 hover:text-gray-900
+                    dark:text-gray-300 dark:hover:text-white">
+Formula
+</a> <a href="/projects" class="text-gray-600 hover:text-gray-900
+                    dark:text-gray-300 dark:hover:text-white">
+Projects
+</a> <a href="/publications" class="text-gray-600 hover:text-gray-900
+                    dark:text-gray-300 dark:hover:text-white"> Publications </a> <a href="/media/files/resume_en.pdf" target="_blank" class="text-gray-600 hover:text-gray-900
+                    dark:text-gray-300 dark:hover:text-white">
+Resume/CV
+</a> <!-- Language switcher --> <div class="relative group"> <button type="button" aria-label="Change language" tabindex="0" class="flex items-center gap-1 rounded-md border px-2 py-1 text-sm
+                     border-gray-300 bg-gray-100 text-gray-800
+                     hover:bg-gray-200
+                     dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100
+                     dark:hover:bg-gray-700">
+🌐
+</button> <div class="absolute right-0 mt-2 hidden w-40 rounded-md border pt-1
+                     bg-white dark:bg-slate-900
+                     border-gray-200 dark:border-gray-700
+                     group-hover:block group-focus-within:block"> <a href="/publications/ism2022/" class="flex items-center gap-2 px-3 py-2 text-sm
+                       hover:bg-gray-100 dark:hover:bg-slate-800"> <img src="/icons/gb.svg" alt="English" class="h-4 w-4">
+English
+</a> <a href="/el/publications/ism2022/" class="flex items-center gap-2 px-3 py-2 text-sm
+                       hover:bg-gray-100 dark:hover:bg-slate-800"> <img src="/icons/gr.svg" alt="Ελληνικά" class="h-4 w-4">
+Ελληνικά
+</a> </div> </div> <button id="theme-toggle" type="button" aria-label="Toggle dark mode" class="cursor-pointer rounded-md border px-2 py-1 text-sm
+                    border-gray-300 bg-gray-100 text-gray-800
+                    hover:bg-gray-200
+                    dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100
+                    dark:hover:bg-gray-700">
+🌓
+</button> </nav> </div> </header> <main>  <article class="mx-auto max-w-4xl px-6 py-12"> <header class="mb-8"> <a href="/publications" class="text-sm text-gray-500 dark:text-slate-400 hover:underline mb-4 inline-block">
+← Back to publications
+</a> <img src="/publications/ism2022/featured.png" alt="Explaining video summarization based on the focus of attention" class="mb-6 w-full rounded-xl"> <h1 class="text-3xl font-bold mb-2"> Explaining video summarization based on the focus of attention </h1> <p class="text-gray-600 dark:text-slate-400 mb-1"> IEEE Int. Symposium on Multimedia (ISM) 2022 - <span class="italic">December 2022</span> </p> <p class="text-gray-700 dark:text-slate-300 mb-2"> Evlampios Apostolidis*, Georgios Balaouras*, Vasileios Mezaris, Ioannis Patras </p> <p class="text-xs text-gray-500 dark:text-slate-500">* Equal contribution</p> </header> <div class="flex flex-wrap gap-3 mb-8"> <a href="https://doi.org/10.1109/ISM55400.2022.00029" target="_blank" class="inline-block rounded-md px-3 py-1.5 text-sm bg-slate-700 hover:bg-slate-600 text-white">
+DOI
+</a> <a href="/media/files/ism2022_preprint.pdf" target="_blank" class="inline-block rounded-md px-3 py-1.5 text-sm bg-slate-700 hover:bg-slate-600 text-white">
+PDF
+</a> <a href="https://github.com/e-apostolidis/XAI-SUM" target="_blank" class="inline-block rounded-md px-3 py-1.5 text-sm bg-slate-700 hover:bg-slate-600 text-white">
+Code
+</a>    </div> <div class="prose prose-neutral prose-tight max-w-none dark:prose-invert text-justify"> <p>In this paper we propose a method for explaining video summarization.</p>
+<h2 id="problem-formulation">Problem Formulation</h2>
+<p>We start by formulating the problem as the creation of an explanation mask which indicates the parts of the video that influenced the most the estimates of a video summarization network, about the frames’ importance.</p>
+<h2 id="methodology">Methodology</h2>
+<p>We explain how the typical analysis pipeline of attention-based networks for video summarization can be used to define explanation signals, and we examine various attention-based signals that have been studied as explanations in the NLP domain.</p>
+<h2 id="evaluation">Evaluation</h2>
+<p>We evaluate the performance of these signals by investigating the video summarization network’s input-output relationship according to different replacement functions, and utilizing measures that quantify the capability of explanations to spot the most and least influential parts of a video. We run experiments using an attention-based network (CA-SUM) and two datasets (SumMe and TVSum) for video summarization. Our evaluations indicate the advanced performance of explanations formed using the inherent attention weights, and demonstrate the ability of our method to explain the video summarization results using clues about the focus of the attention mechanism.</p> </div> </article>  </main> <script type="module">const e=localStorage.getItem("theme");(e==="dark"||!e&&window.matchMedia("(prefers-color-scheme: dark)").matches)&&document.documentElement.classList.add("dark");</script> </body> </html>

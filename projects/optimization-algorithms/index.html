@@ -1,0 +1,60 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Optimization Algorithms | Projects</title><!-- Theme script (runs before paint) --><script type="module">const e=document.getElementById("theme-toggle");e?.addEventListener("click",()=>{const t=document.documentElement.classList.toggle("dark");localStorage.setItem("theme",t?"dark":"light")});</script><link rel="stylesheet" href="/_astro/about.BfEv7GFA.css"></head> <body class="bg-white text-gray-900
+           dark:bg-slate-900 dark:text-slate-100 transition-colors"> <header class="border-b border-gray-200 dark:border-gray-800"> <div class="mx-auto flex max-w-5xl items-center justify-between px-4 py-4"> <a href="/" class="font-semibold">Georgios Balaouras</a> <nav class="flex items-center gap-4 text-sm"> <a href="/formula" class="text-gray-600 hover:text-gray-900
+                    dark:text-gray-300 dark:hover:text-white">
+Formula
+</a> <a href="/projects" class="text-gray-600 hover:text-gray-900
+                    dark:text-gray-300 dark:hover:text-white">
+Projects
+</a> <a href="/publications" class="text-gray-600 hover:text-gray-900
+                    dark:text-gray-300 dark:hover:text-white"> Publications </a> <a href="/media/files/resume_en.pdf" target="_blank" class="text-gray-600 hover:text-gray-900
+                    dark:text-gray-300 dark:hover:text-white">
+Resume/CV
+</a> <!-- Language switcher --> <div class="relative group"> <button type="button" aria-label="Change language" tabindex="0" class="flex items-center gap-1 rounded-md border px-2 py-1 text-sm
+                     border-gray-300 bg-gray-100 text-gray-800
+                     hover:bg-gray-200
+                     dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100
+                     dark:hover:bg-gray-700">
+🌐
+</button> <div class="absolute right-0 mt-2 hidden w-40 rounded-md border pt-1
+                     bg-white dark:bg-slate-900
+                     border-gray-200 dark:border-gray-700
+                     group-hover:block group-focus-within:block"> <a href="/projects/optimization-algorithms/" class="flex items-center gap-2 px-3 py-2 text-sm
+                       hover:bg-gray-100 dark:hover:bg-slate-800"> <img src="/icons/gb.svg" alt="English" class="h-4 w-4">
+English
+</a> <a href="/el/projects/optimization-algorithms/" class="flex items-center gap-2 px-3 py-2 text-sm
+                       hover:bg-gray-100 dark:hover:bg-slate-800"> <img src="/icons/gr.svg" alt="Ελληνικά" class="h-4 w-4">
+Ελληνικά
+</a> </div> </div> <button id="theme-toggle" type="button" aria-label="Toggle dark mode" class="cursor-pointer rounded-md border px-2 py-1 text-sm
+                    border-gray-300 bg-gray-100 text-gray-800
+                    hover:bg-gray-200
+                    dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100
+                    dark:hover:bg-gray-700">
+🌓
+</button> </nav> </div> </header> <main>  <article class="mx-auto max-w-4xl px-6 py-12"> <header class="mb-8"> <a href="/projects" class="text-sm text-gray-500 dark:text-slate-400 hover:underline mb-4 inline-block">
+← Back to projects
+</a> <img src="/projects/optimization-algorithms/featured.png" alt="Optimization Algorithms" class="mb-6 w-full rounded-xl"> <h1 class="text-3xl font-bold mb-2"> Optimization Algorithms </h1> <p class="text-gray-600 dark:text-slate-400 mb-4"> <span class="italic">February 2018</span> </p> </header> <div class="flex flex-wrap gap-3 mb-8"> <a href="https://github.com/mpalaourg/Optimization_Techniques" target="_blank" class="inline-block rounded-md px-3 py-1.5 text-sm bg-slate-700 hover:bg-slate-600 text-white">
+Code
+</a>    </div> <div class="prose prose-neutral prose-tight max-w-none dark:prose-invert text-justify"> <p>Implementation of various optimization algorithms for different scenarios:</p>
+<p><strong>1-D Convex Functions:</strong></p>
+<ul>
+<li>Bisection Method (<a href="https://mathworld.wolfram.com/Bisection.html">Algorithm</a>)</li>
+<li>Golden Section Method (<a href="http://web.tecnico.ulisboa.pt/mcasquilho/compute/com/,Fibonacci/pdfHXu_ch1.pdf#page=8">Algorithm</a>)</li>
+<li>Fibonacci Method (<a href="http://web.tecnico.ulisboa.pt/mcasquilho/compute/com/,Fibonacci/pdfHXu_ch1.pdf#page=13">Algorithm</a>)</li>
+<li>Bisection with Derivatives (<a href="http://www.princeton.edu/~aaa/Public/Teaching/ORF363_COS323/F16/ORF363_COS323_F16_Lec7.pdf#page=2">Algorithm</a>)</li>
+</ul>
+<p><strong>2-D Functions (no analytical form):</strong></p>
+<ul>
+<li>Steepest Descent (<a href="http://www.cs.cmu.edu/~pradeepr/convexopt/Lecture_Slides/Gradient-Descent.pdf">Algorithm</a>)</li>
+<li>Newton Method (<a href="http://www.cs.cmu.edu/~pradeepr/convexopt/Lecture_Slides/Newton_methods.pdf#page=11">Algorithm</a>)</li>
+<li>Levenberg-Marquardt (<a href="http://ananth.in/docs/lmtut.pdf">Algorithm</a>)</li>
+<li>Conjugate Gradient (Polak-Ribière) (<a href="http://www.cs.cmu.edu/~pradeepr/convexopt/Lecture_Slides/conjugate_direction_methods.pdf#page=38">Algorithm</a>)</li>
+<li>Quasi-Newton (Davidon-Fletcher-Powell) (<a href="https://www.stat.cmu.edu/~ryantibs/convexopt-F13/lectures/11-QuasiNewton-AnnotatedOnClass.pdf#page=21">Algorithm</a>)</li>
+</ul>
+<p><strong>2-D with Constraints:</strong></p>
+<ul>
+<li>Steepest Descent with/without constraints (<a href="https://www.cs.ccu.edu.tw/~wtchu/courses/2015s_OPT/Lectures/Chapter%2023%20Algorithms%20for%20Constrained%20Optimization.pdf#page=2">Algorithm</a>)</li>
+</ul>
+<p><strong>Global Optimization:</strong></p>
+<ul>
+<li>Genetic Algorithm for unknown continuous functions</li>
+</ul> </div> </article>  BaseLayout> </main> <script type="module">const e=localStorage.getItem("theme");(e==="dark"||!e&&window.matchMedia("(prefers-color-scheme: dark)").matches)&&document.documentElement.classList.add("dark");</script> </body> </html>

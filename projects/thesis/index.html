@@ -1,0 +1,65 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Thesis | Projects</title><!-- Theme script (runs before paint) --><script type="module">const e=document.getElementById("theme-toggle");e?.addEventListener("click",()=>{const t=document.documentElement.classList.toggle("dark");localStorage.setItem("theme",t?"dark":"light")});</script><link rel="stylesheet" href="/_astro/about.BfEv7GFA.css"></head> <body class="bg-white text-gray-900
+           dark:bg-slate-900 dark:text-slate-100 transition-colors"> <header class="border-b border-gray-200 dark:border-gray-800"> <div class="mx-auto flex max-w-5xl items-center justify-between px-4 py-4"> <a href="/" class="font-semibold">Georgios Balaouras</a> <nav class="flex items-center gap-4 text-sm"> <a href="/formula" class="text-gray-600 hover:text-gray-900
+                    dark:text-gray-300 dark:hover:text-white">
+Formula
+</a> <a href="/projects" class="text-gray-600 hover:text-gray-900
+                    dark:text-gray-300 dark:hover:text-white">
+Projects
+</a> <a href="/publications" class="text-gray-600 hover:text-gray-900
+                    dark:text-gray-300 dark:hover:text-white"> Publications </a> <a href="/media/files/resume_en.pdf" target="_blank" class="text-gray-600 hover:text-gray-900
+                    dark:text-gray-300 dark:hover:text-white">
+Resume/CV
+</a> <!-- Language switcher --> <div class="relative group"> <button type="button" aria-label="Change language" tabindex="0" class="flex items-center gap-1 rounded-md border px-2 py-1 text-sm
+                     border-gray-300 bg-gray-100 text-gray-800
+                     hover:bg-gray-200
+                     dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100
+                     dark:hover:bg-gray-700">
+🌐
+</button> <div class="absolute right-0 mt-2 hidden w-40 rounded-md border pt-1
+                     bg-white dark:bg-slate-900
+                     border-gray-200 dark:border-gray-700
+                     group-hover:block group-focus-within:block"> <a href="/projects/thesis/" class="flex items-center gap-2 px-3 py-2 text-sm
+                       hover:bg-gray-100 dark:hover:bg-slate-800"> <img src="/icons/gb.svg" alt="English" class="h-4 w-4">
+English
+</a> <a href="/el/projects/thesis/" class="flex items-center gap-2 px-3 py-2 text-sm
+                       hover:bg-gray-100 dark:hover:bg-slate-800"> <img src="/icons/gr.svg" alt="Ελληνικά" class="h-4 w-4">
+Ελληνικά
+</a> </div> </div> <button id="theme-toggle" type="button" aria-label="Toggle dark mode" class="cursor-pointer rounded-md border px-2 py-1 text-sm
+                    border-gray-300 bg-gray-100 text-gray-800
+                    hover:bg-gray-200
+                    dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100
+                    dark:hover:bg-gray-700">
+🌓
+</button> </nav> </div> </header> <main>  <article class="mx-auto max-w-4xl px-6 py-12"> <header class="mb-8"> <a href="/projects" class="text-sm text-gray-500 dark:text-slate-400 hover:underline mb-4 inline-block">
+← Back to projects
+</a> <img src="/projects/thesis/featured.png" alt="Thesis" class="mb-6 w-full rounded-xl"> <h1 class="text-3xl font-bold mb-2"> Thesis </h1> <p class="text-gray-600 dark:text-slate-400 mb-4"> <span class="italic">October 2020</span> </p> </header> <div class="flex flex-wrap gap-3 mb-8"> <a href="https://github.com/mpalaourg/Thesis" target="_blank" class="inline-block rounded-md px-3 py-1.5 text-sm bg-slate-700 hover:bg-slate-600 text-white">
+Code
+</a> <a href="/el/media/files/thesis.pdf" target="_blank" class="inline-block rounded-md px-3 py-1.5 text-sm bg-slate-700 hover:bg-slate-600 text-white">
+PDF
+</a> <a href="/el/media/slides/thesis.pptx" target="_blank" class="inline-block rounded-md px-3 py-1.5 text-sm bg-slate-700 hover:bg-slate-600 text-white">
+Slides
+</a>  </div> <div class="prose prose-neutral prose-tight max-w-none dark:prose-invert text-justify"> <p>In a modern-day society, there is the consensus that smartphones have a dominant role in everyday life. By just pressing a button, someone can not only get up to speed with the current events on a global scale, but also get in touch with people all over the world and find various forms of entertainment. In particular, one of the features that makes smartphones so attractive is the portability they offer, since they utilize batteries. However, batteries have a certain amount of charges in their disposal, consequently the lifespan of a device is directly correlated to its utilization, as well as its charging strategy.</p>
+<p>The current thesis focuses on the analysis of mobile phones’ usage and the prediction of the battery’s energy drain. To begin with, for data collection the application <a href="https://play.google.com/store/apps/details?id=gr.auth.ee.issel.batteryapp">BatteryApp</a>, which periodically keeps record of the device’s usage and the battery information, was developed. The next step is the grouping of similar uses of devices through Hierarchical Clustering, which does not require an a priori selection for a specific cluster number and does not set limitations regarding the chosen distance function. After that, it was assessed based on its content in order to select the clusters with the higher information value. Lastly, the prediction of the energy drain was constructed by employing a simple linear model, two variants of linear regression, where the penalty concept is introduced (Ridge and Lasso Regression), and a non-linear model, which belongs to the Ensemble Learning category (eXtreme Gradient Boosted trees), with the parameters’ learning procedure being applied to each selected cluster individually.</p>
+<h2 id="app-description"><strong>App Description</strong></h2>
+<p>As part of my Thesis, I have developed the Android application BatteryApp, which during its operation collects data from the mobile phone’s usage and the battery status at regular intervals. The data collected is anonymous, as during the installation of the app you will be assigned a unique user ID. The information collected is:</p>
+<ul>
+<li>The unique ID that distinguishes you from other users</li>
+<li>The level, temperature, voltage, technology, status (charge/discharge), health (good/overheating) of the battery</li>
+<li>CPU usage</li>
+<li>If Wi-Fi, Cellular Data, Bluetooth, Hotspot, GPS <sup><a href="#user-content-fn-1" id="user-content-fnref-1" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup> of the mobile are activated</li>
+<li>The available RAM</li>
+<li>The screen brightness level</li>
+<li>If the phone is interactive (screen is turned on or off)</li>
+<li>Sampling frequency</li>
+<li>The model of the mobile and the android version</li>
+<li>The percentage remaining in the battery capacity</li>
+<li>The Timestamp of each sample</li>
+</ul>
+<p>For a more detailed description, check <a href="https://github.com/mpalaourg/Thesis#raw-data-variables">here</a>.</p>
+<section data-footnotes="" class="footnotes"><h2 class="sr-only" id="footnote-label">Footnotes</h2>
+<ol>
+<li id="user-content-fn-1">
+<p><em>Only if it is enabled, your location will NOT be logged</em> <a href="#user-content-fnref-1" data-footnote-backref="" aria-label="Back to reference 1" class="data-footnote-backref">↩</a></p>
+</li>
+</ol>
+</section> </div> </article>  BaseLayout> </main> <script type="module">const e=localStorage.getItem("theme");(e==="dark"||!e&&window.matchMedia("(prefers-color-scheme: dark)").matches)&&document.documentElement.classList.add("dark");</script> </body> </html>

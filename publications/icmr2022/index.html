@@ -1,0 +1,49 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Summarizing Videos using Concentrated Attention and Considering the Uniqueness and Diversity of the Video Frames | Publications</title><!-- Theme script (runs before paint) --><script type="module">const e=document.getElementById("theme-toggle");e?.addEventListener("click",()=>{const t=document.documentElement.classList.toggle("dark");localStorage.setItem("theme",t?"dark":"light")});</script><link rel="stylesheet" href="/_astro/about.BfEv7GFA.css"></head> <body class="bg-white text-gray-900
+           dark:bg-slate-900 dark:text-slate-100 transition-colors"> <header class="border-b border-gray-200 dark:border-gray-800"> <div class="mx-auto flex max-w-5xl items-center justify-between px-4 py-4"> <a href="/" class="font-semibold">Georgios Balaouras</a> <nav class="flex items-center gap-4 text-sm"> <a href="/formula" class="text-gray-600 hover:text-gray-900
+                    dark:text-gray-300 dark:hover:text-white">
+Formula
+</a> <a href="/projects" class="text-gray-600 hover:text-gray-900
+                    dark:text-gray-300 dark:hover:text-white">
+Projects
+</a> <a href="/publications" class="text-gray-600 hover:text-gray-900
+                    dark:text-gray-300 dark:hover:text-white"> Publications </a> <a href="/media/files/resume_en.pdf" target="_blank" class="text-gray-600 hover:text-gray-900
+                    dark:text-gray-300 dark:hover:text-white">
+Resume/CV
+</a> <!-- Language switcher --> <div class="relative group"> <button type="button" aria-label="Change language" tabindex="0" class="flex items-center gap-1 rounded-md border px-2 py-1 text-sm
+                     border-gray-300 bg-gray-100 text-gray-800
+                     hover:bg-gray-200
+                     dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100
+                     dark:hover:bg-gray-700">
+🌐
+</button> <div class="absolute right-0 mt-2 hidden w-40 rounded-md border pt-1
+                     bg-white dark:bg-slate-900
+                     border-gray-200 dark:border-gray-700
+                     group-hover:block group-focus-within:block"> <a href="/publications/icmr2022/" class="flex items-center gap-2 px-3 py-2 text-sm
+                       hover:bg-gray-100 dark:hover:bg-slate-800"> <img src="/icons/gb.svg" alt="English" class="h-4 w-4">
+English
+</a> <a href="/el/publications/icmr2022/" class="flex items-center gap-2 px-3 py-2 text-sm
+                       hover:bg-gray-100 dark:hover:bg-slate-800"> <img src="/icons/gr.svg" alt="Ελληνικά" class="h-4 w-4">
+Ελληνικά
+</a> </div> </div> <button id="theme-toggle" type="button" aria-label="Toggle dark mode" class="cursor-pointer rounded-md border px-2 py-1 text-sm
+                    border-gray-300 bg-gray-100 text-gray-800
+                    hover:bg-gray-200
+                    dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100
+                    dark:hover:bg-gray-700">
+🌓
+</button> </nav> </div> </header> <main>  <article class="mx-auto max-w-4xl px-6 py-12"> <header class="mb-8"> <a href="/publications" class="text-sm text-gray-500 dark:text-slate-400 hover:underline mb-4 inline-block">
+← Back to publications
+</a> <img src="/publications/icmr2022/featured.png" alt="Summarizing Videos using Concentrated Attention and Considering the Uniqueness and Diversity of the Video Frames" class="mb-6 w-full rounded-xl"> <h1 class="text-3xl font-bold mb-2"> Summarizing Videos using Concentrated Attention and Considering the Uniqueness and Diversity of the Video Frames </h1> <p class="text-gray-600 dark:text-slate-400 mb-1"> ACM Int. Conference on Multimedia Retrieval 2022 - <span class="italic">June 2022</span> </p> <p class="text-gray-700 dark:text-slate-300 mb-2"> Evlampios Apostolidis*, Georgios Balaouras*, Vasileios Mezaris, Ioannis Patras </p> <p class="text-xs text-gray-500 dark:text-slate-500">* Equal contribution</p> </header> <div class="flex flex-wrap gap-3 mb-8"> <a href="https://doi.org/10.1145/3512527.3531404" target="_blank" class="inline-block rounded-md px-3 py-1.5 text-sm bg-slate-700 hover:bg-slate-600 text-white">
+DOI
+</a> <a href="/media/files/icmr2022_preprint.pdf" target="_blank" class="inline-block rounded-md px-3 py-1.5 text-sm bg-slate-700 hover:bg-slate-600 text-white">
+PDF
+</a> <a href="https://github.com/e-apostolidis/CA-SUM" target="_blank" class="inline-block rounded-md px-3 py-1.5 text-sm bg-slate-700 hover:bg-slate-600 text-white">
+Code
+</a> <a href="https://dl.acm.org/doi/10.1145/3512527.3531404#sec-supp" target="_blank" class="inline-block rounded-md px-3 py-1.5 text-sm bg-slate-700 hover:bg-slate-600 text-white">
+Video
+</a> <a href="/media/slides/icmr2022_slides.pptx" target="_blank" class="inline-block rounded-md px-3 py-1.5 text-sm bg-slate-700 hover:bg-slate-600 text-white">
+Slides
+</a>  </div> <div class="prose prose-neutral prose-tight max-w-none dark:prose-invert text-justify"> <p>In this work, we describe a new method for unsupervised video summarization.</p>
+<h2 id="method">Method</h2>
+<p>To overcome limitations of existing unsupervised video summarization approaches, that relate to the unstable training of Generator-Discriminator architectures, the use of RNNs for modeling long-range frames’ dependencies and the ability to parallelize the training process of RNN-based network architectures, the developed method relies solely on the use of a self-attention mechanism to estimate the importance of video frames. Instead of simply modeling the frames’ dependencies based on global attention, our method integrates a concentrated attention mechanism that is able to focus on non-overlapping blocks in the main diagonal of the attention matrix, and to enrich the existing information by extracting and exploiting knowledge about the uniqueness and diversity of the associated frames of the video.</p>
+<h2 id="results">Results</h2>
+<p>In this way, our method makes better estimates about the significance of different parts of the video, and drastically reduces the number of learnable parameters. Experimental evaluations using two benchmarking datasets (SumMe and TVSum) show the competitiveness of the proposed method against other state-of-the-art unsupervised summarization approaches, and demonstrate its ability to produce video summaries that are very close to the human preferences.</p> </div> </article>  </main> <script type="module">const e=localStorage.getItem("theme");(e==="dark"||!e&&window.matchMedia("(prefers-color-scheme: dark)").matches)&&document.documentElement.classList.add("dark");</script> </body> </html>

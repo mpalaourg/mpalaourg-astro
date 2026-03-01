@@ -1,0 +1,51 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Combining Global and Local Attention with Positional Encoding for Video Summarization | Δημοσιεύσεις</title><!-- Theme script (runs before paint) --><script type="module">const e=document.getElementById("theme-toggle");e?.addEventListener("click",()=>{const t=document.documentElement.classList.toggle("dark");localStorage.setItem("theme",t?"dark":"light")});</script><link rel="stylesheet" href="/_astro/about.BfEv7GFA.css"></head> <body class="bg-white text-gray-900
+           dark:bg-slate-900 dark:text-slate-100 transition-colors"> <header class="border-b border-gray-200 dark:border-gray-800"> <div class="mx-auto flex max-w-5xl items-center justify-between px-4 py-4"> <a href="/" class="font-semibold">Georgios Balaouras</a> <nav class="flex items-center gap-4 text-sm"> <a href="/el/formula" class="text-gray-600 hover:text-gray-900
+                    dark:text-gray-300 dark:hover:text-white">
+Formula
+</a> <a href="/el/projects" class="text-gray-600 hover:text-gray-900
+                    dark:text-gray-300 dark:hover:text-white">
+Projects
+</a> <a href="/el/publications" class="text-gray-600 hover:text-gray-900
+                    dark:text-gray-300 dark:hover:text-white"> Δημοσιεύσεις </a> <a href="/el/media/files/resume_gr.pdf" target="_blank" class="text-gray-600 hover:text-gray-900
+                    dark:text-gray-300 dark:hover:text-white">
+Resume/CV
+</a> <!-- Language switcher --> <div class="relative group"> <button type="button" aria-label="Change language" tabindex="0" class="flex items-center gap-1 rounded-md border px-2 py-1 text-sm
+                     border-gray-300 bg-gray-100 text-gray-800
+                     hover:bg-gray-200
+                     dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100
+                     dark:hover:bg-gray-700">
+🌐
+</button> <div class="absolute right-0 mt-2 hidden w-40 rounded-md border pt-1
+                     bg-white dark:bg-slate-900
+                     border-gray-200 dark:border-gray-700
+                     group-hover:block group-focus-within:block"> <a href="/publications/ism2021/" class="flex items-center gap-2 px-3 py-2 text-sm
+                       hover:bg-gray-100 dark:hover:bg-slate-800"> <img src="/icons/gb.svg" alt="English" class="h-4 w-4">
+English
+</a> <a href="/el/publications/ism2021/" class="flex items-center gap-2 px-3 py-2 text-sm
+                       hover:bg-gray-100 dark:hover:bg-slate-800"> <img src="/icons/gr.svg" alt="Ελληνικά" class="h-4 w-4">
+Ελληνικά
+</a> </div> </div> <button id="theme-toggle" type="button" aria-label="Toggle dark mode" class="cursor-pointer rounded-md border px-2 py-1 text-sm
+                    border-gray-300 bg-gray-100 text-gray-800
+                    hover:bg-gray-200
+                    dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100
+                    dark:hover:bg-gray-700">
+🌓
+</button> </nav> </div> </header> <main>  <article class="mx-auto max-w-4xl px-6 py-12"> <header class="mb-8"> <a href="/el/publications" class="text-sm text-gray-500 dark:text-slate-400 hover:underline mb-4 inline-block">
+← Επιστροφή στις δημοσιεύσεις
+</a> <img src="/publications/ism2021/featured.png" alt="Combining Global and Local Attention with Positional Encoding for Video Summarization" class="mb-6 w-full rounded-xl"> <h1 class="text-3xl font-bold mb-2"> Combining Global and Local Attention with Positional Encoding for Video Summarization </h1> <p class="text-gray-600 dark:text-slate-400 mb-2"> IEEE Int. Symposium on Multimedia (ISM) 2021 - <span class="italic">Δεκέμβριος 2021</span> </p> <p class="text-gray-700 dark:text-slate-300 mb-2"> Ευλάμπιος Αποστολίδης*, Γεώργιος Μπαλαούρας*, Βασίλειος Μεζάρης, Ιωάννης Πάτρας </p> <p class="text-xs text-gray-500 dark:text-slate-500 mb-4">* Ίση συνεισφορά</p> </header> <div class="flex flex-wrap gap-3 mb-8"> <a href="https://doi.org/10.1109/ISM52913.2021.00045" target="_blank" class="inline-block rounded-md px-3 py-1.5 text-sm bg-slate-700 hover:bg-slate-600 text-white">
+DOI
+</a> <a href="/media/files/ism2021_preprint.pdf" target="_blank" class="inline-block rounded-md px-3 py-1.5 text-sm bg-slate-700 hover:bg-slate-600 text-white">
+PDF
+</a> <a href="https://github.com/e-apostolidis/PGL-SUM" target="_blank" class="inline-block rounded-md px-3 py-1.5 text-sm bg-slate-700 hover:bg-slate-600 text-white">
+Κώδικας
+</a> <a href="https://www.youtube.com/watch?v=LbjPLJzeNII" target="_blank" class="inline-block rounded-md px-3 py-1.5 text-sm bg-slate-700 hover:bg-slate-600 text-white">
+Βίντεο
+</a> <a href="/media/slides/ism2021_slides.pptx" target="_blank" class="inline-block rounded-md px-3 py-1.5 text-sm bg-slate-700 hover:bg-slate-600 text-white">
+Slides
+</a> <a href="http://multimedia2.iti.gr/videosummarization/service/start.html" target="_blank" class="inline-block rounded-md px-3 py-1.5 text-sm bg-slate-700 hover:bg-slate-600 text-white">
+Project
+</a> </div> <div class="prose prose-neutral prose-tight max-w-none dark:prose-invert text-justify"> <p>Αυτή η εργασία παρουσιάζει μια νέα μέθοδο για την εποπτευόμενη δημιουργία περιλήψεων βίντεο.</p>
+<h2 id="μέθοδος">Μέθοδος</h2>
+<p>Για να ξεπεραστούν τα μειονεκτήματα υφιστάμενων αρχιτεκτονικών δημιουργίας περιλήψεων που βασίζονται σε RNNs, σχετικά με τη μοντελοποίηση των εξαρτήσεων μεγάλης εμβέλειας των καρέ και την ικανότητα παραλληλοποίησης της εκπαίδευσης, το αναπτυγμένο μοντέλο βασίζεται στη χρήση μηχανισμών αυτοπροσοχής για την εκτίμηση της σημασίας των καρέ του βίντεο.</p>
+<h2 id="αποτελέσματα">Αποτελέσματα</h2>
+<p>Πειράματα σε δύο σύνολα δεδομένων (SumMe και TVSum) καταδεικνύουν την αποτελεσματικότητα του προτεινόμενου μοντέλου σε σύγκριση με τις υπάρχουσες μεθόδους αυτοπροσοχής και την ανταγωνιστικότητά του έναντι άλλων state-of-the-art εποπτευόμενων προσεγγίσεων δημιουργίας περιλήψεων.</p> </div> </article>  </main> <script type="module">const e=localStorage.getItem("theme");(e==="dark"||!e&&window.matchMedia("(prefers-color-scheme: dark)").matches)&&document.documentElement.classList.add("dark");</script> </body> </html>

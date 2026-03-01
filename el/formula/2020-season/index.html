@@ -1,0 +1,850 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Η χρονιά ρεκόρ του Lewis | Formula</title><!-- Theme script (runs before paint) --><script type="module">const e=document.getElementById("theme-toggle");e?.addEventListener("click",()=>{const t=document.documentElement.classList.toggle("dark");localStorage.setItem("theme",t?"dark":"light")});</script><link rel="stylesheet" href="/_astro/about.BfEv7GFA.css"></head> <body class="bg-white text-gray-900
+           dark:bg-slate-900 dark:text-slate-100 transition-colors"> <header class="border-b border-gray-200 dark:border-gray-800"> <div class="mx-auto flex max-w-5xl items-center justify-between px-4 py-4"> <a href="/" class="font-semibold">Georgios Balaouras</a> <nav class="flex items-center gap-4 text-sm"> <a href="/el/formula" class="text-gray-600 hover:text-gray-900
+                    dark:text-gray-300 dark:hover:text-white">
+Formula
+</a> <a href="/el/projects" class="text-gray-600 hover:text-gray-900
+                    dark:text-gray-300 dark:hover:text-white">
+Projects
+</a> <a href="/el/publications" class="text-gray-600 hover:text-gray-900
+                    dark:text-gray-300 dark:hover:text-white"> Δημοσιεύσεις </a> <a href="/el/media/files/resume_gr.pdf" target="_blank" class="text-gray-600 hover:text-gray-900
+                    dark:text-gray-300 dark:hover:text-white">
+Resume/CV
+</a> <!-- Language switcher --> <div class="relative group"> <button type="button" aria-label="Change language" tabindex="0" class="flex items-center gap-1 rounded-md border px-2 py-1 text-sm
+                     border-gray-300 bg-gray-100 text-gray-800
+                     hover:bg-gray-200
+                     dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100
+                     dark:hover:bg-gray-700">
+🌐
+</button> <div class="absolute right-0 mt-2 hidden w-40 rounded-md border pt-1
+                     bg-white dark:bg-slate-900
+                     border-gray-200 dark:border-gray-700
+                     group-hover:block group-focus-within:block"> <a href="/formula/2020-season/" class="flex items-center gap-2 px-3 py-2 text-sm
+                       hover:bg-gray-100 dark:hover:bg-slate-800"> <img src="/icons/gb.svg" alt="English" class="h-4 w-4">
+English
+</a> <a href="/el/formula/2020-season/" class="flex items-center gap-2 px-3 py-2 text-sm
+                       hover:bg-gray-100 dark:hover:bg-slate-800"> <img src="/icons/gr.svg" alt="Ελληνικά" class="h-4 w-4">
+Ελληνικά
+</a> </div> </div> <button id="theme-toggle" type="button" aria-label="Toggle dark mode" class="cursor-pointer rounded-md border px-2 py-1 text-sm
+                    border-gray-300 bg-gray-100 text-gray-800
+                    hover:bg-gray-200
+                    dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100
+                    dark:hover:bg-gray-700">
+🌓
+</button> </nav> </div> </header> <main>  <article class="mx-auto px-6 py-12"> <header class="mb-12"> <div class="mx-auto max-w-6xl"> <img src="/formula/2020-season/featured.png" alt="Η χρονιά ρεκόρ του Lewis" class="mb-6 w-full rounded-xl"> <h1 class="text-4xl font-bold mb-2"> Η χρονιά ρεκόρ του Lewis </h1> <p class="text-sm text-gray-500 dark:text-slate-400 mb-4">
+Δημοσιεύθηκε στις 14/12/2020 </p> <a href="https://github.com/mpalaourg/F1_DataAnalysis/blob/main/2020-Season/Season%20Analysis.ipynb" target="_blank" class="inline-block rounded-md border px-3 py-1 text-sm
+                   border-gray-300 dark:border-gray-700
+                   hover:bg-gray-100 dark:hover:bg-slate-800">
+Κώδικας
+</a> </div> </header> <div class="mx-auto max-w-6xl"> <div class="prose prose-neutral prose-tight max-w-none
+               dark:prose-invert text-justify
+               dark:prose-headings:text-slate-100
+               dark:prose-p:text-slate-300"> <p>Η σεζόν της Formula 1 το 2020 επηρεάστηκε σε μεγάλο βαθμό από την παγκόσμια εξάπλωση
+του ιού Covid‑19. Η έναρξη του πρωταθλήματος, που αρχικά είχε προγραμματιστεί για
+τον Μάρτιο, αναβλήθηκε για αρκετούς μήνες και τελικά ξεκίνησε τον Ιούλιο. Οι πρώτοι
+οκτώ αγώνες διεξήχθησαν χωρίς θεατές, ενώ οι υπόλοιποι πραγματοποιήθηκαν με
+περιορισμένη παρουσία κοινού ή κεκλεισμένων των θυρών λόγω του δεύτερου κύματος
+της πανδημίας.</p>
+<h2 id="αγωνιστικό-ημερολόγιο">Αγωνιστικό Ημερολόγιο</h2>
+<p>Η σεζόν περιλάμβανε αρκετές σημαντικές εξελίξεις. Το <strong>Grand Prix Αυστραλίας</strong>,
+που είχε οριστεί ως ο εναρκτήριος αγώνας, ακυρώθηκε λίγες ώρες πριν από την πρώτη
+περίοδο ελεύθερων δοκιμών. Επιπλέον, ακυρώθηκαν τα <strong>Grand Prix Βιετνάμ</strong> και
+<strong>Ολλανδίας</strong>, το οποίο θα επέστρεφε μετά από απουσία άνω των 30 ετών.</p>
+<p>Αρχικά, το πρόγραμμα περιλάμβανε οκτώ ευρωπαϊκές πίστες, όμως στη συνέχεια
+προστέθηκαν και άλλες. Νέες τοποθεσίες όπως το <strong>Mugello (GP Τοσκάνης)</strong> και
+το <strong>Algarve (GP Πορτογαλίας)</strong> έκαναν την εμφάνισή τους, ενώ ιστορικές πίστες
+όπως το <strong>Nürburgring</strong>, η <strong>Imola</strong> και το <strong>Istanbul Park</strong> επέστρεψαν.</p>
+<p>Ένα ιδιαίτερο χαρακτηριστικό της σεζόν ήταν η διεξαγωγή περισσότερων του ενός
+αγώνων στην ίδια πίστα. Τα <strong>Red Bull Ring</strong>, <strong>Silverstone</strong> και <strong>Bahrain</strong>
+φιλοξένησαν δύο Grand Prix με διαφορετικές ονομασίες.</p>
+<p>Συνολικά, η σεζόν του 2020 περιλάμβανε 17 Grand Prix.</p>
+<figure class="my-8"><div class="overflow-x-auto">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th style="text-align:right">Round</th><th>Grand Prix</th><th>Country</th><th>City</th><th>Circuit</th><th>Date</th><th style="text-align:right">Length (km)</th><th style="text-align:right">Laps</th></tr></thead><tbody><tr><td style="text-align:right">1</td><td>Austrian</td><td>Austria</td><td>Spielberg</td><td>Red Bull Ring</td><td>5 Jul 2020</td><td style="text-align:right">4.318</td><td style="text-align:right">71</td></tr><tr><td style="text-align:right">2</td><td>Styrian</td><td>Austria</td><td>Spielberg</td><td>Red Bull Ring</td><td>12 Jul 2020</td><td style="text-align:right">4.318</td><td style="text-align:right">71</td></tr><tr><td style="text-align:right">3</td><td>Hungarian</td><td>Hungary</td><td>Budapest</td><td>Hungaroring</td><td>19 Jul 2020</td><td style="text-align:right">4.381</td><td style="text-align:right">70</td></tr><tr><td style="text-align:right">4</td><td>British</td><td>Great Britain</td><td>Silverstone</td><td>Silverstone Circuit</td><td>2 Aug 2020</td><td style="text-align:right">5.891</td><td style="text-align:right">52</td></tr><tr><td style="text-align:right">5</td><td>70th Anniversary</td><td>Great Britain</td><td>Silverstone</td><td>Silverstone Circuit</td><td>9 Aug 2020</td><td style="text-align:right">5.891</td><td style="text-align:right">52</td></tr><tr><td style="text-align:right">6</td><td>Spanish</td><td>Spain</td><td>Barcelona</td><td>Circuit de Barcelona‑Catalunya</td><td>16 Aug 2020</td><td style="text-align:right">4.655</td><td style="text-align:right">66</td></tr><tr><td style="text-align:right">7</td><td>Belgian</td><td>Belgium</td><td>Spa</td><td>Circuit de Spa‑Francorchamps</td><td>30 Aug 2020</td><td style="text-align:right">7.004</td><td style="text-align:right">44</td></tr><tr><td style="text-align:right">8</td><td>Italian</td><td>Italy</td><td>Monza</td><td>Autodromo Nazionale Monza</td><td>6 Sep 2020</td><td style="text-align:right">5.793</td><td style="text-align:right">53</td></tr><tr><td style="text-align:right">9</td><td>Tuscan</td><td>Italy</td><td>Mugello</td><td>Mugello Circuit</td><td>13 Sep 2020</td><td style="text-align:right">5.245</td><td style="text-align:right">59</td></tr><tr><td style="text-align:right">10</td><td>Russian</td><td>Russia</td><td>Sochi</td><td>Sochi Autodrom</td><td>27 Sep 2020</td><td style="text-align:right">5.848</td><td style="text-align:right">53</td></tr><tr><td style="text-align:right">11</td><td>Eifel</td><td>Germany</td><td>Nürburg</td><td>Nürburgring</td><td>11 Oct 2020</td><td style="text-align:right">5.148</td><td style="text-align:right">60</td></tr><tr><td style="text-align:right">12</td><td>Portuguese</td><td>Portugal</td><td>Portimão</td><td>Autódromo Internacional do Algarve</td><td>25 Oct 2020</td><td style="text-align:right">4.653</td><td style="text-align:right">66</td></tr><tr><td style="text-align:right">13</td><td>Emilia Romagna</td><td>Italy</td><td>Imola</td><td>Autodromo Enzo e Dino Ferrari</td><td>1 Nov 2020</td><td style="text-align:right">4.909</td><td style="text-align:right">63</td></tr><tr><td style="text-align:right">14</td><td>Turkish</td><td>Turkey</td><td>Istanbul</td><td>Intercity Istanbul Park</td><td>15 Nov 2020</td><td style="text-align:right">5.338</td><td style="text-align:right">58</td></tr><tr><td style="text-align:right">15</td><td>Bahrain</td><td>Bahrain</td><td>Sakhir</td><td>Bahrain International Circuit</td><td>29 Nov 2020</td><td style="text-align:right">5.412</td><td style="text-align:right">57</td></tr><tr><td style="text-align:right">16</td><td>Sakhir</td><td>Bahrain</td><td>Sakhir</td><td>Bahrain Int. Circuit (Outer)</td><td>6 Dec 2020</td><td style="text-align:right">3.543</td><td style="text-align:right">87</td></tr><tr><td style="text-align:right">17</td><td>Abu Dhabi</td><td>UAE</td><td>Yas Island</td><td>Yas Marina Circuit</td><td>13 Dec 2020</td><td style="text-align:right">5.554</td><td style="text-align:right">55</td></tr></tbody></table></div><figcaption class="mt-2 text-sm text-gray-500 dark:text-slate-400 text-center"><p>Αγωνιστικό ημερολόγιο Formula 1 2020 με πίστες, ημερομηνίες και χαρακτηριστικά αγώνων.</p></figcaption></figure>
+<h2 id="οδηγοί-και-κατασκευαστές">Οδηγοί και Κατασκευαστές</h2>
+<p>Το grid αποτελούνταν από 10 ομάδες και 23 οδηγούς, συμπεριλαμβανομένων τριών
+αναπληρωματικών οδηγών. Σε σύγκριση με το 2019, σημειώθηκαν αρκετές σημαντικές
+αλλαγές:</p>
+<ul>
+<li><strong>Ο Esteban Ocon</strong> αντικατέστησε τον <strong>Nico Hülkenberg</strong> στη Renault</li>
+<li><strong>Ο Nicholas Latifi</strong> αντικατέστησε τον <strong>Robert Kubica</strong> στη Williams</li>
+<li>Η <strong>Toro Rosso</strong> μετονομάστηκε σε <strong>AlphaTauri</strong></li>
+<li>Η <strong>Mercedes AMG Petronas</strong> υιοθέτησε μαύρο livery το 2020</li>
+</ul>
+<p>Κατά τη διάρκεια της σεζόν, ο <strong>Nico Hülkenberg</strong> κλήθηκε τρεις φορές από τη
+<strong>Racing Point</strong> ως αντικαταστάτης οδηγών που προσβλήθηκαν από Covid‑19.
+Επιπλέον, οι <strong>Jack Aitken</strong> και <strong>Pietro Fittipaldi</strong> πραγματοποίησαν το
+ντεμπούτο τους στη Formula 1.</p>
+<figure class="my-8"><div class="overflow-x-auto">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th style="text-align:center">Abbr.</th><th style="text-align:right">No.</th><th>Driver</th><th>Team</th><th>Nationality</th><th>Date of Birth</th><th>Place of Birth</th><th style="text-align:right">GPs Entered</th><th style="text-align:right">Best Finish</th></tr></thead><tbody><tr><td style="text-align:center">HAM</td><td style="text-align:right">44</td><td>Lewis Hamilton</td><td>Mercedes</td><td>United Kingdom</td><td>07/01/1985</td><td>Stevenage, England</td><td style="text-align:right">266</td><td style="text-align:right">1st (×95)</td></tr><tr><td style="text-align:center">BOT</td><td style="text-align:right">77</td><td>Valtteri Bottas</td><td>Mercedes</td><td>Finland</td><td>28/08/1989</td><td>Nastola, Finland</td><td style="text-align:right">157</td><td style="text-align:right">1st (×9)</td></tr><tr><td style="text-align:center">VER</td><td style="text-align:right">33</td><td>Max Verstappen</td><td>Red Bull</td><td>Netherlands</td><td>30/09/1997</td><td>Hasselt, Belgium</td><td style="text-align:right">119</td><td style="text-align:right">1st (×10)</td></tr><tr><td style="text-align:center">PER</td><td style="text-align:right">11</td><td>Sergio Pérez</td><td>Racing Point</td><td>Mexico</td><td>26/01/1990</td><td>Guadalajara, Mexico</td><td style="text-align:right">193</td><td style="text-align:right">1st (×1)</td></tr><tr><td style="text-align:center">RIC</td><td style="text-align:right">3</td><td>Daniel Ricciardo</td><td>Renault</td><td>Australia</td><td>01/07/1989</td><td>Perth, Australia</td><td style="text-align:right">188</td><td style="text-align:right">1st (×7)</td></tr><tr><td style="text-align:center">SAI</td><td style="text-align:right">55</td><td>Carlos Sainz</td><td>McLaren</td><td>Spain</td><td>01/09/1994</td><td>Madrid, Spain</td><td style="text-align:right">119</td><td style="text-align:right">2nd (×1)</td></tr><tr><td style="text-align:center">ALB</td><td style="text-align:right">23</td><td>Alexander Albon</td><td>Red Bull</td><td>Thailand</td><td>23/03/1996</td><td>London, England</td><td style="text-align:right">38</td><td style="text-align:right">3rd (×2)</td></tr><tr><td style="text-align:center">LEC</td><td style="text-align:right">16</td><td>Charles Leclerc</td><td>Ferrari</td><td>Monaco</td><td>16/10/1997</td><td>Monte Carlo, Monaco</td><td style="text-align:right">59</td><td style="text-align:right">1st (×2)</td></tr><tr><td style="text-align:center">NOR</td><td style="text-align:right">4</td><td>Lando Norris</td><td>McLaren</td><td>United Kingdom</td><td>13/11/1999</td><td>Bristol, England</td><td style="text-align:right">38</td><td style="text-align:right">3rd (×1)</td></tr><tr><td style="text-align:center">GAS</td><td style="text-align:right">10</td><td>Pierre Gasly</td><td>AlphaTauri</td><td>France</td><td>07/02/1996</td><td>Rouen, France</td><td style="text-align:right">64</td><td style="text-align:right">1st (×1)</td></tr><tr><td style="text-align:center">STR</td><td style="text-align:right">18</td><td>Lance Stroll</td><td>Racing Point</td><td>Canada</td><td>29/10/1998</td><td>Montreal, Canada</td><td style="text-align:right">78</td><td style="text-align:right">3rd (×3)</td></tr><tr><td style="text-align:center">OCO</td><td style="text-align:right">31</td><td>Esteban Ocon</td><td>Renault</td><td>France</td><td>17/09/1996</td><td>Évreux, France</td><td style="text-align:right">67</td><td style="text-align:right">2nd (×1)</td></tr><tr><td style="text-align:center">VET</td><td style="text-align:right">5</td><td>Sebastian Vettel</td><td>Ferrari</td><td>Germany</td><td>03/07/1987</td><td>Heppenheim, Germany</td><td style="text-align:right">258</td><td style="text-align:right">1st (×53)</td></tr><tr><td style="text-align:center">KVY</td><td style="text-align:right">26</td><td>Daniil Kvyat</td><td>AlphaTauri</td><td>Russia</td><td>26/04/1994</td><td>Ufa, Russia</td><td style="text-align:right">112</td><td style="text-align:right">2nd (×1)</td></tr><tr><td style="text-align:center">HUL</td><td style="text-align:right">27</td><td>Nico Hülkenberg</td><td>Racing Point</td><td>Germany</td><td>19/08/1987</td><td>Emmerich am Rhein, Germany</td><td style="text-align:right">182</td><td style="text-align:right">4th (×3)</td></tr><tr><td style="text-align:center">RAI</td><td style="text-align:right">7</td><td>Kimi Räikkönen</td><td>Alfa Romeo</td><td>Finland</td><td>17/10/1979</td><td>Espoo, Finland</td><td style="text-align:right">332</td><td style="text-align:right">1st (×21)</td></tr><tr><td style="text-align:center">GIO</td><td style="text-align:right">99</td><td>Antonio Giovinazzi</td><td>Alfa Romeo</td><td>Italy</td><td>14/12/1993</td><td>Martina Franca, Italy</td><td style="text-align:right">40</td><td style="text-align:right">5th (×1)</td></tr><tr><td style="text-align:center">RUS</td><td style="text-align:right">63</td><td>George Russell</td><td>Williams</td><td>United Kingdom</td><td>15/02/1998</td><td>King’s Lynn, England</td><td style="text-align:right">38</td><td style="text-align:right">9th (×1)</td></tr><tr><td style="text-align:center">GRO</td><td style="text-align:right">8</td><td>Romain Grosjean</td><td>Haas</td><td>France</td><td>17/04/1986</td><td>Geneva, Switzerland</td><td style="text-align:right">181</td><td style="text-align:right">2nd (×2)</td></tr><tr><td style="text-align:center">MAG</td><td style="text-align:right">20</td><td>Kevin Magnussen</td><td>Haas</td><td>Denmark</td><td>05/10/1992</td><td>Roskilde, Denmark</td><td style="text-align:right">120</td><td style="text-align:right">2nd (×1)</td></tr><tr><td style="text-align:center">LAT</td><td style="text-align:right">6</td><td>Nicholas Latifi</td><td>Williams</td><td>Canada</td><td>29/06/1995</td><td>Montreal, Canada</td><td style="text-align:right">17</td><td style="text-align:right">11th (×3)</td></tr><tr><td style="text-align:center">AIT</td><td style="text-align:right">89</td><td>Jack Aitken</td><td>Williams</td><td>United Kingdom</td><td>—</td><td>—</td><td style="text-align:right">1</td><td style="text-align:right">16th (×1)</td></tr><tr><td style="text-align:center">FIT</td><td style="text-align:right">51</td><td>Pietro Fittipaldi</td><td>Haas</td><td>Brazil</td><td>—</td><td>—</td><td style="text-align:right">2</td><td style="text-align:right">17th (×1)</td></tr></tbody></table></div><figcaption class="mt-2 text-sm text-gray-500 dark:text-slate-400 text-center"><p>Σύνθεση οδηγών για τη σεζόν 2020, με εμπειρία καριέρας και καλύτερα αποτελέσματα.</p></figcaption></figure>
+<h2 id="ανάλυση-σεζόν-2020">Ανάλυση Σεζόν 2020</h2>
+<p>Ανάμεσα στις 17 πίστες, ο <strong>Lewis Hamilton</strong> ξεχώρισε με τον μεγαλύτερο αριθμό
+νικών, συμπεριλαμβανομένου ενός εντυπωσιακού σερί πέντε συνεχόμενων νικών από το
+<strong>Grand Prix Eifel</strong> έως το <strong>Grand Prix Μπαχρέιν</strong>. Ο ομόσταυλός του,
+<strong>Valtteri Bottas</strong>, σημείωσε επίσης δύο νίκες, συμβάλλοντας στις συνολικά 13
+νίκες της <strong>Mercedes AMG Petronas</strong>.</p>
+<p>Ο <strong>Max Verstappen</strong> πέτυχε δύο νίκες για τη <strong>Red Bull Racing</strong>, ενώ οι
+<strong>Pierre Gasly</strong> και <strong>Sergio Pérez</strong> σημείωσαν αξέχαστες νίκες στα
+<strong>Monza</strong> και <strong>Sakhir</strong>, αντίστοιχα.</p>
+<figure class="my-8"><div class="overflow-x-auto">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Grand Prix</th><th>Winner</th><th>Constructor</th><th>Race Time</th><th>Fastest Lap</th><th style="text-align:right">Grid Pos.</th></tr></thead><tbody><tr><td>Austrian Grand Prix</td><td>Valtteri Bottas</td><td>Mercedes</td><td>1:30:55.739</td><td>No</td><td style="text-align:right">1</td></tr><tr><td>Styrian Grand Prix</td><td>Lewis Hamilton</td><td>Mercedes</td><td>1:22:50.683</td><td>No</td><td style="text-align:right">1</td></tr><tr><td>Hungarian Grand Prix</td><td>Lewis Hamilton</td><td>Mercedes</td><td>1:36:12.473</td><td>Yes</td><td style="text-align:right">1</td></tr><tr><td>British Grand Prix</td><td>Lewis Hamilton</td><td>Mercedes</td><td>1:28:01.283</td><td>No</td><td style="text-align:right">1</td></tr><tr><td>70th Anniversary Grand Prix</td><td>Max Verstappen</td><td>Red Bull</td><td>1:19:41.993</td><td>No</td><td style="text-align:right">4</td></tr><tr><td>Spanish Grand Prix</td><td>Lewis Hamilton</td><td>Mercedes</td><td>1:31:45.279</td><td>No</td><td style="text-align:right">1</td></tr><tr><td>Belgian Grand Prix</td><td>Lewis Hamilton</td><td>Mercedes</td><td>1:24:08.761</td><td>No</td><td style="text-align:right">1</td></tr><tr><td>Italian Grand Prix</td><td>Pierre Gasly</td><td>AlphaTauri</td><td>1:47:06.056</td><td>No</td><td style="text-align:right">10</td></tr><tr><td>Tuscan Grand Prix</td><td>Lewis Hamilton</td><td>Mercedes</td><td>2:19:35.060</td><td>Yes</td><td style="text-align:right">1</td></tr><tr><td>Russian Grand Prix</td><td>Valtteri Bottas</td><td>Mercedes</td><td>1:34:00.364</td><td>Yes</td><td style="text-align:right">3</td></tr><tr><td>Eifel Grand Prix</td><td>Lewis Hamilton</td><td>Mercedes</td><td>1:35:49.641</td><td>No</td><td style="text-align:right">2</td></tr><tr><td>Portuguese Grand Prix</td><td>Lewis Hamilton</td><td>Mercedes</td><td>1:29:56.828</td><td>Yes</td><td style="text-align:right">1</td></tr><tr><td>Emilia Romagna Grand Prix</td><td>Lewis Hamilton</td><td>Mercedes</td><td>1:28:32.430</td><td>Yes</td><td style="text-align:right">2</td></tr><tr><td>Turkish Grand Prix</td><td>Lewis Hamilton</td><td>Mercedes</td><td>1:42:19.313</td><td>No</td><td style="text-align:right">6</td></tr><tr><td>Bahrain Grand Prix</td><td>Lewis Hamilton</td><td>Mercedes</td><td>2:59:47.515</td><td>No</td><td style="text-align:right">1</td></tr><tr><td>Sakhir Grand Prix</td><td>Sergio Pérez</td><td>Racing Point</td><td>1:31:15.114</td><td>No</td><td style="text-align:right">5</td></tr><tr><td>Abu Dhabi Grand Prix</td><td>Max Verstappen</td><td>Red Bull</td><td>1:36:28.645</td><td>No</td><td style="text-align:right">1</td></tr></tbody></table></div><figcaption class="mt-2 text-sm text-gray-500 dark:text-slate-400 text-center"><p>Νικητές αγώνων της σεζόν 2020, με χρόνο αγώνα, ένδειξη ταχύτερου γύρου και θέση εκκίνησης.</p></figcaption></figure>
+<p>Οι pole‑sitters κατάφεραν να διατηρήσουν την πρώτη θέση σε 10 αγώνες, με τον
+<strong>Hamilton</strong> να ηγείται με οκτώ επιτυχημένες άμυνες. Σε πέντε αγώνες, ο νικητής
+σημείωσε επίσης τον ταχύτερο γύρο, συγκεντρώνοντας το μέγιστο δυνατό αριθμό
+βαθμών.</p>
+<p>Μία από τις πιο δραματικές στιγμές της σεζόν σημειώθηκε στο <strong>Grand Prix
+Μπαχρέιν</strong>, όπου το
+<a href="https://www.youtube.com/watch?v=7YMjw2sjXqU"><strong>σφοδρό ατύχημα του Romain Grosjean</strong></a>
+στον πρώτο γύρο οδήγησε σε κόκκινη σημαία και διακοπή του αγώνα για περισσότερο
+από μία ώρα.</p>
+<h2 id="βαθμοί-βάθρα-και-εγκαταλείψεις">Βαθμοί, Βάθρα και Εγκαταλείψεις</h2>
+<p>Συνολικά, 13 οδηγοί από επτά ομάδες ανέβηκαν στο βάθρο τουλάχιστον μία φορά.
+Η <strong>Scuderia Ferrari</strong> είχε μια δύσκολη σεζόν, καταγράφοντας μόλις τρία βάθρα,
+ενώ οι <strong>Albon, Norris, Gasly</strong> και <strong>Ocon</strong> πανηγύρισαν το πρώτο τους βάθρο
+στη Formula 1.</p>
+<figure class="my-8 text-center"><img src="https://raw.githubusercontent.com/mpalaourg/F1_DataAnalysis/main/2020-Season/imgs/podium_finishes.png" alt="Number of podium finishes per driver during the 2020 Formula 1 season" class="mx-auto"/><figcaption class="mt-2 text-sm text-gray-500 dark:text-slate-400"><p>Βάθρα ανά οδηγό στη σεζόν 2020, αναδεικνύοντας την κυριαρχία του Hamilton και της Mercedes.</p></figcaption></figure>
+<p>Κατά τη διάρκεια της σεζόν, 20 οδηγοί κατάφεραν να τερματίσουν τουλάχιστον μία
+φορά εντός βαθμών. Ο <strong>Hamilton</strong> κατέγραψε 16 τερματισμούς εντός δεκάδας σε 17
+αγώνες, απουσιάζοντας μόνο από το <strong>Grand Prix Sakhir</strong>.</p>
+<figure class="my-8 text-center"><img src="https://raw.githubusercontent.com/mpalaourg/F1_DataAnalysis/main/2020-Season/imgs/point_finishes.png" alt="Number of points‑scoring finishes per driver in the 2020 Formula 1 season" class="mx-auto"/><figcaption class="mt-2 text-sm text-gray-500 dark:text-slate-400"><p>Συνολικός αριθμός τερματισμών εντός δεκάδας ανά οδηγό στη διάρκεια του πρωταθλήματος 2020.</p></figcaption></figure>
+<p>Συνολικά καταγράφηκαν 57 εγκαταλείψεις (DNFs). Ο <strong>Kevin Magnussen</strong> είχε τις
+περισσότερες, με επτά εγκαταλείψεις, ενώ ο <strong>Verstappen</strong> ξεχώρισε, καθώς
+τερμάτισε στο βάθρο στους 11 από τους 12 αγώνες που ολοκλήρωσε.</p>
+<figure class="my-8 text-center"><img src="https://raw.githubusercontent.com/mpalaourg/F1_DataAnalysis/main/2020-Season/imgs/dnfs.png" alt="Number of race retirements (DNFs) per driver during the 2020 Formula 1 season" class="mx-auto"/><figcaption class="mt-2 text-sm text-gray-500 dark:text-slate-400"><p>Κατανομή εγκαταλείψεων (DNFs) ανά οδηγό το 2020, αποτυπώνοντας την αξιοπιστία και τα περιστατικά κάθε οδηγού.</p></figcaption></figure>
+<h2 id="τελική-κατάταξη">Τελική Κατάταξη</h2>
+<p>Ο <strong>Lewis Hamilton</strong> κατέκτησε τον <strong>έβδομο παγκόσμιο τίτλο</strong> της καριέρας του,
+ισοφαρίζοντας το ρεκόρ του <strong>Michael Schumacher</strong>. Η <strong>Mercedes</strong> κυριάρχησε
+ξανά στο Πρωτάθλημα Κατασκευαστών, τερματίζοντας με διαφορά άνω των 200 βαθμών από
+τη <strong>Red Bull Racing</strong>.</p>
+<figure class="my-16"><div class="grid grid-cols-1 md:grid-cols-2 gap-10"><div class="overflow-x-auto"><h4 class="text-center mb-2">(a) Κατάταξη Οδηγών</h4>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th style="text-align:right">Pos.</th><th>Driver</th><th>Constructor</th><th style="text-align:right">Points</th></tr></thead><tbody><tr><td style="text-align:right">1</td><td>Lewis Hamilton</td><td>Mercedes</td><td style="text-align:right">347</td></tr><tr><td style="text-align:right">2</td><td>Valtteri Bottas</td><td>Mercedes</td><td style="text-align:right">223</td></tr><tr><td style="text-align:right">3</td><td>Max Verstappen</td><td>Red Bull</td><td style="text-align:right">214</td></tr><tr><td style="text-align:right">4</td><td>Sergio Pérez</td><td>Racing Point</td><td style="text-align:right">125</td></tr><tr><td style="text-align:right">5</td><td>Daniel Ricciardo</td><td>Renault</td><td style="text-align:right">119</td></tr><tr><td style="text-align:right">6</td><td>Alexander Albon</td><td>Red Bull</td><td style="text-align:right">105</td></tr><tr><td style="text-align:right">7</td><td>Carlos Sainz</td><td>McLaren</td><td style="text-align:right">105</td></tr><tr><td style="text-align:right">8</td><td>Charles Leclerc</td><td>Ferrari</td><td style="text-align:right">98</td></tr><tr><td style="text-align:right">9</td><td>Lando Norris</td><td>McLaren</td><td style="text-align:right">97</td></tr><tr><td style="text-align:right">10</td><td>Pierre Gasly</td><td>AlphaTauri</td><td style="text-align:right">75</td></tr></tbody></table></div><div class="overflow-x-auto"><h4 class="text-center mb-2">(b) Κατάταξη Κατασκευαστών</h4>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th style="text-align:right">Pos.</th><th>Constructor</th><th style="text-align:right">Points</th></tr></thead><tbody><tr><td style="text-align:right">1</td><td>Mercedes</td><td style="text-align:right">573</td></tr><tr><td style="text-align:right">2</td><td>Red Bull</td><td style="text-align:right">319</td></tr><tr><td style="text-align:right">3</td><td>McLaren</td><td style="text-align:right">202</td></tr><tr><td style="text-align:right">4</td><td>Racing Point</td><td style="text-align:right">195</td></tr><tr><td style="text-align:right">5</td><td>Renault</td><td style="text-align:right">181</td></tr><tr><td style="text-align:right">6</td><td>Ferrari</td><td style="text-align:right">131</td></tr><tr><td style="text-align:right">7</td><td>AlphaTauri</td><td style="text-align:right">107</td></tr><tr><td style="text-align:right">8</td><td>Alfa Romeo</td><td style="text-align:right">8</td></tr><tr><td style="text-align:right">9</td><td>Haas F1 Team</td><td style="text-align:right">3</td></tr><tr><td style="text-align:right">10</td><td>Williams</td><td style="text-align:right">0</td></tr></tbody></table></div></div><figcaption class="mt-6 text-center text-sm text-gray-500 dark:text-slate-400"><p>Τελική κατάταξη του Παγκόσμιου Πρωταθλήματος Formula 1 2020: οδηγοί (a) και κατασκευαστές (b).</p></figcaption></figure>
+<hr/>
+<p><em>Σημείωση: Τα δεδομένα προέρχονται από το F1 Developer API (<a href="http://ergast.com/mrd/">http://ergast.com/mrd/</a>).</em></p> </div> </div> </article>  </main> <script type="module">const e=localStorage.getItem("theme");(e==="dark"||!e&&window.matchMedia("(prefers-color-scheme: dark)").matches)&&document.documentElement.classList.add("dark");</script> </body> </html>
