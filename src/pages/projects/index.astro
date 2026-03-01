@@ -2,8 +2,6 @@
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { getCollection } from "astro:content";
 
-export const prerender = false;
-
 const allPosts = await getCollection("projects");
 
 const posts = allPosts.sort((a, b) => {

@@ -2,8 +2,6 @@
 import BaseLayout from "../../../layouts/BaseLayout.astro";
 import { getCollection } from "astro:content";
 
-export const prerender = false;
-
 const allPosts = await getCollection("projects-el");
 
 const posts = allPosts.sort((a, b) => {
@@ -95,4 +93,4 @@ const posts = allPosts.sort((a, b) => {
       ))}
     </div>
   </main>
-</ BaseLayout>
+</BaseLayout>

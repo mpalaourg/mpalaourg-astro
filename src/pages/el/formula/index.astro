@@ -3,8 +3,6 @@ import BaseLayout from "../../../layouts/BaseLayout.astro";
 import { getCollection } from "astro:content";
 import { getReadingTime } from "../../../utils/readingTime";
 
-export const prerender = false;
-
 // Only EN formula posts
 const allPosts = await getCollection("formula");
 
