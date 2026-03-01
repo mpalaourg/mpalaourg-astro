@@ -28,6 +28,15 @@ const elPathWithBase = `/mpalaourg-astro${elPath}`;
     <meta name="viewport" content="width=device-width" />
     <title>{title}</title>
 
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/mpalaourg-astro/favicon.svg" />
+
+    <!-- Open Graph -->
+    <meta property="og:title" content={title} />
+    <meta property="og:image" content="https://mpalaourg.github.io/mpalaourg-astro/media/avatar.jpg" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={Astro.url.href} />
+    
     <!-- Theme script (runs before paint) -->
     <script>
       const theme = localStorage.getItem("theme");
