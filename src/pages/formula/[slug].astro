@@ -2,6 +2,7 @@
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { getCollection } from "astro:content";
 
+export const prerender = true;
 export async function getStaticPaths() {
   const seasons = await getCollection("formula");
 
