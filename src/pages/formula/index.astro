@@ -2,6 +2,7 @@
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { getCollection } from "astro:content";
 import { getReadingTime } from "../../utils/readingTime";
+import F1RaceWidget from "../../components/F1RaceWidget.astro";
 
 const allPosts = await getCollection("formula");
 
@@ -44,7 +45,12 @@ const filteredPosts = posts.filter((post) => {
   <main class="mx-auto max-w-6xl px-6 py-12">
     <h1 class="text-4xl font-bold mb-6">Formula 1</h1>
 
-   <div class="flex gap-4 mb-10">
+   <!-- Next Race Widget -->
+    <div class="mb-10">
+      <F1RaceWidget />
+    </div>
+
+    <div class="flex gap-4 mb-10">
     {["2022", "2021", "2020"].map((year) => (
         <a
         href={buildUrl({ year })}

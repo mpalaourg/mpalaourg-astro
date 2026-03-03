@@ -2,13 +2,16 @@
 import { defineConfig } from "astro/config";
 import tailwindcss from "@tailwindcss/vite";
 import mdx from "@astrojs/mdx";
+import cloudflare from "@astrojs/cloudflare";
 
 export default defineConfig({
-  site: "https://mpalaourg.github.io",
   base: '/mpalaourg-astro',
-  output: 'static',
+  output: 'server',
   integrations: [mdx()],
+
   vite: {
     plugins: [tailwindcss()],
   },
+
+  adapter: cloudflare(),
 });

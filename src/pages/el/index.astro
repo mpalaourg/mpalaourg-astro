@@ -1,6 +1,7 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { getCollection } from "astro:content";
+import F1RaceWidget from "../../components/F1RaceWidget.astro";
 
 const formulaPosts = await getCollection("formula-el");
 const publicationsEl = await getCollection("publications-el");
@@ -488,6 +489,9 @@ const experiences = [
             </div>
           </a>
         ))}
+      </div>
+      <div class="mb-10">
+      <F1RaceWidget/ >
       </div>
     </section>
 

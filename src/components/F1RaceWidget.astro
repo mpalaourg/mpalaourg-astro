@@ -1,0 +1,390 @@
+---
+import { getSeasonRaces } from "../utils/f1";
+const races = await getSeasonRaces();
+---
+
+{races.length > 0 ? (
+<div
+  id="f1-widget"
+  class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-800 p-5 shadow-sm"
+>
+  <script
+    id="f1-all-races"
+    type="application/json"
+    set:html={JSON.stringify(races)}
+  />
+
+  <div id="f1-content">
+    <!-- Header -->
+    <div class="flex items-start justify-between gap-4 mb-4">
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-2 mb-1 flex-wrap">
+          <span
+            id="f1-badge"
+            class="text-xs font-bold px-2 py-0.5 rounded-full bg-red-600 text-white uppercase tracking-wide"
+          >Next Race</span>
+          <span
+            id="f1-round"
+            class="text-xs text-gray-500 dark:text-slate-400"
+          ></span>
+        </div>
+        <h3 id="f1-race-name" class="text-xl font-bold"></h3>
+        <p id="f1-circuit-name" class="text-sm text-gray-500 dark:text-slate-400"></p>
+      </div>
+      <div id="f1-flag" class="text-4xl shrink-0"></div>
+    </div>
+
+    <!-- Sessions + circuit image -->
+    <div class="flex flex-col md:flex-row gap-4 mb-4">
+      <!-- Left: sessions -->
+      <div class="flex-1 min-w-0">
+        <div class="flex flex-wrap gap-1 mb-3" id="f1-session-tabs"></div>
+        <div class="rounded-lg bg-slate-100 dark:bg-slate-700/50 p-3">
+          <p
+            id="f1-session-label"
+            class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-slate-400 mb-1"
+          ></p>
+          <p
+            id="f1-session-datetime"
+            class="text-xs text-gray-500 dark:text-slate-400 mb-2"
+          ></p>
+          <div class="flex gap-3">
+            <div class="text-center">
+              <div id="cd-days" class="text-2xl font-bold font-mono tabular-nums">--</div>
+              <div class="text-xs text-gray-500 dark:text-slate-400">days</div>
+            </div>
+            <div class="text-xl font-bold self-start mt-1">:</div>
+            <div class="text-center">
+              <div id="cd-hours" class="text-2xl font-bold font-mono tabular-nums">--</div>
+              <div class="text-xs text-gray-500 dark:text-slate-400">hrs</div>
+            </div>
+            <div class="text-xl font-bold self-start mt-1">:</div>
+            <div class="text-center">
+              <div id="cd-mins" class="text-2xl font-bold font-mono tabular-nums">--</div>
+              <div class="text-xs text-gray-500 dark:text-slate-400">min</div>
+            </div>
+            <div class="text-xl font-bold self-start mt-1">:</div>
+            <div class="text-center">
+              <div id="cd-secs" class="text-2xl font-bold font-mono tabular-nums">--</div>
+              <div class="text-xs text-gray-500 dark:text-slate-400">sec</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: circuit image -->
+      <div class="md:w-48 shrink-0 flex items-center justify-center">
+        <img
+          id="f1-circuit-img"
+          src=""
+          alt="Circuit map"
+          class="max-h-40 max-w-full object-contain hidden"
+        />
+      </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="flex items-center justify-between mt-2 gap-2">
+      <button
+        id="f1-prev"
+        aria-label="Previous race"
+        class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium
+               bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-slate-300
+               hover:bg-gray-200 dark:hover:bg-slate-600 disabled:opacity-30
+               disabled:cursor-not-allowed transition-colors shrink-0"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+        </svg>
+        Prev
+      </button>
+
+      <div id="f1-dots" class="flex gap-1 flex-wrap justify-center flex-1"></div>
+
+      <button
+        id="f1-next"
+        aria-label="Next race"
+        class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium
+               bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-slate-300
+               hover:bg-gray-200 dark:hover:bg-slate-600 disabled:opacity-30
+               disabled:cursor-not-allowed transition-colors shrink-0"
+      >
+        Next
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>
+) : (
+  <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-800 p-5 text-sm text-gray-500 dark:text-slate-400">
+    No race data available.
+  </div>
+)}
+
+<script>
+  const COUNTRY_FLAGS: Record<string, string> = {
+    Australia: "🇦🇺", Bahrain: "🇧🇭", "Saudi Arabia": "🇸🇦",
+    Japan: "🇯🇵", China: "🇨🇳", USA: "🇺🇸", "United States": "🇺🇸",
+    Italy: "🇮🇹", Monaco: "🇲🇨", Canada: "🇨🇦", Spain: "🇪🇸",
+    Austria: "🇦🇹", UK: "🇬🇧", "United Kingdom": "🇬🇧",
+    Hungary: "🇭🇺", Belgium: "🇧🇪", Netherlands: "🇳🇱",
+    Azerbaijan: "🇦🇿", Singapore: "🇸🇬", Mexico: "🇲🇽",
+    Brazil: "🇧🇷", "Las Vegas": "🇺🇸", Qatar: "🇶🇦",
+    UAE: "🇦🇪", "Abu Dhabi": "🇦🇪",
+  };
+
+  const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+  const CIRCUIT_IMAGES: Record<string, string> = {
+    albert_park: `${BASE}/formula/circuit-images/albert_park.svg`,
+    bahrain: `${BASE}/formula/circuit-images/bahrain.svg`,
+    jeddah: `${BASE}/formula/circuit-images/jeddah.svg`,
+    suzuka: `${BASE}/formula/circuit-images/suzuka.svg`,
+    shanghai: `${BASE}/formula/circuit-images/shanghai.svg`,
+    miami: `${BASE}/formula/circuit-images/miami.svg`,
+    imola: `${BASE}/formula/circuit-images/imola.svg`,
+    monaco: `${BASE}/formula/circuit-images/monaco.svg`,
+    villeneuve: `${BASE}/formula/circuit-images/villeneuve.svg`,
+    catalunya: `${BASE}/formula/circuit-images/catalunya.svg`,
+    red_bull_ring: `${BASE}/formula/circuit-images/red_bull_ring.svg`,
+    silverstone: `${BASE}/formula/circuit-images/silverstone.png`,
+    hungaroring: `${BASE}/formula/circuit-images/hungaroring.svg`,
+    spa: `${BASE}/formula/circuit-images/spa.svg`,
+    zandvoort: `${BASE}/formula/circuit-images/zandvoort.png`,
+    monza: `${BASE}/formula/circuit-images/monza.svg`,
+    baku: `${BASE}/formula/circuit-images/baku.svg`,
+    marina_bay: `${BASE}/formula/circuit-images/marina_bay.svg`,
+    americas: `${BASE}/formula/circuit-images/americas.svg`,
+    rodriguez: `${BASE}/formula/circuit-images/rodriguez.svg`,
+    interlagos: `${BASE}/formula/circuit-images/interlagos.svg`,
+    vegas: `${BASE}/formula/circuit-images/vegas.svg`,
+    losail: `${BASE}/formula/circuit-images/losail.svg`,
+    yas_marina: `${BASE}/formula/circuit-images/yas_marina.png`,
+    madring: `${BASE}/formula/circuit-images/madrid.svg`,
+   };
+
+  // ─── State ────────────────────────────────────────────────────────────────
+  const dataEl = document.getElementById("f1-all-races");
+  if (!dataEl) throw new Error("No race data element");
+
+  const allRaces: any[] = JSON.parse(dataEl.textContent ?? "[]");
+  const now = Date.now();
+
+  const nextRaceIndex = (() => {
+    const idx = allRaces.findIndex((r) => {
+      const d = new Date(`${r.date}T${r.time ?? "00:00:00"}`);
+      return d.getTime() > now;
+    });
+    return idx >= 0 ? idx : allRaces.length - 1;
+  })();
+
+  let currentRaceIndex = nextRaceIndex;
+  let sessions: { label: string; date: Date }[] = [];
+  let activeSessionIndex = 0;
+  let countdownInterval: ReturnType<typeof setInterval> | null = null;
+
+  // ─── Helpers ──────────────────────────────────────────────────────────────
+  function pad(n: number) {
+    return String(n).padStart(2, "0");
+  }
+
+  function formatLocalDateTime(date: Date): string {
+    // Render in the user's local timezone (browser does this automatically)
+    const base = date.toLocaleString(undefined, {
+      weekday: "short",
+      day: "numeric",
+      month: "short",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+    // Append explicit UTC offset, e.g. "(UTC+2)" or "(UTC+5:30)"
+    const offsetMins = -date.getTimezoneOffset();
+    const sign = offsetMins >= 0 ? "+" : "-";
+    const abs = Math.abs(offsetMins);
+    const hh = Math.floor(abs / 60);
+    const mm = abs % 60;
+    const utcLabel = mm === 0
+      ? `UTC${sign}${hh}`
+      : `UTC${sign}${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}`;
+
+    return `${base} (${utcLabel})`;
+  }
+
+  function buildSessions(race: any): { label: string; date: Date }[] {
+    const raw = [
+      { label: "FP1", obj: race.FirstPractice },
+      { label: "FP2", obj: race.SecondPractice },
+      { label: "FP3", obj: race.ThirdPractice },
+      { label: "Sprint Quali", obj: race.SprintQualifying },
+      { label: "Sprint", obj: race.Sprint },
+      { label: "Qualifying", obj: race.Qualifying },
+      { label: "Race", obj: { date: race.date, time: race.time } },
+    ];
+    return raw
+      .filter((s) => s.obj?.date)
+      .map((s) => ({
+        label: s.label,
+        date: s.obj.time
+          ? new Date(`${s.obj.date}T${s.obj.time}`)
+          : new Date(`${s.obj.date}T00:00:00`),
+      }))
+      .sort((a, b) => a.date.getTime() - b.date.getTime());
+  }
+
+  function startCountdown(targetDate: Date) {
+    if (countdownInterval) clearInterval(countdownInterval);
+
+    function tick() {
+      const diff = targetDate.getTime() - Date.now();
+      if (diff <= 0) {
+        ["days", "hours", "mins", "secs"].forEach(
+          (id) => (document.getElementById(`cd-${id}`)!.textContent = "00")
+        );
+        clearInterval(countdownInterval!);
+        return;
+      }
+      document.getElementById("cd-days")!.textContent = pad(Math.floor(diff / 86400000));
+      document.getElementById("cd-hours")!.textContent = pad(Math.floor((diff % 86400000) / 3600000));
+      document.getElementById("cd-mins")!.textContent = pad(Math.floor((diff % 3600000) / 60000));
+      document.getElementById("cd-secs")!.textContent = pad(Math.floor((diff % 60000) / 1000));
+    }
+    tick();
+    countdownInterval = setInterval(tick, 1000);
+  }
+
+  // ─── Render helpers ───────────────────────────────────────────────────────
+  function renderSessionTabs() {
+    const container = document.getElementById("f1-session-tabs")!;
+    container.innerHTML = "";
+    sessions.forEach((session, i) => {
+      const btn = document.createElement("button");
+      btn.textContent = session.label;
+      btn.className = [
+        "px-2 py-1 text-xs rounded-md font-medium transition-colors",
+        i === activeSessionIndex
+          ? "bg-red-600 text-white"
+          : "bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-slate-300 hover:bg-gray-300 dark:hover:bg-slate-600",
+      ].join(" ");
+      btn.addEventListener("click", () => {
+        activeSessionIndex = i;
+        renderSessionTabs();
+        updateCountdownDisplay();
+      });
+      container.appendChild(btn);
+    });
+  }
+
+  function updateCountdownDisplay() {
+    const session = sessions[activeSessionIndex];
+    if (!session) return;
+    document.getElementById("f1-session-label")!.textContent = session.label;
+    // Uses browser local timezone automatically
+    document.getElementById("f1-session-datetime")!.textContent =
+      formatLocalDateTime(session.date);
+    startCountdown(session.date);
+  }
+
+  function renderDots() {
+    const container = document.getElementById("f1-dots")!;
+    container.innerHTML = "";
+    allRaces.forEach((r, i) => {
+      const raceMs = new Date(
+        `${r.date}T${r.time ?? "00:00:00"}`
+      ).getTime();
+      const isPast = raceMs < now;
+      const isCurrent = i === currentRaceIndex;
+      const isNext = i === nextRaceIndex;
+
+      const dot = document.createElement("button");
+      dot.setAttribute("aria-label", `Round ${i + 1}: ${r.raceName}`);
+      dot.className = [
+        "w-2 h-2 rounded-full transition-all duration-200 focus:outline-none",
+        isCurrent
+          ? "bg-red-500 scale-125"
+          : isNext
+          ? "bg-orange-400"
+          : isPast
+          ? "bg-slate-400 dark:bg-slate-500"
+          : "bg-slate-300 dark:bg-slate-600",
+      ].join(" ");
+      dot.addEventListener("click", () => {
+        currentRaceIndex = i;
+        renderRace();
+      });
+      container.appendChild(dot);
+    });
+  }
+
+  function renderRace() {
+    const race = allRaces[currentRaceIndex];
+    if (!race) return;
+
+    // Badge
+    const badge = document.getElementById("f1-badge")!;
+    const raceMs = new Date(`${race.date}T${race.time ?? "00:00:00"}`).getTime();
+    const isNext = currentRaceIndex === nextRaceIndex;
+    const isPast = raceMs < now;
+
+    if (isNext) {
+      badge.textContent = "Next Race";
+      badge.className =
+        "text-xs font-bold px-2 py-0.5 rounded-full bg-red-600 text-white uppercase tracking-wide";
+    } else if (isPast) {
+      badge.textContent = "Past Race";
+      badge.className =
+        "text-xs font-bold px-2 py-0.5 rounded-full bg-slate-500 text-white uppercase tracking-wide";
+    } else {
+      badge.textContent = "Upcoming";
+      badge.className =
+        "text-xs font-bold px-2 py-0.5 rounded-full bg-orange-500 text-white uppercase tracking-wide";
+    }
+
+    document.getElementById("f1-round")!.textContent =
+      `${race.season} · Round ${race.round}`;
+    document.getElementById("f1-race-name")!.textContent = race.raceName;
+    document.getElementById("f1-circuit-name")!.textContent =
+      `${race.Circuit.circuitName}, ${race.Circuit.Location.locality}`;
+    document.getElementById("f1-flag")!.textContent =
+      COUNTRY_FLAGS[race.Circuit.Location.country] ?? "🏁";
+
+    // Circuit image — properly reset handlers to avoid stale closures
+    const imgEl = document.getElementById("f1-circuit-img") as HTMLImageElement;
+    imgEl.onload = null;
+    imgEl.onerror = null;
+    imgEl.classList.add("hidden");
+    const imgSrc = CIRCUIT_IMAGES[race.Circuit.circuitId];
+    if (imgSrc) {
+      imgEl.onload = () => imgEl.classList.remove("hidden");
+      imgEl.onerror = () => imgEl.classList.add("hidden");
+      imgEl.src = imgSrc;
+      imgEl.alt = `${race.raceName} circuit map`;
+    }
+
+    // Sessions
+    sessions = buildSessions(race);
+    const upcomingIdx = sessions.findIndex((s) => s.date.getTime() > now);
+    activeSessionIndex = upcomingIdx >= 0 ? upcomingIdx : sessions.length - 1;
+    renderSessionTabs();
+    updateCountdownDisplay();
+
+    // Arrows
+    (document.getElementById("f1-prev") as HTMLButtonElement).disabled =
+      currentRaceIndex === 0;
+    (document.getElementById("f1-next") as HTMLButtonElement).disabled =
+      currentRaceIndex === allRaces.length - 1;
+
+    renderDots();
+  }
+
+  // ─── Controls ─────────────────────────────────────────────────────────────
+  document.getElementById("f1-prev")!.addEventListener("click", () => {
+    if (currentRaceIndex > 0) { currentRaceIndex--; renderRace(); }
+  });
+  document.getElementById("f1-next")!.addEventListener("click", () => {
+    if (currentRaceIndex < allRaces.length - 1) { currentRaceIndex++; renderRace(); }
+  });
+
+  renderRace();
+</script>
