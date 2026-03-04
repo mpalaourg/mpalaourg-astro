@@ -1,6 +1,7 @@
 ---
 import BaseLayout from "../../../layouts/BaseLayout.astro";
 import { getCollection } from "astro:content";
+import { components } from "../../../components/mdx/index";
 
 export const prerender = true;
 export async function getStaticPaths() {
@@ -64,7 +65,7 @@ const { Content } = await season.render();
                dark:prose-headings:text-slate-100
                dark:prose-p:text-slate-300"
       >
-        <Content />
+        <Content components={components} />
       </div>
     </div>
   </article>

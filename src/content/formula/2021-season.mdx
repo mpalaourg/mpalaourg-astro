@@ -12,66 +12,152 @@ external:
   code: https://github.com/mpalaourg/F1_DataAnalysis/blob/main/2021-Season/Season%20Analysis.ipynb
 ---
 
-The 2021 Formula 1 season witnessed a thrilling year-long duel for the championship between **Verstappen** and **Hamilton**. The two drivers engaged in a captivating battle, exchanging the championship lead multiple times throughout the season. Notably, they were involved in significant collisions at the **British, Hungarian**, and **Italian Grands Prix**, adding further intensity to their rivalry. Despite the challenges posed by Covid-19, the 2021 Formula 1 season delivered exhilarating race weekends filled with intense action, keeping fans on the edge of their seats.
+The 2021 Formula 1 season will be remembered for one thing above all: the title fight between **Max Verstappen** and **Lewis Hamilton**.
+
+From Bahrain to Abu Dhabi, the two traded wins, points, and the championship lead. Their rivalry was intense and, at times, explosive — with collisions at Silverstone, Monza, and the chaos of Hungary shaping the direction of the title race.
+
+Despite ongoing Covid-19 disruptions, the championship delivered one of the most dramatic seasons in modern Formula 1 history, culminating in a finale that is still debated today.
 
 ## Race Calendar
 
-As displayed below, the 2021 race calendar encompassed a thrilling lineup of 22 races across 20 countries. Notably, Italy played host to two exciting races, starting with **Imola** for the **Emilia Romagna Grand Prix** and followed by the legendary **Monza**, known as the Temple of Speed. Additionally, the **Red Bull Ring** held both the **Austria Grand Prix** and the **Styria Grand Prix**. The season also welcomed two new tracks, the **Qatar and Saudi Arabian Grand Prix**, adding further excitement to the championship.
+The 2021 calendar featured 22 races across 20 countries, making it one of the longest seasons in Formula 1 history at the time.
 
-<figure class="my-8 text-center">
-  <img
-    src="https://raw.githubusercontent.com/mpalaourg/F1_DataAnalysis/main/2021-Season/imgs/calendar.png"
-    alt="2021 race calendar"
-    class="mx-auto"
-  />
-  <figcaption class="mt-2 text-sm text-gray-500 dark:text-slate-400">
-    2021 Formula 1 race calendar with venues across 20 countries.
+Italy once again hosted two events — **Imola** for the Emilia Romagna Grand Prix and the traditional race at **Monza**. Austria also held back-to-back races at the **Red Bull Ring**, under the Styrian and Austrian Grand Prix names.
+
+Two new venues joined the calendar: **Losail (Qatar)** and the high-speed street circuit of **Jeddah (Saudi Arabia)**. Both would go on to play important roles in the championship battle.
+
+<figure class="my-8">
+  <div class="overflow-x-auto">
+| Round | GP Name          | Country        | City         | Circuit Name                              | Race Date     | Laps | Turns | DRS Zones | Distance (km) | Lap Record | Record Owner        | Record Year |
+|------:|------------------|---------------|-------------|--------------------------------------------|---------------|-----:|------:|----------:|--------------:|-----------|---------------------|------------:|
+| 1  | Bahrain         | Bahrain        | Sakhir      | Bahrain International Circuit              | 28 Mar 2021   | 57  | 15 | 3 | 308.238 | 1:31.447 | Pedro de la Rosa | 2005 |
+| 2  | Emilia Romagna  | Italy          | Imola       | Autodromo Enzo e Dino Ferrari              | 18 Apr 2021   | 63  | 19 | 1 | 309.049 | 1:15.484 | Lewis Hamilton     | 2020 |
+| 3  | Portugal        | Portugal       | Portimão    | Autodromo Internacional do Algarve         | 02 May 2021   | 66  | 15 | 1 | 306.826 | 1:18.750 | Lewis Hamilton     | 2020 |
+| 4  | Spain           | Spain          | Catalunya   | Circuit de Barcelona-Catalunya             | 09 May 2021   | 66  | 16 | 2 | 308.424 | 1:18.149 | Max Verstappen     | 2021 |
+| 5  | Monaco          | Monaco         | Monte Carlo | Circuit de Monaco                          | 23 May 2021   | 78  | 19 | 1 | 260.286 | 1:12.909 | Lewis Hamilton     | 2021 |
+| 6  | Azerbaijan      | Azerbaijan     | Baku        | Baku City Circuit                          | 06 Jun 2021   | 51  | 20 | 2 | 306.049 | 1:43.009 | Charles Leclerc    | 2019 |
+| 7  | France          | France         | Le Castellet| Circuit Paul Ricard                        | 20 Jun 2021   | 53  | 15 | 2 | 309.690 | 1:32.740 | Sebastian Vettel   | 2019 |
+| 8  | Styria          | Austria        | Spielberg   | Red Bull Ring                              | 27 Jun 2021   | 71  | 10 | 3 | 306.452 | 1:05.619 | Carlos Sainz       | 2020 |
+| 9  | Austria         | Austria        | Spielberg   | Red Bull Ring                              | 04 Jul 2021   | 71  | 10 | 3 | 306.452 | 1:05.619 | Carlos Sainz       | 2020 |
+| 10 | Great Britain   | Great Britain  | Silverstone | Silverstone Circuit                        | 18 Jul 2021   | 52  | 18 | 2 | 306.198 | 1:27.097 | Max Verstappen     | 2020 |
+| 11 | Hungary         | Hungary        | Budapest    | Hungaroring                                | 01 Aug 2021   | 70  | 14 | 1 | 306.630 | 1:16:627 | Lewis Hamilton     | 2020 |
+| 12 | Belgium         | Belgium        | Spa-Francorchamps | Circuit de Spa-Francorchamps        | 29 Aug 2021   | 44  | 19 | 2 | 308.052 | 1:48.286 | Valtteri Bottas    | 2018 |
+| 13 | Dutch           | Netherlands    | Zandvoort   | Circuit Zandvoort                          | 05 Sep 2021   | 72  | 14 | 2 | 306.587 | 1:11.097 | Lewis Hamilton     | 2021 |
+| 14 | Italy           | Italy          | Monza       | Autodromo Nazionale Monza                  | 12 Sep 2021   | 53  | 11 | 2 | 306.720 | 1:21.046 | Rubens Barrichello | 2004 |
+| 15 | Russia          | Russia         | Sochi       | Sochi Autodrom                             | 26 Sep 2021   | 53  | 18 | 2 | 309.745 | 1:35.761 | Lewis Hamilton     | 2019 |
+| 16 | Turkey          | Turkey         | Istanbul    | Intercity Istanbul Park                    | 10 Oct 2021   | 58  | 14 | 2 | 309.396 | 1:24.770 | Juan Pablo Montoya | 2005 |
+| 17 | United States   | United States  | Austin      | Circuit of the Americas                    | 24 Oct 2021   | 56  | 20 | 2 | 308.405 | 1:36.169 | Charles Leclerc    | 2019 |
+| 18 | Mexico          | Mexico         | Mexico City | Autodromo Hermanos Rodríguez               | 07 Nov 2021   | 71  | 17 | 3 | 305.354 | 1:17.774 | Valtteri Bottas    | 2021 |
+| 19 | Sao Paulo       | Brazil         | São Paulo   | Autodromo José Carlos Pace                 | 14 Nov 2021   | 71  | 15 | 2 | 305.879 | 1:10.540 | Valtteri Bottas    | 2018 |
+| 20 | Qatar           | Qatar          | Losail      | Losail International Circuit               | 21 Nov 2021   | 57  | 16 | 1 | 306.660 | 1:23.196 | Max Verstappen     | 2021 |
+| 21 | Saudi Arabia    | Saudi Arabia   | Jeddah      | Jeddah Corniche Circuit                    | 05 Dec 2021   | 50  | 27 | 3 | 308.450 | 1:30.734 | Lewis Hamilton     | 2021 |
+| 22 | Abu Dhabi       | Abu Dhabi      | Yas Island  | Yas Marina Circuit                         | 12 Dec 2021   | 58  | 16 | 2 | 306.183 | 1:26.103 | Max Verstappen     | 2021 |
+</div>
+  <figcaption class="mt-2 text-sm text-gray-500 dark:text-slate-400 text-center">
+    2021 Formula 1 race calendar, including circuit layout characteristics and historical lap records.
   </figcaption>
 </figure>
 
 ## Drivers and Constructors
 
-The 2021 grid featured 10 teams and 21 drivers, including 1 reserve driver. Notable changes from the previous season include:
+The 2021 grid featured 10 teams and 21 drivers, including one reserve driver appearance during the season. Several significant changes reshaped the paddock compared to 2020:
 
-- **Racing Point** became **Aston Martin**, featuring a darker green livery.
-- **Renault** rebranded as **Alpine**, adopting a blue-weighted color scheme.
-- **Sergio Perez** joined **Red Bull Racing**, replacing **Alexander Albon**.
-- **Carlos Sainz** moved from **McLaren** to **Ferrari** to partner with **Charles Leclerc**.
-- **Sebastian Vettel** (4x World Champion) joined **Aston Martin** alongside **Lance Stroll**.
-- **Daniel Ricciardo** left **Renault** and joined **McLaren** alongside **Lando Norris**.
-- **Fernando Alonso** (2x World Champion) made his Formula 1 comeback with **Alpine**.
-- **Pierre Gasly** remained with **AlphaTauri**, now joined by rookie **Yuki Tsunoda**.
-- **Haas** welcomed rookies **Mick Schumacher** and **Nikita Mazepin**.
+- **Racing Point** rebranded as **Aston Martin**, returning the iconic British marque to Formula 1 with its signature green livery.
+- **Renault** became **Alpine**, marking a new factory identity built around the French performance brand.
+- **Sergio Pérez** moved to **Red Bull Racing**, replacing **Alexander Albon** alongside **Max Verstappen**.
+- **Carlos Sainz** left **McLaren** to join **Ferrari**, partnering **Charles Leclerc** in an all-new lineup for the Scuderia.
+- Four-time World Champion **Sebastian Vettel** joined **Aston Martin**, teaming up with **Lance Stroll**.
+- **Daniel Ricciardo** switched from **Renault** to **McLaren**, forming one of the grid’s most experienced driver pairings with **Lando Norris**.
+- Two-time World Champion **Fernando Alonso** returned to Formula 1 with **Alpine** after two seasons away.
+- **AlphaTauri** retained **Pierre Gasly**, now joined by rookie **Yuki Tsunoda**.
+- **Haas** introduced an all-rookie lineup with **Mick Schumacher** and **Nikita Mazepin**, prioritizing long-term development.
 
-**Robert Kubica** competed in two races for **Alfa Romeo**, replacing **Kimi Raikkönen** who tested positive for Covid-19.
+During the season, **Robert Kubica** made two appearances for **Alfa Romeo**, substituting for **Kimi Räikkönen** after a positive Covid-19 test.
 
-<figure class="my-8 text-center">
-  <img
-    src="https://raw.githubusercontent.com/mpalaourg/F1_DataAnalysis/main/2021-Season/imgs/drivers.png"
-    alt="2021 drivers"
-    class="mx-auto"
-  />
-  <figcaption class="mt-2 text-sm text-gray-500 dark:text-slate-400">
-    Complete driver lineup for the 2021 Formula 1 season.
+<figure class="my-8">
+  <div class="overflow-x-auto">
+| Abbr. | No. | Driver              | Country           | Date of Birth | Place of Birth                | Team          | WDC | GPs | Podiums | Points  | Highest Finish |
+|:-----:|----:|---------------------|------------------|--------------|-------------------------------|---------------|----:|----:|--------:|--------:|----------------|
+| HAM | 44 | Lewis Hamilton      | United Kingdom   | 07/01/1985 | Stevenage, England            | Mercedes      | 7 | 288 | 182 | 4165.5 | 1(x103) |
+| BOT | 77 | Valtteri Bottas     | Finland          | 28/08/1989 | Nastola, Finland              | Mercedes      | 0 | 178 | 67  | 1738.0 | 1(x10) |
+| VER | 33 | Max Verstappen      | Netherlands      | 30/09/1997 | Hasselt, Belgium              | Red Bull Racing | 1 | 141 | 60  | 1557.5 | 1(x20) |
+| PER | 11 | Sergio Pérez        | Mexico           | 26/01/1990 | Guadalajara, Mexico           | Red Bull Racing | 0 | 214 | 15  | 896.0  | 1(x2) |
+| LEC | 16 | Charles Leclerc     | Monaco           | 16/10/1997 | Monte Carlo, Monaco           | Ferrari       | 0 | 81  | 13  | 560.0  | 1(x2) |
+| SAI | 55 | Carlos Sainz        | Spain            | 01/09/1994 | Madrid, Spain                 | Ferrari       | 0 | 141 | 6   | 536.5  | 2(x2) |
+| NOR | 4  | Lando Norris        | United Kingdom   | 13/11/1999 | Bristol, England              | McLaren       | 0 | 60  | 5   | 306.0  | 2(x1) |
+| RIC | 3  | Daniel Ricciardo    | Australia        | 01/07/1989 | Perth, Australia              | McLaren       | 0 | 210 | 32  | 1274.0 | 1(x8) |
+| OCO | 31 | Esteban Ocon        | France           | 17/09/1996 | Évreux, Normandy              | Alpine        | 0 | 89  | 2   | 272.0  | 1(x1) |
+| ALO | 14 | Fernando Alonso     | Spain            | 29/07/1981 | Oviedo, Spain                 | Alpine        | 2 | 336 | 98  | 1980.0 | 1(x32) |
+| GAS | 10 | Pierre Gasly        | France           | 07/02/1996 | Rouen, France                 | AlphaTauri    | 0 | 86  | 3   | 309.0  | 1(x1) |
+| TSU | 22 | Yuki Tsunoda        | Japan            | 11/05/2000 | Sagamihara, Japan             | AlphaTauri    | 0 | 22  | 0   | 32.0   | 4(x1) |
+| STR | 18 | Lance Stroll        | Canada           | 29/10/1998 | Montreal, Canada              | Aston Martin  | 0 | 100 | 3   | 176.0  | 3(x3) |
+| VET | 5  | Sebastian Vettel    | Germany          | 03/07/1987 | Heppenheim, Germany           | Aston Martin  | 4 | 280 | 122 | 3061.0 | 1(x53) |
+| RUS | 63 | George Russell      | United Kingdom   | 15/02/1998 | King's Lynn, England          | Williams      | 0 | 60  | 1   | 19.0   | 2(x1) |
+| LAT | 6  | Nicholas Latifi     | Canada           | 29/06/1995 | Montreal, Canada              | Williams      | 0 | 39  | 0   | 7.0    | 7(x1) |
+| RAI | 7  | Kimi Räikkönen      | Finland          | 17/10/1979 | Espoo, Finland                | Alfa Romeo    | 1 | 352 | 103 | 1873.0 | 1(x21) |
+| GIO | 99 | Antonio Giovinazzi  | Italy            | 14/12/1993 | Martina Franca, Italy         | Alfa Romeo    | 0 | 62  | 0   | 21.0   | 5(x1) |
+| MSC | 47 | Mick Schumacher     | Germany          | 22/03/1999 | Vufflens-le-Château, Switzerland | Haas      | 0 | 22  | 0   | 0.0    | 12(x1) |
+| MAZ | 9  | Nikita Mazepin      | RAF              | 02/03/1999 | Moscow, Russia                | Haas          | 0 | 21  | 0   | 0.0    | 14(x1) |
+| KUB | 88 | Robert Kubica       | Poland           | 07/12/1984 | Krakow, Poland                | Alfa Romeo    | 0 | 99  | 12  | 274.0  | 1(x1) |
+</div>
+  <figcaption class="mt-2 text-sm text-gray-500 dark:text-slate-400 text-center">
+    Driver lineup for the 2021 Formula 1 season, including career statistics such as World Championships, Grand Prix entries, podiums, total points, and highest race finish prior to the season start.
   </figcaption>
 </figure>
 
 ## 2021 Season Analysis
 
-This season was filled with thrilling moments as six different drivers claimed victories, most of them starting from the front row. Notable triumphs included **Esteban Ocon**'s impressive win from P8 in the **Hungarian Grand Prix**, and **Lewis Hamilton**'s spectacular performance starting from P10 in the **Brazilian GP**. **Max Verstappen** and **Lewis Hamilton** engaged in a captivating rivalry, securing 10 and 8 wins, respectively. **Sergio Perez** added to the excitement with his second career win, while **Ocon**'s victory was aided by **Fernando Alonso**'s masterful defense against **Hamilton**. **Daniel Ricciardo**'s triumph in **Monza** was historic for **McLaren**, marking their first win in nine years and a long-awaited 1-2 finish, ending their drought since 2010. This season showcased the fierce competition and unpredictability that defines Formula 1, with drivers displaying their skill and determination from various starting positions.
+Six different drivers stood on the top step of the podium in 2021, but the season ultimately revolved around two names.
 
-<figure class="my-8 text-center">
-  <img
-    src="https://raw.githubusercontent.com/mpalaourg/F1_DataAnalysis/main/2021-Season/imgs/race_winners.png"
-    alt="2021 race winners"
-    class="mx-auto"
-  />
-  <figcaption class="mt-2 text-sm text-gray-500 dark:text-slate-400">
-    Race winners of the 2021 Formula 1 season.
+**Max Verstappen** claimed 10 victories, while **Lewis Hamilton** secured 8. Behind them, standout moments shaped the narrative of the year:
+
+- **Esteban Ocon** won in Hungary from P8 after a chaotic first lap.
+- **Daniel Ricciardo** delivered McLaren’s first victory since 2012 with a dominant 1-2 finish at Monza.
+- **Sergio Pérez** earned his second career win in Baku after Verstappen’s late tyre failure.
+- **Hamilton**’s recovery drive in Brazil, from last to fifth in the Sprint and P10 to victory on Sunday, kept the championship alive.
+
+The margins were small. Strategy, safety cars, penalties, and split-second decisions often proved decisive.
+
+<figure class="my-8">
+  <div class="overflow-x-auto">
+| Grand Prix                | Winner            | Constructor     | Race Time     | Fastest Lap | Grid Pos. |
+|---------------------------|-------------------|-----------------|---------------|-------------|----------:|
+| Bahrain Grand Prix        | Lewis Hamilton    | Mercedes        | 1:32:03.897   | No          | 2 |
+| Emilia Romagna Grand Prix | Max Verstappen    | Red Bull        | 2:02:34.598   | No          | 3 |
+| Portuguese Grand Prix     | Lewis Hamilton    | Mercedes        | 1:34:31.421   | No          | 2 |
+| Spanish Grand Prix        | Lewis Hamilton    | Mercedes        | 1:33:07.680   | No          | 1 |
+| Monaco Grand Prix         | Max Verstappen    | Red Bull        | 1:38:56.820   | No          | 2 |
+| Azerbaijan Grand Prix     | Sergio Pérez      | Red Bull        | 2:13:36.410   | No          | 6 |
+| French Grand Prix         | Max Verstappen    | Red Bull        | 1:27:25.770   | Yes         | 1 |
+| Styrian Grand Prix        | Max Verstappen    | Red Bull        | 1:22:18.925   | No          | 1 |
+| Austrian Grand Prix       | Max Verstappen    | Red Bull        | 1:23:54.543   | Yes         | 1 |
+| British Grand Prix        | Lewis Hamilton    | Mercedes        | 1:58:23.284   | No          | 2 |
+| Hungarian Grand Prix      | Esteban Ocon      | Alpine F1 Team  | 2:04:43.199   | No          | 8 |
+| Belgian Grand Prix        | Max Verstappen    | Red Bull        | 3:27.071      | No          | 1 |
+| Dutch Grand Prix          | Max Verstappen    | Red Bull        | 1:30:05.395   | No          | 1 |
+| Italian Grand Prix        | Daniel Ricciardo  | McLaren         | 1:21:54.365   | Yes         | 2 |
+| Russian Grand Prix        | Lewis Hamilton    | Mercedes        | 1:30:41.001   | No          | 4 |
+| Turkish Grand Prix        | Valtteri Bottas   | Mercedes        | 1:31:04.103   | Yes         | 1 |
+| United States Grand Prix  | Max Verstappen    | Red Bull        | 1:34:36.552   | No          | 1 |
+| Mexico City Grand Prix    | Max Verstappen    | Red Bull        | 1:38:39.086   | No          | 3 |
+| São Paulo Grand Prix      | Lewis Hamilton    | Mercedes        | 1:32:22.851   | No          | 10 |
+| Qatar Grand Prix          | Lewis Hamilton    | Mercedes        | 1:24:28.471   | No          | 1 |
+| Saudi Arabian Grand Prix  | Lewis Hamilton    | Mercedes        | 2:06:15.118   | Yes         | 1 |
+| Abu Dhabi Grand Prix      | Max Verstappen    | Red Bull        | 1:30:17.345   | Yes         | 1 |
+</div>
+  <figcaption class="mt-2 text-sm text-gray-500 dark:text-slate-400 text-center">
+    Race winners of the 2021 season, including total race time, fastest-lap bonus, and starting grid position.
   </figcaption>
 </figure>
 
-The podium is the ultimate reward for drivers, allowing them to celebrate their hard work and that of their teams. Analyzing the image below, it becomes evident that **Max Verstappen** and **Lewis Hamilton** dominated the season with 18 and 17 podium finishes, respectively. Notably, **George Russell** achieved his first ever Formula 1 podium during the **Belgian Grand Prix**, while the return of two-time world champion **Fernando Alonso** to the podium in the **Qatar GP** was a significant moment.
+Standing on the podium is the clearest measure of consistency, and in 2021 it highlighted just how evenly matched the title contenders were.
+
+**Verstappen** recorded 18 podium finishes, while **Hamilton** followed closely with 17. When either driver finished a race, they were almost always in the top three.
+
+Elsewhere:
+
+- **George Russell** secured his first Formula 1 podium at the rain-affected Belgian Grand Prix.
+- **Fernando Alonso** returned to the podium in Qatar, marking his first top-three finish since 2014.
 
 <figure class="my-8 text-center">
   <img
@@ -79,12 +165,18 @@ The podium is the ultimate reward for drivers, allowing them to celebrate their 
     alt="2021 podium finishes"
     class="mx-auto"
   />
-  <figcaption class="mt-2 text-sm text-gray-500 dark:text-slate-400">
-    Podium finishes per driver in the 2021 season.
+  <figcaption class="mt-2 text-sm text-gray-500 dark:text-slate-400 text-center">
+    Podium finishes per driver during the 2021 championship.
   </figcaption>
 </figure>
 
-Securing points by finishing within the top-10 is a significant milestone for both drivers and teams throughout the race weekend. Remarkably, every driver, excluding the **Haas** rookies **Mick Schumacher** and **Nikita Mazepin**, managed to score at least one point this season. **Lewis Hamilton, Lando Norris**, and **Carlos Sainz** emerged as the top point finishers across various tracks, accumulating a combined total of 20 point finishes, closely followed by **Max Verstappen** with 19. **Verstappen**'s teammate **Sergio Perez** consistently finished in the top-10, achieving this feat 16 times, while **Charles Leclerc** found himself sandwiched between the two **Red Bull** drivers with 18. At the other end of the spectrum, **George Russell** and **Kimi Räikkönen** led the charge for **Williams** and **Alfa Romeo** respectively, as their teams secured points in several races.
+Finishing in the top ten remained crucial in such a tight championship.
+
+Every driver scored at least once — except the **Haas** rookies **Mick Schumacher** and **Nikita Mazepin**.
+
+**Hamilton**, **Norris**, and **Sainz** recorded 20 points finishes each, narrowly ahead of **Verstappen** with 19. The midfield battle between **Ferrari** and **McLaren** was equally intense, with consistency often proving more valuable than outright pace.
+
+At the other end of the grid, **Williams** celebrated a long-awaited return to regular points finishes, highlighted by Russell’s podium at Spa.
 
 <figure class="my-8 text-center">
   <img
@@ -92,27 +184,34 @@ Securing points by finishing within the top-10 is a significant milestone for bo
     alt="2021 point finishes"
     class="mx-auto"
   />
-  <figcaption class="mt-2 text-sm text-gray-500 dark:text-slate-400">
-    Points-scoring finishes per driver in the 2021 season.
+  <figcaption class="mt-2 text-sm text-gray-500 dark:text-slate-400 text-center">
+    Total number of points-scoring finishes per driver in 2021.
   </figcaption>
 </figure>
 
-One of the newest features introduced in the 2021 Formula 1 season was Sprint Qualifying. This format involved a qualifying session on Friday that determined the grid for the Sprint Qualifying, with the result of the latter determining the starting grid for the Sunday race session. Three Sprint weekends took place at **Silverstone, Monza**, and **São Paulo**, where drivers finishing in the top-3 were awarded 3, 2, and 1 point respectively.
+2021 also introduced Sprint Qualifying, trialed at **Silverstone**, **Monza**, and **São Paulo**.
 
-Based on the provided visualization, only five drivers reaped the benefits of the Sprint Qualifying sessions. Both **Valtteri Bottas** and **Max Verstappen** earned 7 points, while **Lewis Hamilton** managed to secure only 2. **Daniel Ricciardo** and **Carlos Sainz** were the other drivers who scored, albeit limited to a single point each. A particularly attention-grabbing moment occurred in Brazil when **Hamilton** started the Sprint Qualifying from the back of the grid but made a remarkable climb through the positions in the 24-lap race, ultimately finishing in 5th place. This performance was crucial for **Hamilton** to keep the championship title competition alive against **Verstappen**. However, **Hamilton**'s Sprint Qualifying success was marred by a subsequent 5-place grid penalty for the main race due to the use of an additional power unit element.
+Friday qualifying set the grid for a short Saturday sprint race, which then determined Sunday’s starting order. Points were awarded to the top three finishers (3-2-1).
 
+Only five drivers scored Sprint points. **Bottas** and **Verstappen** led with seven each, while **Hamilton** scored two.
+
+Brazil delivered the most dramatic Sprint weekend. Disqualified from qualifying and starting last, Hamilton climbed to fifth in just 24 laps — a recovery that proved critical in keeping the championship fight alive.
 <figure class="my-8 text-center">
   <img
     src="https://raw.githubusercontent.com/mpalaourg/F1_DataAnalysis/main/2021-Season/imgs/sprint_points.png"
     alt="2021 sprint points"
     class="mx-auto"
   />
-  <figcaption class="mt-2 text-sm text-gray-500 dark:text-slate-400">
+  <figcaption class="mt-2 text-sm text-gray-500 dark:text-slate-400 text-center">
     Points earned from Sprint Qualifying sessions in 2021.
   </figcaption>
 </figure>
 
-When it comes to the fastest drivers on the track, it is no surprise that **Lewis Hamilton** and **Max Verstappen** dominated once again, each securing six fastest laps. **Valtteri Bottas** and **Sergio Perez** followed closely behind with four and two fastest laps respectively. Additionally, **Daniel Ricciardo, Lando Norris**, and **Pierre Gasly** each achieved this feat once during the season, adding the accomplishment of being *the fastest driver* to their careers.
+When it came to outright pace, the numbers once again reflected the title fight.
+
+Hamilton and Verstappen each recorded six fastest laps. Bottas added four, while Pérez claimed two.
+
+Several midfield drivers — including Ricciardo, Norris, and Gasly — also left their mark with a single fastest lap during the season.
 
 <figure class="my-8 text-center">
   <img
@@ -120,12 +219,30 @@ When it comes to the fastest drivers on the track, it is no surprise that **Lewi
     alt="2021 fastest laps"
     class="mx-auto"
   />
-  <figcaption class="mt-2 text-sm text-gray-500 dark:text-slate-400">
-    Fastest lap points in the 2021 Formula 1 season.
+  <figcaption class="mt-2 text-sm text-gray-500 dark:text-slate-400 text-center">
+    Fastest laps recorded during the 2021 season.
   </figcaption>
 </figure>
 
-In the world of Formula 1, retirements are an inevitable part of the sport, whether due to mistakes or mechanical issues. Throughout the 2021 season, a total of 59 DNFs were recorded. Among these, 6 were attributed to accidents, while 20 were a result of collisions between drivers. The remaining retirements were caused by mechanical issues, most commonly involving gearboxes, brakes, or engine failures. Notably, **Nikita Mazepin** and **George Russell** experienced the highest number of retirements, both with six each. **Max Verstappen** faced three DNFs, including a high-speed tire blowout in the **Azerbaijan Grand Prix**, a collision with **Lewis Hamilton** at **Silverstone** resulting in a dramatic [51G crash](https://www.youtube.com/watch?v=oIKel6jVD3Q), and [another collision with **Hamilton**](https://www.youtube.com/watch?v=_VSwwZYDW94) at the **Italian Grand Prix**. Despite these three retirements, **Verstappen** achieved an impressive 18 podium finishes in the 19 races he completed, demonstrating his remarkable consistency in securing top-three results whenever he reached the finish line. Interestingly, the **Italian Grand Prix** incident also marked the only retirement for **Hamilton** throughout the season. Notably absent from the figure provided is **Carlos Sainz** from **Ferrari**, who impressively completed all the races in the 2021 season without a single retirement.
+Retirements played a significant role in the championship.
+
+A total of 59 DNFs were recorded:
+
+- 6 due to accidents
+- 20 from collisions
+- the remainder from mechanical failures
+
+Verstappen suffered three major retirements:
+
+- A tyre blowout while leading in Baku
+- The high-speed crash with Hamilton at Silverstone
+- The Monza collision where both cars were eliminated
+
+Despite this, he finished on the podium in 18 of the 19 races he completed — a remarkable level of consistency.
+
+Hamilton, by contrast, retired only once — at Monza.
+
+One notable statistic: Carlos Sainz completed every race of the season without a single DNF.
 
 <figure class="my-8 text-center">
   <img
@@ -133,27 +250,40 @@ In the world of Formula 1, retirements are an inevitable part of the sport, whet
     alt="2021 DNFs"
     class="mx-auto"
   />
-  <figcaption class="mt-2 text-sm text-gray-500 dark:text-slate-400">
+  <figcaption class="mt-2 text-sm text-gray-500 dark:text-slate-400 text-center">
     Race retirements (DNFs) per driver in 2021.
   </figcaption>
 </figure>
 
 ## Point Progression
 
-A thorough analysis of the drivers' points throughout the season reveals an intense battle between **Max Verstappen** and **Lewis Hamilton**, as they consistently outperformed the other drivers and established themselves as the frontrunners. Following behind them in the driver standings are their respective teammates, **Valtteri Bottas** and **Sergio Perez**. **Charles Leclerc, Lando Norris**, and **Carlos Sainz** engaged in a closely contested competition, with their positions in the standings neck-and-neck until the final race. Ultimately, **Sainz** secured the fifth place, establishing himself as the best-of-the-rest among the drivers outside of **Mersedes** and **Red Bull** lineups.
+A season-long view of the points standings makes one thing clear: the championship fight belonged to **Max Verstappen** and **Lewis Hamilton**.
 
+Across 22 races, the two consistently separated themselves from the rest of the field, trading momentum and rarely finishing outside the top positions. Behind them, their teammates — **Valtteri Bottas** and **Sergio Pérez** — played crucial supporting roles in the Constructors’ battle.
+
+Further down the order, **Charles Leclerc**, **Lando Norris**, and **Carlos Sainz** were locked in a tight contest for “best of the rest.” Their positions shifted repeatedly throughout the season, with margins often measured in single-digit points.
+
+In the end, **Sainz** secured fifth place in the Drivers’ Championship, finishing as the highest-ranked driver outside the **Mercedes** and **Red Bull** lineups.
 <figure class="my-8 text-center">
   <img
     src="https://raw.githubusercontent.com/mpalaourg/F1_DataAnalysis/main/2021-Season/imgs/points_progression_drivers.png"
     alt="2021 drivers points progression"
     class="mx-auto"
   />
-  <figcaption class="mt-2 text-sm text-gray-500 dark:text-slate-400">
+  <figcaption class="mt-2 text-sm text-gray-500 dark:text-slate-400 text-center">
     Drivers' championship points progression throughout 2021.
   </figcaption>
 </figure>
 
-Taking a closer look at the intense rivalry between **Max Verstappen** and **Lewis Hamilton**, the championship lead exchanged hands a remarkable five times throughout the 2021 season, setting the stage for a thrilling finale. In the final race, with both drivers tied on points, a late Safety Car incident prompted **Verstappen** to pit for fresh soft tires, while **Hamilton** chose to stay out. With just one lap remaining, **Verstappen** made a decisive move in turn 5, successfully overtaking **Hamilton** and securing his first World Championship title. However, the final laps were not without controversy, as **Mercedes** appealed the race result due to incidents and contentious decisions made by the FIA. Despite the appeal, no result was ultimately reached, solidifying **Verstappen**'s well-earned championship victory.
+The championship lead changed hands five times during the season.
+
+Neither Verstappen nor Hamilton managed to build a decisive advantage. Whenever one pulled ahead, the other responded — often immediately.
+
+Going into Abu Dhabi, both drivers were tied on points.
+
+A late Safety Car changed everything. Verstappen pitted for fresh soft tyres, while Hamilton stayed out on worn hard tyres. With one lap remaining, Verstappen made the move at Turn 5 and secured his first World Championship.
+
+The aftermath was controversial. Mercedes protested the race result, citing procedural decisions by the FIA. The appeal was later withdrawn, confirming Verstappen as World Champion.
 
 <figure class="my-8 text-center">
   <img
@@ -161,12 +291,22 @@ Taking a closer look at the intense rivalry between **Max Verstappen** and **Lew
     alt="2021 Verstappen vs Hamilton"
     class="mx-auto"
   />
-  <figcaption class="mt-2 text-sm text-gray-500 dark:text-slate-400">
-    Verstappen vs Hamilton championship battle in 2021.
+  <figcaption class="mt-2 text-sm text-gray-500 dark:text-slate-400 text-center">
+    Verstappen vs Hamilton: championship points progression throughout 2021.
   </figcaption>
 </figure>
 
-Shifting our focus to the Constructors' Championship, it was a closely fought battle between **Mercedes** and **Red Bull** throughout the season. However, in the end, **Mercedes** emerged victorious, securing their remarkable 8th consecutive title. **Ferrari**, after a disastrous previous season, made a strong comeback in 2021, surpassing **McLaren** in a closely contested clash for the third-place position in the Constructors' standings. Their improved performance showcased their determination and ability to bounce back from setbacks.
+While the Drivers’ title went down to the final lap, the Constructors’ Championship was decided by consistency.
+
+Mercedes secured their eighth consecutive title, narrowly defeating Red Bull by 28 points — a dramatic improvement from the large gap seen in 2020.
+
+Behind them:
+
+- Ferrari completed a strong recovery season, finishing third.
+- McLaren secured fourth after their Monza triumph.
+- Alpine edged out AlphaTauri in a tight midfield battle.
+- Williams returned to the points regularly.
+- Haas finished the season without scoring.
 
 <figure class="my-8 text-center">
   <img
@@ -174,36 +314,68 @@ Shifting our focus to the Constructors' Championship, it was a closely fought ba
     alt="2021 constructors points progression"
     class="mx-auto"
   />
-  <figcaption class="mt-2 text-sm text-gray-500 dark:text-slate-400">
-    Constructors' championship points progression in 2021.
+  <figcaption class="mt-2 text-sm text-gray-500 dark:text-slate-400 text-center">
+    Constructors' championship points progression during the 2021 season.
   </figcaption>
 </figure>
 
 ## Conclusions and Final Standings
 
-The final Driver Standings for the 2021 season are as follows: **Max Verstappen** clinched his first World Championship title, finishing eight points ahead of **Lewis Hamilton**. Their respective teammates, **Valtteri Bottas** and **Sergio Perez**, secured third and fourth places. In the fifth to eighth positions, we find the drivers from **Ferrari** and **McLaren**. **Carlos Sainz** placed ahead of them, while **Lando Norris** finished ahead of his teammate **Daniel Ricciardo**. **Pierre Gasly** had a strong season with **AlphaTauri**, scoring over 100 points. The **Alpine** and **Aston Martin** drivers followed suit, with the experienced veterans **Fernando Alonso** and **Sebastian Vettel** finishing ahead of their teammates in the standings.
+The 2021 season will be remembered as one of the most intense title battles in Formula 1 history.
 
-In the Constructors' Championship, **Mercedes** once again demonstrated their dominance, extending their unbeaten streak since the introduction of the 1.6-liter V6 Turbo Hybrid engine era in 2014. **Red Bull**, with an impressive performance, secured second place, significantly narrowing the gap to just 28 points compared to the previous year's margin of over 200 points. **Ferrari** made a remarkable recovery, finishing in third place in 2021. The team showcased consistent performances from **Charles Leclerc** and **Carlos Sainz**, bouncing back from a challenging 2020 season. **McLaren** also had a strong showing, claiming the fourth-place position. An intense battle unfolded for fifth place, with the Renault-powered **Alpine** team edging out **AlphaTauri**. **Williams** celebrated a long-awaited achievement, scoring points after a wait of nearly two and a half years, lifting themselves from the bottom of the constructors' standings and surpassing a relatively lackluster season for **Alfa Romeo**. **Haas**, unfortunately, failed to score any points in the 2021 season.
+Max Verstappen secured his first World Championship by just eight points, ending Mercedes’ run of drivers’ titles in the hybrid era.
 
+At the same time, Mercedes extended their dominance in the Constructors’ Championship, claiming an eighth consecutive crown.
+
+It was a season defined by speed, controversy, resilience, and razor-thin margins — decided only on the final lap of the year.
 <figure class="my-16">
   <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
 
     <div class="overflow-x-auto">
       <h4 class="text-center mb-2">(a) Drivers</h4>
-      <img
-        src="https://raw.githubusercontent.com/mpalaourg/F1_DataAnalysis/main/2021-Season/imgs/drivers_standings.png"
-        alt="2021 driver standings"
-        class="mx-auto"
-      />
+
+| Pos. | Driver            | Constructor      | Points |
+|-----:|------------------|------------------|--------:|
+| 1    | Max Verstappen   | Red Bull         | 395.5  |
+| 2    | Lewis Hamilton   | Mercedes         | 387.5  |
+| 3    | Valtteri Bottas  | Mercedes         | 226.0  |
+| 4    | Sergio Pérez     | Red Bull         | 190.0  |
+| 5    | Carlos Sainz     | Ferrari          | 164.5  |
+| 6    | Lando Norris     | McLaren          | 160.0  |
+| 7    | Charles Leclerc  | Ferrari          | 159.0  |
+| 8    | Daniel Ricciardo | McLaren          | 115.0  |
+| 9    | Pierre Gasly     | AlphaTauri       | 110.0  |
+| 10   | Fernando Alonso  | Alpine F1 Team   | 81.0   |
+| 11   | Esteban Ocon     | Alpine F1 Team   | 74.0   |
+| 12   | Sebastian Vettel | Aston Martin     | 43.0   |
+| 13   | Lance Stroll     | Aston Martin     | 34.0   |
+| 14   | Yuki Tsunoda     | AlphaTauri       | 32.0   |
+| 15   | George Russell   | Williams         | 16.0   |
+| 16   | Kimi Räikkönen   | Alfa Romeo       | 10.0   |
+| 17   | Nicholas Latifi  | Williams         | 7.0    |
+| 18   | Antonio Giovinazzi| Alfa Romeo      | 3.0    |
+| 19   | Nikita Mazepin   | Haas F1 Team     | 0.0    |
+| 20   | Robert Kubica    | Alfa Romeo       | 0.0    |
+| 21   | Mick Schumacher  | Haas F1 Team     | 0.0    |
+
     </div>
 
     <div class="overflow-x-auto">
       <h4 class="text-center mb-2">(b) Constructors</h4>
-      <img
-        src="https://raw.githubusercontent.com/mpalaourg/F1_DataAnalysis/main/2021-Season/imgs/constructor_standings.png"
-        alt="2021 constructor standings"
-        class="mx-auto"
-      />
+
+| Pos. | Constructor     | Points |
+|-----:|----------------|--------:|
+| 1    | Mercedes       | 613.5  |
+| 2    | Red Bull       | 585.5  |
+| 3    | Ferrari        | 323.5  |
+| 4    | McLaren        | 275.0  |
+| 5    | Alpine F1 Team | 155.0  |
+| 6    | AlphaTauri     | 142.0  |
+| 7    | Aston Martin   | 77.0   |
+| 8    | Williams       | 23.0   |
+| 9    | Alfa Romeo     | 13.0   |
+| 10   | Haas F1 Team   | 0.0    |
+
     </div>
 
   </div>
