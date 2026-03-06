@@ -8,5 +8,12 @@
   "pages_build_output_dir": "./dist",
 	"observability": {
     "enabled": true
-  }
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "mpalaourg-site-cache",
+      "database_id": "15f7759b-c6d7-439c-be45-906142945129"
+    }
+  ]
 }
