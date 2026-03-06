@@ -1,77 +1,44 @@
-const JOLPICA_BASE = "https://api.jolpi.ca/ergast/f1";
+// F1 Utilities - Re-exports from modular files
+// Import from the new modular structure
 
-export async function getSeasonRaces() {
-  try {
-    // Try current season first
-    let res = await fetch(`${JOLPICA_BASE}/current.json`);
-    if (!res.ok) throw new Error("API error");
-    let data = await res.json();
-    let races = data?.MRData?.RaceTable?.Races ?? [];
+// Re-export everything from api.ts
+export {
+  getSeasonRaces,
+  getDriverStandings,
+  getConstructorStandings,
+  getJolpicaQualifying,
+  getJolpicaRaceResults,
+  getJolpicaSprintResults,
+  getOpenF1SessionResults,
+} from "./f1/api";
 
-    // If no races found (off-season), try next year
-    if (races.length === 0) {
-      const year = new Date().getFullYear() + 1;
-      res = await fetch(`https://api.jolpi.ca/ergast/f1/${year}.json/`);
-      if (!res.ok) throw new Error("Fallback API error");
-      data = await res.json();
-      races = data?.MRData?.RaceTable?.Races ?? [];
-    }
+// Re-export from constants
+export {
+  JOLPICA_TO_OPENF1_COUNTRY,
+  PRACTICE_SESSION_NAMES,
+  COUNTRY_FLAGS,
+  TEAM_LOGO_PATHS,
+  CIRCUIT_IMAGE_PATHS,
+} from "./f1/constants";
 
-    return races;
-  } catch (e) {
-    console.error("F1 fetch failed:", e);
-    return [];
-  }
-}
+// Re-export from types
+export type {
+  DriverStanding,
+  ConstructorStanding,
+  OpenF1SessionResult,
+  OpenF1Driver,
+  OpenF1Session,
+  OpenF1ResultRow,
+  RaceSession,
+  SessionType,
+  Race,
+  Translations,
+} from "./f1/types";
 
-export interface DriverStanding {
-  position: string;
-  points: string;
-  wins: string;
-  Driver: {
-    permanentNumber: string;
-    code: string;
-    givenName: string;
-    familyName: string;
-  };
-  Constructors: Array<{ name: string }>;
-}
-
-export interface ConstructorStanding {
-  position: string;
-  points: string;
-  wins: string;
-  Constructor: { constructorId: string; name: string };
-  // drivers is not in this endpoint — we enrich it from driver standings
-  drivers?: Array<{ name: string; points: string; pct: string }>;
-}
-
-export async function getDriverStandings(): Promise<DriverStanding[]> {
-  try {
-    const res = await fetch(
-      `${JOLPICA_BASE}/current/driverStandings.json`
-    );
-    const json = await res.json();
-    return (
-      json.MRData.StandingsTable.StandingsLists[0]?.DriverStandings ?? []
-    );
-  } catch {
-    return [];
-  }
-}
-
-export async function getConstructorStandings(): Promise<
-  ConstructorStanding[]
-> {
-  try {
-    const res = await fetch(
-      `${JOLPICA_BASE}/current/constructorStandings.json`
-    );
-    const json = await res.json();
-    return (
-      json.MRData.StandingsTable.StandingsLists[0]?.ConstructorStandings ?? []
-    );
-  } catch {
-    return [];
-  }
-}
+// Re-export from formatters
+export {
+  formatLapTime,
+  pad,
+  formatLocalDateTime,
+  getTeamIdFromName,
+} from "./f1/formatters";

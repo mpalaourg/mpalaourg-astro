@@ -1,14 +1,26 @@
 ---
-import { getSeasonRaces, getDriverStandings, getConstructorStandings } from "../utils/f1";
+import {
+  getSeasonRaces,
+  getDriverStandings,
+  getConstructorStandings,
+  getJolpicaQualifying,
+  getJolpicaRaceResults,
+  getJolpicaSprintResults,
+  getOpenF1SessionResults,
+  PRACTICE_SESSION_NAMES,
+  type OpenF1ResultRow,
+} from "../utils/f1";
+
+// ─── Base data ────────────────────────────────────────────────────────────────
 const [races, driverStandings, constructorStandings] = await Promise.all([
   getSeasonRaces(),
   getDriverStandings(),
   getConstructorStandings(),
 ]);
 
-// Enrich constructors with their drivers' breakdown
 const totalConstructorPts = constructorStandings.reduce(
-  (s, c) => s + parseFloat(c.points), 0
+  (s, c) => s + parseFloat(c.points),
+  0
 );
 const enrichedConstructors = constructorStandings.map((c) => {
   const drivers = driverStandings
@@ -16,26 +28,125 @@ const enrichedConstructors = constructorStandings.map((c) => {
     .map((d) => ({
       name: `${d.Driver.givenName[0]}. ${d.Driver.familyName}`,
       points: d.points,
-      pct: totalConstructorPts > 0
-        ? ((parseFloat(d.points) / parseFloat(c.points)) * 100).toFixed(0)
-        : "0",
+      pct:
+        totalConstructorPts > 0
+          ? ((parseFloat(d.points) / parseFloat(c.points)) * 100).toFixed(0)
+          : "0",
     }));
   return { ...c, drivers };
 });
+
+// ─── Build results map at build time ─────────────────────────────────────────
+/**
+ * Key pattern: "${season}-${round}-${type}"
+ * type: "fp1" | "fp2" | "fp3" | "qualifying" | "sprint_qualifying" |
+ *       "sprint" | "race"
+ */
+const allResults: Record<string, any> = {};
+const allSessionKeys: Record<string, number> = {}; // fp sessions only
+const now = new Date();
+
+function sessionDateMs(obj: { date: string; time?: string }) {
+  return new Date(`${obj.date}T${obj.time ?? "00:00:00"}`).getTime();
+}
+
+function isPast(ms: number) {
+  // 30-min grace so API has time to publish
+  return ms < Date.now() - 30 * 60 * 1000;
+}
+
+// Process races sequentially to avoid hammering OpenF1
+for (const race of races) {
+  const season = race.season as string;
+  const round = race.round as string;
+  const country = race.Circuit.Location.country as string;
+  const year = parseInt(season);
+
+  const sessions = [
+    { key: "fp1", num: 1, obj: race.FirstPractice },
+    { key: "fp2", num: 2, obj: race.SecondPractice },
+    { key: "fp3", num: 3, obj: race.ThirdPractice },
+    { key: "sprint_qualifying", obj: race.SprintQualifying },
+    { key: "sprint", obj: race.Sprint },
+    { key: "qualifying", obj: race.Qualifying },
+    { key: "race", obj: { date: race.date, time: race.time } },
+  ];
+
+  for (const session of sessions) {
+    if (!session.obj?.date) continue;
+    const ms = sessionDateMs(session.obj);
+    if (!isPast(ms)) continue; // only fetch past sessions
+
+    const cacheKey = `${season}-${round}-${session.key}`;
+
+    try {
+      if (
+        session.key === "fp1" ||
+        session.key === "fp2" ||
+        session.key === "fp3"
+      ) {
+        const num = session.num as 1 | 2 | 3;
+        // Resolve and store the session key for client-side fallback
+        const openF1Country =
+          (await import("../utils/f1")).JOLPICA_TO_OPENF1_COUNTRY[country] ?? country;
+        const skRes = await fetch(
+          `https://api.openf1.org/v1/sessions?year=${year}&country_name=${encodeURIComponent(openF1Country)}&session_name=${encodeURIComponent(PRACTICE_SESSION_NAMES[num])}`
+        );
+        if (skRes.ok) {
+          const skData = await skRes.json();
+          if (skData?.[0]?.session_key) {
+            allSessionKeys[cacheKey] = skData[0].session_key;
+          }
+        }
+        const rows = await getOpenF1SessionResults(
+          year,
+          country,
+          PRACTICE_SESSION_NAMES[num],
+          session.obj.date
+        );
+        allResults[cacheKey] = rows;
+      } else if (session.key === "sprint_qualifying") {
+        const rows = await getOpenF1SessionResults(
+          year,
+          country,
+          "Sprint Qualifying",
+          session.obj.date,
+          true // isQualifying
+        );
+        allResults[cacheKey] = rows;
+      } else if (session.key === "qualifying") {
+        const data = await getJolpicaQualifying(season, round);
+        allResults[cacheKey] = data ?? [];
+      } else if (session.key === "sprint") {
+        const data = await getJolpicaSprintResults(season, round);
+        allResults[cacheKey] = data ?? [];
+      } else if (session.key === "race") {
+        const data = await getJolpicaRaceResults(season, round);
+        allResults[cacheKey] = data ?? [];
+      }
+    } catch (e) {
+      console.warn(`Failed to fetch ${cacheKey}:`, e);
+      allResults[cacheKey] = [];
+    }
+  }
+}
+
+// ─── Static assets ────────────────────────────────────────────────────────────
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 const TEAM_LOGOS: Record<string, string> = {
-    mercedes: `${BASE}/formula/team-logos/mercedes.svg`,
-    ferrari: `${BASE}/formula/team-logos/ferrari.svg`,
-    red_bull: `${BASE}/formula/team-logos/red_bull.png`,
-    mclaren: `${BASE}/formula/team-logos/mclaren.png`,
-    alpine: `${BASE}/formula/team-logos/alpine.svg`,
-    aston_martin: `${BASE}/formula/team-logos/aston_martin.svg`,
-    williams: `${BASE}/formula/team-logos/williams.svg`,
-    haas: `${BASE}/formula/team-logos/haas.svg`,
-    rb: `${BASE}/formula/team-logos/rb.svg`,
-    audi: `${BASE}/formula/team-logos/audi.svg`,
-    cadillac: `${BASE}/formula/team-logos/cadillac.svg`,
+  mercedes: `${BASE}/formula/team-logos/mercedes.svg`,
+  ferrari: `${BASE}/formula/team-logos/ferrari.svg`,
+  red_bull: `${BASE}/formula/team-logos/red_bull.png`,
+  mclaren: `${BASE}/formula/team-logos/mclaren.png`,
+  alpine: `${BASE}/formula/team-logos/alpine.svg`,
+  aston_martin: `${BASE}/formula/team-logos/aston_martin.svg`,
+  williams: `${BASE}/formula/team-logos/williams.svg`,
+  haas: `${BASE}/formula/team-logos/haas.svg`,
+  rb: `${BASE}/formula/team-logos/rb.svg`,
+  audi: `${BASE}/formula/team-logos/audi.svg`,
+  cadillac: `${BASE}/formula/team-logos/cadillac.svg`,
 };
+
 interface Props {
   lang?: "en" | "el";
 }
@@ -52,9 +163,14 @@ const t = {
     noRaceData: "No race data available.",
     seasonNotStarted: "Season hasn't started yet",
     driverStandingsEmpty: "Driver standings will appear after Round 1",
-    constructorStandingsEmpty: "Constructor standings will appear after Round 1",
-    days: "days", hrs: "hrs", min: "min", sec: "sec",
-    prev: "Prev", next: "Next",
+    constructorStandingsEmpty:
+      "Constructor standings will appear after Round 1",
+    days: "days",
+    hrs: "hrs",
+    min: "min",
+    sec: "sec",
+    prev: "Prev",
+    next: "Next",
     driver: "Driver",
     constructor: "Constructor",
     number: "No",
@@ -72,9 +188,14 @@ const t = {
     noRaceData: "Δεν υπάρχουν διαθέσιμα δεδομένα αγώνα.",
     seasonNotStarted: "Η σεζόν δεν έχει ξεκινήσει ακόμα",
     driverStandingsEmpty: "Η κατάταξη οδηγών θα εμφανιστεί μετά τον 1ο γύρο",
-    constructorStandingsEmpty: "Η κατάταξη κατασκευαστών θα εμφανιστεί μετά τον 1ο γύρο",
-    days: "μέρες", hrs: "ώρες", min: "λεπτά", sec: "δευτ",
-    prev: "Προηγ", next: "Επόμενο",
+    constructorStandingsEmpty:
+      "Η κατάταξη κατασκευαστών θα εμφανιστεί μετά τον 1ο γύρο",
+    days: "μέρες",
+    hrs: "ώρες",
+    min: "λεπτά",
+    sec: "δευτ",
+    prev: "Προηγ",
+    next: "Επόμενο",
     driver: "Οδηγός",
     constructor: "Κατασκευαστής",
     number: "Αρ",
@@ -87,269 +208,419 @@ const t = {
 const T = t[lang];
 ---
 
-{races.length > 0 ? (
-<div
-  id="f1-widget"
-  data-labels={JSON.stringify({
-    nextRace: T.nextRace,
-    pastRace: T.pastRace,
-    upcoming: T.upcoming,
-    round: T.round,
-  })}
-  class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-800 p-5 shadow-sm"
->
-  <script
-    id="f1-all-races"
-    type="application/json"
-    set:html={JSON.stringify(races)}
-  />
+{
+  races.length > 0 ? (
+    <div
+      id="f1-widget"
+      data-labels={JSON.stringify({
+        nextRace: T.nextRace,
+        pastRace: T.pastRace,
+        upcoming: T.upcoming,
+        round: T.round,
+      })}
+      class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-800 p-5 shadow-sm"
+    >
+      {/* Embedded data blobs */}
+      <script
+        id="f1-all-races"
+        type="application/json"
+        set:html={JSON.stringify(races)}
+      />
+      <script
+        id="f1-all-results"
+        type="application/json"
+        set:html={JSON.stringify(allResults)}
+      />
+      <script
+        id="f1-session-keys"
+        type="application/json"
+        set:html={JSON.stringify(allSessionKeys)}
+      />
+      <script
+        id="f1-team-logos"
+        type="application/json"
+        set:html={JSON.stringify(TEAM_LOGOS)}
+      />
 
-  <div id="f1-content">
-    <!-- Header -->
-    <div class="flex items-start justify-between gap-4 mb-4">
-      <div class="flex-1 min-w-0">
-        <div class="flex items-center gap-2 mb-1 flex-wrap">
-          <span
-            id="f1-badge"
-            class="text-xs font-bold px-2 py-0.5 rounded-full bg-red-600 text-white uppercase tracking-wide"
-          >Next Race</span>
-          <span
-            id="f1-round"
-            class="text-xs text-gray-500 dark:text-slate-400"
-          ></span>
+      <div id="f1-content">
+        {/* Header */}
+        <div class="flex items-start justify-between gap-4 mb-4">
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 mb-1 flex-wrap">
+              <span
+                id="f1-badge"
+                class="text-xs font-bold px-2 py-0.5 rounded-full bg-red-600 text-white uppercase tracking-wide"
+              >
+                Next Race
+              </span>
+              <span
+                id="f1-round"
+                class="text-xs text-gray-500 dark:text-slate-400"
+              />
+            </div>
+            <h3 id="f1-race-name" class="text-xl font-bold" />
+            <p
+              id="f1-circuit-name"
+              class="text-sm text-gray-500 dark:text-slate-400"
+            />
+          </div>
+          <div id="f1-flag" class="text-4xl shrink-0" />
         </div>
-        <h3 id="f1-race-name" class="text-xl font-bold"></h3>
-        <p id="f1-circuit-name" class="text-sm text-gray-500 dark:text-slate-400"></p>
-      </div>
-      <div id="f1-flag" class="text-4xl shrink-0"></div>
-    </div>
 
-    <!-- Sessions + circuit image -->
-    <div class="flex flex-col md:flex-row gap-4 mb-4">
-      <!-- Left: sessions -->
-      <div class="flex-1 min-w-0">
-        <div class="flex flex-wrap gap-1 mb-3" id="f1-session-tabs"></div>
-        <div class="rounded-lg bg-slate-100 dark:bg-slate-700/50 p-3">
-          <p
-            id="f1-session-label"
-            class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-slate-400 mb-1"
-          ></p>
-          <p
-            id="f1-session-datetime"
-            class="text-xs text-gray-500 dark:text-slate-400 mb-2"
-          ></p>
-          <div class="flex gap-3">
-            <div class="text-center">
-              <div id="cd-days" class="text-2xl font-bold font-mono tabular-nums">--</div>
-              <div class="text-xs text-gray-500 dark:text-slate-400">{T.days}</div>
-            </div>
-            <div class="text-xl font-bold self-start mt-1">:</div>
-            <div class="text-center">
-              <div id="cd-hours" class="text-2xl font-bold font-mono tabular-nums">--</div>
-              <div class="text-xs text-gray-500 dark:text-slate-400">{T.hrs}</div>
-            </div>
-            <div class="text-xl font-bold self-start mt-1">:</div>
-            <div class="text-center">
-              <div id="cd-mins" class="text-2xl font-bold font-mono tabular-nums">--</div>
-              <div class="text-xs text-gray-500 dark:text-slate-400">{T.min}</div>
-            </div>
-            <div class="text-xl font-bold self-start mt-1">:</div>
-            <div class="text-center">
-              <div id="cd-secs" class="text-2xl font-bold font-mono tabular-nums">--</div>
-              <div class="text-xs text-gray-500 dark:text-slate-400">{T.sec}</div>
+        {/* Sessions + circuit image */}
+        <div class="flex flex-col md:flex-row gap-4 mb-4">
+          <div class="flex-1 min-w-0">
+            <div class="flex flex-wrap gap-1 mb-3" id="f1-session-tabs" />
+            <div class="rounded-lg bg-slate-100 dark:bg-slate-700/50 p-3">
+              <p
+                id="f1-session-label"
+                class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-slate-400 mb-1"
+              />
+              <p
+                id="f1-session-datetime"
+                class="text-xs text-gray-500 dark:text-slate-400 mb-2"
+              />
+              {/* Countdown */}
+              <div id="f1-countdown" class="flex gap-3">
+                {(
+                  [
+                    [T.days, "days"],
+                    [T.hrs, "hours"],
+                    [T.min, "mins"],
+                    [T.sec, "secs"],
+                  ] as const
+                ).map(([label, id], i, arr) => (
+                  <>
+                    <div class="text-center">
+                      <div
+                        id={`cd-${id}`}
+                        class="text-2xl font-bold font-mono tabular-nums"
+                      >
+                        --
+                      </div>
+                      <div class="text-xs text-gray-500 dark:text-slate-400">
+                        {label}
+                      </div>
+                    </div>
+                    {i < arr.length - 1 && (
+                      <div class="text-xl font-bold self-start mt-1">:</div>
+                    )}
+                  </>
+                ))}
+              </div>
+              {/* Results panel */}
+              <div id="f1-results-panel" class="hidden mt-3" />
             </div>
           </div>
+
+          {/* Circuit image */}
+          <div class="md:w-48 shrink-0 flex items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-700/60 p-3">
+            <img
+              id="f1-circuit-img"
+              src=""
+              alt="Circuit map"
+              class="max-h-40 max-w-full object-contain hidden"
+            />
+          </div>
+        </div>
+
+        {/* Navigation */}
+        <div class="flex items-center justify-between mt-2 gap-2">
+          <button
+            id="f1-prev"
+            aria-label="Previous race"
+            class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium
+                   bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-slate-300
+                   hover:bg-gray-200 dark:hover:bg-slate-600 disabled:opacity-30
+                   disabled:cursor-not-allowed transition-colors shrink-0"
+          >
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M15 19l-7-7 7-7"
+              />
+            </svg>
+            {T.prev}
+          </button>
+          <div
+            id="f1-dots"
+            class="flex gap-1 flex-wrap justify-center flex-1"
+          />
+          <button
+            id="f1-next"
+            aria-label="Next race"
+            class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium
+                   bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-slate-300
+                   hover:bg-gray-200 dark:hover:bg-slate-600 disabled:opacity-30
+                   disabled:cursor-not-allowed transition-colors shrink-0"
+          >
+            {T.next}
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+          </button>
         </div>
       </div>
 
-      <!-- Right: circuit image -->
-      <div class="md:w-48 shrink-0 flex items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-700/60 p-3">
-        <img
-            id="f1-circuit-img"
-            src=""
-            alt="Circuit map"
-            class="max-h-40 max-w-full object-contain hidden"
-        />
-      </div>
-    </div>
-
-    <!-- Navigation -->
-    <div class="flex items-center justify-between mt-2 gap-2">
-      <button
-        id="f1-prev"
-        aria-label="Previous race"
-        class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium
-               bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-slate-300
-               hover:bg-gray-200 dark:hover:bg-slate-600 disabled:opacity-30
-               disabled:cursor-not-allowed transition-colors shrink-0"
-      >
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
-        </svg>
-        {T.prev}
-      </button>
-
-      <div id="f1-dots" class="flex gap-1 flex-wrap justify-center flex-1"></div>
-
-      <button
-        id="f1-next"
-        aria-label="Next race"
-        class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium
-               bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-slate-300
-               hover:bg-gray-200 dark:hover:bg-slate-600 disabled:opacity-30
-               disabled:cursor-not-allowed transition-colors shrink-0"
-      >
-        {T.next}
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
-        </svg>
-      </button>
-    </div>
-  </div>
-    <!-- Standings -->
-    <div class="mt-5 border-t border-gray-200 dark:border-gray-700 pt-4">
-    <!-- Tab switcher -->
-    <div class="flex gap-2 mb-3">
-        <button
-        id="tab-drivers"
-        class="px-3 py-1 text-xs font-semibold rounded-full bg-red-600 text-white transition-colors"
-        >{T.drivers}</button>
-        <button
-        id="tab-constructors"
-        class="px-3 py-1 text-xs font-semibold rounded-full bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-slate-300 hover:bg-gray-300 dark:hover:bg-slate-600 transition-colors"
-        >{T.constructors}</button>
-    </div>
-
-    <!-- Driver standings -->
-    <div id="standings-drivers">
-    {driverStandings.length > 0 ? (
-        <div class="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
-        <!-- Header -->
-        <div class="grid grid-cols-[2rem_2rem_1fr_3.5rem_2.5rem] gap-x-2 px-3 py-1.5
-                    bg-slate-100 dark:bg-slate-700/80 border-b border-gray-200 dark:border-gray-700">
-            <span class="text-xs font-semibold text-gray-400 dark:text-slate-500 text-center">#</span>
-            <span class="text-xs font-semibold text-gray-400 dark:text-slate-500 text-center">{T.number}</span>
-            <span class="text-xs font-semibold text-gray-400 dark:text-slate-500">{T.driver}</span>
-            <span class="text-xs font-semibold text-gray-400 dark:text-slate-500 text-right">{T.points}</span>
-            <span class="text-xs font-semibold text-gray-400 dark:text-slate-500 text-right">{T.wins}</span>
+      {/* Standings */}
+      <div class="mt-5 border-t border-gray-200 dark:border-gray-700 pt-4">
+        <div class="flex gap-2 mb-3">
+          <button
+            id="tab-drivers"
+            class="px-3 py-1 text-xs font-semibold rounded-full bg-red-600 text-white transition-colors"
+          >
+            {T.drivers}
+          </button>
+          <button
+            id="tab-constructors"
+            class="px-3 py-1 text-xs font-semibold rounded-full bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-slate-300 hover:bg-gray-300 dark:hover:bg-slate-600 transition-colors"
+          >
+            {T.constructors}
+          </button>
         </div>
-        <!-- Rows -->
-        <div class="max-h-64 overflow-y-auto divide-y divide-gray-100 dark:divide-slate-700/50">
-            {driverStandings.map((d, i) => {
-            const constructorId = d.Constructors[0]?.constructorId ?? "";
-            const logoSrc = TEAM_LOGOS[constructorId];
-            return (
-                <div class={[
-                "grid grid-cols-[2rem_2rem_1fr_3.5rem_2.5rem] gap-x-2 px-3 py-2 items-center",
-                "transition-colors hover:bg-red-50 dark:hover:bg-slate-700/40",
-            	i % 2 === 0 ? "bg-white dark:bg-slate-800" : "bg-slate-50 dark:bg-slate-700/40",
-                ].join(" ")}>
-                <span class="text-xs text-gray-400 dark:text-slate-500 font-mono text-center">{d.position}</span>
-                <span class="text-xs font-bold text-center bg-slate-200 dark:bg-slate-700 rounded px-1 py-0.5 tabular-nums">{d.Driver.permanentNumber}</span>
-                <span class="flex items-center gap-2 min-w-0">
-                    {logoSrc ? (
-                    <img src={logoSrc} alt={d.Constructors[0]?.name} class="h-4 w-6 object-contain shrink-0" />
-                    ) : (
-                    <span class="h-3 w-3 rounded-full shrink-0 bg-slate-400" />
-                    )}
-                    <span class="truncate text-sm font-medium">
-                    {d.Driver.givenName[0]}. {d.Driver.familyName}
-                    </span>
+
+        {/* Driver standings */}
+        <div id="standings-drivers">
+          {driverStandings.length > 0 ? (
+            <div class="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
+              <div class="grid grid-cols-[2rem_2rem_1fr_3.5rem_2.5rem] gap-x-2 px-3 py-1.5 bg-slate-100 dark:bg-slate-700/80 border-b border-gray-200 dark:border-gray-700">
+                <span class="text-xs font-semibold text-gray-400 dark:text-slate-500 text-center">
+                  #
                 </span>
-                <span class="text-sm font-bold tabular-nums text-right">{d.points}</span>
-                <span class="text-xs text-gray-400 dark:text-slate-500 text-right tabular-nums">{d.wins}</span>
-                </div>
-            );
-            })}
-        </div>
-        </div>
-    ) : (
-        <div class="flex flex-col items-center justify-center py-8 text-center gap-2">
-        <span class="text-2xl">🏎️</span>
-        <p class="text-sm font-medium text-gray-500 dark:text-slate-400">{T.seasonNotStarted}</p>
-        <p class="text-xs text-gray-400 dark:text-slate-500">{T.driverStandingsEmpty}</p>
-        </div>
-    )}
-    </div>
-
-    <!-- Constructor standings -->
-    <div id="standings-constructors" class="hidden">
-    {enrichedConstructors.length > 0 ? (
-        <div class="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
-        <!-- Header -->
-        <div class="grid grid-cols-[2rem_1fr_3.5rem_2.5rem] gap-x-2 px-3 py-1.5
-                    bg-slate-100 dark:bg-slate-700/80 border-b border-gray-200 dark:border-gray-700">
-            <span class="text-xs font-semibold text-gray-400 dark:text-slate-500 text-center">#</span>
-            <span class="text-xs font-semibold text-gray-400 dark:text-slate-500">{T.constructor}</span>
-            <span class="text-xs font-semibold text-gray-400 dark:text-slate-500 text-right">{T.points}</span>
-            <span class="text-xs font-semibold text-gray-400 dark:text-slate-500 text-right">{T.wins}</span>
-        </div>
-        <!-- Rows -->
-        <div class="max-h-64 overflow-y-auto divide-y divide-gray-100 dark:divide-slate-700/50">
-            {enrichedConstructors.map((c, i) => {
-            const logoSrc = TEAM_LOGOS[c.Constructor.constructorId];
-            return (
-                <div class={[
-                i % 2 === 0 ? "bg-white dark:bg-slate-800" : "bg-slate-50 dark:bg-slate-700/40",
-                ].join(" ")}>
-                <!-- Constructor row -->
-                <div class="grid grid-cols-[2rem_1fr_3.5rem_2.5rem] gap-x-2 px-3 py-2 items-center
-                            transition-colors hover:bg-red-50 dark:hover:bg-slate-700/40">
-                    <span class="text-xs text-gray-400 dark:text-slate-500 font-mono text-center">{c.position}</span>
-                    <span class="flex items-center gap-2 min-w-0">
-                    {logoSrc ? (
-                        <img src={logoSrc} alt={c.Constructor.name} class="h-4 w-6 object-contain shrink-0" />
-                    ) : (
-                        <span class="h-3 w-3 rounded-full shrink-0 bg-slate-400" />
-                    )}
-                    <span class="truncate text-sm font-semibold">{c.Constructor.name}</span>
-                    </span>
-                    <span class="text-sm font-bold tabular-nums text-right">{c.points}</span>
-                    <span class="text-xs text-gray-400 dark:text-slate-500 text-right tabular-nums">{c.wins}</span>
-                </div>
-                <!-- Driver breakdown sub-rows -->
-                {c.drivers && c.drivers.length > 0 && (
-                    <div class="pb-1.5 px-3 ml-8 space-y-0.5">
-                    {c.drivers.map((drv) => (
-                        <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-slate-400">
-                        <span class="flex-1 truncate">{drv.name}</span>
-                        <span class="tabular-nums font-medium">{drv.points} {T.pts}</span>
-                        <div class="w-20 flex items-center gap-1">
-                            <div class="flex-1 h-1 rounded-full bg-slate-200 dark:bg-slate-600 overflow-hidden">
-                            <div
-                                class="h-full rounded-full bg-red-400 dark:bg-red-500"
-                                style={`width: ${drv.pct}%`}
-                            />
-                            </div>
-                            <span class="w-7 text-right tabular-nums text-gray-400 dark:text-slate-500">{drv.pct}%</span>
-                        </div>
-                        </div>
-                    ))}
+                <span class="text-xs font-semibold text-gray-400 dark:text-slate-500 text-center">
+                  {T.number}
+                </span>
+                <span class="text-xs font-semibold text-gray-400 dark:text-slate-500">
+                  {T.driver}
+                </span>
+                <span class="text-xs font-semibold text-gray-400 dark:text-slate-500 text-right">
+                  {T.points}
+                </span>
+                <span class="text-xs font-semibold text-gray-400 dark:text-slate-500 text-right">
+                  {T.wins}
+                </span>
+              </div>
+              <div class="max-h-64 overflow-y-auto divide-y divide-gray-100 dark:divide-slate-700/50">
+                {driverStandings.map((d, i) => {
+                  const cid = d.Constructors[0]?.constructorId ?? "";
+                  const logo = TEAM_LOGOS[cid];
+                  return (
+                    <div
+                      class={[
+                        "grid grid-cols-[2rem_2rem_1fr_3.5rem_2.5rem] gap-x-2 px-3 py-2 items-center transition-colors hover:bg-red-50 dark:hover:bg-slate-700/40",
+                        i % 2 === 0
+                          ? "bg-white dark:bg-slate-800"
+                          : "bg-slate-50 dark:bg-slate-700/40",
+                      ].join(" ")}
+                    >
+                      <span class="text-xs text-gray-400 dark:text-slate-500 font-mono text-center">
+                        {d.position}
+                      </span>
+                      <span class="text-xs font-bold text-center bg-slate-200 dark:bg-slate-700 rounded px-1 py-0.5 tabular-nums">
+                        {d.Driver.permanentNumber}
+                      </span>
+                      <span class="flex items-center gap-2 min-w-0">
+                        {logo ? (
+                          <img
+                            src={logo}
+                            alt={d.Constructors[0]?.name}
+                            class="h-4 w-6 object-contain shrink-0"
+                          />
+                        ) : (
+                          <span class="h-3 w-3 rounded-full shrink-0 bg-slate-400" />
+                        )}
+                        <span class="truncate text-sm font-medium">
+                          {d.Driver.givenName[0]}. {d.Driver.familyName}
+                        </span>
+                      </span>
+                      <span class="text-sm font-bold tabular-nums text-right">
+                        {d.points}
+                      </span>
+                      <span class="text-xs text-gray-400 dark:text-slate-500 text-right tabular-nums">
+                        {d.wins}
+                      </span>
                     </div>
-                )}
-                </div>
-            );
-            })}
+                  );
+                })}
+              </div>
+            </div>
+          ) : (
+            <div class="flex flex-col items-center justify-center py-8 text-center gap-2">
+              <span class="text-2xl">🏎️</span>
+              <p class="text-sm font-medium text-gray-500 dark:text-slate-400">
+                {T.seasonNotStarted}
+              </p>
+              <p class="text-xs text-gray-400 dark:text-slate-500">
+                {T.driverStandingsEmpty}
+              </p>
+            </div>
+          )}
         </div>
+
+        {/* Constructor standings */}
+        <div id="standings-constructors" class="hidden">
+          {enrichedConstructors.length > 0 ? (
+            <div class="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
+              <div class="grid grid-cols-[2rem_1fr_3.5rem_2.5rem] gap-x-2 px-3 py-1.5 bg-slate-100 dark:bg-slate-700/80 border-b border-gray-200 dark:border-gray-700">
+                <span class="text-xs font-semibold text-gray-400 dark:text-slate-500 text-center">
+                  #
+                </span>
+                <span class="text-xs font-semibold text-gray-400 dark:text-slate-500">
+                  {T.constructor}
+                </span>
+                <span class="text-xs font-semibold text-gray-400 dark:text-slate-500 text-right">
+                  {T.points}
+                </span>
+                <span class="text-xs font-semibold text-gray-400 dark:text-slate-500 text-right">
+                  {T.wins}
+                </span>
+              </div>
+              <div class="max-h-64 overflow-y-auto divide-y divide-gray-100 dark:divide-slate-700/50">
+                {enrichedConstructors.map((c, i) => {
+                  const logo = TEAM_LOGOS[c.Constructor.constructorId];
+                  return (
+                    <div
+                      class={
+                        i % 2 === 0
+                          ? "bg-white dark:bg-slate-800"
+                          : "bg-slate-50 dark:bg-slate-700/40"
+                      }
+                    >
+                      <div class="grid grid-cols-[2rem_1fr_3.5rem_2.5rem] gap-x-2 px-3 py-2 items-center transition-colors hover:bg-red-50 dark:hover:bg-slate-700/40">
+                        <span class="text-xs text-gray-400 dark:text-slate-500 font-mono text-center">
+                          {c.position}
+                        </span>
+                        <span class="flex items-center gap-2 min-w-0">
+                          {logo ? (
+                            <img
+                              src={logo}
+                              alt={c.Constructor.name}
+                              class="h-4 w-6 object-contain shrink-0"
+                            />
+                          ) : (
+                            <span class="h-3 w-3 rounded-full shrink-0 bg-slate-400" />
+                          )}
+                          <span class="truncate text-sm font-semibold">
+                            {c.Constructor.name}
+                          </span>
+                        </span>
+                        <span class="text-sm font-bold tabular-nums text-right">
+                          {c.points}
+                        </span>
+                        <span class="text-xs text-gray-400 dark:text-slate-500 text-right tabular-nums">
+                          {c.wins}
+                        </span>
+                      </div>
+                      {c.drivers && c.drivers.length > 0 && (
+                        <div class="pb-1.5 px-3 ml-8 space-y-0.5">
+                          {c.drivers.map((drv) => (
+                            <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-slate-400">
+                              <span class="flex-1 truncate">{drv.name}</span>
+                              <span class="tabular-nums font-medium">
+                                {drv.points} {T.pts}
+                              </span>
+                              <div class="w-20 flex items-center gap-1">
+                                <div class="flex-1 h-1 rounded-full bg-slate-200 dark:bg-slate-600 overflow-hidden">
+                                  <div
+                                    class="h-full rounded-full bg-red-400 dark:bg-red-500"
+                                    style={`width: ${drv.pct}%`}
+                                  />
+                                </div>
+                                <span class="w-7 text-right tabular-nums text-gray-400 dark:text-slate-500">
+                                  {drv.pct}%
+                                </span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ) : (
+            <div class="flex flex-col items-center justify-center py-8 text-center gap-2">
+              <span class="text-2xl">🏗️</span>
+              <p class="text-sm font-medium text-gray-500 dark:text-slate-400">
+                {T.seasonNotStarted}
+              </p>
+              <p class="text-xs text-gray-400 dark:text-slate-500">
+                {T.constructorStandingsEmpty}
+              </p>
+            </div>
+          )}
         </div>
-    ) : (
-        <div class="flex flex-col items-center justify-center py-8 text-center gap-2">
-        <span class="text-2xl">🏗️</span>
-        <p class="text-sm font-medium text-gray-500 dark:text-slate-400">{T.seasonNotStarted}</p>
-        <p class="text-xs text-gray-400 dark:text-slate-500">{T.constructorStandingsEmpty}</p>
-        </div>
-    )}
+      </div>
     </div>
-    
+  ) : (
+    <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-800 p-5 text-sm text-gray-500 dark:text-slate-400">
+      {T.noRaceData}
     </div>
-</div>
-) : (
-  <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-800 p-5 text-sm text-gray-500 dark:text-slate-400">
-    {T.noRaceData}
+  )
+}
+
+{/* ─── Modal ─────────────────────────────────────────────────────────────────── */}
+<div
+  id="f1-modal-backdrop"
+  class="fixed inset-0 z-50 hidden items-center justify-center p-4"
+  style="background: rgba(0,0,0,0.65); backdrop-filter: blur(3px);"
+>
+  <div
+    id="f1-modal"
+    class="relative w-full max-w-lg max-h-[85vh] flex flex-col rounded-2xl
+           bg-white dark:bg-slate-800 shadow-2xl
+           border border-gray-200 dark:border-gray-700 overflow-hidden"
+  >
+    <div class="flex items-center justify-between px-5 py-4 border-b border-gray-200 dark:border-gray-700 shrink-0">
+      <h2
+        id="f1-modal-title"
+        class="text-base font-bold text-gray-900 dark:text-white"
+      />
+      <button
+        id="f1-modal-close"
+        aria-label="Close"
+        class="rounded-lg p-1.5 text-gray-400 hover:text-gray-700 dark:hover:text-white
+               hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
+      >
+        <svg
+          class="w-5 h-5"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M6 18L18 6M6 6l12 12"
+          />
+        </svg>
+      </button>
+    </div>
+    <div id="f1-modal-body" class="overflow-y-auto flex-1 px-5 py-4 space-y-4" />
   </div>
-)}
+</div>
 
 <script>
+  // ─── Constants ────────────────────────────────────────────────────────────
   const COUNTRY_FLAGS: Record<string, string> = {
     Australia: "🇦🇺", Bahrain: "🇧🇭", "Saudi Arabia": "🇸🇦",
     Japan: "🇯🇵", China: "🇨🇳", USA: "🇺🇸", "United States": "🇺🇸",
@@ -388,70 +659,123 @@ const T = t[lang];
     losail: `${BASE}/formula/circuit-images/losail.svg`,
     yas_marina: `${BASE}/formula/circuit-images/yas_marina.png`,
     madring: `${BASE}/formula/circuit-images/madrid.svg`,
-   };
+  };
+
+  function formatLapTime(seconds: number | null | undefined): string {
+    if (seconds == null || isNaN(seconds) || seconds <= 0) return "—";
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}:${s.toFixed(3).padStart(6, "0")}`;
+  }
+
+  // ─── Embedded data ────────────────────────────────────────────────────────
+  const allRaces: any[] = JSON.parse(
+    document.getElementById("f1-all-races")?.textContent ?? "[]"
+  );
+  const embeddedResults: Record<string, any[]> = JSON.parse(
+    document.getElementById("f1-all-results")?.textContent ?? "{}"
+  );
+  const embeddedSessionKeys: Record<string, number> = JSON.parse(
+    document.getElementById("f1-session-keys")?.textContent ?? "{}"
+  );
+  const TEAM_LOGOS: Record<string, string> = JSON.parse(
+    document.getElementById("f1-team-logos")?.textContent ?? "{}"
+  );
+
+  // ─── SessionStorage caching ────────────────────────────────────────────────
+  const SESSION_STORAGE_KEY = "f1-widget-results";
+  
+  function getCachedResults(): Record<string, any[]> {
+    try {
+      const cached = sessionStorage.getItem(SESSION_STORAGE_KEY);
+      return cached ? JSON.parse(cached) : {};
+    } catch {
+      return {};
+    }
+  }
+  
+  function setCachedResult(key: string, data: any[]): void {
+    try {
+      const cached = getCachedResults();
+      cached[key] = data;
+      sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(cached));
+    } catch {
+      // sessionStorage not available or quota exceeded
+    }
+  }
+  
+  // Merge embedded + cached results (cached takes precedence for runtime fetches)
+  const allResults = { ...embeddedResults, ...getCachedResults() };
+  const allSessionKeys = { ...embeddedSessionKeys, ...getCachedSessionKeys() };
+  
+  function getCachedSessionKeys(): Record<string, number> {
+    try {
+      const cached = sessionStorage.getItem("f1-widget-session-keys");
+      return cached ? JSON.parse(cached) : {};
+    } catch {
+      return {};
+    }
+  }
+  
+  function setCachedSessionKey(key: string, sessionKey: number): void {
+    try {
+      const cached = getCachedSessionKeys();
+      cached[key] = sessionKey;
+      sessionStorage.setItem("f1-widget-session-keys", JSON.stringify(cached));
+    } catch {
+      // sessionStorage not available
+    }
+  }
 
   // ─── State ────────────────────────────────────────────────────────────────
-  const dataEl = document.getElementById("f1-all-races");
-  if (!dataEl) throw new Error("No race data element");
-
-  const allRaces: any[] = JSON.parse(dataEl.textContent ?? "[]");
   const now = Date.now();
 
   const nextRaceIndex = (() => {
-    const idx = allRaces.findIndex((r) => {
-      const d = new Date(`${r.date}T${r.time ?? "00:00:00"}`);
-      return d.getTime() > now;
-    });
+    const idx = allRaces.findIndex(
+      (r) => new Date(`${r.date}T${r.time ?? "00:00:00"}`).getTime() > now
+    );
     return idx >= 0 ? idx : allRaces.length - 1;
   })();
 
   let currentRaceIndex = nextRaceIndex;
-  let sessions: { label: string; date: Date }[] = [];
+  let sessions: { label: string; date: Date; type: string }[] = [];
   let activeSessionIndex = 0;
   let countdownInterval: ReturnType<typeof setInterval> | null = null;
 
   // ─── Helpers ──────────────────────────────────────────────────────────────
-  function pad(n: number) {
-    return String(n).padStart(2, "0");
-  }
+  const pad = (n: number) => String(n).padStart(2, "0");
 
   function formatLocalDateTime(date: Date): string {
-    // Render in the user's local timezone (browser does this automatically)
     const base = date.toLocaleString(undefined, {
-      weekday: "short",
-      day: "numeric",
-      month: "short",
-      hour: "2-digit",
-      minute: "2-digit",
+      weekday: "short", day: "numeric", month: "short",
+      hour: "2-digit", minute: "2-digit",
     });
-
-    // Append explicit UTC offset, e.g. "(UTC+2)" or "(UTC+5:30)"
-    const offsetMins = -date.getTimezoneOffset();
-    const sign = offsetMins >= 0 ? "+" : "-";
-    const abs = Math.abs(offsetMins);
+    const off = -date.getTimezoneOffset();
+    const sign = off >= 0 ? "+" : "-";
+    const abs = Math.abs(off);
     const hh = Math.floor(abs / 60);
     const mm = abs % 60;
-    const utcLabel = mm === 0
-      ? `UTC${sign}${hh}`
-      : `UTC${sign}${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}`;
-
-    return `${base} (${utcLabel})`;
+    const utc =
+      mm === 0
+        ? `UTC${sign}${hh}`
+        : `UTC${sign}${pad(hh)}:${pad(mm)}`;
+    return `${base} (${utc})`;
   }
 
-  function buildSessions(race: any): { label: string; date: Date }[] {
-    const raw = [
-      { label: "FP1", obj: race.FirstPractice },
-      { label: "FP2", obj: race.SecondPractice },
-      { label: "FP3", obj: race.ThirdPractice },
-      { label: "Sprint Quali", obj: race.SprintQualifying },
-      { label: "Sprint", obj: race.Sprint },
-      { label: "Qualifying", obj: race.Qualifying },
-      { label: "Race", obj: { date: race.date, time: race.time } },
-    ];
-    return raw
+  function buildSessions(race: any): { label: string; date: Date; type: string }[] {
+    return [
+      { label: "FP1",           type: "fp1",              obj: race.FirstPractice },
+      { label: "FP2",           type: "fp2",              obj: race.SecondPractice },
+      { label: "FP3",           type: "fp3",              obj: race.ThirdPractice },
+      { label: "Sprint Quali",  type: "sprint_qualifying", obj: race.SprintQualifying },
+      { label: "Sprint",        type: "sprint",           obj: race.Sprint },
+      { label: "Qualifying",    type: "qualifying",       obj: race.Qualifying },
+      { label: "Race",          type: "race",             obj: { date: race.date, time: race.time } },
+    ]
       .filter((s) => s.obj?.date)
       .map((s) => ({
         label: s.label,
+        type: s.type,
         date: s.obj.time
           ? new Date(`${s.obj.date}T${s.obj.time}`)
           : new Date(`${s.obj.date}T00:00:00`),
@@ -459,7 +783,475 @@ const T = t[lang];
       .sort((a, b) => a.date.getTime() - b.date.getTime());
   }
 
-  function startCountdown(targetDate: Date) {
+  // ─── Medal / podium styling ───────────────────────────────────────────────
+  const MEDAL_CARD = [
+    "from-yellow-400/20 to-yellow-300/10 border-yellow-400/40 dark:from-yellow-500/20 dark:border-yellow-500/40",
+    "from-slate-300/30 to-slate-200/10 border-slate-300/50 dark:from-slate-400/20 dark:border-slate-400/40",
+    "from-orange-400/20 to-orange-300/10 border-orange-400/40 dark:from-orange-500/20 dark:border-orange-500/40",
+  ];
+  const MEDAL_NUM = [
+    "text-yellow-500 dark:text-yellow-400",
+    "text-slate-500 dark:text-slate-300",
+    "text-orange-500 dark:text-orange-400",
+  ];
+  const TROPHY = ["🥇", "🥈", "🥉"];
+
+  // ─── Logo helper ──────────────────────────────────────────────────────────
+  function logoImg(constructorId: string, name: string) {
+    const src = TEAM_LOGOS[constructorId];
+    return src
+      ? `<img src="${src}" alt="${name}" class="h-3.5 w-5 object-contain shrink-0 inline-block"/>`
+      : `<span class="inline-block h-2.5 w-2.5 rounded-full bg-slate-400 shrink-0"></span>`;
+  }
+
+  // For OpenF1 rows (team name string, no constructorId)
+  function logoByTeamName(teamName: string) {
+    // Best-effort match by lowercasing team name fragments
+    const t = teamName.toLowerCase();
+    const id =
+      t.includes("red bull") ? "red_bull"
+      : t.includes("ferrari") ? "ferrari"
+      : t.includes("mercedes") ? "mercedes"
+      : t.includes("mclaren") ? "mclaren"
+      : t.includes("alpine") ? "alpine"
+      : t.includes("aston") ? "aston_martin"
+      : t.includes("williams") ? "williams"
+      : t.includes("haas") ? "haas"
+      : t.includes("rb") || t.includes("racing bulls") ? "rb"
+      : t.includes("audi") || t.includes("sauber") ? "audi"
+      : t.includes("cadillac") || t.includes("andretti") ? "cadillac"
+      : "";
+    return logoImg(id, teamName);
+  }
+
+  // ─── Results renderers ────────────────────────────────────────────────────
+
+  /** Top-3 podium cards — works for both OpenF1 and Jolpica rows */
+  function podiumCards(
+    top3: any[],
+    getName: (r: any) => string,
+    getNumber: (r: any) => string,
+    getTeam: (r: any) => string,
+    getTeamId: (r: any) => string,
+    getTime: (r: any) => string
+  ): string {
+    if (!top3.length)
+      return `<p class="text-xs text-gray-400 dark:text-slate-500 italic">No results yet.</p>`;
+
+    return `<div class="flex gap-2">${top3
+      .slice(0, 3)
+      .map(
+        (r, i) => `
+      <div class="flex-1 min-w-0 rounded-xl border bg-gradient-to-b p-2.5 ${MEDAL_CARD[i]}">
+        <div class="flex items-center gap-1 mb-1.5">
+          <span class="text-base leading-none">${TROPHY[i]}</span>
+          <span class="text-xs font-bold ${MEDAL_NUM[i]} tabular-nums ml-auto">#${getNumber(r)}</span>
+        </div>
+        <p class="text-xs font-bold leading-tight truncate text-gray-900 dark:text-white">${getName(r)}</p>
+        <div class="flex items-center gap-1 mt-1">
+          ${logoByTeamName(getTeam(r)) || logoImg(getTeamId(r), getTeam(r))}
+          <span class="text-[10px] text-gray-500 dark:text-slate-400 truncate">${getTeam(r)}</span>
+        </div>
+        <p class="text-[10px] font-mono text-gray-600 dark:text-slate-300 mt-1.5 tabular-nums">${getTime(r)}</p>
+      </div>`
+      )
+      .join("")}</div>`;
+  }
+
+  // OpenF1 practice top-3
+  function renderOpenF1Podium(rows: any[]): string {
+    return podiumCards(
+      rows.slice(0, 3),
+      (r) => r.name,
+      (r) => String(r.driverNumber),
+      (r) => r.teamName,
+      (_r) => "", // no constructorId — logoByTeamName handles it
+      (r) => r.lapTime
+    );
+  }
+
+  // Jolpica qualifying top-3
+  function renderJolpicaQualiPodium(rows: any[]): string {
+    return podiumCards(
+      rows.slice(0, 3),
+      (r) => `${r.Driver.givenName[0]}. ${r.Driver.familyName}`,
+      (r) => r.Driver.permanentNumber ?? "",
+      (r) => r.Constructor?.name ?? "",
+      (r) => r.Constructor?.constructorId ?? "",
+      (r) => r.Q3 ?? r.Q2 ?? r.Q1 ?? "—"
+    );
+  }
+
+  // Jolpica race/sprint top-3
+  function renderJolpicaRacePodium(rows: any[]): string {
+    return podiumCards(
+      rows.slice(0, 3),
+      (r) => `${r.Driver.givenName[0]}. ${r.Driver.familyName}`,
+      (r) => r.Driver.permanentNumber ?? "",
+      (r) => r.Constructor?.name ?? "",
+      (r) => r.Constructor?.constructorId ?? "",
+      (r) => r.Time?.time ?? r.status ?? "—"
+    );
+  }
+
+  function fullGridBtn(label: string, modalType: string): string {
+    return `
+      <button
+        data-modal="${modalType}"
+        class="mt-1 w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg
+               text-xs font-semibold bg-slate-100 dark:bg-slate-700
+               text-gray-700 dark:text-slate-200
+               hover:bg-red-50 dark:hover:bg-slate-600
+               border border-gray-200 dark:border-gray-600 transition-colors"
+      >
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+        </svg>
+        ${label}
+      </button>`;
+  }
+
+  // ─── Modal body builders ──────────────────────────────────────────────────
+
+  function buildQualiModal(data: any[], isOpenF1 = false): string {
+    if (isOpenF1) {
+      // Sprint Qualifying from OpenF1
+      const sorted = [...data].sort((a, b) => a.position - b.position);
+      const q3 = sorted.filter((r) => r.q3 && r.q3 !== "—");
+      const q2 = sorted.filter((r) => r.q2 && r.q2 !== "—" && (!r.q3 || r.q3 === "—"));
+      const q1 = sorted.filter((r) => !r.q2 || r.q2 === "—");
+
+      function of1Section(label: string, color: string, rows: any[], timeKey: string) {
+        if (!rows.length) return "";
+        const rowsHtml = rows.map((r) => `
+          <div class="grid grid-cols-[1.75rem_1.5rem_1fr_5rem] gap-x-2 px-3 py-2 items-center
+                      hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+            <span class="text-xs font-mono text-gray-400 dark:text-slate-500 text-center">${r.position}</span>
+            <span class="text-[10px] font-bold bg-slate-200 dark:bg-slate-600 rounded px-1 py-0.5 tabular-nums text-center">${r.driverNumber}</span>
+            <span class="flex items-center gap-1.5 min-w-0">
+              ${logoByTeamName(r.teamName)}
+              <span class="truncate text-xs font-medium">${r.name}</span>
+            </span>
+            <span class="text-xs font-mono tabular-nums text-right text-gray-600 dark:text-slate-300">${(r as any)[timeKey] ?? "—"}</span>
+          </div>`).join("");
+        return `
+          <div>
+            <div class="flex items-center gap-2 mb-1 px-1">
+              <span class="text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full ${color}">${label}</span>
+            </div>
+            <div class="rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden divide-y divide-gray-100 dark:divide-slate-700/50">
+              ${rowsHtml}
+            </div>
+          </div>`;
+      }
+
+      return [
+        of1Section("Q3 — Top 8", "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300", q3, "q3"),
+        of1Section("Q2 — Out", "bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300", q2, "q2"),
+        of1Section("Q1 — Out", "bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300", q1, "q1"),
+      ].join("");
+    }
+
+    // Regular qualifying from Jolpica
+    const sorted = [...data].sort(
+      (a, b) => parseInt(a.position) - parseInt(b.position)
+    );
+    const q3 = sorted.filter((r) => r.Q3);
+    const q2 = sorted.filter((r) => r.Q2 && !r.Q3);
+    const q1 = sorted.filter((r) => !r.Q2 && !r.Q3);
+
+    function jSection(label: string, color: string, rows: any[], timeKey: string) {
+      if (!rows.length) return "";
+      const rowsHtml = rows.map((r) => {
+        const isTop3 = parseInt(r.position) <= 3;
+        return `
+          <div class="grid grid-cols-[1.75rem_1.5rem_1fr_5.5rem] gap-x-2 px-3 py-2 items-center
+                      transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/50
+                      ${isTop3 ? "bg-amber-50/60 dark:bg-amber-900/10" : ""}">
+            <span class="text-xs font-mono text-gray-400 dark:text-slate-500 text-center">${r.position}</span>
+            <span class="text-[10px] font-bold bg-slate-200 dark:bg-slate-600 rounded px-1 py-0.5 tabular-nums text-center">${r.Driver.permanentNumber ?? ""}</span>
+            <span class="flex items-center gap-1.5 min-w-0">
+              ${logoImg(r.Constructor?.constructorId ?? "", r.Constructor?.name ?? "")}
+              <span class="truncate text-xs font-medium">${r.Driver.givenName[0]}. ${r.Driver.familyName}</span>
+            </span>
+            <span class="text-xs font-mono tabular-nums text-right text-gray-600 dark:text-slate-300">${(r as any)[timeKey] ?? "—"}</span>
+          </div>`;
+      }).join("");
+      return `
+        <div>
+          <div class="flex items-center gap-2 mb-1 px-1">
+            <span class="text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full ${color}">${label}</span>
+          </div>
+          <div class="rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden divide-y divide-gray-100 dark:divide-slate-700/50">
+            ${rowsHtml}
+          </div>
+        </div>`;
+    }
+
+    if (q3.length) {
+      return [
+        jSection("Q3 — Top 10", "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300", q3, "Q3"),
+        jSection("Q2 — Out", "bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300", q2, "Q2"),
+        jSection("Q1 — Out", "bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300", q1, "Q1"),
+      ].join("");
+    }
+    return jSection(
+      "Full Grid",
+      "bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300",
+      sorted,
+      "Q1"
+    );
+  }
+
+  function buildRaceModal(data: any[]): string {
+    const sorted = [...data].sort(
+      (a, b) => parseInt(a.position) - parseInt(b.position)
+    );
+    const fastestId = sorted.find((r) => r.FastestLap?.rank === "1")?.Driver?.driverId;
+
+    const header = `
+      <div class="grid grid-cols-[1.75rem_1.5rem_1fr_3rem_4.5rem_4rem] gap-x-2 px-3 py-1.5
+                  bg-slate-100 dark:bg-slate-700/80 rounded-t-lg
+                  border border-gray-200 dark:border-gray-700 border-b-0">
+        <span class="text-[10px] font-semibold text-gray-400 dark:text-slate-500 text-center">#</span>
+        <span class="text-[10px] font-semibold text-gray-400 dark:text-slate-500 text-center">No</span>
+        <span class="text-[10px] font-semibold text-gray-400 dark:text-slate-500">Driver</span>
+        <span class="text-[10px] font-semibold text-gray-400 dark:text-slate-500 text-center">Laps</span>
+        <span class="text-[10px] font-semibold text-gray-400 dark:text-slate-500 text-right">Time / Status</span>
+        <span class="text-[10px] font-semibold text-gray-400 dark:text-slate-500 text-right">Fastest</span>
+      </div>`;
+
+    const rows = sorted.map((r, i) => {
+      const name = `${r.Driver.givenName[0]}. ${r.Driver.familyName}`;
+      const cid = r.Constructor?.constructorId ?? "";
+      const cname = r.Constructor?.name ?? "";
+      const pos = r.positionText;
+      const isDNF = ["R", "D", "E", "N"].includes(pos);
+      const isFinished = r.status === "Finished" || r.status?.startsWith("+");
+      const timeVal = r.Time?.time ?? (isFinished ? r.status : "");
+      const statusVal = isDNF ? "DNF" : isFinished ? timeVal : r.status;
+      const isFastest = r.Driver?.driverId === fastestId && fastestId;
+      const fastestTime = r.FastestLap?.Time?.time ?? "";
+      const rowBg = isDNF
+        ? "bg-slate-50 dark:bg-slate-800/50 opacity-60"
+        : i === 0
+          ? "bg-amber-50/70 dark:bg-amber-900/10"
+          : i % 2 === 0
+            ? "bg-white dark:bg-slate-800"
+            : "bg-slate-50 dark:bg-slate-700/30";
+
+      return `
+        <div class="grid grid-cols-[1.75rem_1.5rem_1fr_3rem_4.5rem_4rem] gap-x-2 px-3 py-2 items-center
+                    transition-colors hover:bg-red-50 dark:hover:bg-slate-700/50 ${rowBg}">
+          <span class="text-xs font-mono ${isDNF ? "text-gray-300 dark:text-slate-600" : "text-gray-400 dark:text-slate-500"} text-center">${isDNF ? "—" : pos}</span>
+          <span class="text-[10px] font-bold bg-slate-200 dark:bg-slate-600 rounded px-1 py-0.5 tabular-nums text-center">${r.Driver.permanentNumber ?? ""}</span>
+          <span class="flex items-center gap-1.5 min-w-0">
+            ${logoImg(cid, cname)}
+            <span class="truncate text-xs font-medium">${name}</span>
+          </span>
+          <span class="text-xs tabular-nums text-center text-gray-500 dark:text-slate-400">${r.laps}</span>
+          <span class="text-xs font-mono tabular-nums text-right ${isDNF ? "text-red-500 dark:text-red-400 font-semibold" : "text-gray-600 dark:text-slate-300"}">${statusVal || "—"}</span>
+          <span class="text-[10px] font-mono tabular-nums text-right ${isFastest ? "text-red-500 dark:text-red-400 font-bold" : "text-gray-400 dark:text-slate-500"}">${isFastest ? "⚡ " : ""}${fastestTime || "—"}</span>
+        </div>`;
+    }).join("");
+
+    return `
+      <div>
+        ${header}
+        <div class="rounded-b-lg border border-gray-200 dark:border-gray-700 border-t-0 overflow-hidden divide-y divide-gray-100 dark:divide-slate-700/50">
+          ${rows}
+        </div>
+        <p class="text-[10px] text-gray-400 dark:text-slate-500 mt-2 text-right">⚡ = Fastest Lap</p>
+      </div>`;
+  }
+
+  // ─── Results panel ────────────────────────────────────────────────────────
+  async function showResults(
+    session: { label: string; type: string },
+    race: any
+  ) {
+    const panel = document.getElementById("f1-results-panel")!;
+    const key = `${race.season}-${race.round}-${session.type}`;
+    let data = allResults[key];
+
+    // Client-side fallback for practice/sprint sessions missing from build-time data
+    if ((!data || !data.length) && (session.type === "fp1" || session.type === "fp2" || session.type === "fp3" || session.type === "sprint_qualifying")) {
+      let sessionKey = allSessionKeys[key];
+      
+      // If no session key from build time, try to fetch it dynamically
+      if (!sessionKey) {
+        panel.innerHTML = `<p class="text-xs text-gray-400 dark:text-slate-500 italic">Looking for session...</p>`;
+        panel.classList.remove("hidden");
+        
+        try {
+          // Map Jolpica country to OpenF1 country
+          const countryMap: Record<string, string> = {
+            Australia: "Australia", Bahrain: "Bahrain", "Saudi Arabia": "Saudi Arabia",
+            Japan: "Japan", China: "China", USA: "United States", "United States": "United States",
+            Italy: "Italy", Monaco: "Monaco", Canada: "Canada", Spain: "Spain",
+            Austria: "Austria", UK: "United Kingdom", "United Kingdom": "United Kingdom",
+            Hungary: "Hungary", Belgium: "Belgium", Netherlands: "Netherlands",
+            Azerbaijan: "Azerbaijan", Singapore: "Singapore", Mexico: "Mexico", Brazil: "Brazil",
+            "Las Vegas": "United States", Qatar: "Qatar", UAE: "United Arab Emirates", "Abu Dhabi": "United Arab Emirates",
+          };
+          const openF1Country = countryMap[race.Circuit?.Location?.country] || race.Circuit?.Location?.country || race.Circuit?.Location?.country;
+          const sessionName = session.type === "fp1" ? "Practice 1" : session.type === "fp2" ? "Practice 2" : session.type === "fp3" ? "Practice 3" : "Sprint Qualifying";
+          
+          const skRes = await fetch(
+            `https://api.openf1.org/v1/sessions?year=${race.season}&country_name=${encodeURIComponent(openF1Country)}&session_name=${encodeURIComponent(sessionName)}`
+          );
+          if (skRes.ok) {
+            const skData = await skRes.json();
+            if (skData?.[0]?.session_key) {
+              sessionKey = skData[0].session_key;
+              allSessionKeys[key] = sessionKey;
+              setCachedSessionKey(key, sessionKey);
+            }
+          }
+        } catch (e) {
+          console.warn("Failed to fetch session key:", e);
+        }
+      }
+      
+      if (sessionKey) {
+        panel.innerHTML = `<p class="text-xs text-gray-400 dark:text-slate-500 italic">Loading results…</p>`;
+        panel.classList.remove("hidden");
+        try {
+          const [resRes, drvRes] = await Promise.all([
+            fetch(`https://api.openf1.org/v1/session_result?session_key=${sessionKey}`),
+            fetch(`https://api.openf1.org/v1/drivers?session_key=${sessionKey}`),
+          ]);
+          const rawResults = resRes.ok ? await resRes.json() : [];
+          const drivers = drvRes.ok ? await drvRes.json() : [];
+          const driverMap = new Map<number, any>();
+          drivers.forEach((d: any) => driverMap.set(d.driver_number, d));
+          data = rawResults
+            .sort((a: any, b: any) => a.position - b.position)
+            .map((r: any) => {
+              const driver = driverMap.get(r.driver_number);
+              const fullName = driver?.full_name ?? `#${r.driver_number}`;
+              const parts = fullName.trim().split(" ");
+              const name = parts.length >= 2
+                ? `${parts[0][0]}. ${parts.slice(1).join(" ")}`
+                : fullName;
+              const gap = typeof r.gap_to_leader === "number" ? r.gap_to_leader : null;
+              return {
+                position: r.position,
+                driverNumber: r.driver_number,
+                name,
+                teamName: driver?.team_name ?? "",
+                lapTime: formatLapTime(r.duration),
+                gapToLeader: gap != null && gap > 0 ? `+${gap.toFixed(3)}` : "—",
+                laps: r.number_of_laps,
+                dnf: r.dnf, dns: r.dns, dsq: r.dsq,
+              };
+            });
+          allResults[key] = data; // cache in memory
+          setCachedResult(key, data); // persist to sessionStorage
+        } catch {
+          data = [];
+        }
+      }
+    }
+
+    if (!data || !data.length) {
+      panel.innerHTML = `<p class="text-xs text-gray-400 dark:text-slate-500 italic">Results not yet available.</p>`;
+      panel.classList.remove("hidden");
+      return;
+    }
+
+    const type = session.type;
+    let html = "";
+
+    if (type === "fp1" || type === "fp2" || type === "fp3") {
+      html = renderOpenF1Podium(data);
+
+    } else if (type === "sprint_qualifying") {
+      html =
+        renderOpenF1Podium(data) +
+        fullGridBtn(`Full Sprint Qualifying Grid`, "sprint_qualifying");
+
+    } else if (type === "qualifying") {
+      html =
+        renderJolpicaQualiPodium(data) +
+        fullGridBtn("Full Qualifying Grid", "qualifying");
+
+    } else if (type === "sprint") {
+      html =
+        renderJolpicaRacePodium(data) +
+        fullGridBtn("Full Sprint Results", "sprint");
+
+    } else if (type === "race") {
+      html =
+        renderJolpicaRacePodium(data) +
+        fullGridBtn("Full Race Results", "race");
+    }
+
+    panel.innerHTML = html;
+    panel.classList.remove("hidden");
+
+    // Wire up modal button
+    const btn = panel.querySelector<HTMLButtonElement>("button[data-modal]");
+    if (btn) {
+      btn.addEventListener("click", () => {
+        const modalType = btn.dataset.modal!;
+        const title =
+          modalType === "qualifying"
+            ? `${race.raceName} — Qualifying`
+            : modalType === "sprint_qualifying"
+              ? `${race.raceName} — Sprint Qualifying`
+              : modalType === "sprint"
+                ? `${race.raceName} — Sprint`
+                : `${race.raceName} — Race Results`;
+
+        const isOpenF1Quali = modalType === "sprint_qualifying";
+        const isQuali =
+          modalType === "qualifying" || modalType === "sprint_qualifying";
+
+        const body = isQuali
+          ? buildQualiModal(data, isOpenF1Quali)
+          : buildRaceModal(data);
+
+        openModal(title, body);
+      });
+    }
+  }
+
+  function hideResults() {
+    const panel = document.getElementById("f1-results-panel")!;
+    panel.classList.add("hidden");
+    panel.innerHTML = "";
+  }
+
+  // ─── Modal controls ────────────────────────────────────────────────────────
+  const backdrop = document.getElementById("f1-modal-backdrop") as HTMLDivElement;
+  const modalTitle = document.getElementById("f1-modal-title")!;
+  const modalBody = document.getElementById("f1-modal-body")!;
+
+  function openModal(title: string, body: string) {
+    modalTitle.textContent = title;
+    modalBody.innerHTML = body;
+    backdrop.classList.remove("hidden");
+    backdrop.classList.add("flex");
+    document.body.style.overflow = "hidden";
+  }
+  function closeModal() {
+    backdrop.classList.add("hidden");
+    backdrop.classList.remove("flex");
+    document.body.style.overflow = "";
+  }
+
+  document.getElementById("f1-modal-close")!.addEventListener("click", closeModal);
+  backdrop.addEventListener("click", (e) => { if (e.target === backdrop) closeModal(); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeModal(); });
+
+  // ─── Countdown ────────────────────────────────────────────────────────────
+  function startCountdown(
+    targetDate: Date,
+    session: { label: string; type: string },
+    race: any
+  ) {
     if (countdownInterval) clearInterval(countdownInterval);
 
     function tick() {
@@ -469,6 +1261,7 @@ const T = t[lang];
           (id) => (document.getElementById(`cd-${id}`)!.textContent = "00")
         );
         clearInterval(countdownInterval!);
+        void showResults(session, race);
         return;
       }
       document.getElementById("cd-days")!.textContent = pad(Math.floor(diff / 86400000));
@@ -480,93 +1273,108 @@ const T = t[lang];
     countdownInterval = setInterval(tick, 1000);
   }
 
-  // ─── Render helpers ───────────────────────────────────────────────────────
-  function renderSessionTabs() {
+  // ─── Session tabs ─────────────────────────────────────────────────────────
+  function renderSessionTabs(race: any) {
     const container = document.getElementById("f1-session-tabs")!;
     container.innerHTML = "";
     sessions.forEach((session, i) => {
+      const isPast = session.date.getTime() < Date.now();
+      const isActive = i === activeSessionIndex;
+      const hasData =
+        isPast &&
+        (allResults[`${race.season}-${race.round}-${session.type}`]?.length ?? 0) > 0;
+
       const btn = document.createElement("button");
       btn.textContent = session.label;
       btn.className = [
-        "px-2 py-1 text-xs rounded-md font-medium transition-colors",
-        i === activeSessionIndex
+        "relative px-2 py-1 text-xs rounded-md font-medium transition-colors",
+        isActive
           ? "bg-red-600 text-white"
           : "bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-slate-300 hover:bg-gray-300 dark:hover:bg-slate-600",
       ].join(" ");
+
+      if (hasData && !isActive) {
+        const dot = document.createElement("span");
+        dot.className =
+          "absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full bg-red-400";
+        btn.appendChild(dot);
+      }
+
       btn.addEventListener("click", () => {
         activeSessionIndex = i;
-        renderSessionTabs();
-        updateCountdownDisplay();
+        renderSessionTabs(race);
+        updateSessionDisplay(race);
       });
       container.appendChild(btn);
     });
   }
 
-  function updateCountdownDisplay() {
+  function updateSessionDisplay(race: any) {
     const session = sessions[activeSessionIndex];
     if (!session) return;
+
     document.getElementById("f1-session-label")!.textContent = session.label;
-    // Uses browser local timezone automatically
     document.getElementById("f1-session-datetime")!.textContent =
       formatLocalDateTime(session.date);
-    startCountdown(session.date);
+
+    const isPast = session.date.getTime() < Date.now();
+    if (isPast) {
+      ["days", "hours", "mins", "secs"].forEach(
+        (id) => (document.getElementById(`cd-${id}`)!.textContent = "00")
+      );
+      if (countdownInterval) clearInterval(countdownInterval);
+      void showResults(session, race);
+    } else {
+      hideResults();
+      startCountdown(session.date, session, race);
+    }
   }
 
+  // ─── Dots ─────────────────────────────────────────────────────────────────
   function renderDots() {
     const container = document.getElementById("f1-dots")!;
     container.innerHTML = "";
     allRaces.forEach((r, i) => {
-      const raceMs = new Date(
-        `${r.date}T${r.time ?? "00:00:00"}`
-      ).getTime();
-      const isPast = raceMs < now;
-      const isCurrent = i === currentRaceIndex;
-      const isNext = i === nextRaceIndex;
-
+      const ms = new Date(`${r.date}T${r.time ?? "00:00:00"}`).getTime();
       const dot = document.createElement("button");
       dot.setAttribute("aria-label", `Round ${i + 1}: ${r.raceName}`);
       dot.className = [
         "w-2 h-2 rounded-full transition-all duration-200 focus:outline-none",
-        isCurrent
+        i === currentRaceIndex
           ? "bg-red-500 scale-125"
-          : isNext
-          ? "bg-orange-400"
-          : isPast
-          ? "bg-slate-400 dark:bg-slate-500"
-          : "bg-slate-300 dark:bg-slate-600",
+          : i === nextRaceIndex
+            ? "bg-orange-400"
+            : ms < now
+              ? "bg-slate-400 dark:bg-slate-500"
+              : "bg-slate-300 dark:bg-slate-600",
       ].join(" ");
-      dot.addEventListener("click", () => {
-        currentRaceIndex = i;
-        renderRace();
-      });
+      dot.addEventListener("click", () => { currentRaceIndex = i; renderRace(); });
       container.appendChild(dot);
     });
   }
 
+  // ─── Main render ──────────────────────────────────────────────────────────
   function renderRace() {
     const race = allRaces[currentRaceIndex];
     if (!race) return;
 
-    // Badge
-    const badge = document.getElementById("f1-badge")!;
     const raceMs = new Date(`${race.date}T${race.time ?? "00:00:00"}`).getTime();
     const isNext = currentRaceIndex === nextRaceIndex;
     const isPast = raceMs < now;
-    const widget = document.getElementById("f1-widget")!;
-    const LABELS = JSON.parse(widget.dataset.labels ?? "{}");
+    const LABELS = JSON.parse(
+      (document.getElementById("f1-widget") as HTMLElement).dataset.labels ?? "{}"
+    );
 
+    const badge = document.getElementById("f1-badge")!;
     if (isNext) {
       badge.textContent = LABELS.nextRace;
-      badge.className =
-        "text-xs font-bold px-2 py-0.5 rounded-full bg-red-600 text-white uppercase tracking-wide";
+      badge.className = "text-xs font-bold px-2 py-0.5 rounded-full bg-red-600 text-white uppercase tracking-wide";
     } else if (isPast) {
       badge.textContent = LABELS.pastRace;
-      badge.className =
-        "text-xs font-bold px-2 py-0.5 rounded-full bg-slate-500 text-white uppercase tracking-wide";
+      badge.className = "text-xs font-bold px-2 py-0.5 rounded-full bg-slate-500 text-white uppercase tracking-wide";
     } else {
       badge.textContent = LABELS.upcoming;
-      badge.className =
-        "text-xs font-bold px-2 py-0.5 rounded-full bg-orange-500 text-white uppercase tracking-wide";
+      badge.className = "text-xs font-bold px-2 py-0.5 rounded-full bg-orange-500 text-white uppercase tracking-wide";
     }
 
     document.getElementById("f1-round")!.textContent =
@@ -577,7 +1385,6 @@ const T = t[lang];
     document.getElementById("f1-flag")!.textContent =
       COUNTRY_FLAGS[race.Circuit.Location.country] ?? "🏁";
 
-    // Circuit image — properly reset handlers to avoid stale closures
     const imgEl = document.getElementById("f1-circuit-img") as HTMLImageElement;
     imgEl.onload = null;
     imgEl.onerror = null;
@@ -590,14 +1397,12 @@ const T = t[lang];
       imgEl.alt = `${race.raceName} circuit map`;
     }
 
-    // Sessions
     sessions = buildSessions(race);
     const upcomingIdx = sessions.findIndex((s) => s.date.getTime() > now);
     activeSessionIndex = upcomingIdx >= 0 ? upcomingIdx : sessions.length - 1;
-    renderSessionTabs();
-    updateCountdownDisplay();
+    renderSessionTabs(race);
+    updateSessionDisplay(race);
 
-    // Arrows
     (document.getElementById("f1-prev") as HTMLButtonElement).disabled =
       currentRaceIndex === 0;
     (document.getElementById("f1-next") as HTMLButtonElement).disabled =
@@ -614,29 +1419,23 @@ const T = t[lang];
     if (currentRaceIndex < allRaces.length - 1) { currentRaceIndex++; renderRace(); }
   });
 
-  // ─── Standings tabs ────────────────────────────────────────────────────────
-    const tabDrivers = document.getElementById("tab-drivers")!;
-    const tabConstructors = document.getElementById("tab-constructors")!;
-    const panelDrivers = document.getElementById("standings-drivers")!;
-    const panelConstructors = document.getElementById("standings-constructors")!;
-
-    const activeTab =
-    "bg-red-600 text-white";
-    const inactiveTab =
+  const activeTabCls = "bg-red-600 text-white";
+  const inactiveTabCls =
     "bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-slate-300 hover:bg-gray-300 dark:hover:bg-slate-600";
+  const tabBase = "px-3 py-1 text-xs font-semibold rounded-full transition-colors";
 
-    tabDrivers.addEventListener("click", () => {
-    panelDrivers.classList.remove("hidden");
-    panelConstructors.classList.add("hidden");
-    tabDrivers.className = `px-3 py-1 text-xs font-semibold rounded-full transition-colors ${activeTab}`;
-    tabConstructors.className = `px-3 py-1 text-xs font-semibold rounded-full transition-colors ${inactiveTab}`;
-    });
+  document.getElementById("tab-drivers")!.addEventListener("click", () => {
+    document.getElementById("standings-drivers")!.classList.remove("hidden");
+    document.getElementById("standings-constructors")!.classList.add("hidden");
+    document.getElementById("tab-drivers")!.className = `${tabBase} ${activeTabCls}`;
+    document.getElementById("tab-constructors")!.className = `${tabBase} ${inactiveTabCls}`;
+  });
+  document.getElementById("tab-constructors")!.addEventListener("click", () => {
+    document.getElementById("standings-constructors")!.classList.remove("hidden");
+    document.getElementById("standings-drivers")!.classList.add("hidden");
+    document.getElementById("tab-constructors")!.className = `${tabBase} ${activeTabCls}`;
+    document.getElementById("tab-drivers")!.className = `${tabBase} ${inactiveTabCls}`;
+  });
 
-    tabConstructors.addEventListener("click", () => {
-    panelConstructors.classList.remove("hidden");
-    panelDrivers.classList.add("hidden");
-    tabConstructors.className = `px-3 py-1 text-xs font-semibold rounded-full transition-colors ${activeTab}`;
-    tabDrivers.className = `px-3 py-1 text-xs font-semibold rounded-full transition-colors ${inactiveTab}`;
-    });
   renderRace();
 </script>
