@@ -9,17 +9,18 @@ import { formatLapTime } from "./formatters";
 
 // ─── Jolpica API (Race calendar & historical results) ────────────────────────────
 
-export async function getSeasonRaces(): Promise<any[]> {
+export async function getSeasonRaces(season?: number): Promise<any[]> {
   try {
-    let res = await fetch(`${JOLPICA_BASE}/current.json`);
+    const year = season || new Date().getFullYear();
+    let res = await fetch(`${JOLPICA_BASE}/${year}.json`);
     if (!res.ok) throw new Error("API error");
-    let data = await res.json();
+    let data = (await res.json()) as { MRData: { RaceTable: { Races: any[] } } };
     let races = data?.MRData?.RaceTable?.Races ?? [];
     if (races.length === 0) {
-      const year = new Date().getFullYear() + 1;
-      res = await fetch(`${JOLPICA_BASE}/${year}.json`);
+      // Fallback to current season
+      res = await fetch(`${JOLPICA_BASE}/current.json`);
       if (!res.ok) throw new Error("Fallback API error");
-      data = await res.json();
+      data = (await res.json()) as { MRData: { RaceTable: { Races: any[] } } };
       races = data?.MRData?.RaceTable?.Races ?? [];
     }
     return races;
@@ -32,7 +33,9 @@ export async function getSeasonRaces(): Promise<any[]> {
 export async function getDriverStandings(): Promise<DriverStanding[]> {
   try {
     const res = await fetch(`${JOLPICA_BASE}/current/driverStandings.json`);
-    const json = await res.json();
+    const json = (await res.json()) as {
+      MRData: { StandingsTable: { StandingsLists: { DriverStandings: DriverStanding[] }[] } };
+    };
     return json.MRData.StandingsTable.StandingsLists[0]?.DriverStandings ?? [];
   } catch {
     return [];
@@ -42,7 +45,9 @@ export async function getDriverStandings(): Promise<DriverStanding[]> {
 export async function getConstructorStandings(): Promise<ConstructorStanding[]> {
   try {
     const res = await fetch(`${JOLPICA_BASE}/current/constructorStandings.json`);
-    const json = await res.json();
+    const json = (await res.json()) as {
+      MRData: { StandingsTable: { StandingsLists: { ConstructorStandings: ConstructorStanding[] }[] } };
+    };
     return json.MRData.StandingsTable.StandingsLists[0]?.ConstructorStandings ?? [];
   } catch {
     return [];
@@ -53,7 +58,7 @@ export async function getJolpicaQualifying(season: string, round: string): Promi
   try {
     const res = await fetch(`${JOLPICA_BASE}/${season}/${round}/qualifying.json`);
     if (!res.ok) return null;
-    const json = await res.json();
+    const json = (await res.json()) as { MRData: { RaceTable: { Races: any[] } } };
     return json.MRData?.RaceTable?.Races?.[0]?.QualifyingResults ?? null;
   } catch {
     return null;
@@ -64,7 +69,7 @@ export async function getJolpicaRaceResults(season: string, round: string): Prom
   try {
     const res = await fetch(`${JOLPICA_BASE}/${season}/${round}/results.json`);
     if (!res.ok) return null;
-    const json = await res.json();
+    const json = (await res.json()) as { MRData: { RaceTable: { Races: any[] } } };
     return json.MRData?.RaceTable?.Races?.[0]?.Results ?? null;
   } catch {
     return null;
@@ -75,7 +80,7 @@ export async function getJolpicaSprintResults(season: string, round: string): Pr
   try {
     const res = await fetch(`${JOLPICA_BASE}/${season}/${round}/sprint.json`);
     if (!res.ok) return null;
-    const json = await res.json();
+    const json = (await res.json()) as { MRData: { RaceTable: { Races: any[] } } };
     return json.MRData?.RaceTable?.Races?.[0]?.SprintResults ?? null;
   } catch {
     return null;

@@ -1,12 +1,12 @@
 {
-	"name": "mpalaourg-astro",
+  "name": "mpalaourg-astro",
   "compatibility_date": "2026-03-03",
   "compatibility_flags": [
     "nodejs_compat",
     "global_fetch_strictly_public"
   ],
   "pages_build_output_dir": "./dist",
-	"observability": {
+  "observability": {
     "enabled": true
   },
   "d1_databases": [

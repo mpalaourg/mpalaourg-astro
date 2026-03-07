@@ -4,9 +4,12 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "astro dev",
+    "dev:local": "npm run build && npx wrangler pages dev ./dist --compatibility-date=2026-03-03 --port=8789",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "db:migrate:local": "npx wrangler d1 migrations apply mpalaourg-site-cache --local",
+    "db:query": "npx wrangler d1 execute mpalaourg-site-cache --local --command"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^12.6.12",
@@ -16,6 +19,8 @@
     "tailwindcss": "^4.1.18"
   },
   "devDependencies": {
-    "@tailwindcss/typography": "^0.5.19"
+    "@cloudflare/workers-types": "^4.20260307.1",
+    "@tailwindcss/typography": "^0.5.19",
+    "wrangler": "^4.71.0"
   }
 }

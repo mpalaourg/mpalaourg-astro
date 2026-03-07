@@ -22,3 +22,8 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# wrangler local state and temp files
+.wrangler/state/
+.wrangler/tmp/
+.wrangler/logs/

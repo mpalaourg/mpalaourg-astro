@@ -1,138 +1,8 @@
 ---
-import {
-  getSeasonRaces,
-  getDriverStandings,
-  getConstructorStandings,
-  getJolpicaQualifying,
-  getJolpicaRaceResults,
-  getJolpicaSprintResults,
-  getOpenF1SessionResults,
-  PRACTICE_SESSION_NAMES,
-  type OpenF1ResultRow,
-} from "../utils/f1";
-
-// ─── Base data ────────────────────────────────────────────────────────────────
-const [races, driverStandings, constructorStandings] = await Promise.all([
-  getSeasonRaces(),
-  getDriverStandings(),
-  getConstructorStandings(),
-]);
-
-const totalConstructorPts = constructorStandings.reduce(
-  (s, c) => s + parseFloat(c.points),
-  0
-);
-const enrichedConstructors = constructorStandings.map((c) => {
-  const drivers = driverStandings
-    .filter((d) => d.Constructors.some((co) => co.name === c.Constructor.name))
-    .map((d) => ({
-      name: `${d.Driver.givenName[0]}. ${d.Driver.familyName}`,
-      points: d.points,
-      pct:
-        totalConstructorPts > 0
-          ? ((parseFloat(d.points) / parseFloat(c.points)) * 100).toFixed(0)
-          : "0",
-    }));
-  return { ...c, drivers };
-});
-
-// ─── Build results map at build time ─────────────────────────────────────────
-/**
- * Key pattern: "${season}-${round}-${type}"
- * type: "fp1" | "fp2" | "fp3" | "qualifying" | "sprint_qualifying" |
- *       "sprint" | "race"
- */
-const allResults: Record<string, any> = {};
-const allSessionKeys: Record<string, number> = {}; // fp sessions only
-const now = new Date();
-
-function sessionDateMs(obj: { date: string; time?: string }) {
-  return new Date(`${obj.date}T${obj.time ?? "00:00:00"}`).getTime();
-}
-
-function isPast(ms: number) {
-  // 30-min grace so API has time to publish
-  return ms < Date.now() - 30 * 60 * 1000;
-}
-
-// Process races sequentially to avoid hammering OpenF1
-for (const race of races) {
-  const season = race.season as string;
-  const round = race.round as string;
-  const country = race.Circuit.Location.country as string;
-  const year = parseInt(season);
-
-  const sessions = [
-    { key: "fp1", num: 1, obj: race.FirstPractice },
-    { key: "fp2", num: 2, obj: race.SecondPractice },
-    { key: "fp3", num: 3, obj: race.ThirdPractice },
-    { key: "sprint_qualifying", obj: race.SprintQualifying },
-    { key: "sprint", obj: race.Sprint },
-    { key: "qualifying", obj: race.Qualifying },
-    { key: "race", obj: { date: race.date, time: race.time } },
-  ];
-
-  for (const session of sessions) {
-    if (!session.obj?.date) continue;
-    const ms = sessionDateMs(session.obj);
-    if (!isPast(ms)) continue; // only fetch past sessions
-
-    const cacheKey = `${season}-${round}-${session.key}`;
-
-    try {
-      if (
-        session.key === "fp1" ||
-        session.key === "fp2" ||
-        session.key === "fp3"
-      ) {
-        const num = session.num as 1 | 2 | 3;
-        // Resolve and store the session key for client-side fallback
-        const openF1Country =
-          (await import("../utils/f1")).JOLPICA_TO_OPENF1_COUNTRY[country] ?? country;
-        const skRes = await fetch(
-          `https://api.openf1.org/v1/sessions?year=${year}&country_name=${encodeURIComponent(openF1Country)}&session_name=${encodeURIComponent(PRACTICE_SESSION_NAMES[num])}`
-        );
-        if (skRes.ok) {
-          const skData = await skRes.json();
-          if (skData?.[0]?.session_key) {
-            allSessionKeys[cacheKey] = skData[0].session_key;
-          }
-        }
-        const rows = await getOpenF1SessionResults(
-          year,
-          country,
-          PRACTICE_SESSION_NAMES[num],
-          session.obj.date
-        );
-        allResults[cacheKey] = rows;
-      } else if (session.key === "sprint_qualifying") {
-        const rows = await getOpenF1SessionResults(
-          year,
-          country,
-          "Sprint Qualifying",
-          session.obj.date,
-          true // isQualifying
-        );
-        allResults[cacheKey] = rows;
-      } else if (session.key === "qualifying") {
-        const data = await getJolpicaQualifying(season, round);
-        allResults[cacheKey] = data ?? [];
-      } else if (session.key === "sprint") {
-        const data = await getJolpicaSprintResults(season, round);
-        allResults[cacheKey] = data ?? [];
-      } else if (session.key === "race") {
-        const data = await getJolpicaRaceResults(season, round);
-        allResults[cacheKey] = data ?? [];
-      }
-    } catch (e) {
-      console.warn(`Failed to fetch ${cacheKey}:`, e);
-      allResults[cacheKey] = [];
-    }
-  }
-}
-
-// ─── Static assets ────────────────────────────────────────────────────────────
+// ─── Build-time only: static assets & translations ──────────────────────────
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+const CURRENT_SEASON = new Date().getFullYear();
+
 const TEAM_LOGOS: Record<string, string> = {
   mercedes: `${BASE}/formula/team-logos/mercedes.svg`,
   ferrari: `${BASE}/formula/team-logos/ferrari.svg`,
@@ -177,6 +47,7 @@ const t = {
     points: "Points",
     wins: "Wins",
     pts: "pts",
+    loading: "Loading…",
   },
   el: {
     nextRace: "Επόμενος Αγώνας",
@@ -202,382 +73,232 @@ const t = {
     points: "Βαθμοί",
     wins: "Νίκες",
     pts: "βαθ",
+    loading: "Φόρτωση…",
   },
 } as const;
 
 const T = t[lang];
 ---
 
-{
-  races.length > 0 ? (
-    <div
-      id="f1-widget"
-      data-labels={JSON.stringify({
-        nextRace: T.nextRace,
-        pastRace: T.pastRace,
-        upcoming: T.upcoming,
-        round: T.round,
-      })}
-      class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-800 p-5 shadow-sm"
-    >
-      {/* Embedded data blobs */}
-      <script
-        id="f1-all-races"
-        type="application/json"
-        set:html={JSON.stringify(races)}
-      />
-      <script
-        id="f1-all-results"
-        type="application/json"
-        set:html={JSON.stringify(allResults)}
-      />
-      <script
-        id="f1-session-keys"
-        type="application/json"
-        set:html={JSON.stringify(allSessionKeys)}
-      />
-      <script
-        id="f1-team-logos"
-        type="application/json"
-        set:html={JSON.stringify(TEAM_LOGOS)}
-      />
+<div
+  id="f1-widget"
+  data-season={CURRENT_SEASON}
+  data-labels={JSON.stringify({
+    nextRace: T.nextRace,
+    pastRace: T.pastRace,
+    upcoming: T.upcoming,
+    round: T.round,
+    pts: T.pts,
+    driver: T.driver,
+    number: T.number,
+    points: T.points,
+    wins: T.wins,
+    constructor: T.constructor,
+    seasonNotStarted: T.seasonNotStarted,
+    driverStandingsEmpty: T.driverStandingsEmpty,
+    constructorStandingsEmpty: T.constructorStandingsEmpty,
+    noRaceData: T.noRaceData,
+  })}
+  class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-800 p-5 shadow-sm"
+>
+  {/* Static embedded data — only what can't change at runtime */}
+  <script
+    id="f1-team-logos"
+    type="application/json"
+    set:html={JSON.stringify(TEAM_LOGOS)}
+  />
 
-      <div id="f1-content">
-        {/* Header */}
-        <div class="flex items-start justify-between gap-4 mb-4">
-          <div class="flex-1 min-w-0">
-            <div class="flex items-center gap-2 mb-1 flex-wrap">
-              <span
-                id="f1-badge"
-                class="text-xs font-bold px-2 py-0.5 rounded-full bg-red-600 text-white uppercase tracking-wide"
-              >
-                Next Race
-              </span>
-              <span
-                id="f1-round"
-                class="text-xs text-gray-500 dark:text-slate-400"
-              />
-            </div>
-            <h3 id="f1-race-name" class="text-xl font-bold" />
-            <p
-              id="f1-circuit-name"
-              class="text-sm text-gray-500 dark:text-slate-400"
-            />
-          </div>
-          <div id="f1-flag" class="text-4xl shrink-0" />
-        </div>
+  {/* ── Loading skeleton ─────────────────────────────────────────────────── */}
+  <div id="f1-loading" class="space-y-3 animate-pulse">
+    <div class="flex justify-between items-start gap-4">
+      <div class="flex-1 space-y-2">
+        <div class="h-4 w-24 rounded-full bg-slate-200 dark:bg-slate-700" />
+        <div class="h-6 w-48 rounded bg-slate-200 dark:bg-slate-700" />
+        <div class="h-3 w-36 rounded bg-slate-200 dark:bg-slate-700" />
+      </div>
+      <div class="h-10 w-10 rounded bg-slate-200 dark:bg-slate-700" />
+    </div>
+    <div class="h-28 rounded-lg bg-slate-200 dark:bg-slate-700" />
+    <div class="h-8 rounded bg-slate-200 dark:bg-slate-700" />
+  </div>
 
-        {/* Sessions + circuit image */}
-        <div class="flex flex-col md:flex-row gap-4 mb-4">
-          <div class="flex-1 min-w-0">
-            <div class="flex flex-wrap gap-1 mb-3" id="f1-session-tabs" />
-            <div class="rounded-lg bg-slate-100 dark:bg-slate-700/50 p-3">
-              <p
-                id="f1-session-label"
-                class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-slate-400 mb-1"
-              />
-              <p
-                id="f1-session-datetime"
-                class="text-xs text-gray-500 dark:text-slate-400 mb-2"
-              />
-              {/* Countdown */}
-              <div id="f1-countdown" class="flex gap-3">
-                {(
-                  [
-                    [T.days, "days"],
-                    [T.hrs, "hours"],
-                    [T.min, "mins"],
-                    [T.sec, "secs"],
-                  ] as const
-                ).map(([label, id], i, arr) => (
-                  <>
-                    <div class="text-center">
-                      <div
-                        id={`cd-${id}`}
-                        class="text-2xl font-bold font-mono tabular-nums"
-                      >
-                        --
-                      </div>
-                      <div class="text-xs text-gray-500 dark:text-slate-400">
-                        {label}
-                      </div>
-                    </div>
-                    {i < arr.length - 1 && (
-                      <div class="text-xl font-bold self-start mt-1">:</div>
-                    )}
-                  </>
-                ))}
-              </div>
-              {/* Results panel */}
-              <div id="f1-results-panel" class="hidden mt-3" />
-            </div>
-          </div>
-
-          {/* Circuit image */}
-          <div class="md:w-48 shrink-0 flex items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-700/60 p-3">
-            <img
-              id="f1-circuit-img"
-              src=""
-              alt="Circuit map"
-              class="max-h-40 max-w-full object-contain hidden"
-            />
-          </div>
-        </div>
-
-        {/* Navigation */}
-        <div class="flex items-center justify-between mt-2 gap-2">
-          <button
-            id="f1-prev"
-            aria-label="Previous race"
-            class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium
-                   bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-slate-300
-                   hover:bg-gray-200 dark:hover:bg-slate-600 disabled:opacity-30
-                   disabled:cursor-not-allowed transition-colors shrink-0"
+  {/* ── Main content (hidden until data loads) ───────────────────────────── */}
+  <div id="f1-content" class="hidden">
+    {/* Header */}
+    <div class="flex items-start justify-between gap-4 mb-4">
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-2 mb-1 flex-wrap">
+          <span
+            id="f1-badge"
+            class="text-xs font-bold px-2 py-0.5 rounded-full bg-red-600 text-white uppercase tracking-wide"
           >
-            <svg
-              class="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M15 19l-7-7 7-7"
-              />
-            </svg>
-            {T.prev}
-          </button>
-          <div
-            id="f1-dots"
-            class="flex gap-1 flex-wrap justify-center flex-1"
+            {T.nextRace}
+          </span>
+          <span
+            id="f1-round"
+            class="text-xs text-gray-500 dark:text-slate-400"
           />
-          <button
-            id="f1-next"
-            aria-label="Next race"
-            class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium
-                   bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-slate-300
-                   hover:bg-gray-200 dark:hover:bg-slate-600 disabled:opacity-30
-                   disabled:cursor-not-allowed transition-colors shrink-0"
-          >
-            {T.next}
-            <svg
-              class="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M9 5l7 7-7 7"
-              />
-            </svg>
-          </button>
+        </div>
+        <h3 id="f1-race-name" class="text-xl font-bold" />
+        <p
+          id="f1-circuit-name"
+          class="text-sm text-gray-500 dark:text-slate-400"
+        />
+      </div>
+      <div id="f1-flag" class="text-4xl shrink-0" />
+    </div>
+
+    {/* Sessions + circuit image */}
+    <div class="flex flex-col md:flex-row gap-4 mb-4">
+      <div class="flex-1 min-w-0">
+        <div class="flex flex-wrap gap-1 mb-3" id="f1-session-tabs" />
+        <div class="rounded-lg bg-slate-100 dark:bg-slate-700/50 p-3">
+          <p
+            id="f1-session-label"
+            class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-slate-400 mb-1"
+          />
+          <p
+            id="f1-session-datetime"
+            class="text-xs text-gray-500 dark:text-slate-400 mb-2"
+          />
+          {/* Countdown */}
+          <div id="f1-countdown" class="flex gap-3">
+            {(
+              [
+                [T.days, "days"],
+                [T.hrs, "hours"],
+                [T.min, "mins"],
+                [T.sec, "secs"],
+              ] as const
+            ).map(([label, id], i, arr) => (
+              <>
+                <div class="text-center">
+                  <div
+                    id={`cd-${id}`}
+                    class="text-2xl font-bold font-mono tabular-nums"
+                  >
+                    --
+                  </div>
+                  <div class="text-xs text-gray-500 dark:text-slate-400">
+                    {label}
+                  </div>
+                </div>
+                {i < arr.length - 1 && (
+                  <div class="text-xl font-bold self-start mt-1">:</div>
+                )}
+              </>
+            ))}
+          </div>
+          {/* Results panel */}
+          <div id="f1-results-panel" class="hidden mt-3" />
         </div>
       </div>
 
-      {/* Standings */}
-      <div class="mt-5 border-t border-gray-200 dark:border-gray-700 pt-4">
-        <div class="flex gap-2 mb-3">
-          <button
-            id="tab-drivers"
-            class="px-3 py-1 text-xs font-semibold rounded-full bg-red-600 text-white transition-colors"
-          >
-            {T.drivers}
-          </button>
-          <button
-            id="tab-constructors"
-            class="px-3 py-1 text-xs font-semibold rounded-full bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-slate-300 hover:bg-gray-300 dark:hover:bg-slate-600 transition-colors"
-          >
-            {T.constructors}
-          </button>
-        </div>
-
-        {/* Driver standings */}
-        <div id="standings-drivers">
-          {driverStandings.length > 0 ? (
-            <div class="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
-              <div class="grid grid-cols-[2rem_2rem_1fr_3.5rem_2.5rem] gap-x-2 px-3 py-1.5 bg-slate-100 dark:bg-slate-700/80 border-b border-gray-200 dark:border-gray-700">
-                <span class="text-xs font-semibold text-gray-400 dark:text-slate-500 text-center">
-                  #
-                </span>
-                <span class="text-xs font-semibold text-gray-400 dark:text-slate-500 text-center">
-                  {T.number}
-                </span>
-                <span class="text-xs font-semibold text-gray-400 dark:text-slate-500">
-                  {T.driver}
-                </span>
-                <span class="text-xs font-semibold text-gray-400 dark:text-slate-500 text-right">
-                  {T.points}
-                </span>
-                <span class="text-xs font-semibold text-gray-400 dark:text-slate-500 text-right">
-                  {T.wins}
-                </span>
-              </div>
-              <div class="max-h-64 overflow-y-auto divide-y divide-gray-100 dark:divide-slate-700/50">
-                {driverStandings.map((d, i) => {
-                  const cid = d.Constructors[0]?.constructorId ?? "";
-                  const logo = TEAM_LOGOS[cid];
-                  return (
-                    <div
-                      class={[
-                        "grid grid-cols-[2rem_2rem_1fr_3.5rem_2.5rem] gap-x-2 px-3 py-2 items-center transition-colors hover:bg-red-50 dark:hover:bg-slate-700/40",
-                        i % 2 === 0
-                          ? "bg-white dark:bg-slate-800"
-                          : "bg-slate-50 dark:bg-slate-700/40",
-                      ].join(" ")}
-                    >
-                      <span class="text-xs text-gray-400 dark:text-slate-500 font-mono text-center">
-                        {d.position}
-                      </span>
-                      <span class="text-xs font-bold text-center bg-slate-200 dark:bg-slate-700 rounded px-1 py-0.5 tabular-nums">
-                        {d.Driver.permanentNumber}
-                      </span>
-                      <span class="flex items-center gap-2 min-w-0">
-                        {logo ? (
-                          <img
-                            src={logo}
-                            alt={d.Constructors[0]?.name}
-                            class="h-4 w-6 object-contain shrink-0"
-                          />
-                        ) : (
-                          <span class="h-3 w-3 rounded-full shrink-0 bg-slate-400" />
-                        )}
-                        <span class="truncate text-sm font-medium">
-                          {d.Driver.givenName[0]}. {d.Driver.familyName}
-                        </span>
-                      </span>
-                      <span class="text-sm font-bold tabular-nums text-right">
-                        {d.points}
-                      </span>
-                      <span class="text-xs text-gray-400 dark:text-slate-500 text-right tabular-nums">
-                        {d.wins}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          ) : (
-            <div class="flex flex-col items-center justify-center py-8 text-center gap-2">
-              <span class="text-2xl">🏎️</span>
-              <p class="text-sm font-medium text-gray-500 dark:text-slate-400">
-                {T.seasonNotStarted}
-              </p>
-              <p class="text-xs text-gray-400 dark:text-slate-500">
-                {T.driverStandingsEmpty}
-              </p>
-            </div>
-          )}
-        </div>
-
-        {/* Constructor standings */}
-        <div id="standings-constructors" class="hidden">
-          {enrichedConstructors.length > 0 ? (
-            <div class="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
-              <div class="grid grid-cols-[2rem_1fr_3.5rem_2.5rem] gap-x-2 px-3 py-1.5 bg-slate-100 dark:bg-slate-700/80 border-b border-gray-200 dark:border-gray-700">
-                <span class="text-xs font-semibold text-gray-400 dark:text-slate-500 text-center">
-                  #
-                </span>
-                <span class="text-xs font-semibold text-gray-400 dark:text-slate-500">
-                  {T.constructor}
-                </span>
-                <span class="text-xs font-semibold text-gray-400 dark:text-slate-500 text-right">
-                  {T.points}
-                </span>
-                <span class="text-xs font-semibold text-gray-400 dark:text-slate-500 text-right">
-                  {T.wins}
-                </span>
-              </div>
-              <div class="max-h-64 overflow-y-auto divide-y divide-gray-100 dark:divide-slate-700/50">
-                {enrichedConstructors.map((c, i) => {
-                  const logo = TEAM_LOGOS[c.Constructor.constructorId];
-                  return (
-                    <div
-                      class={
-                        i % 2 === 0
-                          ? "bg-white dark:bg-slate-800"
-                          : "bg-slate-50 dark:bg-slate-700/40"
-                      }
-                    >
-                      <div class="grid grid-cols-[2rem_1fr_3.5rem_2.5rem] gap-x-2 px-3 py-2 items-center transition-colors hover:bg-red-50 dark:hover:bg-slate-700/40">
-                        <span class="text-xs text-gray-400 dark:text-slate-500 font-mono text-center">
-                          {c.position}
-                        </span>
-                        <span class="flex items-center gap-2 min-w-0">
-                          {logo ? (
-                            <img
-                              src={logo}
-                              alt={c.Constructor.name}
-                              class="h-4 w-6 object-contain shrink-0"
-                            />
-                          ) : (
-                            <span class="h-3 w-3 rounded-full shrink-0 bg-slate-400" />
-                          )}
-                          <span class="truncate text-sm font-semibold">
-                            {c.Constructor.name}
-                          </span>
-                        </span>
-                        <span class="text-sm font-bold tabular-nums text-right">
-                          {c.points}
-                        </span>
-                        <span class="text-xs text-gray-400 dark:text-slate-500 text-right tabular-nums">
-                          {c.wins}
-                        </span>
-                      </div>
-                      {c.drivers && c.drivers.length > 0 && (
-                        <div class="pb-1.5 px-3 ml-8 space-y-0.5">
-                          {c.drivers.map((drv) => (
-                            <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-slate-400">
-                              <span class="flex-1 truncate">{drv.name}</span>
-                              <span class="tabular-nums font-medium">
-                                {drv.points} {T.pts}
-                              </span>
-                              <div class="w-20 flex items-center gap-1">
-                                <div class="flex-1 h-1 rounded-full bg-slate-200 dark:bg-slate-600 overflow-hidden">
-                                  <div
-                                    class="h-full rounded-full bg-red-400 dark:bg-red-500"
-                                    style={`width: ${drv.pct}%`}
-                                  />
-                                </div>
-                                <span class="w-7 text-right tabular-nums text-gray-400 dark:text-slate-500">
-                                  {drv.pct}%
-                                </span>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          ) : (
-            <div class="flex flex-col items-center justify-center py-8 text-center gap-2">
-              <span class="text-2xl">🏗️</span>
-              <p class="text-sm font-medium text-gray-500 dark:text-slate-400">
-                {T.seasonNotStarted}
-              </p>
-              <p class="text-xs text-gray-400 dark:text-slate-500">
-                {T.constructorStandingsEmpty}
-              </p>
-            </div>
-          )}
-        </div>
+      {/* Circuit image */}
+      <div class="md:w-48 shrink-0 flex items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-700/60 p-3">
+        <img
+          id="f1-circuit-img"
+          src=""
+          alt="Circuit map"
+          class="max-h-40 max-w-full object-contain hidden"
+        />
       </div>
     </div>
-  ) : (
-    <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-800 p-5 text-sm text-gray-500 dark:text-slate-400">
-      {T.noRaceData}
-    </div>
-  )
-}
 
-{/* ─── Modal ─────────────────────────────────────────────────────────────────── */}
+    {/* Navigation */}
+    <div class="flex items-center justify-between mt-2 gap-2">
+      <button
+        id="f1-prev"
+        aria-label="Previous race"
+        class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium
+               bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-slate-300
+               hover:bg-gray-200 dark:hover:bg-slate-600 disabled:opacity-30
+               disabled:cursor-not-allowed transition-colors shrink-0"
+      >
+        <svg
+          class="w-4 h-4"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M15 19l-7-7 7-7"
+          />
+        </svg>
+        {T.prev}
+      </button>
+      <div
+        id="f1-dots"
+        class="flex gap-1 flex-wrap justify-center flex-1"
+      />
+      <button
+        id="f1-next"
+        aria-label="Next race"
+        class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium
+               bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-slate-300
+               hover:bg-gray-200 dark:hover:bg-slate-600 disabled:opacity-30
+               disabled:cursor-not-allowed transition-colors shrink-0"
+      >
+        {T.next}
+        <svg
+          class="w-4 h-4"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M9 5l7 7-7 7"
+          />
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  {/* ── Error state ───────────────────────────────────────────────────────── */}
+  <div id="f1-error" class="hidden text-sm text-gray-500 dark:text-slate-400">
+    {T.noRaceData}
+  </div>
+
+  {/* ── Standings ─────────────────────────────────────────────────────────── */}
+  <div
+    id="f1-standings-section"
+    class="hidden mt-5 border-t border-gray-200 dark:border-gray-700 pt-4"
+  >
+    <div class="flex gap-2 mb-3">
+      <button
+        id="tab-drivers"
+        class="px-3 py-1 text-xs font-semibold rounded-full bg-red-600 text-white transition-colors"
+      >
+        {T.drivers}
+      </button>
+      <button
+        id="tab-constructors"
+        class="px-3 py-1 text-xs font-semibold rounded-full bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-slate-300 hover:bg-gray-300 dark:hover:bg-slate-600 transition-colors"
+      >
+        {T.constructors}
+      </button>
+    </div>
+
+    <div id="standings-drivers">
+      <div class="py-8 text-center text-sm text-gray-400 dark:text-slate-500 animate-pulse">
+        {T.loading}
+      </div>
+    </div>
+    <div id="standings-constructors" class="hidden">
+      <div class="py-8 text-center text-sm text-gray-400 dark:text-slate-500 animate-pulse">
+        {T.loading}
+      </div>
+    </div>
+  </div>
+</div>
+
+{/* ─── Modal ──────────────────────────────────────────────────────────────── */}
 <div
   id="f1-modal-backdrop"
   class="fixed inset-0 z-50 hidden items-center justify-center p-4"
@@ -615,24 +336,45 @@ const T = t[lang];
         </svg>
       </button>
     </div>
-    <div id="f1-modal-body" class="overflow-y-auto flex-1 px-5 py-4 space-y-4" />
+    <div
+      id="f1-modal-body"
+      class="overflow-y-auto flex-1 px-5 py-4 space-y-4"
+    />
   </div>
 </div>
 
 <script>
-  // ─── Constants ────────────────────────────────────────────────────────────
+  // ─── Static constants ──────────────────────────────────────────────────────
   const COUNTRY_FLAGS: Record<string, string> = {
-    Australia: "🇦🇺", Bahrain: "🇧🇭", "Saudi Arabia": "🇸🇦",
-    Japan: "🇯🇵", China: "🇨🇳", USA: "🇺🇸", "United States": "🇺🇸",
-    Italy: "🇮🇹", Monaco: "🇲🇨", Canada: "🇨🇦", Spain: "🇪🇸",
-    Austria: "🇦🇹", UK: "🇬🇧", "United Kingdom": "🇬🇧",
-    Hungary: "🇭🇺", Belgium: "🇧🇪", Netherlands: "🇳🇱",
-    Azerbaijan: "🇦🇿", Singapore: "🇸🇬", Mexico: "🇲🇽",
-    Brazil: "🇧🇷", "Las Vegas": "🇺🇸", Qatar: "🇶🇦",
-    UAE: "🇦🇪", "Abu Dhabi": "🇦🇪",
+    Australia: "🇦🇺",
+    Bahrain: "🇧🇭",
+    "Saudi Arabia": "🇸🇦",
+    Japan: "🇯🇵",
+    China: "🇨🇳",
+    USA: "🇺🇸",
+    "United States": "🇺🇸",
+    Italy: "🇮🇹",
+    Monaco: "🇲🇨",
+    Canada: "🇨🇦",
+    Spain: "🇪🇸",
+    Austria: "🇦🇹",
+    UK: "🇬🇧",
+    "United Kingdom": "🇬🇧",
+    Hungary: "🇭🇺",
+    Belgium: "🇧🇪",
+    Netherlands: "🇳🇱",
+    Azerbaijan: "🇦🇿",
+    Singapore: "🇸🇬",
+    Mexico: "🇲🇽",
+    Brazil: "🇧🇷",
+    "Las Vegas": "🇺🇸",
+    Qatar: "🇶🇦",
+    UAE: "🇦🇪",
+    "Abu Dhabi": "🇦🇪",
   };
 
   const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+
   const CIRCUIT_IMAGES: Record<string, string> = {
     albert_park: `${BASE}/formula/circuit-images/albert_park.svg`,
     bahrain: `${BASE}/formula/circuit-images/bahrain.svg`,
@@ -661,6 +403,89 @@ const T = t[lang];
     madring: `${BASE}/formula/circuit-images/madrid.svg`,
   };
 
+  // ─── Read embedded static data ─────────────────────────────────────────────
+  const TEAM_LOGOS: Record<string, string> = JSON.parse(
+    document.getElementById("f1-team-logos")?.textContent ?? "{}"
+  );
+
+  const widgetEl = document.getElementById("f1-widget") as HTMLElement;
+  const SEASON = parseInt(widgetEl.dataset.season ?? "");
+  const LABELS = JSON.parse(widgetEl.dataset.labels ?? "{}");
+
+  // ─── In-memory session cache (avoids duplicate fetches in one page visit) ──
+  const sessionCache = new Map<
+    string,
+    { status: string; results: any[] | null }
+  >();
+
+  // ─── Module-level state ────────────────────────────────────────────────────
+  let allRaces: any[] = [];
+  let nextRaceIndex = 0;
+  let currentRaceIndex = 0;
+  let sessions: { label: string; date: Date; type: string }[] = [];
+  let activeSessionIndex = 0;
+  let countdownInterval: ReturnType<typeof setInterval> | null = null;
+
+  // ─── API fetch helpers ─────────────────────────────────────────────────────
+  async function fetchSchedule(): Promise<any[]> {
+    try {
+      const res = await fetch(`/api/f1/schedule?season=${SEASON}`);
+      if (!res.ok) return [];
+      const data = await res.json();
+      return data.races ?? [];
+    } catch {
+      return [];
+    }
+  }
+
+  async function fetchStandings(
+    type: "drivers" | "constructors"
+  ): Promise<any[]> {
+    try {
+      const res = await fetch(
+        `/api/f1/standings?season=${SEASON}&type=${type}`
+      );
+      if (!res.ok) return [];
+      const data = await res.json();
+      return data.standings ?? [];
+    } catch {
+      return [];
+    }
+  }
+
+  async function fetchSessionResults(
+    round: number,
+    type: string,
+    country: string,
+    date: string
+  ): Promise<{ status: string; results: any[] | null }> {
+    const cacheKey = `${SEASON}-${round}-${type}`;
+    if (sessionCache.has(cacheKey)) return sessionCache.get(cacheKey)!;
+
+    try {
+      const params = new URLSearchParams({
+        season: String(SEASON),
+        round: String(round),
+        type,
+        country,
+        date,
+      });
+      const res = await fetch(`/api/f1/session?${params}`);
+      if (!res.ok) return { status: "error", results: null };
+      const data = await res.json();
+      // Only cache complete results — pending/live should re-fetch next time
+      if (data.status === "complete") {
+        sessionCache.set(cacheKey, data);
+      }
+      return data;
+    } catch {
+      return { status: "error", results: null };
+    }
+  }
+
+  // ─── General helpers ───────────────────────────────────────────────────────
+  const pad = (n: number) => String(n).padStart(2, "0");
+
   function formatLapTime(seconds: number | null | undefined): string {
     if (seconds == null || isNaN(seconds) || seconds <= 0) return "—";
     const m = Math.floor(seconds / 60);
@@ -668,87 +493,13 @@ const T = t[lang];
     return `${m}:${s.toFixed(3).padStart(6, "0")}`;
   }
 
-  // ─── Embedded data ────────────────────────────────────────────────────────
-  const allRaces: any[] = JSON.parse(
-    document.getElementById("f1-all-races")?.textContent ?? "[]"
-  );
-  const embeddedResults: Record<string, any[]> = JSON.parse(
-    document.getElementById("f1-all-results")?.textContent ?? "{}"
-  );
-  const embeddedSessionKeys: Record<string, number> = JSON.parse(
-    document.getElementById("f1-session-keys")?.textContent ?? "{}"
-  );
-  const TEAM_LOGOS: Record<string, string> = JSON.parse(
-    document.getElementById("f1-team-logos")?.textContent ?? "{}"
-  );
-
-  // ─── SessionStorage caching ────────────────────────────────────────────────
-  const SESSION_STORAGE_KEY = "f1-widget-results";
-  
-  function getCachedResults(): Record<string, any[]> {
-    try {
-      const cached = sessionStorage.getItem(SESSION_STORAGE_KEY);
-      return cached ? JSON.parse(cached) : {};
-    } catch {
-      return {};
-    }
-  }
-  
-  function setCachedResult(key: string, data: any[]): void {
-    try {
-      const cached = getCachedResults();
-      cached[key] = data;
-      sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(cached));
-    } catch {
-      // sessionStorage not available or quota exceeded
-    }
-  }
-  
-  // Merge embedded + cached results (cached takes precedence for runtime fetches)
-  const allResults = { ...embeddedResults, ...getCachedResults() };
-  const allSessionKeys = { ...embeddedSessionKeys, ...getCachedSessionKeys() };
-  
-  function getCachedSessionKeys(): Record<string, number> {
-    try {
-      const cached = sessionStorage.getItem("f1-widget-session-keys");
-      return cached ? JSON.parse(cached) : {};
-    } catch {
-      return {};
-    }
-  }
-  
-  function setCachedSessionKey(key: string, sessionKey: number): void {
-    try {
-      const cached = getCachedSessionKeys();
-      cached[key] = sessionKey;
-      sessionStorage.setItem("f1-widget-session-keys", JSON.stringify(cached));
-    } catch {
-      // sessionStorage not available
-    }
-  }
-
-  // ─── State ────────────────────────────────────────────────────────────────
-  const now = Date.now();
-
-  const nextRaceIndex = (() => {
-    const idx = allRaces.findIndex(
-      (r) => new Date(`${r.date}T${r.time ?? "00:00:00"}`).getTime() > now
-    );
-    return idx >= 0 ? idx : allRaces.length - 1;
-  })();
-
-  let currentRaceIndex = nextRaceIndex;
-  let sessions: { label: string; date: Date; type: string }[] = [];
-  let activeSessionIndex = 0;
-  let countdownInterval: ReturnType<typeof setInterval> | null = null;
-
-  // ─── Helpers ──────────────────────────────────────────────────────────────
-  const pad = (n: number) => String(n).padStart(2, "0");
-
   function formatLocalDateTime(date: Date): string {
     const base = date.toLocaleString(undefined, {
-      weekday: "short", day: "numeric", month: "short",
-      hour: "2-digit", minute: "2-digit",
+      weekday: "short",
+      day: "numeric",
+      month: "short",
+      hour: "2-digit",
+      minute: "2-digit",
     });
     const off = -date.getTimezoneOffset();
     const sign = off >= 0 ? "+" : "-";
@@ -756,21 +507,46 @@ const T = t[lang];
     const hh = Math.floor(abs / 60);
     const mm = abs % 60;
     const utc =
-      mm === 0
-        ? `UTC${sign}${hh}`
-        : `UTC${sign}${pad(hh)}:${pad(mm)}`;
+      mm === 0 ? `UTC${sign}${hh}` : `UTC${sign}${pad(hh)}:${pad(mm)}`;
     return `${base} (${utc})`;
   }
 
-  function buildSessions(race: any): { label: string; date: Date; type: string }[] {
+  /**
+   * Given a race object and a session type, return the ISO date string
+   * for that session (used as the `date` param in the API call).
+   */
+  function getSessionDate(race: any, sessionType: string): string {
+    const map: Record<string, any> = {
+      fp1: race.FirstPractice,
+      fp2: race.SecondPractice,
+      fp3: race.ThirdPractice,
+      sprint_qualifying: race.SprintQualifying,
+      sprint: race.Sprint,
+      qualifying: race.Qualifying,
+      race: { date: race.date, time: race.time },
+    };
+    return map[sessionType]?.date ?? race.date;
+  }
+
+  function buildSessions(
+    race: any
+  ): { label: string; date: Date; type: string }[] {
     return [
-      { label: "FP1",           type: "fp1",              obj: race.FirstPractice },
-      { label: "FP2",           type: "fp2",              obj: race.SecondPractice },
-      { label: "FP3",           type: "fp3",              obj: race.ThirdPractice },
-      { label: "Sprint Quali",  type: "sprint_qualifying", obj: race.SprintQualifying },
-      { label: "Sprint",        type: "sprint",           obj: race.Sprint },
-      { label: "Qualifying",    type: "qualifying",       obj: race.Qualifying },
-      { label: "Race",          type: "race",             obj: { date: race.date, time: race.time } },
+      { label: "FP1", type: "fp1", obj: race.FirstPractice },
+      { label: "FP2", type: "fp2", obj: race.SecondPractice },
+      { label: "FP3", type: "fp3", obj: race.ThirdPractice },
+      {
+        label: "Sprint Quali",
+        type: "sprint_qualifying",
+        obj: race.SprintQualifying,
+      },
+      { label: "Sprint", type: "sprint", obj: race.Sprint },
+      { label: "Qualifying", type: "qualifying", obj: race.Qualifying },
+      {
+        label: "Race",
+        type: "race",
+        obj: { date: race.date, time: race.time },
+      },
     ]
       .filter((s) => s.obj?.date)
       .map((s) => ({
@@ -783,7 +559,7 @@ const T = t[lang];
       .sort((a, b) => a.date.getTime() - b.date.getTime());
   }
 
-  // ─── Medal / podium styling ───────────────────────────────────────────────
+  // ─── Medal / podium styling ────────────────────────────────────────────────
   const MEDAL_CARD = [
     "from-yellow-400/20 to-yellow-300/10 border-yellow-400/40 dark:from-yellow-500/20 dark:border-yellow-500/40",
     "from-slate-300/30 to-slate-200/10 border-slate-300/50 dark:from-slate-400/20 dark:border-slate-400/40",
@@ -796,37 +572,43 @@ const T = t[lang];
   ];
   const TROPHY = ["🥇", "🥈", "🥉"];
 
-  // ─── Logo helper ──────────────────────────────────────────────────────────
-  function logoImg(constructorId: string, name: string) {
+  // ─── Logo helpers ──────────────────────────────────────────────────────────
+  function logoImg(constructorId: string, name: string): string {
     const src = TEAM_LOGOS[constructorId];
     return src
       ? `<img src="${src}" alt="${name}" class="h-3.5 w-5 object-contain shrink-0 inline-block"/>`
       : `<span class="inline-block h-2.5 w-2.5 rounded-full bg-slate-400 shrink-0"></span>`;
   }
 
-  // For OpenF1 rows (team name string, no constructorId)
-  function logoByTeamName(teamName: string) {
-    // Best-effort match by lowercasing team name fragments
+  function logoByTeamName(teamName: string): string {
     const t = teamName.toLowerCase();
-    const id =
-      t.includes("red bull") ? "red_bull"
-      : t.includes("ferrari") ? "ferrari"
-      : t.includes("mercedes") ? "mercedes"
-      : t.includes("mclaren") ? "mclaren"
-      : t.includes("alpine") ? "alpine"
-      : t.includes("aston") ? "aston_martin"
-      : t.includes("williams") ? "williams"
-      : t.includes("haas") ? "haas"
-      : t.includes("rb") || t.includes("racing bulls") ? "rb"
-      : t.includes("audi") || t.includes("sauber") ? "audi"
-      : t.includes("cadillac") || t.includes("andretti") ? "cadillac"
-      : "";
+    const id = t.includes("red bull")
+      ? "red_bull"
+      : t.includes("ferrari")
+        ? "ferrari"
+        : t.includes("mercedes")
+          ? "mercedes"
+          : t.includes("mclaren")
+            ? "mclaren"
+            : t.includes("alpine")
+              ? "alpine"
+              : t.includes("aston")
+                ? "aston_martin"
+                : t.includes("williams")
+                  ? "williams"
+                  : t.includes("haas")
+                    ? "haas"
+                    : t.includes("rb") || t.includes("racing bulls")
+                      ? "rb"
+                      : t.includes("audi") || t.includes("sauber")
+                        ? "audi"
+                        : t.includes("cadillac") || t.includes("andretti")
+                          ? "cadillac"
+                          : "";
     return logoImg(id, teamName);
   }
 
-  // ─── Results renderers ────────────────────────────────────────────────────
-
-  /** Top-3 podium cards — works for both OpenF1 and Jolpica rows */
+  // ─── Results renderers ─────────────────────────────────────────────────────
   function podiumCards(
     top3: any[],
     getName: (r: any) => string,
@@ -858,19 +640,17 @@ const T = t[lang];
       .join("")}</div>`;
   }
 
-  // OpenF1 practice top-3
   function renderOpenF1Podium(rows: any[]): string {
     return podiumCards(
       rows.slice(0, 3),
       (r) => r.name,
       (r) => String(r.driverNumber),
       (r) => r.teamName,
-      (_r) => "", // no constructorId — logoByTeamName handles it
+      (_r) => "",
       (r) => r.lapTime
     );
   }
 
-  // Jolpica qualifying top-3
   function renderJolpicaQualiPodium(rows: any[]): string {
     return podiumCards(
       rows.slice(0, 3),
@@ -882,7 +662,6 @@ const T = t[lang];
     );
   }
 
-  // Jolpica race/sprint top-3
   function renderJolpicaRacePodium(rows: any[]): string {
     return podiumCards(
       rows.slice(0, 3),
@@ -912,19 +691,26 @@ const T = t[lang];
       </button>`;
   }
 
-  // ─── Modal body builders ──────────────────────────────────────────────────
-
+  // ─── Modal body builders ───────────────────────────────────────────────────
   function buildQualiModal(data: any[], isOpenF1 = false): string {
     if (isOpenF1) {
-      // Sprint Qualifying from OpenF1
       const sorted = [...data].sort((a, b) => a.position - b.position);
       const q3 = sorted.filter((r) => r.q3 && r.q3 !== "—");
-      const q2 = sorted.filter((r) => r.q2 && r.q2 !== "—" && (!r.q3 || r.q3 === "—"));
+      const q2 = sorted.filter(
+        (r) => r.q2 && r.q2 !== "—" && (!r.q3 || r.q3 === "—")
+      );
       const q1 = sorted.filter((r) => !r.q2 || r.q2 === "—");
 
-      function of1Section(label: string, color: string, rows: any[], timeKey: string) {
+      function of1Section(
+        label: string,
+        color: string,
+        rows: any[],
+        timeKey: string
+      ) {
         if (!rows.length) return "";
-        const rowsHtml = rows.map((r) => `
+        const rowsHtml = rows
+          .map(
+            (r) => `
           <div class="grid grid-cols-[1.75rem_1.5rem_1fr_5rem] gap-x-2 px-3 py-2 items-center
                       hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
             <span class="text-xs font-mono text-gray-400 dark:text-slate-500 text-center">${r.position}</span>
@@ -934,7 +720,9 @@ const T = t[lang];
               <span class="truncate text-xs font-medium">${r.name}</span>
             </span>
             <span class="text-xs font-mono tabular-nums text-right text-gray-600 dark:text-slate-300">${(r as any)[timeKey] ?? "—"}</span>
-          </div>`).join("");
+          </div>`
+          )
+          .join("");
         return `
           <div>
             <div class="flex items-center gap-2 mb-1 px-1">
@@ -947,9 +735,24 @@ const T = t[lang];
       }
 
       return [
-        of1Section("Q3 — Top 8", "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300", q3, "q3"),
-        of1Section("Q2 — Out", "bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300", q2, "q2"),
-        of1Section("Q1 — Out", "bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300", q1, "q1"),
+        of1Section(
+          "Q3 — Top 8",
+          "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300",
+          q3,
+          "q3"
+        ),
+        of1Section(
+          "Q2 — Out",
+          "bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300",
+          q2,
+          "q2"
+        ),
+        of1Section(
+          "Q1 — Out",
+          "bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300",
+          q1,
+          "q1"
+        ),
       ].join("");
     }
 
@@ -957,50 +760,216 @@ const T = t[lang];
     const sorted = [...data].sort(
       (a, b) => parseInt(a.position) - parseInt(b.position)
     );
-    const q3 = sorted.filter((r) => r.Q3);
-    const q2 = sorted.filter((r) => r.Q2 && !r.Q3);
-    const q1 = sorted.filter((r) => !r.Q2 && !r.Q3);
+    
+    // Full 2026 grid - for showing missing drivers
+    // Note: Norris uses #1 for 2026 (changed from his permanent #4)
+    const full2026Grid = [
+      { number: "1", name: "Norris", team: "mclaren" },
+      { number: "3", name: "Verstappen", team: "red_bull" },
+      { number: "5", name: "Bortoleto", team: "audi" },
+      { number: "6", name: "Hadjar", team: "red_bull" },
+      { number: "10", name: "Gasly", team: "alpine" },
+      { number: "11", name: "Pérez", team: "cadillac" },
+      { number: "12", name: "Antonelli", team: "mercedes" },
+      { number: "14", name: "Alonso", team: "aston_martin" },
+      { number: "16", name: "Leclerc", team: "ferrari" },
+      { number: "18", name: "Stroll", team: "aston_martin" },
+      { number: "23", name: "Albon", team: "williams" },
+      { number: "27", name: "Hülkenberg", team: "audi" },
+      { number: "30", name: "Lawson", team: "rb" },
+      { number: "31", name: "Ocon", team: "haas" },
+      { number: "41", name: "Lindblad", team: "rb" },
+      { number: "43", name: "Colapinto", team: "alpine" },
+      { number: "44", name: "Hamilton", team: "ferrari" },
+      { number: "55", name: "Sainz", team: "williams" },
+      { number: "63", name: "Russell", team: "mercedes" },
+      { number: "77", name: "Bottas", team: "cadillac" },
+      { number: "81", name: "Piastri", team: "mclaren" },
+      { number: "87", name: "Bearman", team: "haas" },
+    ];
+    
+    // Find missing drivers (not in results)
+    const presentNumbers = new Set(sorted.map(r => r.number || r.Driver?.permanentNumber || r.Driver?.code));
+    const missingDrivers = full2026Grid
+      .filter(d => !presentNumbers.has(d.number))
+      .sort((a, b) => parseInt(a.number) - parseInt(b.number));
+    
+    // Filter by position, not by whether times exist
+    // 2026 format: Top 10 to Q3, positions 11-16 to Q2, positions 17+ out in Q1
+    const q3 = sorted.filter((r) => parseInt(r.position) <= 10);
+    const q2 = sorted.filter((r) => parseInt(r.position) >= 11 && parseInt(r.position) <= 16);
+    const q1 = sorted.filter((r) => parseInt(r.position) >= 17);
 
-    function jSection(label: string, color: string, rows: any[], timeKey: string) {
-      if (!rows.length) return "";
-      const rowsHtml = rows.map((r) => {
-        const isTop3 = parseInt(r.position) <= 3;
-        return `
-          <div class="grid grid-cols-[1.75rem_1.5rem_1fr_5.5rem] gap-x-2 px-3 py-2 items-center
+    // Parse lap time to seconds for gap calculation
+    function parseTime(timeStr: string): number | null {
+      if (!timeStr || timeStr === "—" || timeStr === "") return null;
+      const parts = timeStr.split(":");
+      if (parts.length === 2) {
+        const mins = parseFloat(parts[0]);
+        const secs = parseFloat(parts[1]);
+        return mins * 60 + secs;
+      }
+      return parseFloat(timeStr);
+    }
+
+    // Calculate gaps
+    const q3Times = q3.map(r => ({ pos: parseInt(r.position), time: parseTime(r.Q3) })).filter(r => r.time !== null);
+    const q2Times = q2.map(r => ({ pos: parseInt(r.position), time: parseTime(r.Q2) })).filter(r => r.time !== null);
+    const q1Times = q1.map(r => ({ pos: parseInt(r.position), time: parseTime(r.Q1) })).filter(r => r.time !== null);
+    
+    // Q3: gap to leader (fastest time in Q3)
+    const q3LeaderTime = q3Times.length > 0 ? Math.min(...q3Times.map(r => r.time!)) : null;
+    
+    // Q2: gap to the driver who was P10 at the end of Q2 (slowest Q2 time among top 10)
+    // Sort by Q2 times and find the 10th fastest
+    const q2SortedByTime = [...sorted]
+      .filter(r => parseTime(r.Q2) !== null)
+      .sort((a, b) => parseTime(a.Q2)! - parseTime(b.Q2)!);
+    const p10InQ2 = q2SortedByTime[9]; // 10th fastest Q2 time (0-indexed)
+    const p10Q2Time = p10InQ2 ? parseTime(p10InQ2.Q2) : null;
+    
+    // Q1: gap to the driver who was P16 at the end of Q1 (slowest Q1 time among top 16)
+    // Sort by Q1 times and find the 16th fastest
+    const q1SortedByTime = [...sorted]
+      .filter(r => parseTime(r.Q1) !== null)
+      .sort((a, b) => parseTime(a.Q1)! - parseTime(b.Q1)!);
+    const p16InQ1 = q1SortedByTime[15]; // 16th fastest Q1 time (0-indexed)
+    const p16Q1Time = p16InQ1 ? parseTime(p16InQ1.Q1) : null;
+
+    function formatGap(gap: number): string {
+      if (gap === 0) return "—";
+      return `+${gap.toFixed(3)}`;
+    }
+
+    function jSection(
+      label: string,
+      color: string,
+      rows: any[],
+      timeKey: string,
+      gapType: "leader" | "elimination",
+      refTime: number | null,
+      extraDrivers: { number: string; name: string; team: string }[] = []
+    ) {
+      if (!rows.length && !extraDrivers.length) return "";
+      
+      const rowsHtml = rows
+        .map((r) => {
+          const isTop3 = parseInt(r.position) <= 3;
+          const time = (r as any)[timeKey];
+          const timeValue = parseTime(time);
+          const hasTime = timeValue !== null;
+          let gap = "—";
+          
+          if (hasTime && refTime !== null) {
+            if (gapType === "leader") {
+              gap = formatGap(timeValue - refTime);
+            } else {
+              // For elimination: positive gap means slower than cutoff
+              gap = formatGap(timeValue - refTime);
+            }
+          }
+          
+          // Format time display
+          let timeDisplay: string;
+          if (time && time !== "") {
+            timeDisplay = time;
+          } else {
+            // No time set - show in italics
+            timeDisplay = "<span class='italic text-gray-400 dark:text-slate-500'>No Time Set</span>";
+          }
+          
+          return `
+          <div class="grid grid-cols-[1.75rem_1.5rem_1fr_5.5rem_3.5rem] gap-x-2 px-3 py-2 items-center
                       transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/50
                       ${isTop3 ? "bg-amber-50/60 dark:bg-amber-900/10" : ""}">
             <span class="text-xs font-mono text-gray-400 dark:text-slate-500 text-center">${r.position}</span>
-            <span class="text-[10px] font-bold bg-slate-200 dark:bg-slate-600 rounded px-1 py-0.5 tabular-nums text-center">${r.Driver.permanentNumber ?? ""}</span>
+            <span class="text-[10px] font-bold bg-slate-200 dark:bg-slate-600 rounded px-1 py-0.5 tabular-nums text-center">${r.number ?? r.Driver.permanentNumber ?? r.Driver.code ?? "—"}</span>
             <span class="flex items-center gap-1.5 min-w-0">
               ${logoImg(r.Constructor?.constructorId ?? "", r.Constructor?.name ?? "")}
               <span class="truncate text-xs font-medium">${r.Driver.givenName[0]}. ${r.Driver.familyName}</span>
             </span>
-            <span class="text-xs font-mono tabular-nums text-right text-gray-600 dark:text-slate-300">${(r as any)[timeKey] ?? "—"}</span>
+            <span class="text-xs font-mono tabular-nums text-right text-gray-600 dark:text-slate-300">${timeDisplay}</span>
+            <span class="text-[10px] font-mono tabular-nums text-right ${gap === "—" ? "text-gray-400 dark:text-slate-500" : "text-gray-500 dark:text-slate-400"}">${gap}</span>
           </div>`;
-      }).join("");
+        })
+        .join("");
+      
+      // Add missing drivers at the end (for Q1 section)
+      const extraRowsHtml = extraDrivers
+        .map((d) => `
+          <div class="grid grid-cols-[1.75rem_1.5rem_1fr_5.5rem_3.5rem] gap-x-2 px-3 py-2 items-center
+                      transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/50 opacity-60">
+            <span class="text-xs font-mono text-gray-400 dark:text-slate-500 text-center">—</span>
+            <span class="text-[10px] font-bold bg-slate-200 dark:bg-slate-600 rounded px-1 py-0.5 tabular-nums text-center">${d.number}</span>
+            <span class="flex items-center gap-1.5 min-w-0">
+              ${logoImg(d.team, d.team)}
+              <span class="truncate text-xs font-medium">${d.name}</span>
+            </span>
+            <span class="text-xs font-mono tabular-nums text-right text-gray-400 dark:text-slate-500 italic">Time Not Set</span>
+            <span class="text-[10px] font-mono tabular-nums text-right text-gray-400 dark:text-slate-500">—</span>
+          </div>`)
+        .join("");
+      
+      const gapHeader = gapType === "leader" ? "Gap" : "Gap to Cutoff";
+      
       return `
         <div>
           <div class="flex items-center gap-2 mb-1 px-1">
             <span class="text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full ${color}">${label}</span>
           </div>
-          <div class="rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden divide-y divide-gray-100 dark:divide-slate-700/50">
-            ${rowsHtml}
+          <div class="rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div class="grid grid-cols-[1.75rem_1.5rem_1fr_5.5rem_3.5rem] gap-x-2 px-3 py-1.5 bg-slate-100 dark:bg-slate-700/50 border-b border-gray-200 dark:border-gray-700">
+              <span class="text-[10px] font-semibold text-gray-400 dark:text-slate-500 text-center">#</span>
+              <span class="text-[10px] font-semibold text-gray-400 dark:text-slate-500 text-center">No</span>
+              <span class="text-[10px] font-semibold text-gray-400 dark:text-slate-500">Driver</span>
+              <span class="text-[10px] font-semibold text-gray-400 dark:text-slate-500 text-right">Time</span>
+              <span class="text-[10px] font-semibold text-gray-400 dark:text-slate-500 text-right">${gapHeader}</span>
+            </div>
+            <div class="divide-y divide-gray-100 dark:divide-slate-700/50">
+              ${rowsHtml}
+              ${extraRowsHtml}
+            </div>
           </div>
         </div>`;
     }
 
     if (q3.length) {
       return [
-        jSection("Q3 — Top 10", "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300", q3, "Q3"),
-        jSection("Q2 — Out", "bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300", q2, "Q2"),
-        jSection("Q1 — Out", "bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300", q1, "Q1"),
+        jSection(
+          "Q3 — Top 10",
+          "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300",
+          q3,
+          "Q3",
+          "leader",
+          q3LeaderTime
+        ),
+        jSection(
+          "Q2 — Out",
+          "bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300",
+          q2,
+          "Q2",
+          "elimination",
+          p10Q2Time
+        ),
+        jSection(
+          "Q1 — Out",
+          "bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300",
+          q1,
+          "Q1",
+          "elimination",
+          p16Q1Time,
+          missingDrivers
+        ),
       ].join("");
     }
+
     return jSection(
       "Full Grid",
       "bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300",
       sorted,
-      "Q1"
+      "Q1",
+      "leader",
+      q1Times.length > 0 ? Math.min(...q1Times.map(r => r.time!)) : null
     );
   }
 
@@ -1008,7 +977,8 @@ const T = t[lang];
     const sorted = [...data].sort(
       (a, b) => parseInt(a.position) - parseInt(b.position)
     );
-    const fastestId = sorted.find((r) => r.FastestLap?.rank === "1")?.Driver?.driverId;
+    const fastestId = sorted.find((r) => r.FastestLap?.rank === "1")?.Driver
+      ?.driverId;
 
     const header = `
       <div class="grid grid-cols-[1.75rem_1.5rem_1fr_3rem_4.5rem_4rem] gap-x-2 px-3 py-1.5
@@ -1022,26 +992,28 @@ const T = t[lang];
         <span class="text-[10px] font-semibold text-gray-400 dark:text-slate-500 text-right">Fastest</span>
       </div>`;
 
-    const rows = sorted.map((r, i) => {
-      const name = `${r.Driver.givenName[0]}. ${r.Driver.familyName}`;
-      const cid = r.Constructor?.constructorId ?? "";
-      const cname = r.Constructor?.name ?? "";
-      const pos = r.positionText;
-      const isDNF = ["R", "D", "E", "N"].includes(pos);
-      const isFinished = r.status === "Finished" || r.status?.startsWith("+");
-      const timeVal = r.Time?.time ?? (isFinished ? r.status : "");
-      const statusVal = isDNF ? "DNF" : isFinished ? timeVal : r.status;
-      const isFastest = r.Driver?.driverId === fastestId && fastestId;
-      const fastestTime = r.FastestLap?.Time?.time ?? "";
-      const rowBg = isDNF
-        ? "bg-slate-50 dark:bg-slate-800/50 opacity-60"
-        : i === 0
-          ? "bg-amber-50/70 dark:bg-amber-900/10"
-          : i % 2 === 0
-            ? "bg-white dark:bg-slate-800"
-            : "bg-slate-50 dark:bg-slate-700/30";
+    const rows = sorted
+      .map((r, i) => {
+        const name = `${r.Driver.givenName[0]}. ${r.Driver.familyName}`;
+        const cid = r.Constructor?.constructorId ?? "";
+        const cname = r.Constructor?.name ?? "";
+        const pos = r.positionText;
+        const isDNF = ["R", "D", "E", "N"].includes(pos);
+        const isFinished =
+          r.status === "Finished" || r.status?.startsWith("+");
+        const timeVal = r.Time?.time ?? (isFinished ? r.status : "");
+        const statusVal = isDNF ? "DNF" : isFinished ? timeVal : r.status;
+        const isFastest = r.Driver?.driverId === fastestId && fastestId;
+        const fastestTime = r.FastestLap?.Time?.time ?? "";
+        const rowBg = isDNF
+          ? "bg-slate-50 dark:bg-slate-800/50 opacity-60"
+          : i === 0
+            ? "bg-amber-50/70 dark:bg-amber-900/10"
+            : i % 2 === 0
+              ? "bg-white dark:bg-slate-800"
+              : "bg-slate-50 dark:bg-slate-700/30";
 
-      return `
+        return `
         <div class="grid grid-cols-[1.75rem_1.5rem_1fr_3rem_4.5rem_4rem] gap-x-2 px-3 py-2 items-center
                     transition-colors hover:bg-red-50 dark:hover:bg-slate-700/50 ${rowBg}">
           <span class="text-xs font-mono ${isDNF ? "text-gray-300 dark:text-slate-600" : "text-gray-400 dark:text-slate-500"} text-center">${isDNF ? "—" : pos}</span>
@@ -1054,7 +1026,8 @@ const T = t[lang];
           <span class="text-xs font-mono tabular-nums text-right ${isDNF ? "text-red-500 dark:text-red-400 font-semibold" : "text-gray-600 dark:text-slate-300"}">${statusVal || "—"}</span>
           <span class="text-[10px] font-mono tabular-nums text-right ${isFastest ? "text-red-500 dark:text-red-400 font-bold" : "text-gray-400 dark:text-slate-500"}">${isFastest ? "⚡ " : ""}${fastestTime || "—"}</span>
         </div>`;
-    }).join("");
+      })
+      .join("");
 
     return `
       <div>
@@ -1066,98 +1039,191 @@ const T = t[lang];
       </div>`;
   }
 
-  // ─── Results panel ────────────────────────────────────────────────────────
+  // ─── Standings renderers (now client-side) ─────────────────────────────────
+  function renderDriverStandings(standings: any[]): void {
+    const container = document.getElementById("standings-drivers")!;
+
+    if (!standings.length) {
+      container.innerHTML = `
+        <div class="flex flex-col items-center justify-center py-8 text-center gap-2">
+          <span class="text-2xl">🏎️</span>
+          <p class="text-sm font-medium text-gray-500 dark:text-slate-400">${LABELS.seasonNotStarted}</p>
+          <p class="text-xs text-gray-400 dark:text-slate-500">${LABELS.driverStandingsEmpty}</p>
+        </div>`;
+      return;
+    }
+
+    const header = `
+      <div class="grid grid-cols-[2rem_2rem_1fr_3.5rem_2.5rem] gap-x-2 px-3 py-1.5
+                  bg-slate-100 dark:bg-slate-700/80 border-b border-gray-200 dark:border-gray-700">
+        <span class="text-xs font-semibold text-gray-400 dark:text-slate-500 text-center">#</span>
+        <span class="text-xs font-semibold text-gray-400 dark:text-slate-500 text-center">${LABELS.number}</span>
+        <span class="text-xs font-semibold text-gray-400 dark:text-slate-500">${LABELS.driver}</span>
+        <span class="text-xs font-semibold text-gray-400 dark:text-slate-500 text-right">${LABELS.points}</span>
+        <span class="text-xs font-semibold text-gray-400 dark:text-slate-500 text-right">${LABELS.wins}</span>
+      </div>`;
+
+    const rows = standings
+      .map((d, i) => {
+        const cid = d.Constructors[0]?.constructorId ?? "";
+        const logo = TEAM_LOGOS[cid];
+        const logoHtml = logo
+          ? `<img src="${logo}" alt="${d.Constructors[0]?.name}" class="h-4 w-6 object-contain shrink-0"/>`
+          : `<span class="h-3 w-3 rounded-full shrink-0 bg-slate-400"></span>`;
+        const rowBg =
+          i % 2 === 0
+            ? "bg-white dark:bg-slate-800"
+            : "bg-slate-50 dark:bg-slate-700/40";
+        return `
+        <div class="grid grid-cols-[2rem_2rem_1fr_3.5rem_2.5rem] gap-x-2 px-3 py-2 items-center
+                    transition-colors hover:bg-red-50 dark:hover:bg-slate-700/40 ${rowBg}">
+          <span class="text-xs text-gray-400 dark:text-slate-500 font-mono text-center">${d.position}</span>
+          <span class="text-xs font-bold text-center bg-slate-200 dark:bg-slate-700 rounded px-1 py-0.5 tabular-nums">${d.Driver.permanentNumber}</span>
+          <span class="flex items-center gap-2 min-w-0">
+            ${logoHtml}
+            <span class="truncate text-sm font-medium">${d.Driver.givenName[0]}. ${d.Driver.familyName}</span>
+          </span>
+          <span class="text-sm font-bold tabular-nums text-right">${d.points}</span>
+          <span class="text-xs text-gray-400 dark:text-slate-500 text-right tabular-nums">${d.wins}</span>
+        </div>`;
+      })
+      .join("");
+
+    container.innerHTML = `
+      <div class="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
+        ${header}
+        <div class="max-h-64 overflow-y-auto divide-y divide-gray-100 dark:divide-slate-700/50">
+          ${rows}
+        </div>
+      </div>`;
+  }
+
+  function renderConstructorStandings(
+    constructors: any[],
+    drivers: any[]
+  ): void {
+    const container = document.getElementById("standings-constructors")!;
+
+    if (!constructors.length) {
+      container.innerHTML = `
+        <div class="flex flex-col items-center justify-center py-8 text-center gap-2">
+          <span class="text-2xl">🏗️</span>
+          <p class="text-sm font-medium text-gray-500 dark:text-slate-400">${LABELS.seasonNotStarted}</p>
+          <p class="text-xs text-gray-400 dark:text-slate-500">${LABELS.constructorStandingsEmpty}</p>
+        </div>`;
+      return;
+    }
+
+    const totalPts = constructors.reduce(
+      (s, c) => s + parseFloat(c.points),
+      0
+    );
+
+    const header = `
+      <div class="grid grid-cols-[2rem_1fr_3.5rem_2.5rem] gap-x-2 px-3 py-1.5
+                  bg-slate-100 dark:bg-slate-700/80 border-b border-gray-200 dark:border-gray-700">
+        <span class="text-xs font-semibold text-gray-400 dark:text-slate-500 text-center">#</span>
+        <span class="text-xs font-semibold text-gray-400 dark:text-slate-500">${LABELS.constructor}</span>
+        <span class="text-xs font-semibold text-gray-400 dark:text-slate-500 text-right">${LABELS.points}</span>
+        <span class="text-xs font-semibold text-gray-400 dark:text-slate-500 text-right">${LABELS.wins}</span>
+      </div>`;
+
+    const rows = constructors
+      .map((c, i) => {
+        const logo = TEAM_LOGOS[c.Constructor.constructorId];
+        const logoHtml = logo
+          ? `<img src="${logo}" alt="${c.Constructor.name}" class="h-4 w-6 object-contain shrink-0"/>`
+          : `<span class="h-3 w-3 rounded-full shrink-0 bg-slate-400"></span>`;
+        const rowBg =
+          i % 2 === 0
+            ? "bg-white dark:bg-slate-800"
+            : "bg-slate-50 dark:bg-slate-700/40";
+
+        // Build per-driver sub-rows
+        const constructorDrivers = drivers
+          .filter((d) =>
+            d.Constructors.some(
+              (co: any) => co.name === c.Constructor.name
+            )
+          )
+          .map((d) => {
+            const dPts = parseFloat(d.points);
+            const cPts = parseFloat(c.points);
+            const pct =
+              totalPts > 0 && cPts > 0
+                ? ((dPts / cPts) * 100).toFixed(0)
+                : "0";
+            return { name: `${d.Driver.givenName[0]}. ${d.Driver.familyName}`, points: d.points, pct };
+          });
+
+        const driverRows = constructorDrivers
+          .map(
+            (drv) => `
+          <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-slate-400">
+            <span class="flex-1 truncate">${drv.name}</span>
+            <span class="tabular-nums font-medium">${drv.points} ${LABELS.pts}</span>
+            <div class="w-20 flex items-center gap-1">
+              <div class="flex-1 h-1 rounded-full bg-slate-200 dark:bg-slate-600 overflow-hidden">
+                <div class="h-full rounded-full bg-red-400 dark:bg-red-500" style="width: ${drv.pct}%"></div>
+              </div>
+              <span class="w-7 text-right tabular-nums text-gray-400 dark:text-slate-500">${drv.pct}%</span>
+            </div>
+          </div>`
+          )
+          .join("");
+
+        return `
+        <div class="${rowBg}">
+          <div class="grid grid-cols-[2rem_1fr_3.5rem_2.5rem] gap-x-2 px-3 py-2 items-center
+                      transition-colors hover:bg-red-50 dark:hover:bg-slate-700/40">
+            <span class="text-xs text-gray-400 dark:text-slate-500 font-mono text-center">${c.position}</span>
+            <span class="flex items-center gap-2 min-w-0">
+              ${logoHtml}
+              <span class="truncate text-sm font-semibold">${c.Constructor.name}</span>
+            </span>
+            <span class="text-sm font-bold tabular-nums text-right">${c.points}</span>
+            <span class="text-xs text-gray-400 dark:text-slate-500 text-right tabular-nums">${c.wins}</span>
+          </div>
+          ${constructorDrivers.length ? `<div class="pb-1.5 px-3 ml-8 space-y-0.5">${driverRows}</div>` : ""}
+        </div>`;
+      })
+      .join("");
+
+    container.innerHTML = `
+      <div class="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
+        ${header}
+        <div class="max-h-64 overflow-y-auto divide-y divide-gray-100 dark:divide-slate-700/50">
+          ${rows}
+        </div>
+      </div>`;
+  }
+
+  // ─── Results panel ─────────────────────────────────────────────────────────
   async function showResults(
     session: { label: string; type: string },
     race: any
-  ) {
+  ): Promise<void> {
     const panel = document.getElementById("f1-results-panel")!;
-    const key = `${race.season}-${race.round}-${session.type}`;
-    let data = allResults[key];
+    panel.innerHTML = `<p class="text-xs text-gray-400 dark:text-slate-500 italic animate-pulse">Loading results…</p>`;
+    panel.classList.remove("hidden");
 
-    // Client-side fallback for practice/sprint sessions missing from build-time data
-    if ((!data || !data.length) && (session.type === "fp1" || session.type === "fp2" || session.type === "fp3" || session.type === "sprint_qualifying")) {
-      let sessionKey = allSessionKeys[key];
-      
-      // If no session key from build time, try to fetch it dynamically
-      if (!sessionKey) {
-        panel.innerHTML = `<p class="text-xs text-gray-400 dark:text-slate-500 italic">Looking for session...</p>`;
-        panel.classList.remove("hidden");
-        
-        try {
-          // Map Jolpica country to OpenF1 country
-          const countryMap: Record<string, string> = {
-            Australia: "Australia", Bahrain: "Bahrain", "Saudi Arabia": "Saudi Arabia",
-            Japan: "Japan", China: "China", USA: "United States", "United States": "United States",
-            Italy: "Italy", Monaco: "Monaco", Canada: "Canada", Spain: "Spain",
-            Austria: "Austria", UK: "United Kingdom", "United Kingdom": "United Kingdom",
-            Hungary: "Hungary", Belgium: "Belgium", Netherlands: "Netherlands",
-            Azerbaijan: "Azerbaijan", Singapore: "Singapore", Mexico: "Mexico", Brazil: "Brazil",
-            "Las Vegas": "United States", Qatar: "Qatar", UAE: "United Arab Emirates", "Abu Dhabi": "United Arab Emirates",
-          };
-          const openF1Country = countryMap[race.Circuit?.Location?.country] || race.Circuit?.Location?.country || race.Circuit?.Location?.country;
-          const sessionName = session.type === "fp1" ? "Practice 1" : session.type === "fp2" ? "Practice 2" : session.type === "fp3" ? "Practice 3" : "Sprint Qualifying";
-          
-          const skRes = await fetch(
-            `https://api.openf1.org/v1/sessions?year=${race.season}&country_name=${encodeURIComponent(openF1Country)}&session_name=${encodeURIComponent(sessionName)}`
-          );
-          if (skRes.ok) {
-            const skData = await skRes.json();
-            if (skData?.[0]?.session_key) {
-              sessionKey = skData[0].session_key;
-              allSessionKeys[key] = sessionKey;
-              setCachedSessionKey(key, sessionKey);
-            }
-          }
-        } catch (e) {
-          console.warn("Failed to fetch session key:", e);
-        }
-      }
-      
-      if (sessionKey) {
-        panel.innerHTML = `<p class="text-xs text-gray-400 dark:text-slate-500 italic">Loading results…</p>`;
-        panel.classList.remove("hidden");
-        try {
-          const [resRes, drvRes] = await Promise.all([
-            fetch(`https://api.openf1.org/v1/session_result?session_key=${sessionKey}`),
-            fetch(`https://api.openf1.org/v1/drivers?session_key=${sessionKey}`),
-          ]);
-          const rawResults = resRes.ok ? await resRes.json() : [];
-          const drivers = drvRes.ok ? await drvRes.json() : [];
-          const driverMap = new Map<number, any>();
-          drivers.forEach((d: any) => driverMap.set(d.driver_number, d));
-          data = rawResults
-            .sort((a: any, b: any) => a.position - b.position)
-            .map((r: any) => {
-              const driver = driverMap.get(r.driver_number);
-              const fullName = driver?.full_name ?? `#${r.driver_number}`;
-              const parts = fullName.trim().split(" ");
-              const name = parts.length >= 2
-                ? `${parts[0][0]}. ${parts.slice(1).join(" ")}`
-                : fullName;
-              const gap = typeof r.gap_to_leader === "number" ? r.gap_to_leader : null;
-              return {
-                position: r.position,
-                driverNumber: r.driver_number,
-                name,
-                teamName: driver?.team_name ?? "",
-                lapTime: formatLapTime(r.duration),
-                gapToLeader: gap != null && gap > 0 ? `+${gap.toFixed(3)}` : "—",
-                laps: r.number_of_laps,
-                dnf: r.dnf, dns: r.dns, dsq: r.dsq,
-              };
-            });
-          allResults[key] = data; // cache in memory
-          setCachedResult(key, data); // persist to sessionStorage
-        } catch {
-          data = [];
-        }
-      }
+    const country = race.Circuit?.Location?.country ?? "";
+    const date = getSessionDate(race, session.type);
+
+    const { status, results } = await fetchSessionResults(
+      parseInt(race.round),
+      session.type,
+      country,
+      date
+    );
+
+    if (status === "live") {
+      panel.innerHTML = `<p class="text-xs text-orange-500 dark:text-orange-400 font-semibold">🔴 Session in progress — check back shortly</p>`;
+      return;
     }
 
-    if (!data || !data.length) {
+    if (!results?.length) {
       panel.innerHTML = `<p class="text-xs text-gray-400 dark:text-slate-500 italic">Results not yet available.</p>`;
-      panel.classList.remove("hidden");
       return;
     }
 
@@ -1165,33 +1231,28 @@ const T = t[lang];
     let html = "";
 
     if (type === "fp1" || type === "fp2" || type === "fp3") {
-      html = renderOpenF1Podium(data);
-
+      html = renderOpenF1Podium(results);
     } else if (type === "sprint_qualifying") {
       html =
-        renderOpenF1Podium(data) +
-        fullGridBtn(`Full Sprint Qualifying Grid`, "sprint_qualifying");
-
+        renderOpenF1Podium(results) +
+        fullGridBtn("Full Sprint Qualifying Grid", "sprint_qualifying");
     } else if (type === "qualifying") {
       html =
-        renderJolpicaQualiPodium(data) +
+        renderJolpicaQualiPodium(results) +
         fullGridBtn("Full Qualifying Grid", "qualifying");
-
     } else if (type === "sprint") {
       html =
-        renderJolpicaRacePodium(data) +
+        renderJolpicaRacePodium(results) +
         fullGridBtn("Full Sprint Results", "sprint");
-
     } else if (type === "race") {
       html =
-        renderJolpicaRacePodium(data) +
+        renderJolpicaRacePodium(results) +
         fullGridBtn("Full Race Results", "race");
     }
 
     panel.innerHTML = html;
-    panel.classList.remove("hidden");
 
-    // Wire up modal button
+    // Wire up the "full grid" modal button if present
     const btn = panel.querySelector<HTMLButtonElement>("button[data-modal]");
     if (btn) {
       btn.addEventListener("click", () => {
@@ -1208,98 +1269,101 @@ const T = t[lang];
         const isOpenF1Quali = modalType === "sprint_qualifying";
         const isQuali =
           modalType === "qualifying" || modalType === "sprint_qualifying";
-
         const body = isQuali
-          ? buildQualiModal(data, isOpenF1Quali)
-          : buildRaceModal(data);
+          ? buildQualiModal(results, isOpenF1Quali)
+          : buildRaceModal(results);
 
         openModal(title, body);
       });
     }
   }
 
-  function hideResults() {
+  function hideResults(): void {
     const panel = document.getElementById("f1-results-panel")!;
     panel.classList.add("hidden");
     panel.innerHTML = "";
   }
 
   // ─── Modal controls ────────────────────────────────────────────────────────
-  const backdrop = document.getElementById("f1-modal-backdrop") as HTMLDivElement;
+  const backdrop = document.getElementById(
+    "f1-modal-backdrop"
+  ) as HTMLDivElement;
   const modalTitle = document.getElementById("f1-modal-title")!;
   const modalBody = document.getElementById("f1-modal-body")!;
 
-  function openModal(title: string, body: string) {
+  function openModal(title: string, body: string): void {
     modalTitle.textContent = title;
     modalBody.innerHTML = body;
     backdrop.classList.remove("hidden");
     backdrop.classList.add("flex");
     document.body.style.overflow = "hidden";
   }
-  function closeModal() {
+
+  function closeModal(): void {
     backdrop.classList.add("hidden");
     backdrop.classList.remove("flex");
     document.body.style.overflow = "";
   }
 
-  document.getElementById("f1-modal-close")!.addEventListener("click", closeModal);
-  backdrop.addEventListener("click", (e) => { if (e.target === backdrop) closeModal(); });
-  document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeModal(); });
+  document
+    .getElementById("f1-modal-close")!
+    .addEventListener("click", closeModal);
+  backdrop.addEventListener("click", (e) => {
+    if (e.target === backdrop) closeModal();
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeModal();
+  });
 
-  // ─── Countdown ────────────────────────────────────────────────────────────
+  // ─── Countdown ─────────────────────────────────────────────────────────────
   function startCountdown(
     targetDate: Date,
     session: { label: string; type: string },
     race: any
-  ) {
+  ): void {
     if (countdownInterval) clearInterval(countdownInterval);
 
     function tick() {
       const diff = targetDate.getTime() - Date.now();
       if (diff <= 0) {
         ["days", "hours", "mins", "secs"].forEach(
-          (id) => (document.getElementById(`cd-${id}`)!.textContent = "00")
+          (id) => ((document.getElementById(`cd-${id}`)!.textContent = "00"))
         );
         clearInterval(countdownInterval!);
         void showResults(session, race);
         return;
       }
-      document.getElementById("cd-days")!.textContent = pad(Math.floor(diff / 86400000));
-      document.getElementById("cd-hours")!.textContent = pad(Math.floor((diff % 86400000) / 3600000));
-      document.getElementById("cd-mins")!.textContent = pad(Math.floor((diff % 3600000) / 60000));
-      document.getElementById("cd-secs")!.textContent = pad(Math.floor((diff % 60000) / 1000));
+      document.getElementById("cd-days")!.textContent = pad(
+        Math.floor(diff / 86400000)
+      );
+      document.getElementById("cd-hours")!.textContent = pad(
+        Math.floor((diff % 86400000) / 3600000)
+      );
+      document.getElementById("cd-mins")!.textContent = pad(
+        Math.floor((diff % 3600000) / 60000)
+      );
+      document.getElementById("cd-secs")!.textContent = pad(
+        Math.floor((diff % 60000) / 1000)
+      );
     }
     tick();
     countdownInterval = setInterval(tick, 1000);
   }
 
-  // ─── Session tabs ─────────────────────────────────────────────────────────
-  function renderSessionTabs(race: any) {
+  // ─── Session tabs ───────────────────────────────────────────────────────────
+  function renderSessionTabs(race: any): void {
     const container = document.getElementById("f1-session-tabs")!;
     container.innerHTML = "";
     sessions.forEach((session, i) => {
-      const isPast = session.date.getTime() < Date.now();
       const isActive = i === activeSessionIndex;
-      const hasData =
-        isPast &&
-        (allResults[`${race.season}-${race.round}-${session.type}`]?.length ?? 0) > 0;
-
       const btn = document.createElement("button");
       btn.textContent = session.label;
       btn.className = [
-        "relative px-2 py-1 text-xs rounded-md font-medium transition-colors",
+        "px-2 py-1 text-xs rounded-md font-medium transition-colors",
         isActive
           ? "bg-red-600 text-white"
           : "bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-slate-300 hover:bg-gray-300 dark:hover:bg-slate-600",
       ].join(" ");
-
-      if (hasData && !isActive) {
-        const dot = document.createElement("span");
-        dot.className =
-          "absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full bg-red-400";
-        btn.appendChild(dot);
-      }
-
       btn.addEventListener("click", () => {
         activeSessionIndex = i;
         renderSessionTabs(race);
@@ -1309,7 +1373,7 @@ const T = t[lang];
     });
   }
 
-  function updateSessionDisplay(race: any) {
+  function updateSessionDisplay(race: any): void {
     const session = sessions[activeSessionIndex];
     if (!session) return;
 
@@ -1320,7 +1384,7 @@ const T = t[lang];
     const isPast = session.date.getTime() < Date.now();
     if (isPast) {
       ["days", "hours", "mins", "secs"].forEach(
-        (id) => (document.getElementById(`cd-${id}`)!.textContent = "00")
+        (id) => ((document.getElementById(`cd-${id}`)!.textContent = "00"))
       );
       if (countdownInterval) clearInterval(countdownInterval);
       void showResults(session, race);
@@ -1330,9 +1394,10 @@ const T = t[lang];
     }
   }
 
-  // ─── Dots ─────────────────────────────────────────────────────────────────
-  function renderDots() {
+  // ─── Navigation dots ────────────────────────────────────────────────────────
+  function renderDots(): void {
     const container = document.getElementById("f1-dots")!;
+    const now = Date.now();
     container.innerHTML = "";
     allRaces.forEach((r, i) => {
       const ms = new Date(`${r.date}T${r.time ?? "00:00:00"}`).getTime();
@@ -1348,33 +1413,40 @@ const T = t[lang];
               ? "bg-slate-400 dark:bg-slate-500"
               : "bg-slate-300 dark:bg-slate-600",
       ].join(" ");
-      dot.addEventListener("click", () => { currentRaceIndex = i; renderRace(); });
+      dot.addEventListener("click", () => {
+        currentRaceIndex = i;
+        renderRace();
+      });
       container.appendChild(dot);
     });
   }
 
-  // ─── Main render ──────────────────────────────────────────────────────────
-  function renderRace() {
+  // ─── Main race render ───────────────────────────────────────────────────────
+  function renderRace(): void {
     const race = allRaces[currentRaceIndex];
     if (!race) return;
 
-    const raceMs = new Date(`${race.date}T${race.time ?? "00:00:00"}`).getTime();
+    const raceMs = new Date(
+      `${race.date}T${race.time ?? "00:00:00"}`
+    ).getTime();
+    const now = Date.now();
     const isNext = currentRaceIndex === nextRaceIndex;
     const isPast = raceMs < now;
-    const LABELS = JSON.parse(
-      (document.getElementById("f1-widget") as HTMLElement).dataset.labels ?? "{}"
-    );
 
+    // Badge
     const badge = document.getElementById("f1-badge")!;
     if (isNext) {
       badge.textContent = LABELS.nextRace;
-      badge.className = "text-xs font-bold px-2 py-0.5 rounded-full bg-red-600 text-white uppercase tracking-wide";
+      badge.className =
+        "text-xs font-bold px-2 py-0.5 rounded-full bg-red-600 text-white uppercase tracking-wide";
     } else if (isPast) {
       badge.textContent = LABELS.pastRace;
-      badge.className = "text-xs font-bold px-2 py-0.5 rounded-full bg-slate-500 text-white uppercase tracking-wide";
+      badge.className =
+        "text-xs font-bold px-2 py-0.5 rounded-full bg-slate-500 text-white uppercase tracking-wide";
     } else {
       badge.textContent = LABELS.upcoming;
-      badge.className = "text-xs font-bold px-2 py-0.5 rounded-full bg-orange-500 text-white uppercase tracking-wide";
+      badge.className =
+        "text-xs font-bold px-2 py-0.5 rounded-full bg-orange-500 text-white uppercase tracking-wide";
     }
 
     document.getElementById("f1-round")!.textContent =
@@ -1385,7 +1457,10 @@ const T = t[lang];
     document.getElementById("f1-flag")!.textContent =
       COUNTRY_FLAGS[race.Circuit.Location.country] ?? "🏁";
 
-    const imgEl = document.getElementById("f1-circuit-img") as HTMLImageElement;
+    // Circuit image
+    const imgEl = document.getElementById(
+      "f1-circuit-img"
+    ) as HTMLImageElement;
     imgEl.onload = null;
     imgEl.onerror = null;
     imgEl.classList.add("hidden");
@@ -1397,12 +1472,14 @@ const T = t[lang];
       imgEl.alt = `${race.raceName} circuit map`;
     }
 
+    // Sessions
     sessions = buildSessions(race);
     const upcomingIdx = sessions.findIndex((s) => s.date.getTime() > now);
     activeSessionIndex = upcomingIdx >= 0 ? upcomingIdx : sessions.length - 1;
     renderSessionTabs(race);
     updateSessionDisplay(race);
 
+    // Nav buttons
     (document.getElementById("f1-prev") as HTMLButtonElement).disabled =
       currentRaceIndex === 0;
     (document.getElementById("f1-next") as HTMLButtonElement).disabled =
@@ -1411,14 +1488,7 @@ const T = t[lang];
     renderDots();
   }
 
-  // ─── Controls ─────────────────────────────────────────────────────────────
-  document.getElementById("f1-prev")!.addEventListener("click", () => {
-    if (currentRaceIndex > 0) { currentRaceIndex--; renderRace(); }
-  });
-  document.getElementById("f1-next")!.addEventListener("click", () => {
-    if (currentRaceIndex < allRaces.length - 1) { currentRaceIndex++; renderRace(); }
-  });
-
+  // ─── Tab switching ──────────────────────────────────────────────────────────
   const activeTabCls = "bg-red-600 text-white";
   const inactiveTabCls =
     "bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-slate-300 hover:bg-gray-300 dark:hover:bg-slate-600";
@@ -1426,16 +1496,77 @@ const T = t[lang];
 
   document.getElementById("tab-drivers")!.addEventListener("click", () => {
     document.getElementById("standings-drivers")!.classList.remove("hidden");
-    document.getElementById("standings-constructors")!.classList.add("hidden");
-    document.getElementById("tab-drivers")!.className = `${tabBase} ${activeTabCls}`;
-    document.getElementById("tab-constructors")!.className = `${tabBase} ${inactiveTabCls}`;
+    document
+      .getElementById("standings-constructors")!
+      .classList.add("hidden");
+    document.getElementById("tab-drivers")!.className =
+      `${tabBase} ${activeTabCls}`;
+    document.getElementById("tab-constructors")!.className =
+      `${tabBase} ${inactiveTabCls}`;
   });
-  document.getElementById("tab-constructors")!.addEventListener("click", () => {
-    document.getElementById("standings-constructors")!.classList.remove("hidden");
-    document.getElementById("standings-drivers")!.classList.add("hidden");
-    document.getElementById("tab-constructors")!.className = `${tabBase} ${activeTabCls}`;
-    document.getElementById("tab-drivers")!.className = `${tabBase} ${inactiveTabCls}`;
+  document
+    .getElementById("tab-constructors")!
+    .addEventListener("click", () => {
+      document
+        .getElementById("standings-constructors")!
+        .classList.remove("hidden");
+      document.getElementById("standings-drivers")!.classList.add("hidden");
+      document.getElementById("tab-constructors")!.className =
+        `${tabBase} ${activeTabCls}`;
+      document.getElementById("tab-drivers")!.className =
+        `${tabBase} ${inactiveTabCls}`;
+    });
+
+  document.getElementById("f1-prev")!.addEventListener("click", () => {
+    if (currentRaceIndex > 0) {
+      currentRaceIndex--;
+      renderRace();
+    }
+  });
+  document.getElementById("f1-next")!.addEventListener("click", () => {
+    if (currentRaceIndex < allRaces.length - 1) {
+      currentRaceIndex++;
+      renderRace();
+    }
   });
 
-  renderRace();
+  // ─── Init ───────────────────────────────────────────────────────────────────
+  async function init(): Promise<void> {
+    // Fetch schedule + both standings in parallel
+    const [races, driverStandings, constructorStandings] = await Promise.all([
+      fetchSchedule(),
+      fetchStandings("drivers"),
+      fetchStandings("constructors"),
+    ]);
+
+    // Hide skeleton
+    document.getElementById("f1-loading")!.classList.add("hidden");
+
+    if (!races.length) {
+      document.getElementById("f1-error")!.classList.remove("hidden");
+      return;
+    }
+
+    // Set global races + find next race
+    allRaces = races;
+    const now = Date.now();
+    const idx = allRaces.findIndex(
+      (r) => new Date(`${r.date}T${r.time ?? "00:00:00"}`).getTime() > now
+    );
+    nextRaceIndex = idx >= 0 ? idx : allRaces.length - 1;
+    currentRaceIndex = nextRaceIndex;
+
+    // Show main content
+    document.getElementById("f1-content")!.classList.remove("hidden");
+    document
+      .getElementById("f1-standings-section")!
+      .classList.remove("hidden");
+
+    // Render
+    renderRace();
+    renderDriverStandings(driverStandings);
+    renderConstructorStandings(constructorStandings, driverStandings);
+  }
+
+  init();
 </script>
