@@ -68,9 +68,13 @@ const T = t[lang];
     const lang = widget.dataset.lang;
     
     try {
-      const res = await fetch('/api/quotes');
+      // Add cache-busting timestamp to ensure fresh quote every time
+      const res = await fetch(`/api/quotes?t=${Date.now()}`);
       if (!res.ok) throw new Error('Failed to fetch');
       const data = await res.json();
+      
+      // Store current quote data for audio playback
+      widget.dataset.currentQuote = JSON.stringify(data);
       
       // Update compact view
       const previewEl = widget.querySelector('.quote-preview');

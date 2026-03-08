@@ -1,5 +1,6 @@
 ---
 import "../styles/global.css";
+import CookiePopup from "../components/CookiePopup.astro";
 
 const { title = "Georgios Balaouras" } = Astro.props;
 const pathname = Astro.url.pathname;
@@ -151,6 +152,8 @@ const elPathWithBase = `/mpalaourg-astro${elPath}`;
     <main>
       <slot />
     </main>
+
+    <CookiePopup lang={isEl ? "el" : "en"} />
 
     <script>
       const toggle = document.getElementById("theme-toggle");

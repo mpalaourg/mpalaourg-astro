@@ -281,6 +281,30 @@ export const f1Quotes: F1Quote[] = [
     author: "James Vowles",
     context: "Mercedes' head of strategy making the tough calls",
     year: "2017-2021"
+  },
+  {
+    quote: "Simply lovely!",
+    author: "Max Verstappen",
+    context: "His signature radio message after victories",
+    year: "2017-present"
+  },
+  {
+    quote: "Yeah, that's what happens when you don't leave space.",
+    author: "Max Verstappen",
+    context: "After a wheel-to-wheel battle on track",
+    year: "2022"
+  },
+  {
+    quote: "This is boring. I should have brought my pillow.",
+    author: "Max Verstappen",
+    context: "Complaining about the Monaco Grand Prix procession",
+    year: "2024"
+  },
+  {
+    quote: "Must be the water.",
+    author: "Ferrari Race Engineer",
+    context: "Deadpan reply after Leclerc said his seat was full of water",
+    year: "2025"
   }
 ];
 

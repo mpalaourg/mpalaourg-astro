@@ -7,6 +7,7 @@ import MusicWidget from "../../components/MusicWidget.astro";
 import NASAWidget from "../../components/NASAWidget.astro";
 import FactWidget from "../../components/FactWidget.astro";
 import F1QuoteWidget from "../../components/F1QuoteWidget.astro";
+import JokeWidget from "../../components/JokeWidget.astro";
 
 const formulaPosts = await getCollection("formula-el");
 const publicationsEl = await getCollection("publications-el");
@@ -150,10 +151,7 @@ const experiences = [
           />
           <div class="mt-4 w-48 space-y-2">
             <WeatherWidget lang="el" lat={40.6401} lon={22.9444} city="Θεσσαλονίκη" />
-            <MusicWidget lang="el" username="mpalaurg" />
             <NASAWidget lang="el" />
-            <FactWidget lang="el" />
-            <F1QuoteWidget lang="el" />
           </div>
         </div>
         
@@ -564,14 +562,14 @@ const experiences = [
           Instagram
         </a>
       </div>
-      <details class="cursor-pointer" id="joke-section">
-        <summary class="text-gray-500 dark:text-slate-500 hover:text-gray-700 dark:hover:text-slate-300 transition-colors select-none">
-          <b>😃 Ακόμα εδώ;</b> <i>(κλικ για αστείο)</i>
-        </summary>
-        <div class="mt-4">
-          <img id="joke-img" src="https://readme-jokes.vercel.app/api?theme=radical" alt="Joke" />
-        </div>
-      </details>
+      
+      <!-- Widgets Row -->
+      <div class="flex flex-wrap items-center gap-3">
+        <MusicWidget lang="el" username="mpalaurg" />
+        <FactWidget lang="el" />
+        <F1QuoteWidget lang="el" />
+        <JokeWidget lang="el" />
+      </div>
     </section>
 
     <script>
@@ -621,14 +619,6 @@ const experiences = [
         });
       });
 
-      // Joke refresh on click
-      const jokeSection = document.getElementById('joke-section');
-      const jokeImg = document.getElementById('joke-img');
-      jokeSection?.addEventListener('toggle', () => {
-        if (jokeSection.open) {
-          jokeImg.src = `https://readme-jokes.vercel.app/api?theme=radical&t=${Date.now()}`;
-        }
-      });
     </script>
 
     <!-- Slider Section -->

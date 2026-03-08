@@ -7,6 +7,7 @@ import MusicWidget from "../components/MusicWidget.astro";
 import NASAWidget from "../components/NASAWidget.astro";
 import FactWidget from "../components/FactWidget.astro";
 import F1QuoteWidget from "../components/F1QuoteWidget.astro";
+import JokeWidget from "../components/JokeWidget.astro";
 
 const formulaPosts = await getCollection("formula");
 const publicationsPosts = await getCollection("publications");
@@ -150,10 +151,7 @@ const experiences = [
           />
           <div class="mt-4 w-48 space-y-2">
             <WeatherWidget lang="en" lat={40.6401} lon={22.9444} city="Thessaloniki" />
-            <MusicWidget lang="en" username="mpalaurg" />
             <NASAWidget lang="en" />
-            <FactWidget lang="en" />
-            <F1QuoteWidget lang="en" />
           </div>
         </div>
         
@@ -509,8 +507,8 @@ const experiences = [
           <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
           X
         </a>
-        <a
-          href="https://www.instagram.com/giwrgos_balaouras/"
+       <a
+          href="https://www.instagram.com/mpalaourg/"
           target="_blank"
           class="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-slate-400 dark:hover:border-slate-500 transition-colors text-gray-700 dark:text-slate-300"
         >
@@ -518,14 +516,14 @@ const experiences = [
           Instagram
         </a>
       </div>
-      <details class="cursor-pointer" id="joke-section">
-        <summary class="text-gray-500 dark:text-slate-500 hover:text-gray-700 dark:hover:text-slate-300 transition-colors select-none">
-          <b>😃 Still here?</b> <i>(click for a joke)</i>
-        </summary>
-        <div class="mt-4">
-          <img id="joke-img" src="https://readme-jokes.vercel.app/api?theme=radical" alt="Joke" />
-        </div>
-      </details>
+      
+      <!-- Widgets Row -->
+      <div class="flex flex-wrap items-center gap-3">
+        <MusicWidget lang="en" username="mpalaurg" />
+        <FactWidget lang="en" />
+        <F1QuoteWidget lang="en" />
+        <JokeWidget lang="en" />
+      </div>
     </section>
 
     <!-- Slider Section -->
@@ -591,15 +589,6 @@ const experiences = [
     }, 10000);
 
     showSlide(0);
-
-    // Joke refresh on click
-    const jokeSection = document.getElementById('joke-section');
-    const jokeImg = document.getElementById('joke-img');
-    jokeSection?.addEventListener('toggle', () => {
-      if (jokeSection.open) {
-        jokeImg.src = `https://readme-jokes.vercel.app/api?theme=radical&t=${Date.now()}`;
-      }
-    });
 
     // Formula search and filter
     const formulaSearch = document.getElementById('formula-search');

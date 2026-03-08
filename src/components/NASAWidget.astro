@@ -1,5 +1,5 @@
 ---
-// NASA APOD Widget - Astronomy Picture of the Day
+// NASA APOD Widget - Astronomy Picture of the Day with Caching
 interface Props {
   lang?: "en" | "el";
 }
@@ -83,61 +83,138 @@ const T = t[lang];
 </style>
 
 <script is:inline>
+  // NASA APOD API caching - only fetch once per day
+  const NASA_CACHE_KEY = 'nasa_apod_cache';
+  const NASA_CACHE_DATE_KEY = 'nasa_apod_date';
+  
+  function getTodayDate() {
+    return new Date().toISOString().split('T')[0];
+  }
+  
+  function getCachedData() {
+    try {
+      const cachedDate = localStorage.getItem(NASA_CACHE_DATE_KEY);
+      const cachedData = localStorage.getItem(NASA_CACHE_KEY);
+      const today = getTodayDate();
+      
+      if (cachedDate === today && cachedData) {
+        return JSON.parse(cachedData);
+      }
+    } catch (e) {
+      console.log('Error reading NASA cache:', e);
+    }
+    return null;
+  }
+  
+  function setCachedData(data) {
+    try {
+      localStorage.setItem(NASA_CACHE_KEY, JSON.stringify(data));
+      localStorage.setItem(NASA_CACHE_DATE_KEY, getTodayDate());
+    } catch (e) {
+      console.log('Error saving NASA cache:', e);
+    }
+  }
+  
+  function updateWidgetUI(widget, data) {
+    const lang = widget.dataset.lang;
+    
+    // Update compact view
+    const titleEl = widget.querySelector('.nasa-title');
+    if (titleEl) titleEl.textContent = data.title;
+    
+    // Update expanded view
+    const dateEl = widget.querySelector('.nasa-date');
+    const imageEl = widget.querySelector('.nasa-image');
+    const loadingEl = widget.querySelector('.nasa-loading');
+    const imageTitleEl = widget.querySelector('.nasa-image-title');
+    const explanationEl = widget.querySelector('.nasa-explanation');
+    const linkEl = widget.querySelector('.nasa-link');
+    
+    if (dateEl) {
+      const date = new Date(data.date);
+      dateEl.textContent = date.toLocaleDateString(lang === 'el' ? 'el-GR' : 'en-US', { 
+        month: 'short', 
+        day: 'numeric' 
+      });
+    }
+    
+    if (imageEl) {
+      // Use HD image if available, otherwise regular
+      imageEl.src = data.hdurl || data.url;
+      imageEl.alt = data.title;
+      imageEl.onload = () => {
+        if (loadingEl) loadingEl.style.display = 'none';
+      };
+      // Hide loader if image is already cached
+      if (imageEl.complete) {
+        if (loadingEl) loadingEl.style.display = 'none';
+      }
+    }
+    
+    if (imageTitleEl) imageTitleEl.textContent = data.title;
+    if (explanationEl) explanationEl.textContent = data.explanation;
+    if (linkEl) linkEl.href = data.url;
+  }
+  
   async function fetchNASA(widget) {
     const lang = widget.dataset.lang;
     
+    // Check cache first
+    const cached = getCachedData();
+    if (cached) {
+      console.log('Using cached NASA APOD data');
+      updateWidgetUI(widget, cached);
+      return;
+    }
+    
     try {
-      // NASA APOD API - no API key needed for demo key (limited requests)
-      // For production, get free API key from: https://api.nasa.gov/
+      console.log('Fetching fresh NASA APOD data');
+      // NASA APOD API - using DEMO_KEY (limited to 30 requests per IP per hour)
+      // For production, consider getting a free API key from: https://api.nasa.gov/
       const res = await fetch('https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY');
       
-      if (!res.ok) throw new Error('Failed to fetch');
+      if (!res.ok) {
+        if (res.status === 429) {
+          throw new Error('Rate limited - too many requests');
+        }
+        throw new Error('Failed to fetch');
+      }
+      
       const data = await res.json();
       
-      // Update compact view
-      const titleEl = widget.querySelector('.nasa-title');
-      if (titleEl) titleEl.textContent = data.title;
+      // Cache the data
+      setCachedData(data);
       
-      // Update expanded view
-      const dateEl = widget.querySelector('.nasa-date');
-      const imageEl = widget.querySelector('.nasa-image');
-      const loadingEl = widget.querySelector('.nasa-loading');
-      const imageTitleEl = widget.querySelector('.nasa-image-title');
-      const explanationEl = widget.querySelector('.nasa-explanation');
-      const linkEl = widget.querySelector('.nasa-link');
-      
-      if (dateEl) {
-        const date = new Date(data.date);
-        dateEl.textContent = date.toLocaleDateString(lang === 'el' ? 'el-GR' : 'en-US', { 
-          month: 'short', 
-          day: 'numeric' 
-        });
-      }
-      
-      if (imageEl) {
-        // Use HD image if available, otherwise regular
-        imageEl.src = data.hdurl || data.url;
-        imageEl.alt = data.title;
-        imageEl.onload = () => {
-          if (loadingEl) loadingEl.style.display = 'none';
-        };
-      }
-      
-      if (imageTitleEl) imageTitleEl.textContent = data.title;
-      if (explanationEl) explanationEl.textContent = data.explanation;
-      if (linkEl) linkEl.href = data.url;
+      // Update UI
+      updateWidgetUI(widget, data);
       
     } catch (err) {
       console.error('NASA fetch error:', err);
       const titleEl = widget.querySelector('.nasa-title');
-      if (titleEl) titleEl.textContent = lang === 'el' ? 'Σφάλμα' : 'Error';
+      if (titleEl) {
+        if (err.message.includes('Rate limited')) {
+          titleEl.textContent = lang === 'el' ? 'Όριο αιτημάτων' : 'Rate limited';
+        } else {
+          titleEl.textContent = lang === 'el' ? 'Σφάλμα' : 'Error';
+        }
+      }
+      
+      // Show error state in popup
+      const imageTitleEl = widget.querySelector('.nasa-image-title');
+      const explanationEl = widget.querySelector('.nasa-explanation');
+      if (imageTitleEl) {
+        imageTitleEl.textContent = lang === 'el' ? 'Προσωρινά μη διαθέσιμο' : 'Temporarily unavailable';
+      }
+      if (explanationEl) {
+        explanationEl.textContent = lang === 'el' 
+          ? 'Υπερβήκατε το όριο αιτημάτων. Δοκιμάστε αργότερα.' 
+          : 'Rate limit exceeded. Please try again later.';
+      }
     }
   }
 
   // Initialize all NASA widgets
   document.querySelectorAll('.nasa-widget').forEach(widget => {
     fetchNASA(widget);
-    // Refresh every hour (APOD updates daily)
-    setInterval(() => fetchNASA(widget), 3600000);
   });
 </script>

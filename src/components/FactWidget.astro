@@ -1,5 +1,5 @@
 ---
-// Random Fact Widget
+// Random Fact Widget with Categories
 interface Props {
   lang?: "en" | "el";
 }
@@ -10,17 +10,28 @@ const t = {
   en: {
     title: "Did You Know?",
     newFact: "New Fact",
+    general: "General",
+    numbers: "Numbers",
+    sports: "Sports",
   },
   el: {
     title: "Ξέρατε Ότι;",
     newFact: "Νέο Γεγονός",
+    general: "Γενικά",
+    numbers: "Αριθμοί",
+    sports: "Αθλητισμός",
   },
 } as const;
 
 const T = t[lang];
+
+const translationNotes = {
+  en: "",
+  el: "Μετάφραση από DeepL. Ενδέχονται λάθη. Καλύτερα στα Αγγλικά.",
+};
 ---
 
-<div class="fact-widget group relative" data-lang={lang}>
+<div class="fact-widget group relative" data-lang={lang} data-category="general">
   {/* Compact View */}
   <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-yellow-500/10 via-orange-400/10 to-amber-400/10 border border-yellow-200/50 dark:border-yellow-700/50 hover:border-yellow-400 dark:hover:border-yellow-500 transition-all cursor-pointer">
     <span class="text-base">💡</span>
@@ -28,24 +39,38 @@ const T = t[lang];
   </div>
 
   {/* Expanded Info on Hover */}
-  <div class="fact-popup absolute top-full left-0 mt-2 w-72 p-4 rounded-xl bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
+  <div class="fact-popup absolute top-full left-0 mt-2 w-80 p-4 rounded-xl bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
     {/* Header */}
     <div class="flex items-center justify-between mb-3">
       <div class="flex items-center gap-2">
         <span class="text-xl">💡</span>
         <div class="font-bold text-sm">{T.title}</div>
       </div>
-      <button class="fact-refresh text-xs text-yellow-600 dark:text-yellow-400 hover:underline cursor-pointer">
+      <button class="fact-refresh text-xs text-yellow-600 dark:text-yellow-400 hover:underline cursor-pointer flex items-center gap-1">
         🔄 {T.newFact}
       </button>
     </div>
 
+    {/* Category Selector */}
+    <div class="flex gap-2 mb-3">
+      <button class="fact-category-general flex-1 py-1.5 px-2 text-xs font-medium rounded-lg bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 border border-yellow-200 dark:border-yellow-700 hover:bg-yellow-200 dark:hover:bg-yellow-800/50 transition-colors active-category">
+        {T.general}
+      </button>
+      <button class="fact-category-numbers flex-1 py-1.5 px-2 text-xs font-medium rounded-lg bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-400 border border-gray-200 dark:border-slate-600 hover:bg-gray-200 dark:hover:bg-slate-600 transition-colors">
+        {T.numbers}
+      </button>
+      <button class="fact-category-sports flex-1 py-1.5 px-2 text-xs font-medium rounded-lg bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-400 border border-gray-200 dark:border-slate-600 hover:bg-gray-200 dark:hover:bg-slate-600 transition-colors">
+        {T.sports}
+      </button>
+    </div>
+
     {/* Fact */}
-    <div class="fact-content text-sm text-gray-700 dark:text-slate-300 leading-relaxed">
+    <div class="fact-content text-sm text-gray-700 dark:text-slate-300 leading-relaxed min-h-[60px]">
       Loading interesting fact...
     </div>
 
-    <div class="fact-source text-[10px] text-gray-400 mt-3 text-right">--</div>
+    <div class="fact-source text-[10px] text-gray-400 mt-2 text-right">--</div>
+    <div class="fact-translation-note text-[10px] text-gray-400 mt-1 text-right italic hidden">{translationNotes[lang]}</div>
   </div>
 </div>
 
@@ -53,73 +78,193 @@ const T = t[lang];
   .fact-widget {
     position: relative;
   }
+  .active-category {
+    ring-width: 2px;
+    ring-color: rgb(234 179 8);
+  }
 </style>
 
 <script is:inline>
-  async function fetchFact(widget) {
+  // Fallback facts
+  const fallbackFacts = [
+    "Honey never spoils. Archaeologists have found pots of honey in ancient Egyptian tombs that are over 3,000 years old and still edible.",
+    "Octopuses have three hearts, nine brains, and blue blood.",
+    "The shortest war in history was between Britain and Zanzibar on August 27, 1896. Zanzibar surrendered after 38 minutes.",
+    "Bananas are berries, but strawberries aren't.",
+    "A day on Venus is longer than a year on Venus.",
+    "The Great Wall of China is not visible from space with the naked eye.",
+    "Wombat poop is cube-shaped.",
+    "The unicorn is the national animal of Scotland.",
+    "A group of flamingos is called a 'flamboyance'.",
+    "The average cloud weighs about 1.1 million pounds.",
+  ];
+
+  async function translateText(text, targetLang) {
+    // Try DeepL first
+    try {
+      const encodedText = encodeURIComponent(text);
+      const res = await fetch(`/api/translate?text=${encodedText}&target=${targetLang}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && data.text) {
+          return {
+            text: data.text,
+            success: true,
+            source: 'deepl'
+          };
+        }
+      }
+    } catch (e) {
+      console.log('DeepL translation failed:', e);
+    }
+    
+    // Fallback to MyMemory if DeepL fails
+    try {
+      const encodedText = encodeURIComponent(text);
+      const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodedText}&langpair=en|${targetLang}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.responseStatus === 200 && data.responseData) {
+          return {
+            text: data.responseData.translatedText,
+            success: true,
+            source: 'mymemory'
+          };
+        }
+      }
+    } catch (e) {
+      console.log('MyMemory translation failed:', e);
+    }
+    
+    return { text: null, success: false, source: null };
+  }
+
+  async function fetchFact(widget, category) {
     const lang = widget.dataset.lang;
     
     try {
-      // Try multiple fact APIs
       let fact = '';
       let source = '';
+      let sourceUrl = '';
+      let isTranslated = false;
       
-      // API 1: Useless Facts (no key needed)
-      try {
-        const res = await fetch('https://uselessfacts.jsph.pl/random.json?language=en');
-        if (res.ok) {
-          const data = await res.json();
-          fact = data.text;
-          source = 'uselessfacts.jsph.pl';
+      if (category === 'general') {
+        // API: Useless Facts
+        try {
+          const res = await fetch('https://uselessfacts.jsph.pl/random.json?language=en');
+          if (res.ok) {
+            const data = await res.json();
+            fact = data.text;
+            source = data.source_url || 'uselessfacts.jsph.pl';
+            sourceUrl = data.source_url || '';
+          }
+        } catch (e) {
+          console.log('UselessFacts API failed:', e);
         }
-      } catch (e) {
-        // Try backup API
-      }
-      
-      // API 2: Numbers API (if first fails)
-      if (!fact) {
+      } else if (category === 'numbers') {
+        // API: Numbers API
         try {
           const res = await fetch('http://numbersapi.com/random/trivia');
           if (res.ok) {
             fact = await res.text();
             source = 'numbersapi.com';
+            sourceUrl = 'http://numbersapi.com';
           }
         } catch (e) {
-          // Use fallback
+          console.log('Numbers API failed:', e);
+        }
+      } else if (category === 'sports') {
+        // API: The Trivia API - Sports (only sports questions)
+        try {
+          const res = await fetch('https://the-trivia-api.com/v2/questions?categories=sport_and_leisure&limit=1&difficulties=easy,medium');
+          if (res.ok) {
+            const data = await res.json();
+            if (data && data.length > 0) {
+              const q = data[0];
+              // Format: Question with answer underneath in spoiler style
+              fact = `<b>Q:</b> ${q.question.text}\n\n<div class="mt-2 pt-2 border-t border-gray-200 dark:border-gray-700"><span class="text-xs text-gray-500">Answer:</span> <span class="spoiler-text bg-gray-800 text-gray-800 dark:bg-gray-200 dark:text-gray-200 px-1 rounded cursor-pointer hover:bg-transparent hover:text-gray-800 dark:hover:bg-transparent dark:hover:text-gray-200 transition-all select-none">${q.correctAnswer}</span></div>`;
+              source = 'the-trivia-api.com';
+              sourceUrl = 'https://the-trivia-api.com';
+            }
+          }
+        } catch (e) {
+          console.log('Sports Trivia API failed:', e);
         }
       }
       
-      // Fallback facts if APIs fail
+      // Fallback if APIs fail
       if (!fact) {
-        const fallbackFacts = [
-          "Honey never spoils. Archaeologists have found pots of honey in ancient Egyptian tombs that are over 3,000 years old and still edible.",
-          "Octopuses have three hearts, nine brains, and blue blood.",
-          "The shortest war in history was between Britain and Zanzibar on August 27, 1896. Zanzibar surrendered after 38 minutes.",
-          "Bananas are berries, but strawberries aren't.",
-          "A day on Venus is longer than a year on Venus.",
-          "The Great Wall of China is not visible from space with the naked eye.",
-          "Wombat poop is cube-shaped.",
-          "The unicorn is the national animal of Scotland.",
-        ];
         fact = fallbackFacts[Math.floor(Math.random() * fallbackFacts.length)];
         source = 'fallback';
+        sourceUrl = '';
+      }
+      
+      // Translate if Greek
+      if (lang === 'el' && fact) {
+        const translation = await translateText(fact, 'el');
+        if (translation.success) {
+          fact = translation.text;
+          isTranslated = true;
+        }
       }
       
       // Update UI
       const previewEl = widget.querySelector('.fact-preview');
       const contentEl = widget.querySelector('.fact-content');
       const sourceEl = widget.querySelector('.fact-source');
+      const translationNoteEl = widget.querySelector('.fact-translation-note');
       
       if (previewEl) {
-        // Show first 30 chars as preview
-        previewEl.textContent = fact.substring(0, 30) + '...';
+        // Strip HTML for preview
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = fact;
+        const textOnly = tempDiv.textContent || tempDiv.innerText || '';
+        previewEl.textContent = textOnly.substring(0, 30) + '...';
       }
       
-      if (contentEl) contentEl.textContent = fact;
+      if (contentEl) {
+        // Use innerHTML for sports to render HTML (Q: and spoiler)
+        if (category === 'sports') {
+          contentEl.innerHTML = fact;
+          // Add spoiler reveal on hover/click
+          const spoilerText = contentEl.querySelector('.spoiler-text');
+          if (spoilerText) {
+            spoilerText.addEventListener('mouseenter', () => {
+              spoilerText.classList.add('revealed');
+              spoilerText.classList.remove('bg-gray-800', 'text-gray-800', 'dark:bg-gray-200', 'dark:text-gray-200');
+            });
+            spoilerText.addEventListener('click', () => {
+              spoilerText.classList.toggle('revealed');
+              if (spoilerText.classList.contains('revealed')) {
+                spoilerText.classList.remove('bg-gray-800', 'text-gray-800', 'dark:bg-gray-200', 'dark:text-gray-200');
+              } else {
+                spoilerText.classList.add('bg-gray-800', 'text-gray-800', 'dark:bg-gray-200', 'dark:text-gray-200');
+              }
+            });
+          }
+        } else {
+          contentEl.textContent = fact;
+        }
+      }
+      
       if (sourceEl) {
-        sourceEl.textContent = source === 'fallback' 
-          ? (lang === 'el' ? 'Τυχαίο γεγονός' : 'Random fact')
-          : `Source: ${source}`;
+        if (source === 'fallback') {
+          sourceEl.textContent = lang === 'el' ? 'Τυχαίο γεγονός' : 'Random fact';
+          sourceEl.innerHTML = 'Random fact';
+        } else if (sourceUrl) {
+          sourceEl.innerHTML = `<a href="${sourceUrl}" target="_blank" rel="noopener" class="hover:underline">Source: ${source} →</a>`;
+        } else {
+          sourceEl.textContent = `Source: ${source}`;
+        }
+      }
+      
+      // Show translation note if translated
+      if (translationNoteEl) {
+        if (lang === 'el' && isTranslated) {
+          translationNoteEl.classList.remove('hidden');
+        } else {
+          translationNoteEl.classList.add('hidden');
+        }
       }
       
     } catch (err) {
@@ -129,16 +274,61 @@ const T = t[lang];
     }
   }
 
+  function updateCategoryButtons(widget, category) {
+    const generalBtn = widget.querySelector('.fact-category-general');
+    const numbersBtn = widget.querySelector('.fact-category-numbers');
+    const sportsBtn = widget.querySelector('.fact-category-sports');
+    
+    // Reset all styles
+    [generalBtn, numbersBtn, sportsBtn].forEach(btn => {
+      btn?.classList.remove('bg-yellow-100', 'dark:bg-yellow-900/30', 'text-yellow-700', 'dark:text-yellow-300', 'border-yellow-200', 'dark:border-yellow-700');
+      btn?.classList.add('bg-gray-100', 'dark:bg-slate-700', 'text-gray-600', 'dark:text-slate-400', 'border-gray-200', 'dark:border-slate-600');
+    });
+    
+    // Set active style
+    const activeBtn = category === 'general' ? generalBtn : category === 'numbers' ? numbersBtn : sportsBtn;
+    activeBtn?.classList.remove('bg-gray-100', 'dark:bg-slate-700', 'text-gray-600', 'dark:text-slate-400', 'border-gray-200', 'dark:border-slate-600');
+    activeBtn?.classList.add('bg-yellow-100', 'dark:bg-yellow-900/30', 'text-yellow-700', 'dark:text-yellow-300', 'border-yellow-200', 'dark:border-yellow-700');
+  }
+
   // Initialize all fact widgets
   document.querySelectorAll('.fact-widget').forEach(widget => {
-    fetchFact(widget);
+    // Initial fetch
+    fetchFact(widget, 'general');
     
-    // Add refresh button handler
+    // Category buttons
+    const generalBtn = widget.querySelector('.fact-category-general');
+    const numbersBtn = widget.querySelector('.fact-category-numbers');
+    const sportsBtn = widget.querySelector('.fact-category-sports');
+    
+    generalBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      widget.dataset.category = 'general';
+      updateCategoryButtons(widget, 'general');
+      fetchFact(widget, 'general');
+    });
+    
+    numbersBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      widget.dataset.category = 'numbers';
+      updateCategoryButtons(widget, 'numbers');
+      fetchFact(widget, 'numbers');
+    });
+    
+    sportsBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      widget.dataset.category = 'sports';
+      updateCategoryButtons(widget, 'sports');
+      fetchFact(widget, 'sports');
+    });
+    
+    // Refresh button
     const refreshBtn = widget.querySelector('.fact-refresh');
     if (refreshBtn) {
       refreshBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        fetchFact(widget);
+        const category = widget.dataset.category || 'general';
+        fetchFact(widget, category);
       });
     }
   });

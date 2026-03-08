@@ -1,0 +1,91 @@
+---
+// Joke Widget - Shows programming jokes
+interface Props {
+  lang?: "en" | "el";
+}
+
+const { lang = "en" } = Astro.props;
+
+const t = {
+  en: {
+    preview: "Still here?",
+    title: "Programming Joke",
+    newJoke: "New Joke",
+  },
+  el: {
+    preview: "Ακόμα εδώ;",
+    title: "Αστείο Προγραμματισμού",
+    newJoke: "Νέο Αστείο",
+  },
+} as const;
+
+const T = t[lang];
+---
+
+<div class="joke-widget group relative" data-lang={lang}>
+  {/* Compact View - Pill Style */}
+  <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-pink-500/10 via-rose-400/10 to-orange-400/10 border border-pink-200/50 dark:border-pink-700/50 hover:border-pink-400 dark:hover:border-pink-500 transition-all cursor-pointer">
+    <span class="text-base">😄</span>
+    <span class="joke-preview text-xs font-medium text-gray-600 dark:text-slate-400">{T.preview}</span>
+  </div>
+
+  {/* Expanded Info on Hover */}
+  <div class="joke-popup absolute top-full left-0 mt-2 w-72 p-4 rounded-xl bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
+    {/* Header */}
+    <div class="flex items-center justify-between mb-3">
+      <div class="flex items-center gap-2">
+        <span class="text-xl">😄</span>
+        <div class="font-bold text-sm">{T.title}</div>
+      </div>
+      <button class="joke-refresh text-xs text-pink-600 dark:text-pink-400 hover:underline cursor-pointer flex items-center gap-1">
+        🔄 {T.newJoke}
+      </button>
+    </div>
+
+    {/* Joke */}
+    <div class="joke-content text-center py-2">
+      <img src="" alt="Joke" class="joke-image w-full rounded-lg" />
+    </div>
+  </div>
+</div>
+
+<style>
+  .joke-widget {
+    position: relative;
+  }
+</style>
+
+<script is:inline>
+  async function fetchJoke(widget) {
+    const lang = widget.dataset.lang;
+    
+    try {
+      // Use readme-jokes API
+      const timestamp = Date.now();
+      const jokeUrl = `https://readme-jokes.vercel.app/api?theme=radical&t=${timestamp}`;
+      
+      // Update image
+      const imageEl = widget.querySelector('.joke-image');
+      if (imageEl) {
+        imageEl.src = jokeUrl;
+      }
+      
+    } catch (err) {
+      console.error('Joke fetch error:', err);
+    }
+  }
+
+  // Initialize all joke widgets
+  document.querySelectorAll('.joke-widget').forEach(widget => {
+    fetchJoke(widget);
+    
+    // Add refresh button handler
+    const refreshBtn = widget.querySelector('.joke-refresh');
+    if (refreshBtn) {
+      refreshBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        fetchJoke(widget);
+      });
+    }
+  });
+</script>
