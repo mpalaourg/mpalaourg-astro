@@ -11,50 +11,80 @@ const t = {
   en: {
     watching: "Watching",
     lastWatched: "Last watched",
-    rating: "Rating",
+    recentWatches: "Recent Watches",
     episode: "Ep",
+    season: "S",
+    movie: "Movie",
+    show: "TV Show",
+    viewProfile: "View Profile",
   },
   el: {
     watching: "Βλέπω",
-    lastWatched: "Τελευταίο",
-    rating: "Βαθμολογία",
+    lastWatched: "Τελευταία Προβολή",
+    recentWatches: "Πρόσφατες Προβολές",
     episode: "Επ",
+    season: "Σ",
+    movie: "Ταινία",
+    show: "Σειρά",
+    viewProfile: "Προβολή Προφίλ",
   },
 } as const;
 
 const T = t[lang];
 ---
 
-<div class="tv-widget group" data-username={username} data-lang={lang}>
+<div class="tv-widget group relative" data-username={username} data-lang={lang}>
   {/* Compact View */}
-  <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-gradient-to-r from-purple-500/10 via-purple-400/10 to-pink-400/10 border border-purple-200/50 dark:border-purple-700/50 hover:border-purple-400 dark:hover:border-purple-500 transition-all cursor-pointer">
+  <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-purple-500/10 via-purple-400/10 to-pink-400/10 border border-purple-200/50 dark:border-purple-700/50 hover:border-purple-400 dark:hover:border-purple-500 transition-all cursor-pointer">
     <span class="text-base">📺</span>
-    <span class="tv-title text-xs font-medium max-w-[80px] truncate opacity-50">--</span>
-    <span class="tv-episode text-[10px] text-gray-500 dark:text-slate-400 hidden"></span>
+    <span class="tv-status text-xs font-medium text-gray-600 dark:text-slate-400">Loading...</span>
   </div>
 
   {/* Expanded Info on Hover */}
-  <div class="absolute top-full left-0 mt-2 w-56 p-4 rounded-xl bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 pointer-events-none group-hover:pointer-events-auto">
-    <div class="flex gap-3">
-      <img src="" alt="" class="tv-poster w-12 h-18 rounded-lg object-cover opacity-0" />
-      <div class="flex-1 min-w-0">
-        <div class="tv-status text-[10px] text-gray-500 uppercase tracking-wider mb-1">{T.lastWatched}</div>
-        <div class="tv-title-expanded text-sm font-medium truncate mb-0.5">--</div>
-        <div class="tv-episode-expanded text-xs text-gray-500 mb-2">--</div>
-        <div class="tv-rating text-xs text-yellow-500 hidden">
-          ⭐ <span>--</span>
+  <div class="tv-popup absolute top-full left-0 mt-2 w-72 p-4 rounded-xl bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
+    {/* Header */}
+    <div class="flex items-center justify-between mb-3">
+      <div class="flex items-center gap-2">
+        <span class="text-xl">📺</span>
+        <div class="font-bold text-sm">{T.recentWatches}</div>
+      </div>
+      <a 
+        href={`https://trakt.tv/users/${username}`} 
+        target="_blank" 
+        rel="noopener"
+        class="text-xs text-purple-600 dark:text-purple-400 hover:underline"
+      >
+        {T.viewProfile} →
+      </a>
+    </div>
+
+    {/* Current/Latest Watch */}
+    <div class="tv-current mb-3 pb-3 border-b border-gray-100 dark:border-gray-700">
+      <div class="flex items-center gap-3">
+        <div class="tv-poster-current w-12 h-16 rounded-lg bg-gray-200 dark:bg-slate-700 shrink-0 flex items-center justify-center text-2xl">
+          🎬
+        </div>
+        <div class="min-w-0 flex-1">
+          <div class="tv-status-current text-[10px] text-gray-500 uppercase tracking-wider">{T.lastWatched}</div>
+          <div class="tv-title-current text-sm font-medium truncate">--</div>
+          <div class="tv-episode-current text-xs text-gray-500">--</div>
         </div>
       </div>
     </div>
-    
-    <a 
-      href={`https://trakt.tv/users/${username}`} 
-      target="_blank" 
-      rel="noopener"
-      class="mt-3 block w-full py-2 text-center text-xs font-medium text-purple-700 dark:text-purple-400 bg-purple-100 dark:bg-purple-900/30 rounded-lg hover:bg-purple-200 dark:hover:bg-purple-800/50 transition-colors"
-    >
-      View Profile →
-    </a>
+
+    {/* Recent Watches List */}
+    <div class="tv-recent-list space-y-2 max-h-48 overflow-y-auto">
+      <div class="flex items-center gap-2 py-1">
+        <div class="w-8 h-10 rounded bg-gray-200 dark:bg-slate-700 shrink-0 flex items-center justify-center text-xs">🎬</div>
+        <div class="min-w-0 flex-1">
+          <div class="text-xs font-medium truncate">--</div>
+          <div class="text-[10px] text-gray-500 truncate">--</div>
+        </div>
+        <span class="text-[10px] text-gray-400">--</span>
+      </div>
+    </div>
+
+    <div class="tv-updated text-[10px] text-gray-400 mt-3 text-right">--</div>
   </div>
 </div>
 
@@ -65,61 +95,112 @@ const T = t[lang];
 </style>
 
 <script is:inline>
+  function formatTimeAgo(dateString) {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+    
+    if (diffMins < 1) return 'now';
+    if (diffMins < 60) return `${diffMins}m`;
+    if (diffHours < 24) return `${diffHours}h`;
+    if (diffDays < 7) return `${diffDays}d`;
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  }
+
   async function fetchTV(widget) {
     const username = widget.dataset.username;
     const lang = widget.dataset.lang;
     
     try {
+      // Fetch from our API endpoint (server-side, secure)
       const res = await fetch(`/api/tv?username=${username}`);
       if (!res.ok) throw new Error('Failed to fetch');
       const data = await res.json();
       
-      const title = widget.querySelector('.tv-title');
-      const titleExpanded = widget.querySelector('.tv-title-expanded');
-      const episode = widget.querySelector('.tv-episode');
-      const episodeExpanded = widget.querySelector('.tv-episode-expanded');
-      const poster = widget.querySelector('.tv-poster');
-      const rating = widget.querySelector('.tv-rating');
-      const status = widget.querySelector('.tv-status');
+      if (data.error || !data.items || !data.items.length) {
+        const statusEl = widget.querySelector('.tv-status');
+        if (statusEl) {
+          if (data.note) {
+            statusEl.textContent = lang === 'el' ? 'Καμία προβολή' : 'No watches';
+          } else {
+            statusEl.textContent = lang === 'el' ? 'Καμία προβολή' : 'No watches';
+          }
+        }
+        return;
+      }
       
-      if (data.title) {
-        // Update title
-        title.textContent = data.title;
-        title.classList.remove('opacity-50');
-        titleExpanded.textContent = data.title;
-        
-        // Update episode info
-        if (data.episode) {
-          episode.textContent = data.episode;
-          episode.classList.remove('hidden');
-          episodeExpanded.textContent = `${lang === 'el' ? 'Επ' : 'Ep'} ${data.episode}`;
+      const items = data.items;
+      const currentItem = items[0];
+      const recentItems = items.slice(1);
+      
+      // Update compact view
+      const statusEl = widget.querySelector('.tv-status');
+      if (statusEl) {
+        if (currentItem.isWatching) {
+          statusEl.textContent = `▶ ${currentItem.title}`;
         } else {
-          episodeExpanded.textContent = data.type === 'movie' 
-            ? (lang === 'el' ? 'Ταινία' : 'Movie')
-            : (lang === 'el' ? 'Σειρά' : 'TV Show');
-        }
-        
-        // Update rating
-        if (data.rating) {
-          rating.classList.remove('hidden');
-          rating.querySelector('span').textContent = data.rating;
-        }
-        
-        // Update poster
-        if (data.poster) {
-          poster.src = data.poster;
-          poster.classList.remove('opacity-0');
-        }
-        
-        // Update status
-        if (data.isWatching) {
-          status.textContent = lang === 'el' ? 'Τώρα' : 'Now';
-        } else {
-          status.textContent = lang === 'el' ? 'Τελευταίο' : 'Last watched';
+          statusEl.textContent = currentItem.title;
         }
       }
+      
+      // Update current item
+      const currentStatusEl = widget.querySelector('.tv-status-current');
+      const currentTitleEl = widget.querySelector('.tv-title-current');
+      const currentEpisodeEl = widget.querySelector('.tv-episode-current');
+      
+      if (currentStatusEl) {
+        currentStatusEl.textContent = currentItem.isWatching 
+          ? (lang === 'el' ? 'Τώρα' : 'Now')
+          : (lang === 'el' ? 'Τελευταία' : 'Last');
+      }
+      if (currentTitleEl) currentTitleEl.textContent = currentItem.title;
+      if (currentEpisodeEl) {
+        if (currentItem.type === 'episode' && currentItem.episode) {
+          currentEpisodeEl.textContent = `${lang === 'el' ? 'Σ' : 'S'}${currentItem.season}${lang === 'el' ? 'Ε' : 'E'}${currentItem.episode}`;
+        } else if (currentItem.type === 'movie') {
+          currentEpisodeEl.textContent = lang === 'el' ? 'Ταινία' : 'Movie';
+        } else {
+          currentEpisodeEl.textContent = '';
+        }
+      }
+      
+      // Update recent list
+      const recentListEl = widget.querySelector('.tv-recent-list');
+      if (recentListEl && recentItems.length > 0) {
+        recentListEl.innerHTML = recentItems.map(item => {
+          let subtitle = '';
+          if (item.type === 'episode' && item.episode) {
+            subtitle = `${lang === 'el' ? 'Σ' : 'S'}${item.season}${lang === 'el' ? 'Ε' : 'E'}${item.episode}`;
+          } else if (item.type === 'movie') {
+            subtitle = lang === 'el' ? 'Ταινία' : 'Movie';
+          }
+          
+          return `
+            <div class="flex items-center gap-2 py-1.5 border-b border-gray-100 dark:border-gray-700 last:border-0">
+              <div class="w-8 h-10 rounded bg-gray-200 dark:bg-slate-700 shrink-0 flex items-center justify-center text-xs">🎬</div>
+              <div class="min-w-0 flex-1">
+                <div class="text-xs font-medium truncate">${item.title}</div>
+                <div class="text-[10px] text-gray-500 truncate">${subtitle}</div>
+              </div>
+              <span class="text-[10px] text-gray-400">${formatTimeAgo(item.watchedAt)}</span>
+            </div>
+          `;
+        }).join('');
+      }
+      
+      // Update timestamp
+      const updatedEl = widget.querySelector('.tv-updated');
+      if (updatedEl) {
+        updatedEl.textContent = `${lang === 'el' ? 'Ενημέρωση' : 'Updated'} ${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
+      }
+      
     } catch (err) {
-      console.error('TV fetch error:', err);
+      const statusEl = widget.querySelector('.tv-status');
+      if (statusEl) statusEl.textContent = lang === 'el' ? 'Σφάλμα' : 'Error';
     }
   }
 
