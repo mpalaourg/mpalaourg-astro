@@ -572,12 +572,91 @@ const T = t[lang];
   ];
   const TROPHY = ["🥇", "🥈", "🥉"];
 
+  // Team colors for SVG backgrounds
+  const TEAM_COLORS: Record<string, string> = {
+    mercedes: "#00A19C",
+    ferrari: "#FF0000",
+    red_bull: "#1E41FF",
+    mclaren: "#FF8000",
+    alpine: "#005BA9",
+    aston_martin: "#006F62",
+    williams: "#00A0DE",
+    haas: "#4F4F4F",
+    rb: "#1E41FF",
+    audi: "#BB0000",
+    cadillac: "#000000",
+  };
+
+  // Full 2026 grid mapping for driver numbers (for when API doesn't provide them)
+  const DRIVER_NUMBERS: Record<string, string> = {
+    "Norris": "1",
+    "Verstappen": "3",
+    "Bortoleto": "5",
+    "Hadjar": "6",
+    "Gasly": "10",
+    "Pérez": "11",
+    "Antonelli": "12",
+    "Alonso": "14",
+    "Leclerc": "16",
+    "Stroll": "18",
+    "Albon": "23",
+    "Hülkenberg": "27",
+    "Lawson": "30",
+    "Ocon": "31",
+    "Lindblad": "41",
+    "Colapinto": "43",
+    "Hamilton": "44",
+    "Sainz": "55",
+    "Russell": "63",
+    "Bottas": "77",
+    "Piastri": "81",
+    "Bearman": "87",
+  };
+
+  // Helper to get driver number
+  function getDriverNumber(driver: any): string {
+    // First try API fields
+    const apiNumber = driver?.permanentNumber || driver?.number || driver?.driverNumber;
+    if (apiNumber) return String(apiNumber);
+    
+    // Fallback to our mapping by last name
+    const lastName = driver?.familyName;
+    if (lastName && DRIVER_NUMBERS[lastName]) {
+      return DRIVER_NUMBERS[lastName];
+    }
+    
+    return "";
+  }
+
+  // Teams that need white logos (logo color matches background)
+  const WHITE_LOGO_TEAMS = ["mclaren", "alpine", "williams", "cadillac"];
+
   // ─── Logo helpers ──────────────────────────────────────────────────────────
   function logoImg(constructorId: string, name: string): string {
     const src = TEAM_LOGOS[constructorId];
+    const teamColor = TEAM_COLORS[constructorId] || "#94a3b8";
+    const whiteLogo = WHITE_LOGO_TEAMS.includes(constructorId);
     return src
-      ? `<img src="${src}" alt="${name}" class="h-3.5 w-5 object-contain shrink-0 inline-block"/>`
+      ? `<span class="inline-flex items-center justify-center h-4 w-6 rounded shrink-0" style="background-color: ${teamColor};"><img src="${src}" alt="${name}" class="h-full w-full object-contain inline-block p-0.5${whiteLogo ? ' brightness-0 invert' : ''}"/></span>`
       : `<span class="inline-block h-2.5 w-2.5 rounded-full bg-slate-400 shrink-0"></span>`;
+  }
+
+  // Clean team names - specific mappings for display
+  function cleanTeamName(name: string, constructorId: string): string {
+    const nameMap: Record<string, string> = {
+      "red_bull": "Red Bull Racing",
+      "rb": "Racing Bulls",
+      "haas": "Haas",
+      "alpine": "Alpine",
+      "cadillac": "Cadillac",
+      "aston_martin": "Aston Martin",
+      "mercedes": "Mercedes",
+      "ferrari": "Ferrari",
+      "mclaren": "McLaren",
+      "williams": "Williams",
+      "audi": "Audi",
+    };
+    return nameMap[constructorId] || name.replace(/ F1 Team$/i, "").trim();
   }
 
   function logoByTeamName(teamName: string): string {
@@ -654,8 +733,8 @@ const T = t[lang];
   function renderJolpicaQualiPodium(rows: any[]): string {
     return podiumCards(
       rows.slice(0, 3),
-      (r) => `${r.Driver.givenName[0]}. ${r.Driver.familyName}`,
-      (r) => r.Driver.permanentNumber ?? "",
+      (r) => `${r.Driver?.givenName?.[0] || ''}. ${r.Driver?.familyName || ''}`,
+      (r) => getDriverNumber(r.Driver),
       (r) => r.Constructor?.name ?? "",
       (r) => r.Constructor?.constructorId ?? "",
       (r) => r.Q3 ?? r.Q2 ?? r.Q1 ?? "—"
@@ -665,8 +744,8 @@ const T = t[lang];
   function renderJolpicaRacePodium(rows: any[]): string {
     return podiumCards(
       rows.slice(0, 3),
-      (r) => `${r.Driver.givenName[0]}. ${r.Driver.familyName}`,
-      (r) => r.Driver.permanentNumber ?? "",
+      (r) => `${r.Driver?.givenName?.[0] || ''}. ${r.Driver?.familyName || ''}`,
+      (r) => getDriverNumber(r.Driver),
       (r) => r.Constructor?.name ?? "",
       (r) => r.Constructor?.constructorId ?? "",
       (r) => r.Time?.time ?? r.status ?? "—"
@@ -883,7 +962,7 @@ const T = t[lang];
                       transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/50
                       ${isTop3 ? "bg-amber-50/60 dark:bg-amber-900/10" : ""}">
             <span class="text-xs font-mono text-gray-400 dark:text-slate-500 text-center">${r.position}</span>
-            <span class="text-[10px] font-bold bg-slate-200 dark:bg-slate-600 rounded px-1 py-0.5 tabular-nums text-center">${r.number ?? r.Driver.permanentNumber ?? r.Driver.code ?? "—"}</span>
+            <span class="text-[10px] font-bold bg-slate-200 dark:bg-slate-600 rounded px-1 py-0.5 tabular-nums text-center">${getDriverNumber(r.Driver) || "—"}</span>
             <span class="flex items-center gap-1.5 min-w-0">
               ${logoImg(r.Constructor?.constructorId ?? "", r.Constructor?.name ?? "")}
               <span class="truncate text-xs font-medium">${r.Driver.givenName[0]}. ${r.Driver.familyName}</span>
@@ -905,7 +984,7 @@ const T = t[lang];
               ${logoImg(d.team, d.team)}
               <span class="truncate text-xs font-medium">${d.name}</span>
             </span>
-            <span class="text-xs font-mono tabular-nums text-right text-gray-400 dark:text-slate-500 italic">Time Not Set</span>
+            <span class="text-xs font-mono tabular-nums text-right text-gray-400 dark:text-slate-500 italic">No Time Set</span>
             <span class="text-[10px] font-mono tabular-nums text-right text-gray-400 dark:text-slate-500">—</span>
           </div>`)
         .join("");
@@ -977,19 +1056,31 @@ const T = t[lang];
     const sorted = [...data].sort(
       (a, b) => parseInt(a.position) - parseInt(b.position)
     );
-    const fastestId = sorted.find((r) => r.FastestLap?.rank === "1")?.Driver
-      ?.driverId;
+    
+    // Find winner's lap count to calculate laps down for lapped cars
+    const winnerLaps = sorted.length > 0 ? parseInt(sorted[0].laps) || 0 : 0;
+    
+    // Find driver with fastest lap
+    let fastestId = null;
+    let fastestTime = null;
+    for (const r of sorted) {
+      if (r.FastestLap && String(r.FastestLap.rank) === "1") {
+        fastestId = r.Driver?.driverId;
+        fastestTime = r.FastestLap.Time?.time;
+        break;
+      }
+    }
 
     const header = `
-      <div class="grid grid-cols-[1.75rem_1.5rem_1fr_3rem_4.5rem_4rem] gap-x-2 px-3 py-1.5
+      <div class="grid grid-cols-[1.75rem_1.5rem_1fr_3rem_5.5rem_4.5rem] gap-x-2 px-3 py-1.5
                   bg-slate-100 dark:bg-slate-700/80 rounded-t-lg
                   border border-gray-200 dark:border-gray-700 border-b-0">
         <span class="text-[10px] font-semibold text-gray-400 dark:text-slate-500 text-center">#</span>
         <span class="text-[10px] font-semibold text-gray-400 dark:text-slate-500 text-center">No</span>
         <span class="text-[10px] font-semibold text-gray-400 dark:text-slate-500">Driver</span>
         <span class="text-[10px] font-semibold text-gray-400 dark:text-slate-500 text-center">Laps</span>
-        <span class="text-[10px] font-semibold text-gray-400 dark:text-slate-500 text-right">Time / Status</span>
-        <span class="text-[10px] font-semibold text-gray-400 dark:text-slate-500 text-right">Fastest</span>
+        <span class="text-[10px] font-semibold text-gray-400 dark:text-slate-500 text-right">Time</span>
+        <span class="text-[10px] font-semibold text-gray-400 dark:text-slate-500 text-right">Status</span>
       </div>`;
 
     const rows = sorted
@@ -997,15 +1088,72 @@ const T = t[lang];
         const name = `${r.Driver.givenName[0]}. ${r.Driver.familyName}`;
         const cid = r.Constructor?.constructorId ?? "";
         const cname = r.Constructor?.name ?? "";
-        const pos = r.positionText;
-        const isDNF = ["R", "D", "E", "N"].includes(pos);
-        const isFinished =
-          r.status === "Finished" || r.status?.startsWith("+");
-        const timeVal = r.Time?.time ?? (isFinished ? r.status : "");
-        const statusVal = isDNF ? "DNF" : isFinished ? timeVal : r.status;
+        const pos = r.positionText || String(i + 1);
+        const status = (r.status || "").toString();
+        const laps = parseInt(r.laps) || 0;
+        
+        // DNS: Did Not Start - no laps completed and not classified
+        const isDNS = laps === 0 && (status.toLowerCase().includes("did not start") || 
+                       status === "DNS" || pos === "DNS" || (!status && !r.Time));
+        
+        // DNF: Did Not Finish - retired during race
+        const isDNF = !isDNS && (["R", "D", "E", "N", "W"].includes(pos) || 
+          (!!status && status !== "Finished" && !status.startsWith("+") && 
+           !status.toLowerCase().includes("lap") && !isDNS));
+        
+        // DSQ: Disqualified
+        const isDSQ = status === "Disqualified" || status === "DSQ";
+        
+        // Lapped: Status is "Lapped" or starts with + (e.g., "+1 Lap", "+2 Laps")
+        const isLapped = !!status && (status === "Lapped" || status.toLowerCase().includes("lapped") || status.startsWith("+"));
+        
+        // Calculate laps down for lapped cars (only if not DNF)
+        const lapsDown = !isDNF && winnerLaps > 0 && laps > 0 && laps < winnerLaps ? winnerLaps - laps : 0;
+        
+        // Fastest lap - check if this driver has the fastest lap
         const isFastest = r.Driver?.driverId === fastestId && fastestId;
-        const fastestTime = r.FastestLap?.Time?.time ?? "";
-        const rowBg = isDNF
+        
+        // Time column
+        let timeDisplay = "—";
+        if (isDNF) {
+          timeDisplay = "—";
+        } else if (isLapped && lapsDown > 0) {
+          timeDisplay = `+${lapsDown} Lap${lapsDown > 1 ? 's' : ''}`;
+        } else if (r.Time?.time) {
+          timeDisplay = r.Time.time;
+        }
+        
+        // Status column
+        let statusParts = [];
+        
+        // Check position for podium
+        const posNum = parseInt(pos);
+        
+        if (isDNS) {
+          statusParts.push("<span class=\"text-gray-400 dark:text-slate-500\">DNS</span>");
+        } else if (isDNF) {
+          statusParts.push("<span class=\"text-red-500 dark:text-red-400 font-semibold\">DNF</span>");
+        } else if (isDSQ) {
+          statusParts.push("<span class=\"text-red-600 dark:text-red-500 font-semibold\">DSQ</span>");
+        } else if (isLapped) {
+          statusParts.push("<span class=\"text-gray-500 dark:text-slate-400\">Lapped</span>");
+        } else if (posNum >= 1 && posNum <= 3) {
+          // Podium positions
+          const medals = ["🥇", "🥈", "🥉"];
+          statusParts.push(`<span class=\"font-bold\">${medals[posNum - 1]} Podium</span>`);
+        } else {
+          // Regular finishers
+          statusParts.push("<span class=\"text-gray-600 dark:text-slate-300\">Finished</span>");
+        }
+        
+        // Add fastest lap bolt (can be combined with other statuses)
+        if (isFastest) {
+          statusParts.push("<span class=\"text-red-500 dark:text-red-400 font-bold\">⚡</span>");
+        }
+        
+        const statusDisplay = statusParts.join(" ");
+        
+        const rowBg = isDNF || isDNS || isDSQ
           ? "bg-slate-50 dark:bg-slate-800/50 opacity-60"
           : i === 0
             ? "bg-amber-50/70 dark:bg-amber-900/10"
@@ -1014,17 +1162,17 @@ const T = t[lang];
               : "bg-slate-50 dark:bg-slate-700/30";
 
         return `
-        <div class="grid grid-cols-[1.75rem_1.5rem_1fr_3rem_4.5rem_4rem] gap-x-2 px-3 py-2 items-center
+        <div class="grid grid-cols-[1.75rem_1.5rem_1fr_3rem_5.5rem_4.5rem] gap-x-2 px-3 py-2 items-center
                     transition-colors hover:bg-red-50 dark:hover:bg-slate-700/50 ${rowBg}">
-          <span class="text-xs font-mono ${isDNF ? "text-gray-300 dark:text-slate-600" : "text-gray-400 dark:text-slate-500"} text-center">${isDNF ? "—" : pos}</span>
-          <span class="text-[10px] font-bold bg-slate-200 dark:bg-slate-600 rounded px-1 py-0.5 tabular-nums text-center">${r.Driver.permanentNumber ?? ""}</span>
+          <span class="text-xs font-mono ${isDNF || isDNS || isDSQ ? "text-gray-300 dark:text-slate-600" : "text-gray-400 dark:text-slate-500"} text-center">${pos}</span>
+          <span class="text-[10px] font-bold bg-slate-200 dark:bg-slate-600 rounded px-1 py-0.5 tabular-nums text-center">${getDriverNumber(r.Driver)}</span>
           <span class="flex items-center gap-1.5 min-w-0">
             ${logoImg(cid, cname)}
             <span class="truncate text-xs font-medium">${name}</span>
           </span>
-          <span class="text-xs tabular-nums text-center text-gray-500 dark:text-slate-400">${r.laps}</span>
-          <span class="text-xs font-mono tabular-nums text-right ${isDNF ? "text-red-500 dark:text-red-400 font-semibold" : "text-gray-600 dark:text-slate-300"}">${statusVal || "—"}</span>
-          <span class="text-[10px] font-mono tabular-nums text-right ${isFastest ? "text-red-500 dark:text-red-400 font-bold" : "text-gray-400 dark:text-slate-500"}">${isFastest ? "⚡ " : ""}${fastestTime || "—"}</span>
+          <span class="text-xs tabular-nums text-center text-gray-500 dark:text-slate-400">${laps || "—"}</span>
+          <span class="text-xs font-mono tabular-nums text-right text-gray-600 dark:text-slate-300">${timeDisplay}</span>
+          <span class="text-xs font-mono tabular-nums text-right">${statusDisplay}</span>
         </div>`;
       })
       .join("");
@@ -1067,18 +1215,22 @@ const T = t[lang];
       .map((d, i) => {
         const cid = d.Constructors[0]?.constructorId ?? "";
         const logo = TEAM_LOGOS[cid];
+        const teamColor = TEAM_COLORS[cid] || "#94a3b8";
+        const whiteLogo = WHITE_LOGO_TEAMS.includes(cid);
         const logoHtml = logo
-          ? `<img src="${logo}" alt="${d.Constructors[0]?.name}" class="h-4 w-6 object-contain shrink-0"/>`
+          ? `<span class="inline-flex items-center justify-center h-5 w-7 rounded shrink-0" style="background-color: ${teamColor};"><img src="${logo}" alt="${d.Constructors[0]?.name}" class="h-full w-full object-contain p-0.5${whiteLogo ? ' brightness-0 invert' : ''}"/></span>`
           : `<span class="h-3 w-3 rounded-full shrink-0 bg-slate-400"></span>`;
         const rowBg =
           i % 2 === 0
             ? "bg-white dark:bg-slate-800"
             : "bg-slate-50 dark:bg-slate-700/40";
+        const position = d.position || String(i + 1);
+        const driverNumber = getDriverNumber(d.Driver);
         return `
         <div class="grid grid-cols-[2rem_2rem_1fr_3.5rem_2.5rem] gap-x-2 px-3 py-2 items-center
                     transition-colors hover:bg-red-50 dark:hover:bg-slate-700/40 ${rowBg}">
-          <span class="text-xs text-gray-400 dark:text-slate-500 font-mono text-center">${d.position}</span>
-          <span class="text-xs font-bold text-center bg-slate-200 dark:bg-slate-700 rounded px-1 py-0.5 tabular-nums">${d.Driver.permanentNumber}</span>
+          <span class="text-xs text-gray-400 dark:text-slate-500 font-mono text-center">${position}</span>
+          <span class="text-xs font-bold text-center bg-slate-200 dark:bg-slate-700 rounded px-1 py-0.5 tabular-nums">${driverNumber}</span>
           <span class="flex items-center gap-2 min-w-0">
             ${logoHtml}
             <span class="truncate text-sm font-medium">${d.Driver.givenName[0]}. ${d.Driver.familyName}</span>
@@ -1129,10 +1281,13 @@ const T = t[lang];
       </div>`;
 
     const rows = constructors
+      .filter((c) => c.Constructor && c.Constructor.constructorId)
       .map((c, i) => {
         const logo = TEAM_LOGOS[c.Constructor.constructorId];
+        const teamColor = TEAM_COLORS[c.Constructor.constructorId] || "#94a3b8";
+        const whiteLogo = WHITE_LOGO_TEAMS.includes(c.Constructor.constructorId);
         const logoHtml = logo
-          ? `<img src="${logo}" alt="${c.Constructor.name}" class="h-4 w-6 object-contain shrink-0"/>`
+          ? `<span class="inline-flex items-center justify-center h-5 w-7 rounded shrink-0" style="background-color: ${teamColor};"><img src="${logo}" alt="${c.Constructor.name}" class="h-full w-full object-contain p-0.5${whiteLogo ? ' brightness-0 invert' : ''}"/></span>`
           : `<span class="h-3 w-3 rounded-full shrink-0 bg-slate-400"></span>`;
         const rowBg =
           i % 2 === 0
@@ -1172,14 +1327,16 @@ const T = t[lang];
           )
           .join("");
 
+        const position = c.position || String(i + 1);
+
         return `
         <div class="${rowBg}">
           <div class="grid grid-cols-[2rem_1fr_3.5rem_2.5rem] gap-x-2 px-3 py-2 items-center
                       transition-colors hover:bg-red-50 dark:hover:bg-slate-700/40">
-            <span class="text-xs text-gray-400 dark:text-slate-500 font-mono text-center">${c.position}</span>
+            <span class="text-xs text-gray-400 dark:text-slate-500 font-mono text-center">${position}</span>
             <span class="flex items-center gap-2 min-w-0">
               ${logoHtml}
-              <span class="truncate text-sm font-semibold">${c.Constructor.name}</span>
+              <span class="truncate text-sm font-semibold">${cleanTeamName(c.Constructor.name, c.Constructor.constructorId)}</span>
             </span>
             <span class="text-sm font-bold tabular-nums text-right">${c.points}</span>
             <span class="text-xs text-gray-400 dark:text-slate-500 text-right tabular-nums">${c.wins}</span>

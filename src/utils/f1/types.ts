@@ -5,7 +5,8 @@ export interface DriverStanding {
   points: string;
   wins: string;
   Driver: {
-    permanentNumber: string;
+    permanentNumber?: string;
+    number?: string;
     code: string;
     givenName: string;
     familyName: string;

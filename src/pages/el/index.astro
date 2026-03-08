@@ -2,6 +2,9 @@
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { getCollection } from "astro:content";
 import F1RaceWidget from "../../components/F1RaceWidget.astro";
+import WeatherWidget from "../../components/WeatherWidget.astro";
+import MusicWidget from "../../components/MusicWidget.astro";
+import TVWidget from "../../components/TVWidget.astro";
 
 const formulaPosts = await getCollection("formula-el");
 const publicationsEl = await getCollection("publications-el");
@@ -136,13 +139,18 @@ const experiences = [
     <!-- About Me Section -->
     <section class="py-12 px-6">
       <div class="flex flex-col md:flex-row gap-8 items-start">
-        <!-- Left: Photo -->
-        <div class="shrink-0">
+        <!-- Left: Photo + Status -->
+        <div class="shrink-0 flex flex-col items-center">
           <img
             src="/mpalaourg-astro/media/avatar.jpg"
             alt="Γιώργος Μπαλαούρας"
             class="w-40 h-40 rounded-full object-cover border-4 border-slate-200 dark:border-slate-700"
           />
+          <div class="mt-4 w-48 space-y-2">
+            <WeatherWidget lang="el" lat={40.6401} lon={22.9444} city="Θεσσαλονίκη" />
+            <MusicWidget lang="el" username="mpalaourg" />
+            <TVWidget lang="el" username="mpalaourg" />
+          </div>
         </div>
         
         <!-- Right: Info -->

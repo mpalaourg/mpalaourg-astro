@@ -1,0 +1,302 @@
+---
+// Weather Widget with Open-Meteo API
+interface Props {
+  lang?: "en" | "el";
+  lat?: number;
+  lon?: number;
+  city?: string;
+}
+
+const { lang = "en", lat = 40.6401, lon = 22.9444, city = "Thessaloniki" } = Astro.props;
+
+const t = {
+  en: {
+    feelsLike: "Feels like",
+    humidity: "Humidity",
+    wind: "Wind",
+    precipitation: "Rain",
+    updated: "Updated",
+    today: "Today",
+    forecast: "7-Day Forecast",
+    hourly: "Hourly",
+    daily: "Daily",
+  },
+  el: {
+    feelsLike: "Feels like",
+    humidity: "Υγρασία",
+    wind: "Άνεμος",
+    precipitation: "Βροχή",
+    updated: "Ενημέρωση",
+    today: "Σήμερα",
+    forecast: "7-Ημερες Πρόγνωση",
+    hourly: "Ωριαία",
+    daily: "Ημερήσια",
+  },
+} as const;
+
+const T = t[lang];
+
+    // Weather codes to emojis (fallback if no icon URL)
+    const weatherEmojis: Record<number, string> = {
+      0: "☀️", 1: "🌤️", 2: "⛅", 3: "☁️", 45: "🌫️", 48: "🌫️",
+      51: "🌦️", 53: "🌦️", 55: "🌧️", 61: "🌧️", 63: "🌧️", 65: "🌧️",
+      71: "🌨️", 73: "🌨️", 75: "❄️", 77: "🌨️", 80: "🌦️", 81: "🌧️",
+      82: "⛈️", 85: "🌨️", 86: "🌨️", 95: "⛈️", 96: "⛈️", 99: "⛈️",
+    };
+
+    function getWeatherEmoji(code: number): string {
+      return weatherEmojis[code] || "🌡️";
+    }
+
+    function getWeatherIcon(iconUrl: string, code: number): string {
+      if (iconUrl) {
+        return `<img src="https:${iconUrl}" alt="weather" class="w-8 h-8 object-contain" />`;
+      }
+      return `<span class="text-2xl">${getWeatherEmoji(code)}</span>`;
+    }
+---
+
+<div 
+  class="weather-widget group relative" 
+  data-lat={lat} 
+  data-lon={lon} 
+  data-city={city}
+  data-lang={lang}
+>
+  {/* Compact View */}
+  <div class="group flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-blue-500/10 via-blue-400/10 to-cyan-400/10 border border-blue-200/50 dark:border-blue-700/50 hover:border-blue-400 dark:hover:border-blue-500 transition-all cursor-pointer">
+    <img src="/mpalaourg-astro/media/white_tower.png" alt="White Tower" class="w-4 h-4 object-contain opacity-80" />
+    <span class="text-xs font-medium text-gray-600 dark:text-slate-400">{city}</span>
+    <span class="weather-temp text-sm font-bold">--°C</span>
+    <span class="weather-icon">⏳</span>
+  </div>
+
+  {/* Expanded Info on Hover */}
+  <div class="weather-main-popup absolute top-full left-0 mt-2 w-64 p-4 rounded-xl bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
+    {/* Header */}
+    <div class="flex items-center justify-between mb-3">
+      <div class="flex items-center gap-2">
+        <img src="/mpalaourg-astro/media/white_tower.png" alt="White Tower" class="w-6 h-6 object-contain opacity-80" />
+        <div>
+          <div class="font-bold text-sm">{city}</div>
+          <div class="weather-condition text-xs text-gray-500">Loading...</div>
+        </div>
+      </div>
+      <div class="weather-temp-expanded text-2xl font-bold">--°</div>
+    </div>
+
+    {/* Current Details */}
+    <div class="grid grid-cols-2 gap-2 text-xs mb-4">
+      <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-2 flex items-center gap-2">
+        <span class="text-base">🌡️</span>
+        <div>
+          <div class="text-gray-500 dark:text-slate-400 text-[10px]">{T.feelsLike}</div>
+          <div class="weather-feels font-semibold">--°</div>
+        </div>
+      </div>
+      <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-2 flex items-center gap-2">
+        <span class="text-base">💧</span>
+        <div>
+          <div class="text-gray-500 dark:text-slate-400 text-[10px]">{T.humidity}</div>
+          <div class="weather-humidity font-semibold">--%</div>
+        </div>
+      </div>
+      <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-2 flex items-center gap-2">
+        <span class="text-base">💨</span>
+        <div>
+          <div class="text-gray-500 dark:text-slate-400 text-[10px]">{T.wind}</div>
+          <div class="weather-wind font-semibold">-- km/h</div>
+        </div>
+      </div>
+      <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-2 flex items-center gap-2">
+        <span class="text-base">🌧️</span>
+        <div>
+          <div class="text-gray-500 dark:text-slate-400 text-[10px]">{T.precipitation}</div>
+          <div class="weather-precip font-semibold">-- mm</div>
+        </div>
+      </div>
+    </div>
+
+    {/* Hourly Forecast (4-hour intervals) */}
+    <div class="mb-4">
+      <div class="text-[10px] font-medium text-gray-400 uppercase tracking-wider mb-2">{T.hourly}</div>
+      <div class="weather-hourly flex gap-2 justify-between pb-2">
+        <div class="text-center flex-1">
+          <div class="text-[10px] text-gray-500">--:--</div>
+          <div class="text-lg my-1">⏳</div>
+          <div class="text-sm font-bold">--°</div>
+        </div>
+      </div>
+    </div>
+
+    {/* 7-Day Forecast Toggle */}
+    <button class="weather-toggle w-full py-2 px-3 rounded-lg bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs font-medium hover:bg-blue-200 dark:hover:bg-blue-800/50 transition-colors">
+      {T.forecast} →
+    </button>
+  </div>
+
+  {/* 7-Day Forecast Popup - Expands to the right */}
+  <div class="weather-daily-popup hidden absolute left-full top-0 ml-2 w-80 p-4 rounded-xl bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 shadow-xl z-50">
+    <div class="flex items-center justify-between mb-3">
+      <div class="font-bold text-sm">{T.forecast} - {city}</div>
+      <button class="weather-daily-close text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+    <div class="weather-daily-list text-xs space-y-1">
+      <div class="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700">
+        <span class="text-gray-500 w-12">--</span>
+        <span>⏳</span>
+        <div class="flex gap-2">
+          <span class="font-medium">--°</span>
+          <span class="text-gray-400">--°</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <div class="weather-updated text-[10px] text-gray-400 mt-2 text-right">{T.updated} --</div>
+  </div>
+</div>
+
+<script is:inline define:vars={{ weatherEmojis }}>
+  function getWeatherEmoji(code) {
+    return weatherEmojis[code] || "🌡️";
+  }
+
+  function getWeatherIcon(iconUrl, code) {
+    if (iconUrl && iconUrl.startsWith('//')) {
+      return `<img src="https:${iconUrl}" alt="weather" class="w-8 h-8 object-contain" />`;
+    }
+    return `<span class="text-2xl">${getWeatherEmoji(code)}</span>`;
+  }
+
+  async function fetchWeather(widget) {
+    const lat = widget.dataset.lat;
+    const lon = widget.dataset.lon;
+    const lang = widget.dataset.lang;
+    
+    try {
+      const res = await fetch(`/api/weather?lat=${lat}&lon=${lon}&lang=${lang}`);
+      if (!res.ok) throw new Error('Failed to fetch');
+      const data = await res.json();
+      
+      // Update current weather
+      const currentIcon = getWeatherIcon(data.current.icon, data.current.weatherCode);
+      const weatherIconEl = widget.querySelector('.weather-icon');
+      const weatherTempEl = widget.querySelector('.weather-temp');
+      const weatherIconExpandedEl = widget.querySelector('.weather-icon-expanded');
+      const weatherTempExpandedEl = widget.querySelector('.weather-temp-expanded');
+      const weatherConditionEl = widget.querySelector('.weather-condition');
+      const weatherFeelsEl = widget.querySelector('.weather-feels');
+      const weatherHumidityEl = widget.querySelector('.weather-humidity');
+      const weatherWindEl = widget.querySelector('.weather-wind');
+      const weatherPrecipEl = widget.querySelector('.weather-precip');
+      const weatherUpdatedEl = widget.querySelector('.weather-updated');
+      
+      if (weatherIconEl) weatherIconEl.innerHTML = currentIcon;
+      if (weatherTempEl) weatherTempEl.textContent = `${Math.round(data.current.temp)}°C`;
+      if (weatherIconExpandedEl) weatherIconExpandedEl.innerHTML = currentIcon;
+      if (weatherTempExpandedEl) weatherTempExpandedEl.textContent = `${Math.round(data.current.temp)}°`;
+      if (weatherConditionEl) weatherConditionEl.textContent = data.current.condition;
+      if (weatherFeelsEl) weatherFeelsEl.textContent = `${Math.round(data.current.feelsLike)}°`;
+      if (weatherHumidityEl) weatherHumidityEl.textContent = `${data.current.humidity}%`;
+      if (weatherWindEl) weatherWindEl.textContent = `${data.current.windSpeed} km/h`;
+      if (weatherPrecipEl) weatherPrecipEl.textContent = `${data.current.precipitation} mm`;
+      if (weatherUpdatedEl) weatherUpdatedEl.textContent = 
+        `${lang === 'el' ? 'Ενημέρωση' : 'Updated'} ${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
+      
+      // Update hourly forecast - show all 4 time points
+      const hourlyContainer = widget.querySelector('.weather-hourly');
+      if (hourlyContainer && data.hourly) {
+        hourlyContainer.innerHTML = data.hourly
+          .slice(0, 4)
+          .map(h => `
+            <div class="text-center flex-1 min-w-0">
+              <div class="text-[10px] text-gray-500">${h.time}</div>
+              <div class="my-1 flex justify-center">${getWeatherIcon(h.icon, h.weatherCode)}</div>
+              <div class="text-sm font-bold">${Math.round(h.temp)}°</div>
+            </div>
+          `).join('');
+      }
+      
+      // Update daily forecast
+      const dailyContainer = widget.querySelector('.weather-daily-list');
+      if (dailyContainer && data.daily) {
+        dailyContainer.innerHTML = data.daily.map(d => `
+          <div class="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700 last:border-0">
+            <span class="text-gray-500 w-12 font-medium">${d.day}</span>
+            <div class="flex justify-center">${getWeatherIcon(d.icon, d.weatherCode)}</div>
+            <div class="flex gap-2 text-sm">
+              <span class="font-semibold">${Math.round(d.maxTemp)}°</span>
+              <span class="text-gray-400">${Math.round(d.minTemp)}°</span>
+            </div>
+          </div>
+        `).join('');
+      }
+      
+    } catch (err) {
+      const weatherConditionEl = widget.querySelector('.weather-condition');
+      if (weatherConditionEl) weatherConditionEl.textContent = lang === 'el' ? 'Σφάλμα' : 'Error';
+    }
+  }
+
+  // Initialize all weather widgets
+  document.querySelectorAll('.weather-widget').forEach(widget => {
+    // Fetch weather on load
+    fetchWeather(widget);
+    
+    // Toggle daily forecast popup
+    const toggle = widget.querySelector('.weather-toggle');
+    const popup = widget.querySelector('.weather-daily-popup');
+    const closeBtn = widget.querySelector('.weather-daily-close');
+    const mainPopup = widget.querySelector('.weather-main-popup');
+    
+    function closeDailyPopup() {
+      popup.classList.add('hidden');
+      widget.classList.remove('popup-open');
+    }
+    
+    function openDailyPopup() {
+      popup.classList.remove('hidden');
+      widget.classList.add('popup-open');
+    }
+    
+    toggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openDailyPopup();
+    });
+    
+    closeBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      closeDailyPopup();
+    });
+    
+    // Close when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!widget.contains(e.target)) {
+        closeDailyPopup();
+      }
+    });
+    
+    // ESC key to close popup
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !popup.classList.contains('hidden')) {
+        closeDailyPopup();
+      }
+    });
+    
+    // Refresh every 10 minutes
+    setInterval(() => fetchWeather(widget), 10 * 60 * 1000);
+  });
+</script>
+
+<style>
+  /* Keep main popup visible when daily popup is open */
+  .weather-widget.popup-open .weather-main-popup {
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+</style>

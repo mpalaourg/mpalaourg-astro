@@ -1,0 +1,132 @@
+---
+// TV Widget - Trakt Integration
+interface Props {
+  lang?: "en" | "el";
+  username?: string;
+}
+
+const { lang = "en", username = "mpalaourg" } = Astro.props;
+
+const t = {
+  en: {
+    watching: "Watching",
+    lastWatched: "Last watched",
+    rating: "Rating",
+    episode: "Ep",
+  },
+  el: {
+    watching: "Βλέπω",
+    lastWatched: "Τελευταίο",
+    rating: "Βαθμολογία",
+    episode: "Επ",
+  },
+} as const;
+
+const T = t[lang];
+---
+
+<div class="tv-widget group" data-username={username} data-lang={lang}>
+  {/* Compact View */}
+  <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-gradient-to-r from-purple-500/10 via-purple-400/10 to-pink-400/10 border border-purple-200/50 dark:border-purple-700/50 hover:border-purple-400 dark:hover:border-purple-500 transition-all cursor-pointer">
+    <span class="text-base">📺</span>
+    <span class="tv-title text-xs font-medium max-w-[80px] truncate opacity-50">--</span>
+    <span class="tv-episode text-[10px] text-gray-500 dark:text-slate-400 hidden"></span>
+  </div>
+
+  {/* Expanded Info on Hover */}
+  <div class="absolute top-full left-0 mt-2 w-56 p-4 rounded-xl bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 pointer-events-none group-hover:pointer-events-auto">
+    <div class="flex gap-3">
+      <img src="" alt="" class="tv-poster w-12 h-18 rounded-lg object-cover opacity-0" />
+      <div class="flex-1 min-w-0">
+        <div class="tv-status text-[10px] text-gray-500 uppercase tracking-wider mb-1">{T.lastWatched}</div>
+        <div class="tv-title-expanded text-sm font-medium truncate mb-0.5">--</div>
+        <div class="tv-episode-expanded text-xs text-gray-500 mb-2">--</div>
+        <div class="tv-rating text-xs text-yellow-500 hidden">
+          ⭐ <span>--</span>
+        </div>
+      </div>
+    </div>
+    
+    <a 
+      href={`https://trakt.tv/users/${username}`} 
+      target="_blank" 
+      rel="noopener"
+      class="mt-3 block w-full py-2 text-center text-xs font-medium text-purple-700 dark:text-purple-400 bg-purple-100 dark:bg-purple-900/30 rounded-lg hover:bg-purple-200 dark:hover:bg-purple-800/50 transition-colors"
+    >
+      View Profile →
+    </a>
+  </div>
+</div>
+
+<style>
+  .tv-widget {
+    position: relative;
+  }
+</style>
+
+<script is:inline>
+  async function fetchTV(widget) {
+    const username = widget.dataset.username;
+    const lang = widget.dataset.lang;
+    
+    try {
+      const res = await fetch(`/api/tv?username=${username}`);
+      if (!res.ok) throw new Error('Failed to fetch');
+      const data = await res.json();
+      
+      const title = widget.querySelector('.tv-title');
+      const titleExpanded = widget.querySelector('.tv-title-expanded');
+      const episode = widget.querySelector('.tv-episode');
+      const episodeExpanded = widget.querySelector('.tv-episode-expanded');
+      const poster = widget.querySelector('.tv-poster');
+      const rating = widget.querySelector('.tv-rating');
+      const status = widget.querySelector('.tv-status');
+      
+      if (data.title) {
+        // Update title
+        title.textContent = data.title;
+        title.classList.remove('opacity-50');
+        titleExpanded.textContent = data.title;
+        
+        // Update episode info
+        if (data.episode) {
+          episode.textContent = data.episode;
+          episode.classList.remove('hidden');
+          episodeExpanded.textContent = `${lang === 'el' ? 'Επ' : 'Ep'} ${data.episode}`;
+        } else {
+          episodeExpanded.textContent = data.type === 'movie' 
+            ? (lang === 'el' ? 'Ταινία' : 'Movie')
+            : (lang === 'el' ? 'Σειρά' : 'TV Show');
+        }
+        
+        // Update rating
+        if (data.rating) {
+          rating.classList.remove('hidden');
+          rating.querySelector('span').textContent = data.rating;
+        }
+        
+        // Update poster
+        if (data.poster) {
+          poster.src = data.poster;
+          poster.classList.remove('opacity-0');
+        }
+        
+        // Update status
+        if (data.isWatching) {
+          status.textContent = lang === 'el' ? 'Τώρα' : 'Now';
+        } else {
+          status.textContent = lang === 'el' ? 'Τελευταίο' : 'Last watched';
+        }
+      }
+    } catch (err) {
+      console.error('TV fetch error:', err);
+    }
+  }
+
+  // Initialize all TV widgets
+  document.querySelectorAll('.tv-widget').forEach(widget => {
+    fetchTV(widget);
+    // Refresh every 5 minutes
+    setInterval(() => fetchTV(widget), 300000);
+  });
+</script>

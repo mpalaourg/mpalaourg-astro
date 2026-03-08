@@ -67,10 +67,41 @@ export async function getJolpicaQualifying(season: string, round: string): Promi
 
 export async function getJolpicaRaceResults(season: string, round: string): Promise<any[] | null> {
   try {
+    // Fetch race results
     const res = await fetch(`${JOLPICA_BASE}/${season}/${round}/results.json`);
     if (!res.ok) return null;
     const json = (await res.json()) as { MRData: { RaceTable: { Races: any[] } } };
-    return json.MRData?.RaceTable?.Races?.[0]?.Results ?? null;
+    const results = json.MRData?.RaceTable?.Races?.[0]?.Results ?? null;
+    
+    if (!results) return null;
+    
+    // Fetch fastest lap separately
+    try {
+      const fastestRes = await fetch(`${JOLPICA_BASE}/${season}/${round}/fastest/1/drivers.json`);
+      if (fastestRes.ok) {
+        const fastestJson = await fastestRes.json() as { 
+          MRData: { 
+            DriverTable: { 
+              Drivers: Array<{ driverId: string }> 
+            } 
+          } 
+        };
+        const fastestDriverId = fastestJson.MRData?.DriverTable?.Drivers?.[0]?.driverId;
+        
+        // Mark the fastest driver in results
+        if (fastestDriverId) {
+          results.forEach((r: any) => {
+            if (r.Driver?.driverId === fastestDriverId) {
+              r.FastestLap = { rank: "1", lap: null, Time: { time: "" } };
+            }
+          });
+        }
+      }
+    } catch (e) {
+      // Ignore fastest lap fetch errors
+    }
+    
+    return results;
   } catch {
     return null;
   }
