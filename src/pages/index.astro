@@ -4,7 +4,6 @@ import { getCollection } from "astro:content";
 import F1RaceWidget from "../components/F1RaceWidget.astro";
 import WeatherWidget from "../components/WeatherWidget.astro";
 import MusicWidget from "../components/MusicWidget.astro";
-import TVWidget from "../components/TVWidget.astro";
 
 const formulaPosts = await getCollection("formula");
 const publicationsPosts = await getCollection("publications");
@@ -149,7 +148,6 @@ const experiences = [
           <div class="mt-4 w-48 space-y-2">
             <WeatherWidget lang="en" lat={40.6401} lon={22.9444} city="Thessaloniki" />
             <MusicWidget lang="en" username="mpalaurg" />
-            <TVWidget lang="en" username="mpalaourg" />
           </div>
         </div>
         
