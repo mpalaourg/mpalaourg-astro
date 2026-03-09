@@ -1,4 +1,5 @@
 import type { APIRoute } from "astro";
+import { createCache, fetchWithCache } from "../../utils/cache";
 
 // Last.fm API Integration
 // Requires API key: https://www.last.fm/api
@@ -55,7 +56,7 @@ export const GET: APIRoute = async ({ url, locals }) => {
   const username = url.searchParams.get("username") || "mpalaurg";
   
   // Get API key from environment
-  const runtime = locals.runtime as { env: { LASTFM_API_KEY?: string } };
+  const runtime = locals.runtime as { env: { LASTFM_API_KEY?: string; DB?: D1Database } };
   const apiKey = runtime.env.LASTFM_API_KEY;
   
   if (!apiKey) {
@@ -76,67 +77,76 @@ export const GET: APIRoute = async ({ url, locals }) => {
     );
   }
   
+  // Create cache instance
+  const cache = createCache(runtime.env.DB);
+  const cacheKey = `lastfm:${username}`;
+  
   try {
-    // Fetch recent tracks (last 8)
-    const res = await fetch(
-      `https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${username}&api_key=${apiKey}&format=json&limit=8`
+    // Fetch with caching (30 second TTL)
+    const data = await fetchWithCache(
+      cache,
+      cacheKey,
+      async () => {
+        // Fetch recent tracks (last 8)
+        const res = await fetch(
+          `https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${username}&api_key=${apiKey}&format=json&limit=8`
+        );
+        
+        if (!res.ok) throw new Error(`Last.fm API error: ${res.status}`);
+        
+        const data = await res.json() as LastFmRecentTracks;
+        const tracks = data.recenttracks?.track || [];
+        
+        if (!tracks.length) {
+          return { tracks: [], scrobbles: 0 };
+        }
+        
+        // Format tracks
+        const formattedTracks = tracks.map((track) => {
+          const isPlaying = track["@attr"]?.nowplaying === "true";
+          const cover = track.image?.find(img => img.size === "medium")?.["#text"] || 
+                        track.image?.[2]?.["#text"] || 
+                        null;
+          
+          return {
+            track: track.name,
+            artist: track.artist["#text"],
+            album: track.album["#text"],
+            cover: cover,
+            isPlaying,
+            timeAgo: isPlaying ? '' : formatTimeAgo(track.date?.uts),
+          };
+        });
+        
+        // Fetch user info for scrobbles count
+        let scrobbles = 0;
+        try {
+          const userRes = await fetch(
+            `https://ws.audioscrobbler.com/2.0/?method=user.getinfo&user=${username}&api_key=${apiKey}&format=json`
+          );
+          
+          if (userRes.ok) {
+            const userData = await userRes.json() as LastFmUserInfo;
+            scrobbles = parseInt(userData.user?.playcount || "0");
+          }
+        } catch (e) {
+          // Ignore user info fetch errors
+        }
+        
+        return { tracks: formattedTracks, scrobbles };
+      },
+      30 // Cache for 30 seconds
     );
     
-    if (!res.ok) throw new Error(`Last.fm API error: ${res.status}`);
-    
-    const data = await res.json() as LastFmRecentTracks;
-    const tracks = data.recenttracks?.track || [];
-    
-    if (!tracks.length) {
-      return new Response(
-        JSON.stringify({ tracks: [], scrobbles: 0 }),
-        { status: 200, headers: { "Content-Type": "application/json" } }
-      );
-    }
-    
-    // Format tracks
-    const formattedTracks = tracks.map((track) => {
-      const isPlaying = track["@attr"]?.nowplaying === "true";
-      const cover = track.image?.find(img => img.size === "medium")?.["#text"] || 
-                    track.image?.[2]?.["#text"] || 
-                    null;
-      
-      return {
-        track: track.name,
-        artist: track.artist["#text"],
-        album: track.album["#text"],
-        cover: cover,
-        isPlaying,
-        timeAgo: isPlaying ? '' : formatTimeAgo(track.date?.uts),
-      };
-    });
-    
-    // Fetch user info for scrobbles count
-    let scrobbles = 0;
-    try {
-      const userRes = await fetch(
-        `https://ws.audioscrobbler.com/2.0/?method=user.getinfo&user=${username}&api_key=${apiKey}&format=json`
-      );
-      
-      if (userRes.ok) {
-        const userData = await userRes.json() as LastFmUserInfo;
-        scrobbles = parseInt(userData.user?.playcount || "0");
-      }
-    } catch (e) {
-      // Ignore user info fetch errors
-    }
-    
-    return new Response(JSON.stringify({
-      tracks: formattedTracks,
-      scrobbles,
-    }), {
+    return new Response(JSON.stringify(data), {
       status: 200,
       headers: {
         "Content-Type": "application/json",
-        "Cache-Control": "public, max-age=30", // Cache for 30 seconds
+        "Cache-Control": "public, max-age=30",
       },
     });
   } catch (error) {
+    console.error("Music API error:", error);
     return new Response(
       JSON.stringify({ 
         error: "Failed to fetch music data",

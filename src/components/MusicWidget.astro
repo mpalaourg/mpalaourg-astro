@@ -55,30 +55,52 @@ const T = t[lang];
       </a>
     </div>
 
-    {/* Current/Now Playing */}
-    <div class="music-current mb-3 pb-3 border-b border-gray-100 dark:border-gray-700">
+    {/* Current/Now Playing - Bigger and Prominent */}
+    <div class="music-current mb-4 p-3 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl border border-green-100 dark:border-green-800">
       <div class="flex items-center gap-3">
         <div class="relative shrink-0">
-          <img src="" alt="" class="music-cover-current w-12 h-12 rounded-lg object-cover bg-gray-200 dark:bg-slate-700" />
-          <div class="music-playing-indicator absolute -bottom-1 -right-1 w-3 h-3 bg-red-500 rounded-full hidden animate-pulse border-2 border-white dark:border-slate-800"></div>
+          <div class="music-cover-container w-16 h-16 rounded-xl overflow-hidden bg-gradient-to-br from-green-400 via-emerald-500 to-teal-600 flex items-center justify-center shadow-lg">
+            <img src="" alt="" class="music-cover-current w-full h-full object-cover hidden" />
+            <div class="music-cover-fallback w-full h-full flex flex-col items-center justify-center text-white">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.369 4.369 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z" />
+              </svg>
+            </div>
+          </div>
+          <div class="music-playing-indicator absolute -bottom-1 -right-1 w-4 h-4 bg-red-500 rounded-full hidden animate-pulse border-2 border-white dark:border-slate-800"></div>
         </div>
         <div class="min-w-0 flex-1">
-          <div class="music-status-current text-[10px] text-gray-500 uppercase tracking-wider">{T.lastPlayed}</div>
-          <div class="music-track-current text-sm font-medium truncate">--</div>
-          <div class="music-artist-current text-xs text-gray-500 truncate">--</div>
+          <div class="music-status-current text-[10px] text-green-600 dark:text-green-400 font-medium uppercase tracking-wider mb-1">{T.lastPlayed}</div>
+          <div class="music-track-current text-base font-bold truncate leading-tight">--</div>
+          <div class="music-artist-current text-sm text-gray-600 dark:text-gray-400 truncate">--</div>
+          {/* Waveform Animation for Now Playing */}
+          <div class="music-waveform hidden mt-2 h-4 flex items-end gap-0.5">
+            <div class="w-1 bg-green-500 rounded-full animate-wave" style="height: 40%; animation-delay: 0ms;"></div>
+            <div class="w-1 bg-green-500 rounded-full animate-wave" style="height: 70%; animation-delay: 100ms;"></div>
+            <div class="w-1 bg-green-500 rounded-full animate-wave" style="height: 50%; animation-delay: 200ms;"></div>
+            <div class="w-1 bg-green-500 rounded-full animate-wave" style="height: 80%; animation-delay: 300ms;"></div>
+            <div class="w-1 bg-green-500 rounded-full animate-wave" style="height: 60%; animation-delay: 400ms;"></div>
+          </div>
         </div>
       </div>
     </div>
 
     {/* Recent Tracks List */}
-    <div class="music-recent-list space-y-2 max-h-48 overflow-y-auto">
-      <div class="flex items-center gap-2 py-1">
-        <img src="" alt="" class="w-8 h-8 rounded object-cover bg-gray-200 dark:bg-slate-700 shrink-0" />
-        <div class="min-w-0 flex-1">
-          <div class="text-xs font-medium truncate">--</div>
-          <div class="text-[10px] text-gray-500 truncate">--</div>
+    <div class="mb-2">
+      <div class="text-xs font-medium text-gray-500 mb-2">{T.recentTracks}</div>
+      <div class="music-recent-list space-y-1 max-h-32 overflow-y-auto pr-1">
+        <div class="flex items-center gap-2 py-1">
+          <div class="w-8 h-8 rounded bg-gradient-to-br from-green-400 via-emerald-500 to-teal-600 flex items-center justify-center text-white shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+              <path d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.369 4.369 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z" />
+            </svg>
+          </div>
+          <div class="min-w-0 flex-1">
+            <div class="text-xs font-medium truncate">--</div>
+            <div class="text-[10px] text-gray-500 truncate">--</div>
+          </div>
+          <span class="text-[10px] text-gray-400">--</span>
         </div>
-        <span class="text-[10px] text-gray-400">--</span>
       </div>
     </div>
 
@@ -90,9 +112,83 @@ const T = t[lang];
   .music-widget {
     position: relative;
   }
+  
+  /* Waveform Animation */
+  @keyframes wave {
+    0%, 100% { height: 20%; }
+    50% { height: 100%; }
+  }
+  
+  .animate-wave {
+    animation: wave 1s ease-in-out infinite;
+  }
+  
+  /* Scrollbar styling for recent tracks */
+  .music-recent-list::-webkit-scrollbar {
+    width: 4px;
+  }
+  
+  .music-recent-list::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  .music-recent-list::-webkit-scrollbar-thumb {
+    background-color: rgba(156, 163, 175, 0.5);
+    border-radius: 2px;
+  }
+  
+  .music-recent-list::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(156, 163, 175, 0.8);
+  }
 </style>
 
 <script is:inline>
+  // Track failed images to avoid re-fetching
+  const failedImages = new Set();
+  
+  // Last.fm placeholder patterns (star images, default covers, etc.)
+  // ONLY match the specific placeholder hashes, not the entire CDN
+  const placeholderPatterns = [
+    '/star.',
+    'default_album',
+    'default_artist',
+    'default_track',
+    '/noimage/',
+    '/img/noimage',
+    'placeholder',
+    // These are the specific Last.fm placeholder image hashes
+    '2a96cbd8b46e442fc41c2b86b821562f', // the specific star image hash
+  ];
+  
+  function isPlaceholderImage(src) {
+    if (!src) return true;
+    return placeholderPatterns.some(pattern => src.includes(pattern));
+  }
+  
+  function handleImageError(img, fallbackEl) {
+    const src = img.src;
+    if (src) {
+      failedImages.add(src);
+    }
+    img.classList.add('hidden');
+    if (fallbackEl) {
+      fallbackEl.classList.remove('hidden');
+    }
+  }
+  
+  function handleImageLoad(img, fallbackEl, src) {
+    // Check if it's a placeholder/star image
+    if (isPlaceholderImage(src)) {
+      handleImageError(img, fallbackEl);
+      return;
+    }
+    
+    img.classList.remove('hidden');
+    if (fallbackEl) {
+      fallbackEl.classList.add('hidden');
+    }
+  }
+
   async function fetchMusic(widget) {
     const username = widget.dataset.username;
     const lang = widget.dataset.lang;
@@ -110,7 +206,7 @@ const T = t[lang];
       
       const tracks = data.tracks;
       const currentTrack = tracks[0];
-      const recentTracks = tracks.slice(1, 8); // Next 7 tracks
+      const recentTracks = tracks.slice(1, 6); // Next 5 tracks (reduced from 7)
       
       // Update compact view
       const statusEl = widget.querySelector('.music-status');
@@ -130,15 +226,27 @@ const T = t[lang];
       
       // Update current track
       const currentCoverEl = widget.querySelector('.music-cover-current');
+      const currentCoverFallback = widget.querySelector('.music-cover-fallback');
       const currentStatusEl = widget.querySelector('.music-status-current');
       const currentTrackEl = widget.querySelector('.music-track-current');
       const currentArtistEl = widget.querySelector('.music-artist-current');
       const indicatorEl = widget.querySelector('.music-playing-indicator');
+      const waveformEl = widget.querySelector('.music-waveform');
       
-      if (currentCoverEl && currentTrack.cover) {
-        currentCoverEl.src = currentTrack.cover;
-        currentCoverEl.classList.remove('bg-gray-200', 'dark:bg-slate-700');
+      // Handle current track cover image
+      if (currentCoverEl && currentTrack.cover && !isPlaceholderImage(currentTrack.cover)) {
+        // Check if this image previously failed
+        if (failedImages.has(currentTrack.cover)) {
+          handleImageError(currentCoverEl, currentCoverFallback);
+        } else {
+          currentCoverEl.src = currentTrack.cover;
+          currentCoverEl.onerror = () => handleImageError(currentCoverEl, currentCoverFallback);
+          currentCoverEl.onload = () => handleImageLoad(currentCoverEl, currentCoverFallback, currentTrack.cover);
+        }
+      } else if (currentCoverEl) {
+        handleImageError(currentCoverEl, currentCoverFallback);
       }
+      
       if (currentStatusEl) {
         currentStatusEl.textContent = currentTrack.isPlaying 
           ? (lang === 'el' ? 'Τώρα Παίζει' : 'Now Playing')
@@ -146,6 +254,8 @@ const T = t[lang];
       }
       if (currentTrackEl) currentTrackEl.textContent = currentTrack.track;
       if (currentArtistEl) currentArtistEl.textContent = currentTrack.artist;
+      
+      // Handle playing indicator and waveform
       if (indicatorEl) {
         if (currentTrack.isPlaying) {
           indicatorEl.classList.remove('hidden');
@@ -153,20 +263,35 @@ const T = t[lang];
           indicatorEl.classList.add('hidden');
         }
       }
+      if (waveformEl) {
+        if (currentTrack.isPlaying) {
+          waveformEl.classList.remove('hidden');
+        } else {
+          waveformEl.classList.add('hidden');
+        }
+      }
       
       // Update recent tracks list
       const recentListEl = widget.querySelector('.music-recent-list');
       if (recentListEl && recentTracks.length > 0) {
-        recentListEl.innerHTML = recentTracks.map(t => `
-          <div class="flex items-center gap-2 py-1.5 border-b border-gray-100 dark:border-gray-700 last:border-0">
-            <img src="${t.cover || ''}" alt="" class="w-8 h-8 rounded object-cover bg-gray-200 dark:bg-slate-700 shrink-0" />
-            <div class="min-w-0 flex-1">
-              <div class="text-xs font-medium truncate">${t.track}</div>
-              <div class="text-[10px] text-gray-500 truncate">${t.artist}</div>
+        recentListEl.innerHTML = recentTracks.map((t, index) => {
+          const hasValidCover = t.cover && !failedImages.has(t.cover) && !isPlaceholderImage(t.cover);
+          const musicIconSvg = '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.369 4.369 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z" /></svg>';
+          const coverHtml = hasValidCover
+            ? `<img src="${t.cover}" alt="" class="w-8 h-8 rounded object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" /><div class="w-8 h-8 rounded bg-gradient-to-br from-green-400 via-emerald-500 to-teal-600 flex items-center justify-center text-white shrink-0 hidden">${musicIconSvg}</div>`
+            : `<div class="w-8 h-8 rounded bg-gradient-to-br from-green-400 via-emerald-500 to-teal-600 flex items-center justify-center text-white shrink-0">${musicIconSvg}</div>`;
+          
+          return `
+            <div class="flex items-center gap-2 py-1.5 ${index < recentTracks.length - 1 ? 'border-b border-gray-100 dark:border-gray-700' : ''}">
+              ${coverHtml}
+              <div class="min-w-0 flex-1">
+                <div class="text-xs font-medium truncate">${t.track}</div>
+                <div class="text-[10px] text-gray-500 truncate">${t.artist}</div>
+              </div>
+              <span class="text-[10px] text-gray-400 shrink-0">${t.timeAgo || ''}</span>
             </div>
-            <span class="text-[10px] text-gray-400">${t.timeAgo || ''}</span>
-          </div>
-        `).join('');
+          `;
+        }).join('');
       }
       
       // Update timestamp
@@ -184,7 +309,7 @@ const T = t[lang];
   // Initialize all music widgets
   document.querySelectorAll('.music-widget').forEach(widget => {
     fetchMusic(widget);
-    // Refresh every 30 seconds
-    setInterval(() => fetchMusic(widget), 30000);
+    // Refresh every 60 seconds (increased from 30 to reduce API calls)
+    setInterval(() => fetchMusic(widget), 60000);
   });
 </script>

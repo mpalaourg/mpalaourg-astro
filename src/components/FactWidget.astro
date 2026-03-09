@@ -11,24 +11,23 @@ const t = {
     title: "Did You Know?",
     newFact: "New Fact",
     general: "General",
-    numbers: "Numbers",
+    onThisDay: "On This Day",
     sports: "Sports",
+    answer: "Answer",
+    translationNote: "",
   },
   el: {
     title: "Ξέρατε Ότι;",
     newFact: "Νέο Γεγονός",
     general: "Γενικά",
-    numbers: "Αριθμοί",
+    onThisDay: "Σαν Σήμερα",
     sports: "Αθλητισμός",
+    answer: "Απάντηση",
+    translationNote: "Best effort μετάφραση από DeepL API. Ενδέχονται λάθη.",
   },
 } as const;
 
 const T = t[lang];
-
-const translationNotes = {
-  en: "",
-  el: "Μετάφραση από DeepL. Ενδέχονται λάθη. Καλύτερα στα Αγγλικά.",
-};
 ---
 
 <div class="fact-widget group relative" data-lang={lang} data-category="general">
@@ -56,8 +55,8 @@ const translationNotes = {
       <button class="fact-category-general flex-1 py-1.5 px-2 text-xs font-medium rounded-lg bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 border border-yellow-200 dark:border-yellow-700 hover:bg-yellow-200 dark:hover:bg-yellow-800/50 transition-colors active-category">
         {T.general}
       </button>
-      <button class="fact-category-numbers flex-1 py-1.5 px-2 text-xs font-medium rounded-lg bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-400 border border-gray-200 dark:border-slate-600 hover:bg-gray-200 dark:hover:bg-slate-600 transition-colors">
-        {T.numbers}
+      <button class="fact-category-otd flex-1 py-1.5 px-2 text-xs font-medium rounded-lg bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-400 border border-gray-200 dark:border-slate-600 hover:bg-gray-200 dark:hover:bg-slate-600 transition-colors">
+        {T.onThisDay}
       </button>
       <button class="fact-category-sports flex-1 py-1.5 px-2 text-xs font-medium rounded-lg bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-400 border border-gray-200 dark:border-slate-600 hover:bg-gray-200 dark:hover:bg-slate-600 transition-colors">
         {T.sports}
@@ -70,7 +69,7 @@ const translationNotes = {
     </div>
 
     <div class="fact-source text-[10px] text-gray-400 mt-2 text-right">--</div>
-    <div class="fact-translation-note text-[10px] text-gray-400 mt-1 text-right italic hidden">{translationNotes[lang]}</div>
+    <div class="fact-translation-note text-[10px] text-gray-400 mt-1 text-right italic hidden">{T.translationNote}</div>
   </div>
 </div>
 
@@ -85,21 +84,19 @@ const translationNotes = {
 </style>
 
 <script is:inline>
-  // Fallback facts
-  const fallbackFacts = [
-    "Honey never spoils. Archaeologists have found pots of honey in ancient Egyptian tombs that are over 3,000 years old and still edible.",
-    "Octopuses have three hearts, nine brains, and blue blood.",
-    "The shortest war in history was between Britain and Zanzibar on August 27, 1896. Zanzibar surrendered after 38 minutes.",
-    "Bananas are berries, but strawberries aren't.",
-    "A day on Venus is longer than a year on Venus.",
-    "The Great Wall of China is not visible from space with the naked eye.",
-    "Wombat poop is cube-shaped.",
-    "The unicorn is the national animal of Scotland.",
-    "A group of flamingos is called a 'flamboyance'.",
-    "The average cloud weighs about 1.1 million pounds.",
-  ];
+  // Translation cache to avoid re-translating same text
+  const translationCache = new Map();
+  
+  // Cooldown duration for "New Fact" button
+  const COOLDOWN_SECONDS = 90;
 
   async function translateText(text, targetLang) {
+    // Check cache first
+    const cacheKey = `${text}_${targetLang}`;
+    if (translationCache.has(cacheKey)) {
+      return translationCache.get(cacheKey);
+    }
+
     // Try DeepL first
     try {
       const encodedText = encodeURIComponent(text);
@@ -107,229 +104,302 @@ const translationNotes = {
       if (res.ok) {
         const data = await res.json();
         if (data.success && data.text) {
-          return {
-            text: data.text,
-            success: true,
-            source: 'deepl'
-          };
+          const result = { text: data.text, success: true, source: 'deepl' };
+          translationCache.set(cacheKey, result);
+          return result;
         }
       }
     } catch (e) {
       console.log('DeepL translation failed:', e);
     }
-    
-    // Fallback to MyMemory if DeepL fails
+
+    // Fallback to MyMemory
     try {
       const encodedText = encodeURIComponent(text);
       const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodedText}&langpair=en|${targetLang}`);
       if (res.ok) {
         const data = await res.json();
         if (data.responseStatus === 200 && data.responseData) {
-          return {
-            text: data.responseData.translatedText,
-            success: true,
-            source: 'mymemory'
-          };
+          const result = { text: data.responseData.translatedText, success: true, source: 'mymemory' };
+          translationCache.set(cacheKey, result);
+          return result;
         }
       }
     } catch (e) {
       console.log('MyMemory translation failed:', e);
     }
-    
+
     return { text: null, success: false, source: null };
   }
 
-  async function fetchFact(widget, category) {
+  async function fetchFact(widget, category, useRandomDate = false) {
     const lang = widget.dataset.lang;
     
+    // Show loading state
+    const previewEl = widget.querySelector('.fact-preview');
+    const contentEl = widget.querySelector('.fact-content');
+    if (previewEl) previewEl.textContent = lang === 'el' ? 'Φόρτωση...' : 'Loading...';
+    if (contentEl) contentEl.textContent = lang === 'el' ? 'Φόρτωση γεγονότος...' : 'Loading fact...';
+
     try {
-      let fact = '';
-      let source = '';
-      let sourceUrl = '';
-      let isTranslated = false;
+      let endpoint = '';
+
+      // Build endpoint - handle both local dev and production with base path
+      const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      const basePath = isLocalhost ? '' : '/mpalaourg-astro';
+      
+      // Check if this is a "New Fact" click (skip cache)
+      const skipCache = widget.dataset.skipCache === 'true';
+      widget.dataset.skipCache = 'false'; // Reset after use
       
       if (category === 'general') {
-        // API: Useless Facts
-        try {
-          const res = await fetch('https://uselessfacts.jsph.pl/random.json?language=en');
-          if (res.ok) {
-            const data = await res.json();
-            fact = data.text;
-            source = data.source_url || 'uselessfacts.jsph.pl';
-            sourceUrl = data.source_url || '';
-          }
-        } catch (e) {
-          console.log('UselessFacts API failed:', e);
-        }
-      } else if (category === 'numbers') {
-        // API: Numbers API
-        try {
-          const res = await fetch('http://numbersapi.com/random/trivia');
-          if (res.ok) {
-            fact = await res.text();
-            source = 'numbersapi.com';
-            sourceUrl = 'http://numbersapi.com';
-          }
-        } catch (e) {
-          console.log('Numbers API failed:', e);
-        }
+        endpoint = `${basePath}/api/facts/general${skipCache ? '?nocache=true' : ''}`;
+      } else if (category === 'otd') {
+        endpoint = `${basePath}/api/facts/onthisday?lang=${lang}&random=${useRandomDate}${skipCache ? '&nocache=true' : ''}`;
       } else if (category === 'sports') {
-        // API: The Trivia API - Sports (only sports questions)
-        try {
-          const res = await fetch('https://the-trivia-api.com/v2/questions?categories=sport_and_leisure&limit=1&difficulties=easy,medium');
-          if (res.ok) {
-            const data = await res.json();
-            if (data && data.length > 0) {
-              const q = data[0];
-              // Format: Question with answer underneath in spoiler style
-              fact = `<b>Q:</b> ${q.question.text}\n\n<div class="mt-2 pt-2 border-t border-gray-200 dark:border-gray-700"><span class="text-xs text-gray-500">Answer:</span> <span class="spoiler-text bg-gray-800 text-gray-800 dark:bg-gray-200 dark:text-gray-200 px-1 rounded cursor-pointer hover:bg-transparent hover:text-gray-800 dark:hover:bg-transparent dark:hover:text-gray-200 transition-all select-none">${q.correctAnswer}</span></div>`;
-              source = 'the-trivia-api.com';
-              sourceUrl = 'https://the-trivia-api.com';
-            }
+        endpoint = `${basePath}/api/facts/sports${skipCache ? '?nocache=true' : ''}`;
+      }
+
+      // Add cache-busting timestamp
+      const separator = endpoint.includes('?') ? '&' : '?';
+      const url = `${endpoint}${separator}t=${Date.now()}`;
+      
+      const res = await fetch(url);
+      
+      if (!res.ok) {
+        throw new Error(`Failed to fetch: ${res.status}`);
+      }
+      
+      const data = await res.json();
+
+      let factText = '';
+      let needsTranslation = data.needsTranslation && lang === 'el';
+      let isTranslated = false;
+
+      if (category === 'sports') {
+        // Sports: format question and answer
+        let question = data.question;
+        let answer = data.answer;
+
+        // Translate if needed
+        if (needsTranslation) {
+          const qTranslation = await translateText(question, 'el');
+          if (qTranslation.success) {
+            question = qTranslation.text;
+            isTranslated = true;
           }
-        } catch (e) {
-          console.log('Sports Trivia API failed:', e);
+          const aTranslation = await translateText(answer, 'el');
+          if (aTranslation.success) {
+            answer = aTranslation.text;
+          }
         }
-      }
-      
-      // Fallback if APIs fail
-      if (!fact) {
-        fact = fallbackFacts[Math.floor(Math.random() * fallbackFacts.length)];
-        source = 'fallback';
-        sourceUrl = '';
-      }
-      
-      // Translate if Greek
-      if (lang === 'el' && fact) {
-        const translation = await translateText(fact, 'el');
-        if (translation.success) {
-          fact = translation.text;
-          isTranslated = true;
-        }
-      }
-      
-      // Update UI
-      const previewEl = widget.querySelector('.fact-preview');
-      const contentEl = widget.querySelector('.fact-content');
-      const sourceEl = widget.querySelector('.fact-source');
-      const translationNoteEl = widget.querySelector('.fact-translation-note');
-      
-      if (previewEl) {
-        // Strip HTML for preview
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = fact;
-        const textOnly = tempDiv.textContent || tempDiv.innerText || '';
-        previewEl.textContent = textOnly.substring(0, 30) + '...';
-      }
-      
-      if (contentEl) {
-        // Use innerHTML for sports to render HTML (Q: and spoiler)
-        if (category === 'sports') {
-          contentEl.innerHTML = fact;
-          // Add spoiler reveal on hover/click
+
+        factText = `<b>Q:</b> ${question}\n\n<div class="mt-2 pt-2 border-t border-gray-200 dark:border-gray-700"><span class="text-xs text-gray-500">${lang === 'el' ? 'Απάντηση' : 'Answer'}:</span> <span class="spoiler-text bg-gray-800 text-gray-800 dark:bg-gray-200 dark:text-gray-200 px-1 rounded cursor-pointer hover:bg-transparent hover:text-gray-800 dark:hover:bg-transparent dark:hover:text-gray-200 transition-all select-none">${answer}</span></div>`;
+
+        // Update UI for sports
+        const previewEl = widget.querySelector('.fact-preview');
+        const contentEl = widget.querySelector('.fact-content');
+
+        if (previewEl) previewEl.textContent = `Q: ${question.substring(0, 30)}...`;
+        if (contentEl) {
+          contentEl.innerHTML = factText;
+          // Add spoiler reveal functionality
           const spoilerText = contentEl.querySelector('.spoiler-text');
           if (spoilerText) {
             spoilerText.addEventListener('mouseenter', () => {
-              spoilerText.classList.add('revealed');
               spoilerText.classList.remove('bg-gray-800', 'text-gray-800', 'dark:bg-gray-200', 'dark:text-gray-200');
             });
             spoilerText.addEventListener('click', () => {
               spoilerText.classList.toggle('revealed');
               if (spoilerText.classList.contains('revealed')) {
-                spoilerText.classList.remove('bg-gray-800', 'text-gray-800', 'dark:bg-gray-200', 'dark:text-gray-200');
-              } else {
                 spoilerText.classList.add('bg-gray-800', 'text-gray-800', 'dark:bg-gray-200', 'dark:text-gray-200');
+              } else {
+                spoilerText.classList.remove('bg-gray-800', 'text-gray-800', 'dark:bg-gray-200', 'dark:text-gray-200');
               }
             });
           }
-        } else {
-          contentEl.textContent = fact;
         }
+      } else {
+        // General and On This Day
+        factText = data.fact;
+
+        // Translate if needed
+        if (needsTranslation) {
+          const translation = await translateText(factText, 'el');
+          if (translation.success) {
+            factText = translation.text;
+            isTranslated = true;
+          }
+        }
+
+        const previewEl = widget.querySelector('.fact-preview');
+        const contentEl = widget.querySelector('.fact-content');
+
+        if (previewEl) previewEl.textContent = factText.substring(0, 30) + '...';
+        if (contentEl) contentEl.textContent = factText;
       }
-      
+
+      // Update source
+      const sourceEl = widget.querySelector('.fact-source');
       if (sourceEl) {
-        if (source === 'fallback') {
+        if (data.source === 'fallback') {
           sourceEl.textContent = lang === 'el' ? 'Τυχαίο γεγονός' : 'Random fact';
-          sourceEl.innerHTML = 'Random fact';
-        } else if (sourceUrl) {
-          sourceEl.innerHTML = `<a href="${sourceUrl}" target="_blank" rel="noopener" class="hover:underline">Source: ${source} →</a>`;
+        } else if (category === 'otd' && data.date) {
+          sourceEl.innerHTML = `<a href="${data.sourceUrl}" target="_blank" rel="noopener" class="hover:underline">${data.date} • ${data.source} →</a>`;
+        } else if (data.sourceUrl) {
+          sourceEl.innerHTML = `<a href="${data.sourceUrl}" target="_blank" rel="noopener" class="hover:underline">Source: ${data.source} →</a>`;
         } else {
-          sourceEl.textContent = `Source: ${source}`;
+          sourceEl.textContent = `Source: ${data.source}`;
         }
       }
-      
+
       // Show translation note if translated
+      const translationNoteEl = widget.querySelector('.fact-translation-note');
       if (translationNoteEl) {
-        if (lang === 'el' && isTranslated) {
+        if (isTranslated && lang === 'el') {
           translationNoteEl.classList.remove('hidden');
         } else {
           translationNoteEl.classList.add('hidden');
         }
       }
-      
+
     } catch (err) {
       console.error('Fact fetch error:', err);
       const previewEl = widget.querySelector('.fact-preview');
+      const contentEl = widget.querySelector('.fact-content');
+      const sourceEl = widget.querySelector('.fact-source');
+      
       if (previewEl) previewEl.textContent = lang === 'el' ? 'Σφάλμα' : 'Error';
+      if (contentEl) contentEl.textContent = lang === 'el' ? 'Αποτυχία φόρτωσης' : 'Failed to load';
+      if (sourceEl) sourceEl.textContent = 'Error loading';
     }
   }
 
   function updateCategoryButtons(widget, category) {
     const generalBtn = widget.querySelector('.fact-category-general');
-    const numbersBtn = widget.querySelector('.fact-category-numbers');
+    const otdBtn = widget.querySelector('.fact-category-otd');
     const sportsBtn = widget.querySelector('.fact-category-sports');
-    
+
     // Reset all styles
-    [generalBtn, numbersBtn, sportsBtn].forEach(btn => {
+    [generalBtn, otdBtn, sportsBtn].forEach(btn => {
       btn?.classList.remove('bg-yellow-100', 'dark:bg-yellow-900/30', 'text-yellow-700', 'dark:text-yellow-300', 'border-yellow-200', 'dark:border-yellow-700');
       btn?.classList.add('bg-gray-100', 'dark:bg-slate-700', 'text-gray-600', 'dark:text-slate-400', 'border-gray-200', 'dark:border-slate-600');
     });
-    
+
     // Set active style
-    const activeBtn = category === 'general' ? generalBtn : category === 'numbers' ? numbersBtn : sportsBtn;
+    const activeBtn = category === 'general' ? generalBtn : category === 'otd' ? otdBtn : sportsBtn;
     activeBtn?.classList.remove('bg-gray-100', 'dark:bg-slate-700', 'text-gray-600', 'dark:text-slate-400', 'border-gray-200', 'dark:border-slate-600');
     activeBtn?.classList.add('bg-yellow-100', 'dark:bg-yellow-900/30', 'text-yellow-700', 'dark:text-yellow-300', 'border-yellow-200', 'dark:border-yellow-700');
   }
 
   // Initialize all fact widgets
   document.querySelectorAll('.fact-widget').forEach(widget => {
+    // Per-widget cooldown tracking
+    const widgetCooldowns = new Map();
+    
+    function widgetIsOnCooldown(category) {
+      const lastFetch = widgetCooldowns.get(category);
+      if (!lastFetch) return false;
+      const elapsed = (Date.now() - lastFetch) / 1000;
+      return elapsed < COOLDOWN_SECONDS;
+    }
+    
+    function widgetGetRemainingCooldown(category) {
+      const lastFetch = widgetCooldowns.get(category);
+      if (!lastFetch) return 0;
+      const elapsed = (Date.now() - lastFetch) / 1000;
+      return Math.max(0, Math.ceil(COOLDOWN_SECONDS - elapsed));
+    }
+    
+    function widgetSetCooldown(category) {
+      widgetCooldowns.set(category, Date.now());
+    }
+    
+    function widgetUpdateRefreshButtonState(category) {
+      const refreshBtn = widget.querySelector('.fact-refresh');
+      if (!refreshBtn) return;
+      
+      const onCooldown = widgetIsOnCooldown(category);
+      const remaining = widgetGetRemainingCooldown(category);
+      const lang = widget.dataset.lang;
+      
+      if (onCooldown) {
+        refreshBtn.disabled = true;
+        refreshBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        refreshBtn.classList.remove('cursor-pointer', 'hover:underline');
+        refreshBtn.innerHTML = `🔄 ${remaining}s`;
+      } else {
+        refreshBtn.disabled = false;
+        refreshBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        refreshBtn.classList.add('cursor-pointer', 'hover:underline');
+        refreshBtn.innerHTML = `🔄 ${lang === 'el' ? 'Νέο Γεγονός' : 'New Fact'}`;
+      }
+    }
+
     // Initial fetch
     fetchFact(widget, 'general');
-    
+
     // Category buttons
     const generalBtn = widget.querySelector('.fact-category-general');
-    const numbersBtn = widget.querySelector('.fact-category-numbers');
+    const otdBtn = widget.querySelector('.fact-category-otd');
     const sportsBtn = widget.querySelector('.fact-category-sports');
-    
+
     generalBtn?.addEventListener('click', (e) => {
       e.stopPropagation();
       widget.dataset.category = 'general';
       updateCategoryButtons(widget, 'general');
-      fetchFact(widget, 'general');
+      widgetUpdateRefreshButtonState('general');
+      fetchFact(widget, 'general', false);
     });
-    
-    numbersBtn?.addEventListener('click', (e) => {
+
+    otdBtn?.addEventListener('click', (e) => {
       e.stopPropagation();
-      widget.dataset.category = 'numbers';
-      updateCategoryButtons(widget, 'numbers');
-      fetchFact(widget, 'numbers');
+      widget.dataset.category = 'otd';
+      updateCategoryButtons(widget, 'otd');
+      widgetUpdateRefreshButtonState('otd');
+      fetchFact(widget, 'otd', false);
     });
-    
+
     sportsBtn?.addEventListener('click', (e) => {
       e.stopPropagation();
       widget.dataset.category = 'sports';
       updateCategoryButtons(widget, 'sports');
-      fetchFact(widget, 'sports');
+      widgetUpdateRefreshButtonState('sports');
+      fetchFact(widget, 'sports', false);
     });
-    
+
     // Refresh button
     const refreshBtn = widget.querySelector('.fact-refresh');
     if (refreshBtn) {
       refreshBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         const category = widget.dataset.category || 'general';
-        fetchFact(widget, category);
+        
+        // Check cooldown for this widget's category
+        if (widgetIsOnCooldown(category)) {
+          const remaining = widgetGetRemainingCooldown(category);
+          console.log(`Cooldown active for ${category}: ${remaining}s remaining`);
+          return;
+        }
+        
+        // Set cooldown and skip cache for this fetch
+        widgetSetCooldown(category);
+        widget.dataset.skipCache = 'true';
+        widgetUpdateRefreshButtonState(category);
+        const useRandomDate = category === 'otd';
+        fetchFact(widget, category, useRandomDate);
+        
+        // Start countdown timer
+        const interval = setInterval(() => {
+          widgetUpdateRefreshButtonState(category);
+          if (!widgetIsOnCooldown(category)) {
+            clearInterval(interval);
+          }
+        }, 1000);
       });
     }
+    
+    // Set initial cooldown state on load
+    widgetUpdateRefreshButtonState('general');
   });
 </script>
