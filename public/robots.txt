@@ -1,0 +1,12 @@
+# robots.txt for Georgios Balaouras Portfolio
+# https://mpalaourg-astro.pages.dev/mpalaourg-astro/
+
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://mpalaourg-astro.pages.dev/mpalaourg-astro/sitemap-index.xml
+
+# Disallow specific paths if needed
+# Disallow: /admin
+# Disallow: /private

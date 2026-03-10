@@ -1,0 +1,65 @@
+# Georgios Balaouras Portfolio
+
+> Personal portfolio of Georgios Balaouras, a Machine Learning Engineer based in Thessaloniki, Greece. Specializes in building ML systems, multi-agent AI, and data pipelines with expertise in Deep Learning, Transformers, and Attention Mechanisms.
+
+## About
+
+I am a Machine Learning Engineer with experience in both academic research and enterprise-scale ML deployment. My background spans from deep learning research at CERTH-ITI to building production ML systems at EY and Kaizen Gaming.
+
+Key expertise:
+- Deep Learning & Transformers
+- Multi-agent AI Systems
+- Video Analysis & Summarization
+- Natural Language Processing
+- Cloud-based ML Pipelines (Azure, Databricks)
+- Python, PyTorch, FastAPI
+
+## Main Sections
+
+- [Home](https://mpalaourg-astro.pages.dev/mpalaourg-astro/): Personal introduction and professional summary
+- [Experience](https://mpalaourg-astro.pages.dev/mpalaourg-astro/#experience): Career timeline with detailed role descriptions
+- [Publications](https://mpalaourg-astro.pages.dev/mpalaourg-astro/publications): Research papers on video summarization using attention mechanisms
+- [Projects](https://mpalaourg-astro.pages.dev/mpalaourg-astro/projects): Portfolio of machine learning and software projects
+- [Formula 1](https://mpalaourg-astro.pages.dev/mpalaourg-astro/formula): F1 statistics and interactive widgets
+
+## Publications
+
+Research papers on video summarization and attention mechanisms:
+
+- [Combining Global and Local Attention with Positional Encoding for Video Summarization (ISM 2021)](https://mpalaourg-astro.pages.dev/mpalaourg-astro/publications/ism2021/): A supervised self-attention-based method for automated video summarization using global and local multi-head attention mechanisms with positional encoding. Published at IEEE International Symposium on Multimedia (ISM) 2021.
+
+- [AC-SUM-GAN: Connecting Actor-Critic and Generative Adversarial Networks for Unsupervised Video Summarization (ICMR 2022)](https://mpalaourg-astro.pages.dev/mpalaourg-astro/publications/icmr2022/): An unsupervised video summarization approach combining Actor-Critic reinforcement learning with Generative Adversarial Networks. Published at ACM International Conference on Multimedia Retrieval (ICMR) 2022.
+
+- [Summarizing Video Content with Attention-Based Mechanisms (ISM 2022)](https://mpalaourg-astro.pages.dev/mpalaourg-astro/publications/ism2022/): Comprehensive study of attention mechanisms for video summarization tasks. Published at IEEE International Symposium on Multimedia (ISM) 2022.
+
+## Projects
+
+Selected machine learning and software engineering projects:
+
+- [Thesis: Energy Consumption Analysis of Mobile Phones](https://mpalaourg-astro.pages.dev/mpalaourg-astro/projects/thesis): Data collection and analysis of smartphone energy consumption patterns using machine learning techniques, including XGBoost models for energy drain prediction.
+
+- [JPEG Compression Analysis](https://mpalaourg-astro.pages.dev/mpalaourg-astro/projects/JPEG): Implementation and analysis of JPEG image compression algorithm, exploring DCT quantization and Huffman encoding.
+
+- [Image Segmentation](https://mpalaourg-astro.pages.dev/mpalaourg-astro/projects/image-segmentation): Computer vision project implementing various image segmentation techniques including thresholding and clustering methods.
+
+- [Optimization Algorithms](https://mpalaourg-astro.pages.dev/mpalaourg-astro/projects/optimization-algorithms): Implementation and comparison of various optimization algorithms for machine learning and numerical computing.
+
+- [Bashic Shell](https://mpalaourg-astro.pages.dev/mpalaourg-astro/projects/bashic-shell): Custom Unix shell implementation in C with support for pipes, redirections, and background processes.
+
+- [Pi Messenger](https://mpalaourg-astro.pages.dev/mpalaourg-astro/projects/pi-messenger): Real-time messaging application with end-to-end encryption capabilities.
+
+## Contact
+
+- Email: gbalaouras@gmail.com
+- GitHub: https://github.com/mpalaourg
+- LinkedIn: https://linkedin.com/in/georgebalaouras
+
+## Docs
+
+- [CV/Resume (English)](https://mpalaourg-astro.pages.dev/mpalaourg-astro/media/files/resume_en.pdf): Professional resume in English
+- [CV/Resume (Greek)](https://mpalaourg-astro.pages.dev/mpalaourg-astro/el/media/files/resume_gr.pdf): Professional resume in Greek
+
+## Optional
+
+- [robots.txt](https://mpalaourg-astro.pages.dev/mpalaourg-astro/robots.txt): Web crawler instructions
+- [sitemap-index.xml](https://mpalaourg-astro.pages.dev/mpalaourg-astro/sitemap-index.xml): XML sitemap for search engines
