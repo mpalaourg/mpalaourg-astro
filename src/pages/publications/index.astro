@@ -119,6 +119,23 @@ const formatAuthors = (authors: string[], authorNotes?: string[]) => {
                 {formatAuthors(post.data.authors, post.data.author_notes)}
               </p>
               
+              {post.data.doi && (
+                <div class="mb-2" data-doi={post.data.doi} data-citation-wrapper>
+                  <a 
+                    href={`https://scholar.google.com/scholar?q=${encodeURIComponent(post.data.title)}`}
+                    target="_blank"
+                    rel="noopener"
+                    class="inline-flex items-center gap-1.5 rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-800/50 transition-colors"
+                    title="Citations from Semantic Scholar (click to view on Google Scholar)"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                    </svg>
+                    <span data-citation-count>...</span> citations
+                  </a>
+                </div>
+              )}
+              
               {post.data.author_notes && post.data.author_notes.some(n => n.toLowerCase().includes("equal")) && (
                 <p class="text-xs text-gray-500 dark:text-slate-500 mb-4">* Equal contribution</p>
               )}
@@ -132,4 +149,28 @@ const formatAuthors = (authors: string[], authorNotes?: string[]) => {
       ))}
     </div>
   </main>
+  
+  <script is:inline>
+    // Fetch citation counts for all publications with DOI
+    const citationWrappers = document.querySelectorAll('[data-citation-wrapper]');
+    
+    citationWrappers.forEach(wrapper => {
+      const doi = wrapper.dataset.doi;
+      const countElement = wrapper.querySelector('[data-citation-count]');
+      
+      fetch(`/api/citations?doi=${encodeURIComponent(doi)}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.citationCount !== null && data.citationCount !== undefined) {
+            countElement.textContent = data.citationCount.toLocaleString();
+          } else {
+            wrapper.style.display = 'none';
+          }
+        })
+        .catch(err => {
+          console.error('Failed to fetch citations for DOI:', doi, err);
+          wrapper.style.display = 'none';
+        });
+    });
+  </script>
 </BaseLayout>
