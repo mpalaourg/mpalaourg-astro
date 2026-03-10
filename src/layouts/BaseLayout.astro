@@ -84,12 +84,12 @@ const elPathWithBase = `/mpalaourg-astro${elPath}`;
                 {isEl ? "Δημοσιεύσεις" : "Publications"}
             </a>
             <a
-                href="/mpalaourg-astro/media/files/resume_en.pdf"
+                href={isEl ? "/mpalaourg-astro/el/media/files/resume_gr.pdf" : "/mpalaourg-astro/media/files/resume_en.pdf"}
                 target="_blank"
                 class="text-gray-600 hover:text-gray-900
                     dark:text-gray-300 dark:hover:text-white"
             >
-                Resume/CV
+                {isEl ? "Βιογραφικό" : "Resume/CV"}
             </a>
 
           <!-- Language switcher -->
