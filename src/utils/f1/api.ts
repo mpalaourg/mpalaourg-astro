@@ -198,7 +198,10 @@ export async function getOpenF1SessionResults(
     const driver = driverMap.get(r.driver_number);
     const fullName = driver?.full_name ?? `#${r.driver_number}`;
     const parts = fullName.trim().split(" ");
-    const name = parts.length >= 2 ? `${parts[0][0]}. ${parts.slice(1).join(" ")}` : fullName;
+    // Title-case the name: "GEORGE RUSSELL" -> "G. Russell"
+    const name = parts.length >= 2 
+      ? `${parts[0][0].toUpperCase()}. ${parts.slice(1).join(" ").toLowerCase().replace(/\b\w/g, c => c.toUpperCase())}`
+      : fullName;
 
     const row: OpenF1ResultRow = {
       position: r.position,

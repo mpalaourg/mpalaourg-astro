@@ -771,67 +771,198 @@ const T = t[lang];
   }
 
   // ─── Modal body builders ───────────────────────────────────────────────────
-  function buildQualiModal(data: any[], isOpenF1 = false): string {
+function buildQualiModal(data: any[], isOpenF1 = false): string {
     if (isOpenF1) {
+      // isOpenF1 = true means this is sprint qualifying (uses OpenF1 API)
+      // Use position-based filtering for 2026 sprint qualifying format:
+      // SQ3: positions 1-10, SQ2: positions 11-16, SQ1: positions 17-22
       const sorted = [...data].sort((a, b) => a.position - b.position);
-      const q3 = sorted.filter((r) => r.q3 && r.q3 !== "—");
-      const q2 = sorted.filter(
-        (r) => r.q2 && r.q2 !== "—" && (!r.q3 || r.q3 === "—")
-      );
-      const q1 = sorted.filter((r) => !r.q2 || r.q2 === "—");
+      const sq3 = sorted.filter((r) => r.position >= 1 && r.position <= 10);
+      const sq2 = sorted.filter((r) => r.position >= 11 && r.position <= 16);
+      const sq1 = sorted.filter((r) => r.position >= 17);
 
-      function of1Section(
+      // Parse lap time to seconds for gap calculation
+      function parseTime(timeStr: string): number | null {
+        if (!timeStr || timeStr === "—" || timeStr === "") return null;
+        const parts = timeStr.split(":");
+        if (parts.length === 2) {
+          const mins = parseFloat(parts[0]);
+          const secs = parseFloat(parts[1]);
+          return mins * 60 + secs;
+        }
+        return parseFloat(timeStr);
+      }
+
+      // Calculate reference times for gaps
+      // SQ3: gap to pole (fastest SQ3 time)
+      const sq3Times = sq3.map(r => parseTime(r.q3)).filter(t => t !== null) as number[];
+      const sq3PoleTime = sq3Times.length > 0 ? Math.min(...sq3Times) : null;
+      
+      // SQ2: gap to P10 cutoff (slowest SQ2 time among top 10)
+      // Need to sort ALL drivers by SQ2 time and find the 10th fastest
+      const allSq2Times = sorted
+        .map(r => ({ pos: r.position, time: parseTime(r.q2) }))
+        .filter(r => r.time !== null)
+        .sort((a, b) => (a.time as number) - (b.time as number));
+      const p10Sq2Time = allSq2Times[9]?.time ?? null; // 10th fastest SQ2 time
+      
+// SQ1: gap to P16 cutoff (slowest SQ1 time among top 16)
+      // Need to sort ALL drivers by SQ1 time and find the 16th fastest
+      const allSq1Times = sorted
+        .map(r => ({ pos: r.position, time: parseTime(r.q1) }))
+        .filter(r => r.time !== null)
+        .sort((a, b) => (a.time as number) - (b.time as number));
+      const p16Sq1Time = allSq1Times[15]?.time ?? null; // 16th fastest SQ1 time
+
+      // Full 2026 grid - for showing missing drivers in SQ1
+      const full2026Grid = [
+        { number: 1, name: "L. Norris", team: "mclaren" },
+        { number: 3, name: "M. Verstappen", team: "red_bull" },
+        { number: 5, name: "G. Bortoleto", team: "audi" },
+        { number: 6, name: "I. Hadjar", team: "red_bull" },
+        { number: 10, name: "P. Gasly", team: "alpine" },
+        { number: 11, name: "S. Pérez", team: "cadillac" },
+        { number: 12, name: "K. Antonelli", team: "mercedes" },
+        { number: 14, name: "F. Alonso", team: "aston_martin" },
+        { number: 16, name: "C. Leclerc", team: "ferrari" },
+        { number: 18, name: "L. Stroll", team: "aston_martin" },
+        { number: 23, name: "A. Albon", team: "williams" },
+        { number: 27, name: "N. Hülkenberg", team: "audi" },
+        { number: 30, name: "L. Lawson", team: "rb" },
+        { number: 31, name: "E. Ocon", team: "haas" },
+        { number: 41, name: "A. Lindblad", team: "rb" },
+        { number: 43, name: "F. Colapinto", team: "alpine" },
+        { number: 44, name: "L. Hamilton", team: "ferrari" },
+        { number: 55, name: "C. Sainz", team: "williams" },
+        { number: 63, name: "G. Russell", team: "mercedes" },
+        { number: 77, name: "V. Bottas", team: "cadillac" },
+        { number: 81, name: "O. Piastri", team: "mclaren" },
+        { number: 87, name: "O. Bearman", team: "haas" },
+      ];
+
+      // Find missing drivers (not in results)
+      const presentNumbers = new Set(sorted.map((r: any) => r.driverNumber));
+      const missingDrivers = full2026Grid
+        .filter((d) => !presentNumbers.has(d.number))
+        .sort((a, b) => a.number - b.number);
+
+      function formatGap(gap: number): string {
+        if (gap === 0) return "—";
+        return `+${gap.toFixed(3)}`;
+      }
+
+      function sqSection(
         label: string,
         color: string,
         rows: any[],
-        timeKey: string
+        timeKey: string,
+        gapType: "leader" | "elimination",
+        refTime: number | null,
+        extraDrivers: { number: number; name: string; team: string }[] = []
       ) {
-        if (!rows.length) return "";
+        if (!rows.length && !extraDrivers.length) return "";
+
         const rowsHtml = rows
-          .map(
-            (r) => `
-          <div class="grid grid-cols-[1.75rem_1.5rem_1fr_5rem] gap-x-2 px-3 py-2 items-center
-                      hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+          .map((r) => {
+            const isTop3 = r.position <= 3;
+            const time = (r as any)[timeKey];
+            const timeValue = parseTime(time);
+            const hasTime = timeValue !== null;
+            let gap = "—";
+
+            if (hasTime && refTime !== null) {
+              gap = formatGap(timeValue - refTime);
+            }
+
+            // Format time display
+            let timeDisplay: string;
+            if (time && time !== "—" && time !== "") {
+              timeDisplay = time;
+            } else {
+              timeDisplay = "<span class='italic text-gray-400 dark:text-slate-500'>No Time Set</span>";
+            }
+
+            return `
+          <div class="grid grid-cols-[1.75rem_1.5rem_1fr_5.5rem_3.5rem] gap-x-2 px-3 py-2 items-center
+                      transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/50
+                      ${isTop3 ? "bg-amber-50/60 dark:bg-amber-900/10" : ""}">
             <span class="text-xs font-mono text-gray-400 dark:text-slate-500 text-center">${r.position}</span>
             <span class="text-[10px] font-bold bg-slate-200 dark:bg-slate-600 rounded px-1 py-0.5 tabular-nums text-center">${r.driverNumber}</span>
             <span class="flex items-center gap-1.5 min-w-0">
               ${logoByTeamName(r.teamName)}
               <span class="truncate text-xs font-medium">${r.name}</span>
             </span>
-            <span class="text-xs font-mono tabular-nums text-right text-gray-600 dark:text-slate-300">${(r as any)[timeKey] ?? "—"}</span>
-          </div>`
-          )
+            <span class="text-xs font-mono tabular-nums text-right text-gray-600 dark:text-slate-300">${timeDisplay}</span>
+            <span class="text-[10px] font-mono tabular-nums text-right ${gap === "—" ? "text-gray-400 dark:text-slate-500" : "text-gray-500 dark:text-slate-400"}">${gap}</span>
+          </div>`;
+          })
           .join("");
+
+        // Add missing drivers at the end (for SQ1 section)
+        const extraRowsHtml = extraDrivers
+          .map((d) => `
+          <div class="grid grid-cols-[1.75rem_1.5rem_1fr_5.5rem_3.5rem] gap-x-2 px-3 py-2 items-center
+                      transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/50 opacity-60">
+            <span class="text-xs font-mono text-gray-400 dark:text-slate-500 text-center">—</span>
+            <span class="text-[10px] font-bold bg-slate-200 dark:bg-slate-600 rounded px-1 py-0.5 tabular-nums text-center">${d.number}</span>
+            <span class="flex items-center gap-1.5 min-w-0">
+              ${logoByTeamName(d.team)}
+              <span class="truncate text-xs font-medium">${d.name}</span>
+            </span>
+            <span class="text-xs font-mono tabular-nums text-right text-gray-400 dark:text-slate-500 italic">No Time Set</span>
+            <span class="text-[10px] font-mono tabular-nums text-right text-gray-400 dark:text-slate-500">—</span>
+          </div>`)
+          .join("");
+
+        const gapHeader = gapType === "leader" ? "Gap" : "Gap to Cutoff";
+
         return `
           <div>
             <div class="flex items-center gap-2 mb-1 px-1">
               <span class="text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full ${color}">${label}</span>
             </div>
-            <div class="rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden divide-y divide-gray-100 dark:divide-slate-700/50">
-              ${rowsHtml}
+            <div class="rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+              <div class="grid grid-cols-[1.75rem_1.5rem_1fr_5.5rem_3.5rem] gap-x-2 px-3 py-1.5 bg-slate-100 dark:bg-slate-700/50 border-b border-gray-200 dark:border-gray-700">
+                <span class="text-[10px] font-semibold text-gray-400 dark:text-slate-500 text-center">#</span>
+                <span class="text-[10px] font-semibold text-gray-400 dark:text-slate-500 text-center">No</span>
+                <span class="text-[10px] font-semibold text-gray-400 dark:text-slate-500">Driver</span>
+                <span class="text-[10px] font-semibold text-gray-400 dark:text-slate-500 text-right">Time</span>
+                <span class="text-[10px] font-semibold text-gray-400 dark:text-slate-500 text-right">${gapHeader}</span>
+              </div>
+              <div class="divide-y divide-gray-100 dark:divide-slate-700/50">
+                ${rowsHtml}
+                ${extraRowsHtml}
+              </div>
             </div>
           </div>`;
       }
 
       return [
-        of1Section(
-          "Q3 — Top 8",
+        sqSection(
+          "SQ3 — Top 10",
           "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300",
-          q3,
-          "q3"
+          sq3,
+          "q3",
+          "leader",
+          sq3PoleTime
         ),
-        of1Section(
-          "Q2 — Out",
+        sqSection(
+          "SQ2 — Out",
           "bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300",
-          q2,
-          "q2"
+          sq2,
+          "q2",
+          "elimination",
+          p10Sq2Time
         ),
-        of1Section(
-          "Q1 — Out",
+        sqSection(
+          "SQ1 — Out",
           "bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300",
-          q1,
-          "q1"
-        ),
+          sq1,
+          "q1",
+          "elimination",
+          p16Sq1Time,
+          missingDrivers
+),
       ].join("");
     }
 
