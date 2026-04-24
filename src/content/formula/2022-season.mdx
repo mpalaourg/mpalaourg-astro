@@ -16,61 +16,131 @@ The 2022 Formula 1 season brought significant changes with the introduction of n
 
 ## Race Calendar
 
-As displayed below, the 2022 Formula 1 season boasted an exhilarating race calendar comprising 22 races in 20 countries. Noteworthy inclusions were the return of the **Australian, Canadian, Japanese**, and **Singapore Grands Prix** after a two-year hiatus caused by the COVID-19 pandemic. However, certain races, such as the **Portuguese, Styrian**, and **Turkish Grands Prix**, were not part of the 2022 lineup. The **Qatar Grand Prix** also did not feature, with plans for its return in 2023. COVID-19 restrictions led to the cancellation of the **Chinese Grand Prix** for another year. The **Russian Grand Prix** faced initial suspension due to the Russian invasion of Ukraine and was subsequently canceled. On a more positive note, the debut of the **Miami Grand Prix** added further excitement to the championship, offering fans a fresh and thrilling addition to the race calendar.
+The 2022 calendar featured 22 races across 20 countries, maintaining one of the longest seasons in Formula 1 history.
 
-<figure class="my-8 text-center">
-  <img
-    src="https://raw.githubusercontent.com/mpalaourg/F1_DataAnalysis/main/2022-Season/imgs/calendar.png"
-    alt="2022 calendar"
-    class="mx-auto"
-    loading="lazy"
-  />
-  <figcaption class="mt-2 text-sm text-gray-500 dark:text-slate-400">
-    2022 Formula 1 race calendar with 22 races across 20 countries.
+The season saw the return of several circuits after pandemic disruptions, alongside the introduction of a brand-new venue in Miami.
+
+<figure class="my-8">
+  <div class="overflow-x-auto">
+
+| Round | GP Name        | Country       | City              | Circuit Name                       | Race Date   | Laps | Turns | DRS Zones | Distance (km) | Lap Record | Record Owner       | Record Year |
+| :---: | :------------: | :-----------: | :---------------: | :--------------------------------: | :---------: | :--: | :---: | :-------: | :-----------: | :--------: | :----------------: | :---------: |
+|     1 | Bahrain        | Bahrain       | Sakhir            | Bahrain International Circuit      | 20 Mar 2022 |   57 |    15 |         3 |       308.238 | 1:31.447   | Pedro de la Rosa   |        2005 |
+|     2 | Saudi Arabian  | Saudi Arabia  | Jeddah            | Jeddah Corniche Circuit            | 27 Mar 2022 |   50 |    27 |         3 |       308.450 | 1:30.774   | Lewis Hamilton     |        2021 |
+|     3 | Australian     | Australia     | Melbourne         | Albert Park Circuit                | 10 Apr 2022 |   58 |    14 |         2 |       306.124 | 1:20.260   | Charles Leclerc    |        2022 |
+|     4 | Emilia Romagna | Italy         | Imola             | Autodromo Enzo e Dino Ferrari      | 24 Apr 2022 |   63 |    18 |         1 |       309.049 | 1:15.484   | Lewis Hamilton     |        2020 |
+|     5 | Miami          | United States | Miami             | Miami International Autodrome      | 08 May 2022 |   57 |    19 |         3 |       308.326 | 1:31.361   | Max Verstappen     |        2022 |
+|     6 | Spain          | Spain         | Catalunya         | Circuit de Barcelona-Catalunya     | 22 May 2022 |   66 |    16 |         2 |       308.424 | 1:18.149   | Max Verstappen     |        2021 |
+|     7 | Monaco         | Monaco        | Monte Carlo       | Circuit de Monaco                  | 29 May 2022 |   78 |    19 |         1 |       260.286 | 1:12.909   | Lewis Hamilton     |        2021 |
+|     8 | Azerbaijan     | Azerbaijan    | Baku              | Baku City Circuit                  | 12 Jun 2022 |   51 |    20 |         2 |       306.049 | 1:43.009   | Charles Leclerc    |        2019 |
+|     9 | Canada         | Canada        | Montréal          | Circuit Gilles Villeneuve          | 19 Jun 2022 |   70 |    14 |         3 |       305.270 | 1:13.078   | Valtteri Bottas    |        2019 |
+|    10 | Great Britain  | Great Britain | Silverstone       | Silverstone Circuit                | 03 Jul 2022 |   52 |    18 |         2 |       306.198 | 1:27.097   | Max Verstappen     |        2020 |
+|    11 | Austria        | Austria       | Spielberg         | Red Bull Ring                      | 10 Jul 2022 |   71 |    10 |         3 |       306.452 | 1:05.619   | Carlos Sainz       |        2020 |
+|    12 | France         | France        | Le Castellet      | Circuit Paul Ricard                | 24 Jul 2022 |   53 |    15 |         2 |       309.690 | 1:32.740   | Sebastian Vettel   |        2019 |
+|    13 | Hungary        | Hungary       | Budapest          | Hungaroring                        | 31 Jul 2022 |   70 |    14 |         1 |       306.630 | 1:16.627   | Lewis Hamilton     |        2020 |
+|    14 | Belgium        | Belgium       | Spa-Francorchamps | Circuit de Spa-Francorchamps       | 28 Aug 2022 |   44 |    19 |         2 |       308.052 | 1:46.286   | Valtteri Bottas    |        2018 |
+|    15 | Netherlands    | Netherlands   | Zandvoort         | Circuit Zandvoort                  | 04 Sep 2022 |   72 |    14 |         2 |       306.587 | 1:11.097   | Lewis Hamilton     |        2021 |
+|    16 | Italy          | Italy         | Monza             | Autodromo Nazionale Monza          | 11 Sep 2022 |   53 |    11 |         2 |       306.720 | 1:21.046   | Rubens Barrichello |        2004 |
+|    17 | Singapore      | Singapore     | Singapore         | Marina Bay Street Circuit          | 02 Oct 2022 |   61 |    23 |         3 |       308.706 | 1:41.905   | Kevin Magnussen    |        2018 |
+|    18 | Japan          | Japan         | Suzuka            | Suzuka International Racing Course | 09 Oct 2022 |   53 |    18 |         1 |       307.471 | 1:30.983   | Lewis Hamilton     |        2019 |
+|    19 | United States  | United States | Austin            | Circuit of the Americas            | 23 Oct 2022 |   56 |    20 |         2 |       308.405 | 1:36.169   | Charles Leclerc    |        2019 |
+|    20 | Mexico City    | Mexico        | Mexico City       | Autodromo Hermanos Rodríguez       | 30 Oct 2022 |   71 |    17 |         3 |       305.354 | 1:17.774   | Valtteri Bottas    |        2021 |
+|    21 | São Paulo      | Brazil        | São Paulo         | Autodromo José Carlos Pace         | 13 Nov 2022 |   71 |    15 |         2 |       305.879 | 1:10.540   | Valtteri Bottas    |        2018 |
+|    22 | Abu Dhabi      | Abu Dhabi     | Yas Island        | Yas Marina Circuit                 | 20 Nov 2022 |   58 |    16 |         2 |       306.183 | 1:26.103   | Max Verstappen     |        2021 |
+
+</div>
+  <figcaption class="mt-2 text-sm text-gray-500 dark:text-slate-400 text-center">
+    2022 Formula 1 race calendar, including circuit layout characteristics and historical lap records.
   </figcaption>
 </figure>
 
 ## Drivers and Constructors
 
-The 2022 Formula 1 grid featured 10 teams and 22 drivers, including 2 reserve drivers. Notable changes from the previous season include:
+The 2022 grid featured 10 teams and 22 drivers, including multiple reserve driver appearances throughout the season. The introduction of new technical regulations reshaped the competitive order, but the grid itself remained a mix of experienced champions and emerging talent.
 
-- **Valtteri Bottas** made a move to **Alfa Romeo**, taking the seat left vacant by the retirement of **Kimi Räikkönen**.
-- **George Russell**, previously with **Williams**, joined **Mercedes**, replacing **Bottas**.
-- **Alexander Albon** joined **Williams** to fill **Russell**'s seat.
-- **Zhou Guanyu** joined **Alfa Romeo**, replacing **Antonio Giovinazzi**.
-- **Nikita Mazepin** was dropped by **Haas**, and his seat was filled by **Kevin Magnussen**.
+<figure class="my-8">
+  <div class="overflow-x-auto">
 
-**Nico Hülkenberg** competed in two races for **Aston Martin**, replacing **Sebastian Vettel** who tested positive for Covid-19. **Nyck de Vries** made his Formula One debut, competing for **Williams** in place of **Alexander Albon**, who was unable to participate due to appendicitis.
+| Abbr. | No. | Driver           | Country        | Date of Birth | Place of Birth                   | Team            | WDC | GPs | Podiums | Points | Highest Finish |
+| :---: | :--: | :--------------: | :------------: | :-----------: | :------------------------------: | :-------------: | :--: | :--: | :-----: | :----: | :-------------: |
+|  VER  |   1 | Max Verstappen   | Netherlands    | 30/09/1997    | Hasselt, Belgium                 | Red Bull Racing |   2 | 163 |      77 | 2011.5 | 1(x35)         |
+|  LEC  |  16 | Charles Leclerc  | Monaco         | 16/10/1997    | Monte Carlo, Monaco              | Ferrari         |   0 | 103 |      24 |  868.0 | 1(x5)          |
+|  PER  |  11 | Sergio Pérez     | Mexico         | 26/01/1990    | Guadalajara, Mexico              | Red Bull Racing |   0 | 236 |      26 | 1201.0 | 1(x4)          |
+|  RUS  |  63 | George Russell   | United Kingdom | 15/02/1998    | King's Lynn, England             | Mercedes        |   0 |  82 |       9 |  294.0 | 1(x1)          |
+|  SAI  |  55 | Carlos Sainz     | Spain          | 01/09/1994    | Madrid, Spain                    | Ferrari         |   0 | 163 |      15 |  782.5 | 1(x1)          |
+|  HAM  |  44 | Lewis Hamilton   | United Kingdom | 07/01/1985    | Stevenage, England               | Mercedes        |   7 | 310 |     191 | 4405.5 | 1(x103)        |
+|  NOR  |   4 | Lando Norris     | United Kingdom | 13/11/1999    | Bristol, England                 | McLaren         |   0 |  82 |       6 |  428.0 | 2(x1)          |
+|  OCO  |  31 | Esteban Ocon     | France         | 17/09/1996    | Évreux, Normandy                 | Alpine          |   0 | 111 |       2 |  364.0 | 1(x1)          |
+|  ALO  |  14 | Fernando Alonso  | Spain          | 29/07/1981    | Oviedo, Spain                    | Alpine          |   2 | 358 |      98 | 2061.0 | 1(x32)         |
+|  BOT  |  77 | Valtteri Bottas  | Finland        | 28/08/1989    | Nastola, Finland                 | Alfa Romeo      |   0 | 200 |      67 | 1787.0 | 1(x10)         |
+|  RIC  |   3 | Daniel Ricciardo | Australia      | 01/07/1989    | Perth, Australia                 | McLaren         |   0 | 232 |      32 | 1311.0 | 1(x8)          |
+|  VET  |   5 | Sebastian Vettel | Germany        | 03/07/1987    | Heppenheim, Germany              | Aston Martin    |   4 | 300 |     122 | 3098.0 | 1(x53)         |
+|  MAG  |  20 | Kevin Magnussen  | Denmark        | 05/10/1992    | Roskilde, Denmark                | Haas F1 Team    |   0 | 142 |       1 |  183.0 | 2(x1)          |
+|  GAS  |  10 | Pierre Gasly     | France         | 07/02/1996    | Rouen, France                    | AlphaTauri      |   0 | 108 |       3 |  332.0 | 1(x1)          |
+|  STR  |  18 | Lance Stroll     | Canada         | 29/10/1998    | Montreal, Canada                 | Aston Martin    |   0 | 122 |       3 |  194.0 | 3(x3)          |
+|  MSC  |  47 | Mick Schumacher  | Germany        | 22/03/1999    | Vufflens-le-Château, Switzerland | Haas F1 Team    |   0 |  43 |       0 |   12.0 | 6(x1)          |
+|  TSU  |  22 | Yuki Tsunoda     | Japan          | 11/05/2000    | Sagamihara, Japan                | AlphaTauri      |   0 |  44 |       0 |   44.0 | 4(x1)          |
+|  ZHO  |  24 | Zhou Guanyu      | China          | 30/05/1999    | Shanghai, China                  | Alfa Romeo      |   0 |  22 |       0 |    6.0 | 8(x1)          |
+|  ALB  |  23 | Alexander Albon  | Thailand       | 23/03/1996    | London, England                  | Williams        |   0 |  59 |       2 |  201.0 | 3(x2)          |
+|  LAT  |   6 | Nicholas Latifi  | Canada         | 29/06/1995    | Montreal, Canada                 | Williams        |   0 |  61 |       0 |    9.0 | 7(x1)          |
+|  DEV  |  45 | Nyck de Vries    | Netherlands    | 06/02/1995    | Uitwellingerga, Netherlands      | Williams        |   0 |   1 |       0 |    2.0 | 9(x1)          |
+|  HUL  |  27 | Nico Hülkenberg  | Germany        | 19/08/1987    | Emmerich am Rhein, Germany       | Aston Martin    |   0 | 184 |       0 |  521.0 | 4(x3)          |
 
-<figure class="my-8 text-center">
-  <img
-    src="https://raw.githubusercontent.com/mpalaourg/F1_DataAnalysis/main/2022-Season/imgs/drivers.png"
-    alt="2022 drivers"
-    class="mx-auto"
-    loading="lazy"
-  />
-  <figcaption class="mt-2 text-sm text-gray-500 dark:text-slate-400">
-    Complete driver lineup for the 2022 Formula 1 season.
+</div>
+  <figcaption class="mt-2 text-sm text-gray-500 dark:text-slate-400 text-center">
+    Driver lineup for the 2022 Formula 1 season, including career statistics prior to the season.
   </figcaption>
 </figure>
 
 ## 2022 Season Analysis
 
-This season showcased a variety of winners, with five different drivers claiming victories, many of them starting from favorable grid positions. Notable triumphs included **George Russell**'s first win at the **Brazilian Grand Prix**, which was also the only win for **Mercedes** this year, and **Carlos Sainz**'s maiden Formula 1 victory in **Silverstone**. **Max Verstappen** stood out with an impressive 15 wins, including remarkable performances such as starting from P14 in the **Belgian Grand Prix**, P10 in **Hungary**, and P7 in **Monza**. **Charles Leclerc** secured three wins, two of which came in the opening three races of the season. **Sergio Perez** celebrated two wins, both on street circuits, at the **Monaco** and **Singapore** Grand Prix, showcasing his skill in navigating challenging tracks.
+Five different drivers stood on the top step of the podium in 2022, but the season was largely dominated by **Max Verstappen** and **Red Bull Racing**, particularly in the second half of the year.
 
-<figure class="my-8 text-center">
-  <img
-    src="https://raw.githubusercontent.com/mpalaourg/F1_DataAnalysis/main/2022-Season/imgs/race_winners.png"
-    alt="2022 race winners"
-    class="mx-auto"
-    loading="lazy"
-  />
-  <figcaption class="mt-2 text-sm text-gray-500 dark:text-slate-400">
-    Race winners of the 2022 Formula 1 season.
+<figure class="my-8">
+  <div class="overflow-x-auto">
+
+| Grand Prix               | Winner          | Constructor | Race Time   | Fastest Lap | Grid Pos. |
+| :----------------------: | :-------------: | :---------: | :---------: | :---------: | :-------: |
+| Bahrain Grand Prix       | Charles Leclerc | Ferrari     | 1:37:33.584 | Yes         |         1 |
+| Saudi Arabian Grand Prix | Max Verstappen  | Red Bull    | 1:24:19.293 | No          |         4 |
+| Australian Grand Prix    | Charles Leclerc | Ferrari     | 1:27:46.548 | Yes         |         1 |
+| Emilia Romagna GP        | Max Verstappen  | Red Bull    | 1:32:07.986 | Yes         |         1 |
+| Miami Grand Prix         | Max Verstappen  | Red Bull    | 1:34:24.258 | Yes         |         3 |
+| Spanish Grand Prix       | Max Verstappen  | Red Bull    | 1:37:20.475 | No          |         2 |
+| Monaco Grand Prix        | Sergio Pérez    | Red Bull    | 1:56:30.265 | No          |         3 |
+| Azerbaijan Grand Prix    | Max Verstappen  | Red Bull    | 1:34:05.941 | No          |         3 |
+| Canadian Grand Prix      | Max Verstappen  | Red Bull    | 1:36:21.757 | No          |         1 |
+| British Grand Prix       | Carlos Sainz    | Ferrari     | 2:17:50.311 | No          |         1 |
+| Austrian Grand Prix      | Charles Leclerc | Ferrari     | 1:24:24.312 | No          |         2 |
+| French Grand Prix        | Max Verstappen  | Red Bull    | 1:30:02.112 | No          |         2 |
+| Hungarian Grand Prix     | Max Verstappen  | Red Bull    | 1:39:35.912 | No          |        10 |
+| Belgian Grand Prix       | Max Verstappen  | Red Bull    | 1:25:52.894 | Yes         |        14 |
+| Dutch Grand Prix         | Max Verstappen  | Red Bull    | 1:36:42.773 | Yes         |         1 |
+| Italian Grand Prix       | Max Verstappen  | Red Bull    | 1:20:27.511 | No          |         7 |
+| Singapore Grand Prix     | Sergio Pérez    | Red Bull    | 2:02:20.238 | No          |         2 |
+| Japanese Grand Prix      | Max Verstappen  | Red Bull    | 3:01:44.004 | No          |         1 |
+| United States Grand Prix | Max Verstappen  | Red Bull    | 1:42:11.687 | No          |         2 |
+| Mexico City Grand Prix   | Max Verstappen  | Red Bull    | 1:38:36.729 | No          |         1 |
+| Brazilian Grand Prix     | George Russell  | Mercedes    | 1:38:34.044 | Yes         |         1 |
+| Abu Dhabi Grand Prix     | Max Verstappen  | Red Bull    | 1:27:45.914 | No          |         1 |
+
+</div>
+  <figcaption class="mt-2 text-sm text-gray-500 dark:text-slate-400 text-center">
+    Race winners of the 2022 season, including total race time, fastest-lap bonus, and starting grid position.
   </figcaption>
 </figure>
 
-Standing on the podium is a rewarding moment for drivers and their teams, symbolizing their hard work and achievements. It is evident from the image below that **Max Verstappen** secured the most podium finishes with 17, showcasing his consistent performances throughout the season. **Charles Leclerc** and **Sergio Perez** followed behind with 11 podiums each. **Carlos Sainz, Lewis Hamilton**, and **George Russell** also featured prominently in the standings, demonstrating their strong performances. Notably, **Lando Norris** stood out with a podium finish at the **Emilia Romagna Grand Prix**, capitalizing on a late-race mistake from **Charles Leclerc** that cost him the third-place position.
+Verstappen’s dominance is clear: 15 victories, often from non-pole positions, highlighting both race pace and strategic execution.
+
+Ferrari showed strong early-season form, with **Leclerc** winning two of the first three races and **Sainz** securing his maiden victory at Silverstone. However, inconsistency and strategic errors prevented them from sustaining a title challenge.
+
+Elsewhere, standout moments included **Pérez**’s victories on street circuits, underlining his strength in high-risk environments, and **Russell**’s maiden win in Brazil — the only non-Red Bull victory in the second half of the season.
+
+The podium count shows how quickly the balance of the season shifted.
+
+**Verstappen** finished on the podium 17 times, underlining just how rarely he left big points on the table. **Leclerc** and **Pérez** followed with 11 each, while **Sainz** and **Hamilton** reached nine apiece and **Russell** added eight in his first year with Mercedes.
+
+For the midfield teams, podium opportunities were rare. **Lando Norris** claimed McLaren’s only top-three finish of the year at Imola after **Leclerc** spun late in the race.
 
 <figure class="my-8 text-center">
   <img
@@ -84,7 +154,17 @@ Standing on the podium is a rewarding moment for drivers and their teams, symbol
   </figcaption>
 </figure>
 
-Upon examining the point finishes, it becomes clear that **Max Verstappen** and **George Russell** were the most consistent drivers, both securing 20 point finishes. They were closely followed by their respective teammates, **Sergio Perez** and **Lewis Hamilton**, as well as **Charles Leclerc**. **Lando Norris** had an exceptional season with 17 point finishes, showcasing his strong performances while his teammate **Daniel Ricciardo** faced struggles. **Alpine**'s **Esteban Ocon** and **Fernando Alonso** capitalized on the team's well-designed car, establishing themselves as the best from the second-tier teams in 2022. Notably, **Mick Schumacher** achieved his first points in his Formula 1 career at **Silverstone**, a significant milestone. **Nyck de Vries** also scored points on his Formula 1 debut, finishing ninth at **Monza**. Another driver to score points in their debut race was **Zhou Guanyu** for **Alfa Romeo** in the **Bahrain Grand Prix**, adding two more point finishes to his tally throughout the 2022 season.
+Consistency in the points told a similar story.
+
+**Verstappen** and **Russell** each recorded 20 points finishes, the highest total on the grid. **Pérez**, **Leclerc**, and **Hamilton** were just behind on 19, while **Norris** stood out with 17 in a McLaren that was rarely quick enough to fight at the front.
+
+Behind the top teams, **Alpine** emerged as the strongest midfield package. **Ocon** reached the top ten 16 times and **Alonso** 14, enough to secure fourth in the Constructors’ Championship.
+
+There were also a few notable milestones:
+
+- **Mick Schumacher** scored the first points of his Formula 1 career at Silverstone.
+- **Nyck de Vries** finished ninth on his debut at Monza.
+- **Zhou Guanyu** scored on debut in Bahrain and added two more points finishes during the season.
 
 <figure class="my-8 text-center">
   <img
@@ -98,7 +178,11 @@ Upon examining the point finishes, it becomes clear that **Max Verstappen** and 
   </figcaption>
 </figure>
 
-The F1 Sprint format made its return for the 2022 championship, maintaining the same weekend structure as in 2021. The sprints were held at **Imola**, the **Red Bull Ring**, and **Interlagos**, with a notable change being the awarding of points to the top eight finishers instead of just the top three as in the previous year. As depicted below, this new scoring system allowed more drivers to benefit from the F1 Sprint sessions. **Max Verstappen** continued to excel, topping the charts with an additional 21 points from the sprint races. **Carlos Sainz** and **Charles Leclerc** put in strong performances, closely following **Verstappen**. **Sergio Perez** and **George Russell** also secured extra points through the sprint sessions, showcasing their abilities in these shorter races. The increased number of point-earning opportunities in the F1 Sprint format added an extra dynamic to the championship.
+Sprint weekends returned in 2022 at **Imola**, the **Red Bull Ring**, and **Interlagos**.
+
+The format stayed largely the same, but points were now awarded to the top eight finishers instead of only the top three. That made Sprint races more relevant to the championship, especially for the front-runners.
+
+**Verstappen** extracted the most value, scoring 21 Sprint points across the three events. **Sainz** and **Leclerc** followed with 18 and 17, while **Pérez** and **Russell** also reached double figures. The spread of names lower down the chart, from **Norris** to **Magnussen** and **Bottas**, shows how much broader the Sprint points distribution became under the new system.
 
 <figure class="my-8 text-center">
   <img
@@ -112,7 +196,11 @@ The F1 Sprint format made its return for the 2022 championship, maintaining the 
   </figcaption>
 </figure>
 
-The opportunity to score an extra point for the fastest lap during a race session was once again present in the 2022 season, provided the driver finished inside the top 10. **Max Verstappen** continued to showcase his speed and skill, topping the charts with 5 points for the fastest laps. In **Singapore**, **George Russell** finished in P14, missing out on the additional point, while **Zhou Guanyu** in **Japan** finished in 16th place, also unable to secure the fastest lap point. Notably, **Verstappen** and **Russell** achieved a maximum of 34 points in a race weekend at the **Emilia Romagna** and **São Paulo Grand Prix**. This exceptional feat was accomplished by winning the F1 Sprint session, the race itself, and scoring the fastest lap, further highlighting their outstanding performances and ability to maximize their points haul.
+Fastest laps added another small layer to the picture of outright pace.
+
+**Verstappen** recorded the most fastest laps with five. **Russell** followed with four, while **Leclerc** and **Pérez** took three each. Further down, **Norris**, **Sainz**, and **Hamilton** each managed two, and **Zhou** appeared on the list once.
+
+What stands out is how concentrated these laps were among the leading teams: Red Bull, Ferrari, and Mercedes accounted for nearly all of them.
 
 <figure class="my-8 text-center">
   <img
@@ -126,7 +214,13 @@ The opportunity to score an extra point for the fastest lap during a race sessio
   </figcaption>
 </figure>
 
-In the realm of Formula 1, retirements are an inevitable aspect of the sport, resulting from mistakes or mechanical issues. Throughout the 2022 season, a total of 74 DNFs were recorded. Among these, eight were attributed to accidents, while ten stemmed from collisions between drivers. The remaining retirements were a consequence of various mechanical issues, notably involving gearboxes, hydraulics, power units, or engine failures. **Carlos Sainz** endured the highest number of retirements with six, a notable contrast to his flawless record of completing all races in the 2021 season. **Valtteri Bottas, Fernando Alonso**, and **Yuki Tsunoda** also faced six retirements each, revealing reliability issues for **Alfa Romeo, Alpine**, and **AlphaTauri**. Both **Williams** drivers, as well as **Zhou Guanyu** and **Kevin Magnussen**, also encountered challenges leading to retirements, exposing issues within their respective teams. One of **Zhou**'s retirements was a [horrific accident at **Silverstone**](https://www.youtube.com/watch?v=T7kjjkh2lmM) following contact with **George Russell**'s **Mercedes**, serving as a stark reminder of the risks and incidents that can occur on the track.
+Reliability had a major influence on the 2022 season.
+
+The DNF chart is notably compressed at the top. **Sainz**, **Bottas**, **Alonso**, and **Tsunoda** each suffered six retirements, while **Albon**, **Latifi**, **Zhou**, and **Magnussen** were close behind on five.
+
+At the other end of the scale, **Russell** retired only once all season. That difference in reliability and race survival helps explain why he stayed so close to the front of the championship despite Mercedes rarely having the fastest car.
+
+One of the most dramatic moments of the season came at Silverstone, where [**Zhou Guanyu’s high-speed crash**](https://www.youtube.com/watch?v=T7kjjkh2lmM) on the opening lap served as a stark reminder of the risks involved, even in the modern era.
 
 <figure class="my-8 text-center">
   <img
@@ -142,7 +236,13 @@ In the realm of Formula 1, retirements are an inevitable aspect of the sport, re
 
 ## Point Progression
 
-Upon closer examination of the drivers' points throughout the season, it becomes evident that **Charles Leclerc** initially led the World Championship until the 6th race, where **Max Verstappen** overtook him in the standings and went on to secure his second consecutive World Championship title. **Leclerc**'s hopes for the championship dwindled as the season progressed, hampered by strategic mistakes from **Ferrari** and personal errors on track. In the latter half of the season, **Leclerc** found himself locked in a battle for second place with **Sergio Perez**, ultimately emerging victorious in the final race of the season. **George Russell** had an impressive debut year with **Mercedes**, even managing to outperform **Lewis Hamilton** on the standings. Notably, **Hamilton** attempted a late-season comeback, but it was **Carlos Sainz** from **Ferrari** who claimed the fifth-place position in the championship standings.
+A season-long view of the Drivers’ Championship makes the turning point easy to spot.
+
+**Leclerc** led the standings through the early rounds as Ferrari looked like the faster package. That changed by round six, when **Verstappen** moved ahead and never gave the lead back. From that point on, Red Bull’s combination of pace, reliability, and race execution steadily widened the gap.
+
+Ferrari’s title challenge faded through a mix of strategic errors, reliability problems, and driver mistakes. By the final races, the more relevant battle was for second place, where **Leclerc** narrowly held off **Pérez**.
+
+Further back, **Russell** enjoyed an excellent first season at Mercedes and finished ahead of **Hamilton** in the standings, while **Sainz** secured fifth place overall.
 
 <figure class="my-8 text-center">
   <img
@@ -156,7 +256,11 @@ Upon closer examination of the drivers' points throughout the season, it becomes
   </figcaption>
 </figure>
 
-Shifting our focus to the Constructors' Championship, **Red Bull Racing** continued to extend their lead with each race, ultimately securing their 5th overall Constructors' World Championship and their first since 2013. While **Mercedes** remained close to **Ferrari** throughout the season, they were unable to surpass the Italian team, resulting in **Ferrari** securing second place. A captivating battle unfolded for the fourth place in the standings, with **Alpine** and **McLaren** fiercely competing. Ultimately, the combined efforts of the **Alpine** drivers proved to be enough to secure them the 4th place, triumphing over **Lando Norris**'s heroic performances for **McLaren**.
+The Constructors’ Championship followed a similar pattern.
+
+**Red Bull Racing** gradually broke clear of the field and secured its first Constructors’ title since 2013. Behind them, **Ferrari** did enough to stay ahead of **Mercedes**, despite the latter improving significantly over the second half of the year.
+
+The closest fight was for fourth. **Alpine** ultimately beat **McLaren**, with the consistency of both **Ocon** and **Alonso** proving enough to overcome **Norris**’s standout individual season.
 
 <figure class="my-8 text-center">
   <img
@@ -172,31 +276,61 @@ Shifting our focus to the Constructors' Championship, **Red Bull Racing** contin
 
 ## Conclusions and Final Standings
 
-**Max Verstappen** claimed his second consecutive World Championship title, finishing with a commanding lead of nearly 150 points over his closest rival. **Leclerc** secured second place, narrowly edging out **Sergio Perez**, who settled for third. **George Russell** had a remarkable season, earning his maiden Formula 1 victory in **São Paulo** and outperforming his **Mercedes** teammate, **Lewis Hamilton**, in the standings. **Hamilton** faced difficulties throughout the year, failing to secure a race win or pole position for the first time in his Formula 1 career, ultimately finishing in sixth place. **Carlos Sainz** achieved his maiden Formula 1 victory at **Silverstone** and positioned himself between the two **Mercedes** drivers in the final standings. **Lando Norris** enjoyed an exceptional season, finishing in seventh place with 122 points and showcasing his impressive performances, while his **McLaren** teammate, **Daniel Ricciardo**, faced challenges and ended the season in eleventh. **Sebastian Vettel** struggled with the **Aston Martin** car in what would be his final year in Formula 1. **Kevin Magnussen**'s standout moment was securing his maiden pole position in **São Paulo**, a first for the **Haas** team. **Mick Schumacher, Guanyu Zhou**, and **Nyck de Vries** all scored their first points in their Formula 1 careers, while **Alexander Albon** exceeded expectations in his F1 comeback with **Williams**.
+The 2022 season began with the promise of a genuine title fight, but it ended as a demonstration of Red Bull’s superiority.
 
-In the Constructors' Championship, **Red Bull Racing** celebrated their triumph as they secured their 5th overall Constructors' World Championship and their first since 2013, following the introduction of the V6 Turbo Hybrid engine era. **Ferrari** secured second place, despite numerous strategical mistakes that ultimately led to the resignation of **Mattia Binotto** as the team's principal. **Mercedes**, endured a catastrophic season and finished in third place. An intense battle unfolded for fourth place between **Alpine** and **McLaren**, with the combined efforts of the **Alpine** drivers proving enough to secure them the 4th place, triumphing over the heroic performances of **McLaren**'s **Lando Norris**. Notably, all the teams managed to score points this season, with **Williams** finishing in last place but the other backmarkers not far ahead, grappling with their own reliability issues.
+**Verstappen** secured his second consecutive World Championship with a record 15 wins from 22 races, while **Red Bull** sealed its first Constructors’ crown of the hybrid era. **Leclerc** finished second, just ahead of **Pérez**, after Ferrari’s strong start gave way to too many missed opportunities.
+
+For **Mercedes**, the year was disappointing by its own standards, but the team recovered well enough to take third and claim a breakthrough win with **Russell** in São Paulo. Behind the top three teams, **Alpine** won the battle for fourth, **McLaren** leaned heavily on **Norris**, and every team on the grid scored at least once.
 
 <figure class="my-16">
   <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
 
     <div class="overflow-x-auto">
       <h4 class="text-center mb-2">(a) Drivers</h4>
-      <img
-        src="https://raw.githubusercontent.com/mpalaourg/F1_DataAnalysis/main/2022-Season/imgs/drivers_standings.png"
-        alt="2022 driver standings"
-        class="mx-auto"
-        loading="lazy"
-      />
+
+| Pos. | Driver            | Constructor      | Points |
+|:----:|:-----------------:|:----------------:|:------:|
+| 1    | Max Verstappen    | Red Bull Racing  | 454    |
+| 2    | Charles Leclerc   | Ferrari          | 308    |
+| 3    | Sergio Pérez      | Red Bull Racing  | 305    |
+| 4    | George Russell    | Mercedes         | 275    |
+| 5    | Carlos Sainz      | Ferrari          | 246    |
+| 6    | Lewis Hamilton    | Mercedes         | 240    |
+| 7    | Lando Norris      | McLaren          | 122    |
+| 8    | Esteban Ocon      | Alpine           | 92     |
+| 9    | Fernando Alonso   | Alpine           | 81     |
+| 10   | Valtteri Bottas   | Alfa Romeo       | 49     |
+| 11   | Sebastian Vettel  | Aston Martin     | 37     |
+| 12   | Daniel Ricciardo  | McLaren          | 37     |
+| 13   | Kevin Magnussen   | Haas F1 Team     | 25     |
+| 14   | Pierre Gasly      | AlphaTauri       | 23     |
+| 15   | Lance Stroll      | Aston Martin     | 18     |
+| 16   | Mick Schumacher   | Haas F1 Team     | 12     |
+| 17   | Yuki Tsunoda      | AlphaTauri       | 12     |
+| 18   | Zhou Guanyu       | Alfa Romeo       | 6      |
+| 19   | Alexander Albon   | Williams         | 4      |
+| 20   | Nyck de Vries     | Williams         | 2      |
+| 21   | Nicholas Latifi   | Williams         | 2      |
+| 22   | Nico Hülkenberg   | Aston Martin     | 0      |
+
     </div>
 
     <div class="overflow-x-auto">
       <h4 class="text-center mb-2">(b) Constructors</h4>
-      <img
-        src="https://raw.githubusercontent.com/mpalaourg/F1_DataAnalysis/main/2022-Season/imgs/constructor_standings.png"
-        alt="2022 constructor standings"
-        class="mx-auto"
-        loading="lazy"
-      />
+
+| Pos. | Constructor      | Points |
+|:----:|:----------------:|:------:|
+| 1    | Red Bull Racing  | 759    |
+| 2    | Ferrari          | 554    |
+| 3    | Mercedes         | 515    |
+| 4    | Alpine           | 173    |
+| 5    | McLaren          | 159    |
+| 6    | Alfa Romeo       | 55     |
+| 7    | Aston Martin     | 55     |
+| 8    | Haas F1 Team     | 37     |
+| 9    | AlphaTauri       | 35     |
+| 10   | Williams         | 8      |
+
     </div>
 
   </div>

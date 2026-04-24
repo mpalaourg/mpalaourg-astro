@@ -1,0 +1,26 @@
+[
+  {
+    "id": "mark-rober",
+    "name": "Mark Rober",
+    "handle": "MarkRober",
+    "avatarUrl": "/images/mark-rober.jpg",
+    "curated": true,
+    "description": "Science, engineering and creativity"
+  },
+  {
+    "id": "stuff-made-here",
+    "name": "Stuff Made Here",
+    "handle": "StuffMadeHere",
+    "avatarUrl": "/images/stuff-made-here.jpg",
+    "curated": true,
+    "description": "Engineering impossible things"
+  },
+  {
+    "id": "statquest",
+    "name": "StatQuest with Josh Starmer",
+    "handle": "statquest",
+    "avatarUrl": "/images/statquest.jpg",
+    "curated": true,
+    "description": "Statistics and machine learning explained clearly"
+  }
+]

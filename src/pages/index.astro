@@ -8,6 +8,7 @@ import NASAWidget from "../components/NASAWidget.astro";
 import FactWidget from "../components/FactWidget.astro";
 import F1QuoteWidget from "../components/F1QuoteWidget.astro";
 import JokeWidget from "../components/JokeWidget.astro";
+import YouTubeWidget from "../components/YouTubeWidget.astro";
 
 const formulaPosts = await getCollection("formula");
 const publicationsPosts = await getCollection("publications");
@@ -29,10 +30,18 @@ const experiences = [
     prominent: true,
     positions: [
       {
-        title: "Machine Learning Engineer",
-        date_start: "Mar 2025",
+        title: "Senior Machine Learning Engineer",
+        date_start: "Apr 2026",
         date_end: "",
         current: true,
+        description: "",
+        skills: ["Azure Databricks", "FastAPI", "NoSQL", "Multi-agent Systems", "NLP"],
+      },
+      {
+        title: "Machine Learning Engineer",
+        date_start: "Mar 2025",
+        date_end: "Mar 2026",
+        current: false,
         description: "Building a multi-agent AI system analyzing large volumes of customer feedback data, including millions of survey responses and chat transcripts, to identify trends and summarize experiences automatically.",
         skills: ["Azure Databricks", "FastAPI", "NoSQL", "Multi-agent Systems", "NLP"],
       },
@@ -158,7 +167,7 @@ const experiences = [
         <!-- Right: Info -->
         <div class="flex-1">
           <h1 class="text-4xl font-bold mb-2">Georgios Balaouras</h1>
-          <p class="text-xl text-gray-600 dark:text-slate-400 mb-4">Machine Learning Engineer</p>
+          <p class="text-xl text-gray-600 dark:text-slate-400 mb-4">Senior Machine Learning Engineer</p>
           
           <p class="text-gray-600 dark:text-slate-400 mb-4 text-justify leading-relaxed">
             I build machine learning systems that actually solve real problems. My background spans academic research on video summarization at CERTH-ITI and deploying ML at scale in enterprise settings. I enjoy turning complex research into practical, production-ready solutions. When I'm not training models, you'll find me analyzing the latest Formula 1 race or hunting for the perfect freddo espresso. 🏎️☕
@@ -464,6 +473,22 @@ const experiences = [
       </div>
       <div class="mb-10">
       <F1RaceWidget lang="en" />
+      </div>
+    </section>
+
+    <!-- YouTube Section -->
+    <section class="py-8 px-6">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold flex items-center gap-2">
+          <svg class="w-6 h-6 text-red-600" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>
+          </svg>
+          Featured Videos
+        </h2>
+        <a href="/mpalaourg-astro/videos" class="text-sm text-gray-500 hover:underline">View All →</a>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <YouTubeWidget lang="en" />
       </div>
     </section>
 

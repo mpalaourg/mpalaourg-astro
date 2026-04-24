@@ -8,28 +8,17 @@ export const GET: APIRoute = async ({ request, locals }) => {
   const cache = createCache(runtime.env.DB);
   
   try {
-    // Get language and random date parameters
+    // Get language parameter
     const url = new URL(request.url);
     const lang = url.searchParams.get('lang') || 'en';
-    const random = url.searchParams.get('random') === 'true';
     
-    // Check if this is a "New Fact" request (bypass cache)
+    // Check if this is a "New Fact" request (bypass cache to get fresh events)
     const skipCache = url.searchParams.get('nocache') === 'true';
 
-    // Get date (today or random)
-    let month: number;
-    let day: number;
-
-    if (random) {
-      // Random date
-      month = Math.floor(Math.random() * 12) + 1;
-      day = Math.floor(Math.random() * 28) + 1;
-    } else {
-      // Today's date
-      const today = new Date();
-      month = today.getMonth() + 1;
-      day = today.getDate();
-    }
+    // Always use today's date
+    const today = new Date();
+    const month = today.getMonth() + 1;
+    const day = today.getDate();
 
     // Month names for Wikipedia URLs
     const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
@@ -44,18 +33,22 @@ export const GET: APIRoute = async ({ request, locals }) => {
     const isGreek = lang === 'el';
     const apiLang = supportedLangs.includes(lang) ? lang : 'en';
     
-    // Create cache key - for random, use a fixed key so all random requests share cooldown
-    // This prevents spamming "New Fact" button
-    const cacheKey = random 
-      ? `facts:otd:random:${lang}`
-      : `facts:otd:${monthStr}:${dayStr}:${lang}:today`;
+    // Create cache key - cache the events list for today
+    const cacheKey = `facts:otd:${monthStr}:${dayStr}:${apiLang}`;
     
     // Check cache (only if not skipping cache)
     if (!skipCache && cache) {
-      const cached = await cache.get<{ fact: string; date: string; source: string; sourceUrl: string; needsTranslation: boolean }>(cacheKey);
-      if (cached) {
-        console.log(`Serving cached OTD fact for ${monthStr}/${dayStr}`);
-        return new Response(JSON.stringify(cached), {
+      const cached = await cache.get<{ events: Array<{ text: string }>; date: string; source: string; sourceUrl: string }>(cacheKey);
+      if (cached && cached.events && cached.events.length > 0) {
+        // Return a random event from cached list
+        const randomEvent = cached.events[Math.floor(Math.random() * cached.events.length)];
+        return new Response(JSON.stringify({
+          fact: randomEvent.text,
+          date: cached.date,
+          source: cached.source,
+          sourceUrl: cached.sourceUrl,
+          needsTranslation: isGreek,
+        }), {
           status: 200,
           headers: { "Content-Type": "application/json" },
         });
@@ -84,24 +77,26 @@ export const GET: APIRoute = async ({ request, locals }) => {
       throw new Error('No events found for this date');
     }
 
-    // Pick a random event from this day
-    const event = data.events[Math.floor(Math.random() * data.events.length)];
-
     // Build Wikipedia link (e.g., March_9)
     const dateTitle = `${monthName}_${day}`;
     const wikiUrl = `https://${apiLang}.wikipedia.org/wiki/${dateTitle}`;
 
     const result = {
-      fact: event.text,
+      fact: data.events[0].text, // First event as default
       date: `${dayStr}/${monthStr}`,
       source: `wikipedia.org (${apiLang})`,
       sourceUrl: wikiUrl,
       needsTranslation: isGreek,
     };
     
-    // Cache the result for 90 seconds (only if not skipping cache)
-    if (!skipCache && cache) {
-      await cache.set(cacheKey, result, 90);
+    // Cache the events list for 6 hours (21600 seconds)
+    if (cache) {
+      await cache.set(cacheKey, {
+        events: data.events,
+        date: `${dayStr}/${monthStr}`,
+        source: `wikipedia.org (${apiLang})`,
+        sourceUrl: wikiUrl,
+      }, 21600);
     }
 
     return new Response(

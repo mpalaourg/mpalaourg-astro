@@ -1,0 +1,42 @@
+[
+  {
+    "title": "Testing The World's Smartest Crow",
+    "videoId": "tpg3VvoIVfA",
+    "creatorId": "mark-rober",
+    "description": "Can a crow solve puzzles better than a chimp?",
+    "duration": "22:55",
+    "featured": true
+  },
+  {
+    "title": "Backyard Squirrel Maze 2.0- The Walnut Heist",
+    "videoId": "DTvS9lvRxZ8",
+    "creatorId": "mark-rober",
+    "description": "An even more elaborate maze for the squirrels in my backyard.",
+    "duration": "16:41",
+    "featured": true
+  },
+  {
+    "title": "Backyard Squirrel Maze 1.0- Ninja Warrior Course",
+    "videoId": "hFZFjoX2cGg",
+    "creatorId": "mark-rober",
+    "description": "A Ninja Warrior style obstacle course for backyard squirrels.",
+    "duration": "21:40",
+    "featured": true
+  },
+  {
+    "title": "Octopus vs Underwater Maze",
+    "videoId": "7__r4FVj-EI",
+    "creatorId": "mark-rober",
+    "description": "Can an octopus find its way through an underwater maze?",
+    "duration": "17:13",
+    "featured": true
+  },
+  {
+    "title": "Moving hoop won't let you miss",
+    "videoId": "myO8fxhDRW0",
+    "creatorId": "stuff-made-here",
+    "description": "A basketball hoop that moves to catch every shot.",
+    "duration": "13:43",
+    "featured": true
+  }
+]

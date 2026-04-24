@@ -86,9 +86,6 @@ const T = t[lang];
 <script is:inline>
   // Translation cache to avoid re-translating same text
   const translationCache = new Map();
-  
-  // Cooldown duration for "New Fact" button
-  const COOLDOWN_SECONDS = 90;
 
   async function translateText(text, targetLang) {
     // Check cache first
@@ -132,7 +129,7 @@ const T = t[lang];
     return { text: null, success: false, source: null };
   }
 
-  async function fetchFact(widget, category, useRandomDate = false) {
+  async function fetchFact(widget, category) {
     const lang = widget.dataset.lang;
     
     // Show loading state
@@ -155,7 +152,7 @@ const T = t[lang];
       if (category === 'general') {
         endpoint = `${basePath}/api/facts/general${skipCache ? '?nocache=true' : ''}`;
       } else if (category === 'otd') {
-        endpoint = `${basePath}/api/facts/onthisday?lang=${lang}&random=${useRandomDate}${skipCache ? '&nocache=true' : ''}`;
+        endpoint = `${basePath}/api/facts/onthisday?lang=${lang}${skipCache ? '&nocache=true' : ''}`;
       } else if (category === 'sports') {
         endpoint = `${basePath}/api/facts/sports${skipCache ? '?nocache=true' : ''}`;
       }
@@ -294,48 +291,6 @@ const T = t[lang];
 
   // Initialize all fact widgets
   document.querySelectorAll('.fact-widget').forEach(widget => {
-    // Per-widget cooldown tracking
-    const widgetCooldowns = new Map();
-    
-    function widgetIsOnCooldown(category) {
-      const lastFetch = widgetCooldowns.get(category);
-      if (!lastFetch) return false;
-      const elapsed = (Date.now() - lastFetch) / 1000;
-      return elapsed < COOLDOWN_SECONDS;
-    }
-    
-    function widgetGetRemainingCooldown(category) {
-      const lastFetch = widgetCooldowns.get(category);
-      if (!lastFetch) return 0;
-      const elapsed = (Date.now() - lastFetch) / 1000;
-      return Math.max(0, Math.ceil(COOLDOWN_SECONDS - elapsed));
-    }
-    
-    function widgetSetCooldown(category) {
-      widgetCooldowns.set(category, Date.now());
-    }
-    
-    function widgetUpdateRefreshButtonState(category) {
-      const refreshBtn = widget.querySelector('.fact-refresh');
-      if (!refreshBtn) return;
-      
-      const onCooldown = widgetIsOnCooldown(category);
-      const remaining = widgetGetRemainingCooldown(category);
-      const lang = widget.dataset.lang;
-      
-      if (onCooldown) {
-        refreshBtn.disabled = true;
-        refreshBtn.classList.add('opacity-50', 'cursor-not-allowed');
-        refreshBtn.classList.remove('cursor-pointer', 'hover:underline');
-        refreshBtn.innerHTML = `🔄 ${remaining}s`;
-      } else {
-        refreshBtn.disabled = false;
-        refreshBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-        refreshBtn.classList.add('cursor-pointer', 'hover:underline');
-        refreshBtn.innerHTML = `🔄 ${lang === 'el' ? 'Νέο Γεγονός' : 'New Fact'}`;
-      }
-    }
-
     // Initial fetch
     fetchFact(widget, 'general');
 
@@ -348,24 +303,21 @@ const T = t[lang];
       e.stopPropagation();
       widget.dataset.category = 'general';
       updateCategoryButtons(widget, 'general');
-      widgetUpdateRefreshButtonState('general');
-      fetchFact(widget, 'general', false);
+      fetchFact(widget, 'general');
     });
 
     otdBtn?.addEventListener('click', (e) => {
       e.stopPropagation();
       widget.dataset.category = 'otd';
       updateCategoryButtons(widget, 'otd');
-      widgetUpdateRefreshButtonState('otd');
-      fetchFact(widget, 'otd', false);
+      fetchFact(widget, 'otd');
     });
 
     sportsBtn?.addEventListener('click', (e) => {
       e.stopPropagation();
       widget.dataset.category = 'sports';
       updateCategoryButtons(widget, 'sports');
-      widgetUpdateRefreshButtonState('sports');
-      fetchFact(widget, 'sports', false);
+      fetchFact(widget, 'sports');
     });
 
     // Refresh button
@@ -374,32 +326,9 @@ const T = t[lang];
       refreshBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         const category = widget.dataset.category || 'general';
-        
-        // Check cooldown for this widget's category
-        if (widgetIsOnCooldown(category)) {
-          const remaining = widgetGetRemainingCooldown(category);
-          console.log(`Cooldown active for ${category}: ${remaining}s remaining`);
-          return;
-        }
-        
-        // Set cooldown and skip cache for this fetch
-        widgetSetCooldown(category);
         widget.dataset.skipCache = 'true';
-        widgetUpdateRefreshButtonState(category);
-        const useRandomDate = category === 'otd';
-        fetchFact(widget, category, useRandomDate);
-        
-        // Start countdown timer
-        const interval = setInterval(() => {
-          widgetUpdateRefreshButtonState(category);
-          if (!widgetIsOnCooldown(category)) {
-            clearInterval(interval);
-          }
-        }, 1000);
+        fetchFact(widget, category);
       });
     }
-    
-    // Set initial cooldown state on load
-    widgetUpdateRefreshButtonState('general');
   });
 </script>
