@@ -14,11 +14,19 @@ const publicationsEl = await getCollection("publications-el");
 const projectsPosts = await getCollection("projects-el");
 
 const allFormula = formulaPosts.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
-const sortedFormula = allFormula.slice(0, 3);
 const sortedPublications = publicationsEl.sort((a, b) => b.data.date.getTime() - a.data.date.getTime()).slice(0, 3);
 const sortedProjects = projectsPosts.sort((a, b) => (a.data.weight || 999) - (b.data.weight || 999));
 
-const formulaTags = [...new Set(allFormula.flatMap(p => p.data.tags || []))].sort();
+const formulaTagCounts = allFormula.flatMap((post) => post.data.tags || []).reduce((acc, tag) => {
+  if (tag !== "formula1") {
+    acc[tag] = (acc[tag] || 0) + 1;
+  }
+  return acc;
+}, {} as Record<string, number>);
+const formulaTags = Object.entries(formulaTagCounts)
+  .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+  .slice(0, 5)
+  .map(([tag]) => tag);
 const projectTags = ["machine learning", "C", "MATLAB", "multimedia"];
 
 const experiences = [
@@ -498,8 +506,8 @@ const experiences = [
       </div>
       
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="formula-grid">
-        {sortedFormula.map((season) => (
-          <a href={`/mpalaourg-astro/el/formula/${season.slug}`} class="formula-card block rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden hover:border-slate-400 dark:hover:border-slate-500 transition-colors" data-title={season.data.title.toLowerCase()} data-tags={JSON.stringify(season.data.tags || [])}>
+        {allFormula.map((season, index) => (
+          <a href={`/mpalaourg-astro/el/formula/${season.slug}`} class="formula-card block rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden hover:border-slate-400 dark:hover:border-slate-500 transition-colors" data-title={season.data.title.toLowerCase()} data-tags={JSON.stringify(season.data.tags || [])} data-rank={index}>
             {season.data.featuredImage && (
               <img
                 src={season.data.featuredImage}
@@ -512,6 +520,15 @@ const experiences = [
               <p class="text-sm text-gray-600 dark:text-slate-400">
                 {season.data.summary.substring(0, 60)}...
               </p>
+              {season.data.tags && season.data.tags.length > 0 && (
+                <div class="mt-3 flex flex-wrap gap-1">
+                  {season.data.tags.slice(0, 3).map((tag) => (
+                    <span class="px-2 py-0.5 text-xs rounded-full bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-slate-300">
+                      #{tag}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
           </a>
         ))}
@@ -597,6 +614,8 @@ const experiences = [
 
       function filterFormula() {
         const searchTerm = (formulaSearch as HTMLInputElement)?.value?.toLowerCase() || '';
+        const isFiltering = searchTerm !== '' || currentTag !== '';
+        let visibleCount = 0;
         
         formulaCards.forEach(card => {
           const title = card.getAttribute('data-title') || '';
@@ -606,12 +625,21 @@ const experiences = [
           const matchesTag = currentTag === '' || tags.includes(currentTag);
           
           if (matchesSearch && matchesTag) {
-            (card as HTMLElement).style.display = 'block';
+            if (!isFiltering && visibleCount < 3) {
+              (card as HTMLElement).style.display = 'block';
+              visibleCount++;
+            } else if (isFiltering) {
+              (card as HTMLElement).style.display = 'block';
+            } else {
+              (card as HTMLElement).style.display = 'none';
+            }
           } else {
             (card as HTMLElement).style.display = 'none';
           }
         });
       }
+
+      filterFormula();
 
       formulaSearch?.addEventListener('input', filterFormula);
 

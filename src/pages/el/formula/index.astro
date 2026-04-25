@@ -4,7 +4,7 @@ import { getCollection } from "astro:content";
 import { getReadingTime } from "../../../utils/readingTime";
 import F1RaceWidget from "../../../components/F1RaceWidget.astro";
 
-const allPosts = await getCollection("formula");
+const allPosts = await getCollection("formula-el");
 
 // Sort newest first
 const posts = allPosts.sort(
@@ -13,6 +13,7 @@ const posts = allPosts.sort(
 
 // Get all unique tags
 const allTags = [...new Set(allPosts.flatMap(post => post.data.tags || []))].sort();
+const allYears = [...new Set(posts.map((post) => post.slug.split("-")[0]))].sort((a, b) => Number(b) - Number(a));
 
 // Filters
 const activeTag = Astro.url.searchParams.get("tag");
@@ -51,7 +52,7 @@ const filteredPosts = posts.filter((post) => {
     </div>
 
     <div class="flex gap-4 mb-10">
-    {["2022", "2021", "2020"].map((year) => (
+    {allYears.map((year) => (
         <a
         href={buildUrl({ year })}
         class={`px-3 py-1 rounded-md border text-sm
