@@ -2,7 +2,7 @@
 title: "Image Segmentation"
 summary: "Image segmentation using graph-based clustering algorithms."
 date: 2019-02-01
-featuredImage: "/mpalaourg-astro/projects/image-segmentation/featured.png"
+featuredImage: "/projects/image-segmentation/featured.png"
 tags:
   - multimedia
   - MATLAB

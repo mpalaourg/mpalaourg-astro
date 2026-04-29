@@ -2,7 +2,7 @@
 title: "Τμηματοποίηση Εικόνων"
 summary: "Τμηματοποίηση εικόνων με χρήση αλγορίθμων βασισμένων σε γράφους."
 date: 2019-02-01
-featuredImage: "/mpalaourg-astro/projects/image-segmentation/featured.png"
+featuredImage: "/projects/image-segmentation/featured.png"
 tags:
   - multimedia
   - MATLAB

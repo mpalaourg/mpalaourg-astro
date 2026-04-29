@@ -2,7 +2,7 @@
 title: "Pi Messenger"
 summary: "Raspberry Pi 0 communication over Wi-Fi with minimal energy consumption."
 date: 2019-06-01
-featuredImage: "/mpalaourg-astro/projects/pi-messenger/featured.png"
+featuredImage: "/projects/pi-messenger/featured.png"
 tags:
   - Raspberry Pi 0
   - embedded systems

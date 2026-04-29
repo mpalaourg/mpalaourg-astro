@@ -10,7 +10,7 @@ import PlayfulSignalsSection from "../components/PlayfulSignalsSection.astro";
     <section class="overflow-hidden rounded-[2rem] border border-slate-200/80 bg-white/40 shadow-sm dark:border-slate-700 dark:bg-slate-900/30">
       <div class="relative h-56 overflow-hidden md:h-64">
         <img
-          src="/mpalaourg-astro/media/cover.jpg"
+          src="/media/cover.jpg"
           alt="About cover"
           class="h-full w-full object-cover object-[center_35%]"
         />
@@ -21,7 +21,7 @@ import PlayfulSignalsSection from "../components/PlayfulSignalsSection.astro";
       <div class="relative px-6 pb-8 pt-0 md:px-8">
         <div class="-mt-16 mb-6 md:-mt-20">
           <img
-            src="/mpalaourg-astro/media/avatar.jpg"
+            src="/media/avatar.jpg"
             alt="Georgios Balaouras"
             class="h-32 w-32 rounded-[2rem] object-cover shadow-xl ring-4 ring-white dark:ring-slate-900 md:h-36 md:w-36"
           />
@@ -33,9 +33,9 @@ import PlayfulSignalsSection from "../components/PlayfulSignalsSection.astro";
           I like work that is clear, useful, and grounded in real problems. Outside that, the same instinct shows up in simpler things: coffee, travel, Formula 1, rembetika, and small curiosities worth a second look.
         </p>
         <div class="mt-8 flex flex-wrap gap-3">
-          <a href="/mpalaourg-astro/projects" class="rounded-full border border-gray-300 px-4 py-2 text-sm font-medium hover:border-slate-500 dark:border-slate-600 dark:hover:border-slate-400">Projects</a>
-          <a href="/mpalaourg-astro/publications" class="rounded-full border border-gray-300 px-4 py-2 text-sm font-medium hover:border-slate-500 dark:border-slate-600 dark:hover:border-slate-400">Publications</a>
-          <a href="/mpalaourg-astro/formula" class="rounded-full border border-gray-300 px-4 py-2 text-sm font-medium hover:border-slate-500 dark:border-slate-600 dark:hover:border-slate-400">Formula</a>
+          <a href="/projects" class="rounded-full border border-gray-300 px-4 py-2 text-sm font-medium hover:border-slate-500 dark:border-slate-600 dark:hover:border-slate-400">Projects</a>
+          <a href="/publications" class="rounded-full border border-gray-300 px-4 py-2 text-sm font-medium hover:border-slate-500 dark:border-slate-600 dark:hover:border-slate-400">Publications</a>
+          <a href="/formula" class="rounded-full border border-gray-300 px-4 py-2 text-sm font-medium hover:border-slate-500 dark:border-slate-600 dark:hover:border-slate-400">Formula</a>
         </div>
       </div>
     </section>
@@ -65,7 +65,7 @@ import PlayfulSignalsSection from "../components/PlayfulSignalsSection.astro";
 
       <div id="slider" class="relative overflow-hidden rounded-[2rem] border border-gray-200 bg-slate-900 shadow-lg dark:border-slate-700" data-interval="10000">
         <div class="absolute inset-0">
-          <img id="slider-bg" src="/mpalaourg-astro/media/images/coffee.jpg" alt="" class="h-full w-full object-cover opacity-50" />
+          <img id="slider-bg" src="/media/images/coffee.jpg" alt="" class="h-full w-full object-cover opacity-50" />
         </div>
         <div class="absolute inset-0 bg-gradient-to-r from-black/68 via-black/28 to-transparent"></div>
         <div class="relative z-10 flex min-h-[18rem] items-end p-8 md:min-h-[20rem] md:p-10">
@@ -101,13 +101,12 @@ import PlayfulSignalsSection from "../components/PlayfulSignalsSection.astro";
   </main>
 
   <script>
-    const base = "/mpalaourg-astro";
     const slides = [
-      { text: "Strong coffee is still part of the daily routine", bg: base + "/media/images/coffee.jpg" },
-      { text: "I like discovering new cities and walking them slowly", bg: base + "/media/images/travel.jpg" },
-      { text: "I rarely stay away from a good series for long", bg: base + "/media/images/series.jpg" },
-      { text: "Race weekends still get my full attention", bg: base + "/media/images/f1.jpg" },
-      { text: "Rembetika remains one of the sounds I return to most", bg: base + "/media/images/music.jpg" },
+      { text: "Strong coffee is still part of the daily routine", bg: "/media/images/coffee.jpg" },
+      { text: "I like discovering new cities and walking them slowly", bg: "/media/images/travel.jpg" },
+      { text: "I rarely stay away from a good series for long", bg: "/media/images/series.jpg" },
+      { text: "Race weekends still get my full attention", bg: "/media/images/f1.jpg" },
+      { text: "Rembetika remains one of the sounds I return to most", bg: "/media/images/music.jpg" },
     ];
 
     let currentSlide = 0;

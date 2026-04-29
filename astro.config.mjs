@@ -6,8 +6,7 @@ import sitemap from "@astrojs/sitemap";
 import cloudflare from "@astrojs/cloudflare";
 
 export default defineConfig({
-  site: 'https://mpalaourg-astro.pages.dev',
-  base: '/mpalaourg-astro',
+  site: 'https://mpalaourg.dev',
   output: 'server',
   integrations: [
     mdx(),

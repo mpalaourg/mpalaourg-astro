@@ -25,7 +25,7 @@ const buildUrl = (params) => {
   Object.entries(params).forEach(([k, v]) =>
     v ? sp.set(k, v) : sp.delete(k)
   );
-  return `/mpalaourg-astro/el/formula?${sp.toString()}`;
+  return `/el/formula?${sp.toString()}`;
 };
 
 const filteredPosts = posts.filter((post) => {
@@ -67,7 +67,7 @@ const filteredPosts = posts.filter((post) => {
     ))}
     {(activeYear || activeTag) && (
         <a
-        href="/mpalaourg-astro/el/formula"
+        href="/el/formula"
         class="ml-4 text-sm text-slate-400 hover:underline"
         >
         Καθαρισμός φίλτρων
@@ -110,7 +110,7 @@ const filteredPosts = posts.filter((post) => {
             data-year={postYear}
         >
           {post.data.featuredImage && (
-            <a href={`/mpalaourg-astro/el/formula/${post.slug}`}>
+            <a href={`/el/formula/${post.slug}`}>
                 <img
                 src={post.data.featuredImage}
                 alt={post.data.title}
@@ -122,7 +122,7 @@ const filteredPosts = posts.filter((post) => {
           <div class="flex flex-col justify-between py-2">
             <div>
                 <h2 class="text-2xl font-semibold mb-2 group-hover:underline">
-                    <a href={`/mpalaourg-astro/el/formula/${post.slug}`}>
+                    <a href={`/el/formula/${post.slug}`}>
                         {post.data.title}
                     </a>
                 </h2>

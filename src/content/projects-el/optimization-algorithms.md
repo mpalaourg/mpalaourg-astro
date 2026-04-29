@@ -2,7 +2,7 @@
 title: "Αλγόριθμοι Βελτιστοποίησης"
 summary: "Υλοποίηση διαφόρων αλγορίθμων βελτιστοποίησης για εύρεση ελαχίστων συναρτήσεων."
 date: 2018-02-01
-featuredImage: "/mpalaourg-astro/projects/optimization-algorithms/featured.png"
+featuredImage: "/projects/optimization-algorithms/featured.png"
 tags:
   - function minimum
   - function estimation

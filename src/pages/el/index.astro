@@ -153,7 +153,7 @@ const experiences = [
       <div class="flex flex-col md:flex-row gap-8 items-center md:items-start">
         <div class="shrink-0 flex justify-center">
           <img
-            src="/mpalaourg-astro/media/avatar.jpg"
+            src="/media/avatar.jpg"
             alt="Γιώργος Μπαλαούρας"
             class="w-40 h-40 rounded-full object-cover border-4 border-slate-200 dark:border-slate-700"
           />
@@ -186,7 +186,7 @@ const experiences = [
               LinkedIn
             </a>
             <a
-              href="/mpalaourg-astro/el/media/files/resume_gr.pdf"
+              href="/el/media/files/resume_gr.pdf"
               target="_blank"
               class="flex items-center gap-2 text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white"
             >
@@ -303,12 +303,12 @@ const experiences = [
     <section class="py-8 px-6">
       <div class="flex justify-between items-center mb-6">
         <h2 class="text-2xl font-bold">Δημοσιεύσεις</h2>
-        <a href="/mpalaourg-astro/el/publications" class="text-sm text-gray-500 hover:underline">Προβολή όλων →</a>
+        <a href="/el/publications" class="text-sm text-gray-500 hover:underline">Προβολή όλων →</a>
       </div>
       
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         {sortedPublications.map((pub) => (
-          <a href={`/mpalaourg-astro/el/publications/${pub.slug}`} class="block group perspective-1000">
+          <a href={`/el/publications/${pub.slug}`} class="block group perspective-1000">
             <div class="relative w-full h-72 preserve-3d group-hover:rotate-y-180 transition-transform duration-500 transform-style-preserve-3d">
               <div class="absolute inset-0 backface-hidden rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-800 p-4 flex flex-col overflow-hidden">
                 {pub.data.featuredImage && (
@@ -360,13 +360,13 @@ const experiences = [
               ))}
             </div>
           </div>
-          <a href="/mpalaourg-astro/el/projects" class="text-sm text-gray-500 hover:underline">Προβολή όλων →</a>
+          <a href="/el/projects" class="text-sm text-gray-500 hover:underline">Προβολή όλων →</a>
         </div>
       </div>
       
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="projects-grid">
         {sortedProjects.map((proj) => (
-          <a href={`/mpalaourg-astro/el/projects/${proj.slug}`} class="project-card block rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden hover:border-slate-400 dark:hover:border-slate-500 transition-colors" data-title={proj.data.title.toLowerCase()} data-tags={JSON.stringify(proj.data.tags || [])}>
+          <a href={`/el/projects/${proj.slug}`} class="project-card block rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden hover:border-slate-400 dark:hover:border-slate-500 transition-colors" data-title={proj.data.title.toLowerCase()} data-tags={JSON.stringify(proj.data.tags || [])}>
             {proj.data.featuredImage && (
               <div class="aspect-video overflow-hidden">
                 <img
@@ -489,13 +489,13 @@ const experiences = [
               ))}
             </div>
           </div>
-          <a href="/mpalaourg-astro/el/formula" class="text-sm text-gray-500 hover:underline whitespace-nowrap">Προβολή όλων →</a>
+          <a href="/el/formula" class="text-sm text-gray-500 hover:underline whitespace-nowrap">Προβολή όλων →</a>
         </div>
       </div>
       
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="formula-grid">
         {allFormula.map((season, index) => (
-          <a href={`/mpalaourg-astro/el/formula/${season.slug}`} class="formula-card block rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden hover:border-slate-400 dark:hover:border-slate-500 transition-colors" data-title={season.data.title.toLowerCase()} data-tags={JSON.stringify(season.data.tags || [])} data-rank={index}>
+          <a href={`/el/formula/${season.slug}`} class="formula-card block rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden hover:border-slate-400 dark:hover:border-slate-500 transition-colors" data-title={season.data.title.toLowerCase()} data-tags={JSON.stringify(season.data.tags || [])} data-rank={index}>
             {season.data.featuredImage && (
               <img
                 src={season.data.featuredImage}
