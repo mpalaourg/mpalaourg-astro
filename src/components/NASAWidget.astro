@@ -1,10 +1,11 @@
 ---
-// NASA APOD Widget - Astronomy Picture of the Day with Caching
 interface Props {
   lang?: "en" | "el";
+  variant?: "compact" | "contained";
+  expandMode?: "none" | "click";
 }
 
-const { lang = "en" } = Astro.props;
+const { lang = "en", variant = "compact", expandMode = "none" } = Astro.props;
 
 const t = {
   en: {
@@ -22,46 +23,72 @@ const t = {
 const T = t[lang];
 ---
 
-<div class="nasa-widget group relative" data-lang={lang}>
-  {/* Compact View */}
-  <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-pink-500/10 border border-indigo-200/50 dark:border-indigo-700/50 hover:border-indigo-400 dark:hover:border-indigo-500 transition-all cursor-pointer">
-    <span class="text-base">🚀</span>
-    <span class="nasa-title text-xs font-medium text-gray-600 dark:text-slate-400 truncate max-w-[120px]">Loading...</span>
-  </div>
+<div class="nasa-widget group relative" data-lang={lang} data-variant={variant} data-expand-mode={expandMode}>
+  {variant === "compact" ? (
+    <>
+      <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-pink-500/10 border border-indigo-200/50 dark:border-indigo-700/50 hover:border-indigo-400 dark:hover:border-indigo-500 transition-all cursor-pointer">
+        <span class="text-base">🚀</span>
+        <span class="nasa-title text-xs font-medium text-gray-600 dark:text-slate-400 truncate max-w-[120px]">Loading...</span>
+      </div>
 
-  {/* Expanded Info on Hover */}
-  <div class="nasa-popup absolute top-full left-0 mt-2 w-80 p-4 rounded-xl bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
-    {/* Header */}
-    <div class="flex items-center justify-between mb-3">
-      <div class="flex items-center gap-2">
-        <span class="text-xl">🚀</span>
-        <div>
-          <div class="font-bold text-sm">{T.title}</div>
-          <div class="text-[10px] text-gray-500">{T.by}</div>
+      <div class="nasa-popup absolute top-full left-0 mt-2 w-80 p-4 rounded-xl bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-2">
+            <span class="text-xl">🚀</span>
+            <div>
+              <div class="font-bold text-sm">{T.title}</div>
+              <div class="text-[10px] text-gray-500">{T.by}</div>
+            </div>
+          </div>
+          <span class="nasa-date text-[10px] text-gray-400"></span>
+        </div>
+
+        <div class="relative mb-3 rounded-lg overflow-hidden bg-gray-100 dark:bg-slate-700 aspect-video">
+          <img src="" alt="" class="nasa-image w-full h-full object-cover" />
+          <div class="absolute inset-0 flex items-center justify-center nasa-loading">
+            <span class="text-2xl animate-pulse">🚀</span>
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          <h3 class="nasa-image-title text-sm font-bold line-clamp-2">--</h3>
+          <p class="nasa-explanation text-xs text-gray-600 dark:text-slate-400 line-clamp-3">--</p>
+        </div>
+
+        <a href="" target="_blank" rel="noopener" class="nasa-link mt-3 block w-full py-2 text-center text-xs font-medium text-indigo-700 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg hover:bg-indigo-200 dark:hover:bg-indigo-800/50 transition-colors">
+          {T.viewFull} →
+        </a>
+      </div>
+    </>
+  ) : (
+    <div class="h-full">
+      <div class="flex items-end justify-between gap-4 border-b border-slate-200/80 pb-3 dark:border-slate-700/80">
+        <div class="min-w-0">
+          <div class="text-xs font-semibold uppercase tracking-[0.18em] text-indigo-600 dark:text-indigo-400">{T.title}</div>
+          <div class="mt-1 text-sm text-gray-500 dark:text-slate-400">{T.by}</div>
+        </div>
+        <span class="nasa-date shrink-0 text-xs text-gray-400 dark:text-slate-500"></span>
+      </div>
+
+      <div class="relative mt-5 overflow-hidden rounded-[1.6rem] bg-gray-100 dark:bg-slate-700 aspect-video">
+        <img src="" alt="" class="nasa-image w-full h-full object-cover" />
+        <div class="absolute inset-0 flex items-center justify-center nasa-loading">
+          <span class="text-2xl animate-pulse">🚀</span>
         </div>
       </div>
-      <span class="nasa-date text-[10px] text-gray-400"></span>
-    </div>
 
-    {/* Image */}
-    <div class="relative mb-3 rounded-lg overflow-hidden bg-gray-100 dark:bg-slate-700 aspect-video">
-      <img src="" alt="" class="nasa-image w-full h-full object-cover" />
-      <div class="absolute inset-0 flex items-center justify-center nasa-loading">
-        <span class="text-2xl animate-pulse">🚀</span>
+      <div class="mt-5 space-y-3">
+        <h3 class="nasa-image-title text-lg font-semibold leading-tight text-slate-900 dark:text-slate-100">--</h3>
+        <p class="nasa-explanation text-sm italic leading-7 text-gray-600 dark:text-slate-400">--</p>
+      </div>
+
+      <div class="mt-5 flex flex-wrap items-center gap-3">
+        <a href="" target="_blank" rel="noopener" class="nasa-link inline-flex items-center rounded-full border border-indigo-200 px-4 py-2 text-sm font-medium text-indigo-700 transition-colors hover:border-indigo-400 dark:border-indigo-800 dark:text-indigo-300 dark:hover:border-indigo-600">
+          {T.viewFull}
+        </a>
       </div>
     </div>
-
-    {/* Title & Description */}
-    <div class="space-y-2">
-      <h3 class="nasa-image-title text-sm font-bold line-clamp-2">--</h3>
-      <p class="nasa-explanation text-xs text-gray-600 dark:text-slate-400 line-clamp-3">--</p>
-    </div>
-
-    {/* Link */}
-    <a href="" target="_blank" rel="noopener" class="nasa-link mt-3 block w-full py-2 text-center text-xs font-medium text-indigo-700 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg hover:bg-indigo-200 dark:hover:bg-indigo-800/50 transition-colors">
-      {T.viewFull} →
-    </a>
-  </div>
+  )}
 </div>
 
 <style>
@@ -83,21 +110,18 @@ const T = t[lang];
 </style>
 
 <script is:inline>
-  // NASA APOD API caching - only fetch once per day
   const NASA_CACHE_KEY = 'nasa_apod_cache';
   const NASA_CACHE_DATE_KEY = 'nasa_apod_date';
-  
+
   function getTodayDate() {
     return new Date().toISOString().split('T')[0];
   }
-  
+
   function getCachedData() {
     try {
       const cachedDate = localStorage.getItem(NASA_CACHE_DATE_KEY);
       const cachedData = localStorage.getItem(NASA_CACHE_KEY);
-      const today = getTodayDate();
-      
-      if (cachedDate === today && cachedData) {
+      if (cachedDate === getTodayDate() && cachedData) {
         return JSON.parse(cachedData);
       }
     } catch (e) {
@@ -105,7 +129,7 @@ const T = t[lang];
     }
     return null;
   }
-  
+
   function setCachedData(data) {
     try {
       localStorage.setItem(NASA_CACHE_KEY, JSON.stringify(data));
@@ -114,107 +138,85 @@ const T = t[lang];
       console.log('Error saving NASA cache:', e);
     }
   }
-  
+
   function updateWidgetUI(widget, data) {
     const lang = widget.dataset.lang;
-    
-    // Update compact view
     const titleEl = widget.querySelector('.nasa-title');
     if (titleEl) titleEl.textContent = data.title;
-    
-    // Update expanded view
+
     const dateEl = widget.querySelector('.nasa-date');
     const imageEl = widget.querySelector('.nasa-image');
     const loadingEl = widget.querySelector('.nasa-loading');
     const imageTitleEl = widget.querySelector('.nasa-image-title');
     const explanationEl = widget.querySelector('.nasa-explanation');
     const linkEl = widget.querySelector('.nasa-link');
-    
+
     if (dateEl) {
       const date = new Date(data.date);
-      dateEl.textContent = date.toLocaleDateString(lang === 'el' ? 'el-GR' : 'en-US', { 
-        month: 'short', 
-        day: 'numeric' 
+      dateEl.textContent = date.toLocaleDateString(lang === 'el' ? 'el-GR' : 'en-US', {
+        month: 'short',
+        day: 'numeric'
       });
     }
-    
+
     if (imageEl) {
-      // Use HD image if available, otherwise regular
       imageEl.src = data.hdurl || data.url;
       imageEl.alt = data.title;
       imageEl.onload = () => {
         if (loadingEl) loadingEl.style.display = 'none';
       };
-      // Hide loader if image is already cached
-      if (imageEl.complete) {
-        if (loadingEl) loadingEl.style.display = 'none';
+      if (imageEl.complete && loadingEl) {
+        loadingEl.style.display = 'none';
       }
     }
-    
-    if (imageTitleEl) imageTitleEl.textContent = data.title;
-    if (explanationEl) explanationEl.textContent = data.explanation;
+
+    if (imageTitleEl) {
+      imageTitleEl.textContent = data.title;
+      imageTitleEl.setAttribute('title', data.title);
+    }
+    if (explanationEl) {
+      explanationEl.textContent = data.explanation;
+      explanationEl.setAttribute('title', data.explanation);
+    }
     if (linkEl) linkEl.href = data.url;
   }
-  
+
   async function fetchNASA(widget) {
     const lang = widget.dataset.lang;
-    
-    // Check cache first
     const cached = getCachedData();
     if (cached) {
-      console.log('Using cached NASA APOD data');
       updateWidgetUI(widget, cached);
       return;
     }
-    
+
     try {
-      console.log('Fetching fresh NASA APOD data');
-      // NASA APOD API - using DEMO_KEY (limited to 30 requests per IP per hour)
-      // For production, consider getting a free API key from: https://api.nasa.gov/
       const res = await fetch('https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY');
-      
       if (!res.ok) {
-        if (res.status === 429) {
-          throw new Error('Rate limited - too many requests');
-        }
+        if (res.status === 429) throw new Error('Rate limited');
         throw new Error('Failed to fetch');
       }
-      
+
       const data = await res.json();
-      
-      // Cache the data
       setCachedData(data);
-      
-      // Update UI
       updateWidgetUI(widget, data);
-      
     } catch (err) {
       console.error('NASA fetch error:', err);
       const titleEl = widget.querySelector('.nasa-title');
-      if (titleEl) {
-        if (err.message.includes('Rate limited')) {
-          titleEl.textContent = lang === 'el' ? 'Όριο αιτημάτων' : 'Rate limited';
-        } else {
-          titleEl.textContent = lang === 'el' ? 'Σφάλμα' : 'Error';
-        }
-      }
-      
-      // Show error state in popup
       const imageTitleEl = widget.querySelector('.nasa-image-title');
       const explanationEl = widget.querySelector('.nasa-explanation');
-      if (imageTitleEl) {
-        imageTitleEl.textContent = lang === 'el' ? 'Προσωρινά μη διαθέσιμο' : 'Temporarily unavailable';
-      }
+
+      if (titleEl) titleEl.textContent = lang === 'el' ? 'Σφάλμα' : 'Error';
+      if (imageTitleEl) imageTitleEl.textContent = lang === 'el' ? 'Προσωρινά μη διαθέσιμο' : 'Temporarily unavailable';
       if (explanationEl) {
-        explanationEl.textContent = lang === 'el' 
-          ? 'Υπερβήκατε το όριο αιτημάτων. Δοκιμάστε αργότερα.' 
-          : 'Rate limit exceeded. Please try again later.';
+        explanationEl.textContent = lang === 'el'
+          ? 'Προσωρινό πρόβλημα φόρτωσης. Δοκιμάστε ξανά αργότερα.'
+          : 'Temporary loading problem. Please try again later.';
       }
     }
   }
 
-  // Initialize all NASA widgets
   document.querySelectorAll('.nasa-widget').forEach(widget => {
     fetchNASA(widget);
+
   });
 </script>

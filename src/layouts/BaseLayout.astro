@@ -55,13 +55,20 @@ const elPathWithBase = `/mpalaourg-astro${elPath}`;
     class="bg-white text-gray-900
            dark:bg-slate-900 dark:text-slate-100 transition-colors"
   >
-    <header class="border-b border-gray-200 dark:border-gray-800">
+    <header class="relative z-50 border-b border-gray-200 dark:border-gray-800">
       <div
         class="mx-auto flex max-w-5xl items-center justify-between px-4 py-4"
       >
         <a href="/mpalaourg-astro/" class="font-semibold">Georgios Balaouras</a>
 
         <nav class="flex items-center gap-4 text-sm">
+            <a
+                href={isEl ? "/mpalaourg-astro/el/about" : "/mpalaourg-astro/about"}
+                class="text-gray-600 hover:text-gray-900
+                    dark:text-gray-300 dark:hover:text-white"
+            >
+                {isEl ? "Σχετικά" : "About"}
+            </a>
             <a
                 href="/mpalaourg-astro/formula"
                 class="text-gray-600 hover:text-gray-900
@@ -93,7 +100,7 @@ const elPathWithBase = `/mpalaourg-astro${elPath}`;
             </a>
 
           <!-- Language switcher -->
-          <div class="relative group">
+          <div class="relative z-50 group">
             <button
               type="button"
               aria-label="Change language"
@@ -108,7 +115,7 @@ const elPathWithBase = `/mpalaourg-astro${elPath}`;
             </button>
 
             <div
-              class="absolute right-0 mt-2 hidden w-40 rounded-md border pt-1
+              class="absolute right-0 z-50 mt-2 hidden w-40 rounded-md border pt-1
                      bg-white dark:bg-slate-900
                      border-gray-200 dark:border-gray-700
                      group-hover:block group-focus-within:block"

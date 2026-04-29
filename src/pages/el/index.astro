@@ -1,13 +1,6 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { getCollection } from "astro:content";
-import F1RaceWidget from "../../components/F1RaceWidget.astro";
-import WeatherWidget from "../../components/WeatherWidget.astro";
-import MusicWidget from "../../components/MusicWidget.astro";
-import NASAWidget from "../../components/NASAWidget.astro";
-import FactWidget from "../../components/FactWidget.astro";
-import F1QuoteWidget from "../../components/F1QuoteWidget.astro";
-import JokeWidget from "../../components/JokeWidget.astro";
 
 const formulaPosts = await getCollection("formula-el");
 const publicationsEl = await getCollection("publications-el");
@@ -157,18 +150,13 @@ const experiences = [
   <main class="max-w-6xl mx-auto">
     <!-- About Me Section -->
     <section class="py-12 px-6">
-      <div class="flex flex-col md:flex-row gap-8 items-start">
-        <!-- Left: Photo + Status -->
-        <div class="shrink-0 flex flex-col items-center">
+      <div class="flex flex-col md:flex-row gap-8 items-center md:items-start">
+        <div class="shrink-0 flex justify-center">
           <img
             src="/mpalaourg-astro/media/avatar.jpg"
             alt="Γιώργος Μπαλαούρας"
             class="w-40 h-40 rounded-full object-cover border-4 border-slate-200 dark:border-slate-700"
           />
-          <div class="mt-4 w-48 space-y-2">
-            <WeatherWidget lang="el" lat={40.6401} lon={22.9444} city="Θεσσαλονίκη" />
-            <NASAWidget lang="el" />
-          </div>
         </div>
         
         <!-- Right: Info -->
@@ -533,9 +521,6 @@ const experiences = [
           </a>
         ))}
       </div>
-      <div class="mb-10">
-      <F1RaceWidget lang="el" />
-      </div>
     </section>
 
     <!-- Contact Section -->
@@ -594,14 +579,6 @@ const experiences = [
           <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg>
           Instagram
         </a>
-      </div>
-      
-      <!-- Widgets Grid - Full Width -->
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <MusicWidget lang="el" username="mpalaurg" />
-        <FactWidget lang="el" />
-        <F1QuoteWidget lang="el" />
-        <JokeWidget lang="el" />
       </div>
     </section>
 
@@ -665,69 +642,7 @@ const experiences = [
 
     </script>
 
-    <!-- Slider Section -->
-    <section class="py-8 px-6">
-      <div id="slider" class="relative h-64 rounded-xl overflow-hidden" data-interval="10000">
-        <div class="absolute inset-0 bg-slate-800">
-          <img id="slider-bg" src="/mpalaourg-astro/media/images/coffee.jpg" alt="" class="w-full h-full object-cover opacity-50" />
-        </div>
-        <div class="relative z-10 flex items-center justify-center h-full">
-          <div class="text-center p-8">
-            <p class="text-2xl font-semibold text-white drop-shadow-lg">Ο καφές είναι η αδυναμία μου!</p>
-          </div>
-        </div>
-      </div>
-      <div class="flex justify-center gap-2 mt-4">
-        <button class="slider-dot w-3 h-3 rounded-full bg-slate-600" data-index="0"></button>
-        <button class="slider-dot w-3 h-3 rounded-full bg-slate-400" data-index="1"></button>
-        <button class="slider-dot w-3 h-3 rounded-full bg-slate-400" data-index="2"></button>
-        <button class="slider-dot w-3 h-3 rounded-full bg-slate-400" data-index="3"></button>
-        <button class="slider-dot w-3 h-3 rounded-full bg-slate-400" data-index="4"></button>
-      </div>
-    </section>
-
   <script>
-    const base = "/mpalaourg-astro";
-    const slides = [
-      { text: "Ο καφές είναι η αδυναμία μου!", bg: base + "/media/images/coffee.jpg" },
-      { text: "Λατρεύω να ταξιδεύω και να ανακαλύπτω νέα μέρη!", bg: base + "/media/images/travel.jpg" },
-      { text: "Κολλημένος με τις σειρές!", bg: base + "/media/images/series.jpg" },
-      { text: "Φανατικός της Formula 1!", bg: base + "/media/images/f1.jpg" },
-      { text: "Η αγαπημένη μου μουσική είναι τα (απαγορευμένα) ρεμπέτικα!", bg: base + "/media/images/music.jpg" },
-    ];
-
-      let currentSlide = 0;
-      const slider = document.getElementById('slider');
-      const bgImage = document.getElementById('slider-bg');
-      const content = slider?.querySelector('.text-center');
-      const dots = document.querySelectorAll('.slider-dot');
-
-      function showSlide(index) {
-        currentSlide = index;
-        if (bgImage) {
-          bgImage.src = slides[index].bg;
-        }
-        if (content) {
-          content.innerHTML = `<p class="text-2xl font-semibold text-white drop-shadow-lg">${slides[index].text}</p>`;
-        }
-        dots.forEach((dot, i) => {
-          dot.classList.toggle('bg-slate-600', i === index);
-          dot.classList.toggle('bg-slate-400', i !== index);
-        });
-      }
-
-      dots.forEach(dot => {
-        dot.addEventListener('click', () => {
-          showSlide(parseInt(dot.getAttribute('data-index') || '0'));
-        });
-      });
-
-      setInterval(() => {
-        showSlide((currentSlide + 1) % slides.length);
-      }, 10000);
-
-      showSlide(0);
-
       // Fetch citation counts for publications on homepage
       const citationBadges = document.querySelectorAll('.citation-badge');
       citationBadges.forEach(badge => {

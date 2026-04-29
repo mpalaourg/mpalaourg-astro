@@ -1,10 +1,10 @@
 ---
-// Random Fact Widget with Categories
 interface Props {
   lang?: "en" | "el";
+  variant?: "compact" | "contained";
 }
 
-const { lang = "en" } = Astro.props;
+const { lang = "en", variant = "compact" } = Astro.props;
 
 const t = {
   en: {
@@ -30,47 +30,75 @@ const t = {
 const T = t[lang];
 ---
 
-<div class="fact-widget group relative" data-lang={lang} data-category="general">
-  {/* Compact View */}
-  <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-yellow-500/10 via-orange-400/10 to-amber-400/10 border border-yellow-200/50 dark:border-yellow-700/50 hover:border-yellow-400 dark:hover:border-yellow-500 transition-all cursor-pointer">
-    <span class="text-base">💡</span>
-    <span class="fact-preview text-xs font-medium text-gray-600 dark:text-slate-400 truncate max-w-[120px]">Loading...</span>
-  </div>
-
-  {/* Expanded Info on Hover */}
-  <div class="fact-popup absolute top-full left-0 mt-2 w-80 p-4 rounded-xl bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
-    {/* Header */}
-    <div class="flex items-center justify-between mb-3">
-      <div class="flex items-center gap-2">
-        <span class="text-xl">💡</span>
-        <div class="font-bold text-sm">{T.title}</div>
+<div class="fact-widget group relative" data-lang={lang} data-category="general" data-variant={variant}>
+  {variant === "compact" ? (
+    <>
+      <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-yellow-500/10 via-orange-400/10 to-amber-400/10 border border-yellow-200/50 dark:border-yellow-700/50 hover:border-yellow-400 dark:hover:border-yellow-500 transition-all cursor-pointer">
+        <span class="text-base">💡</span>
+        <span class="fact-preview text-xs font-medium text-gray-600 dark:text-slate-400 truncate max-w-[120px]">Loading...</span>
       </div>
-      <button class="fact-refresh text-xs text-yellow-600 dark:text-yellow-400 hover:underline cursor-pointer flex items-center gap-1">
-        🔄 {T.newFact}
-      </button>
-    </div>
 
-    {/* Category Selector */}
-    <div class="flex gap-2 mb-3">
-      <button class="fact-category-general flex-1 py-1.5 px-2 text-xs font-medium rounded-lg bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 border border-yellow-200 dark:border-yellow-700 hover:bg-yellow-200 dark:hover:bg-yellow-800/50 transition-colors active-category">
-        {T.general}
-      </button>
-      <button class="fact-category-otd flex-1 py-1.5 px-2 text-xs font-medium rounded-lg bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-400 border border-gray-200 dark:border-slate-600 hover:bg-gray-200 dark:hover:bg-slate-600 transition-colors">
-        {T.onThisDay}
-      </button>
-      <button class="fact-category-sports flex-1 py-1.5 px-2 text-xs font-medium rounded-lg bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-400 border border-gray-200 dark:border-slate-600 hover:bg-gray-200 dark:hover:bg-slate-600 transition-colors">
-        {T.sports}
-      </button>
-    </div>
+      <div class="fact-popup absolute top-full left-0 mt-2 w-80 p-4 rounded-xl bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-2">
+            <span class="text-xl">💡</span>
+            <div class="font-bold text-sm">{T.title}</div>
+          </div>
+          <button class="fact-refresh text-xs text-yellow-600 dark:text-yellow-400 hover:underline cursor-pointer flex items-center gap-1">
+            🔄 {T.newFact}
+          </button>
+        </div>
 
-    {/* Fact */}
-    <div class="fact-content text-sm text-gray-700 dark:text-slate-300 leading-relaxed min-h-[60px]">
-      Loading interesting fact...
-    </div>
+        <div class="flex gap-2 mb-3">
+          <button class="fact-category-general flex-1 py-1.5 px-2 text-xs font-medium rounded-lg bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 border border-yellow-200 dark:border-yellow-700 transition-colors active-category">
+            {T.general}
+          </button>
+          <button class="fact-category-otd flex-1 py-1.5 px-2 text-xs font-medium rounded-lg bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-400 border border-gray-200 dark:border-slate-600 transition-colors">
+            {T.onThisDay}
+          </button>
+          <button class="fact-category-sports flex-1 py-1.5 px-2 text-xs font-medium rounded-lg bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-400 border border-gray-200 dark:border-slate-600 transition-colors">
+            {T.sports}
+          </button>
+        </div>
 
-    <div class="fact-source text-[10px] text-gray-400 mt-2 text-right">--</div>
-    <div class="fact-translation-note text-[10px] text-gray-400 mt-1 text-right italic hidden">{T.translationNote}</div>
-  </div>
+        <div class="fact-content text-sm text-gray-700 dark:text-slate-300 leading-relaxed min-h-[60px]">
+          Loading interesting fact...
+        </div>
+
+        <div class="fact-source text-[10px] text-gray-400 mt-2 text-right">--</div>
+        <div class="fact-translation-note text-[10px] text-gray-400 mt-1 text-right italic hidden">{T.translationNote}</div>
+      </div>
+    </>
+  ) : (
+    <div class="h-full rounded-3xl border border-gray-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+      <div class="flex items-center justify-between gap-3 mb-4">
+        <div class="text-xs font-semibold uppercase tracking-[0.18em] text-yellow-600 dark:text-yellow-400">{T.title}</div>
+        <button class="fact-refresh text-sm font-medium text-yellow-700 dark:text-yellow-400 hover:underline">
+          {T.newFact}
+        </button>
+      </div>
+
+      <div class="flex flex-wrap gap-2 mb-4">
+        <button class="fact-category-general px-3 py-1.5 text-xs font-medium rounded-full bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 border border-yellow-200 dark:border-yellow-700 transition-colors active-category">
+          {T.general}
+        </button>
+        <button class="fact-category-otd px-3 py-1.5 text-xs font-medium rounded-full bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-400 border border-gray-200 dark:border-slate-600 transition-colors">
+          {T.onThisDay}
+        </button>
+        <button class="fact-category-sports px-3 py-1.5 text-xs font-medium rounded-full bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-400 border border-gray-200 dark:border-slate-600 transition-colors">
+          {T.sports}
+        </button>
+      </div>
+
+      <div class="fact-preview hidden">Loading...</div>
+      <div class="fact-content text-sm text-gray-700 dark:text-slate-300 leading-7 min-h-[96px]">
+        Loading interesting fact...
+      </div>
+
+      <div class="fact-source break-words text-xs text-gray-400 dark:text-slate-500 mt-4">--</div>
+      <div class="fact-translation-note text-[10px] text-gray-400 dark:text-slate-500 mt-2 italic hidden">{T.translationNote}</div>
+    </div>
+  )}
 </div>
 
 <style>
@@ -84,17 +112,14 @@ const T = t[lang];
 </style>
 
 <script is:inline>
-  // Translation cache to avoid re-translating same text
   const translationCache = new Map();
 
   async function translateText(text, targetLang) {
-    // Check cache first
     const cacheKey = `${text}_${targetLang}`;
     if (translationCache.has(cacheKey)) {
       return translationCache.get(cacheKey);
     }
 
-    // Try DeepL first
     try {
       const encodedText = encodeURIComponent(text);
       const res = await fetch(`/api/translate?text=${encodedText}&target=${targetLang}`);
@@ -110,7 +135,6 @@ const T = t[lang];
       console.log('DeepL translation failed:', e);
     }
 
-    // Fallback to MyMemory
     try {
       const encodedText = encodeURIComponent(text);
       const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodedText}&langpair=en|${targetLang}`);
@@ -131,8 +155,7 @@ const T = t[lang];
 
   async function fetchFact(widget, category) {
     const lang = widget.dataset.lang;
-    
-    // Show loading state
+
     const previewEl = widget.querySelector('.fact-preview');
     const contentEl = widget.querySelector('.fact-content');
     if (previewEl) previewEl.textContent = lang === 'el' ? 'Φόρτωση...' : 'Loading...';
@@ -140,15 +163,11 @@ const T = t[lang];
 
     try {
       let endpoint = '';
-
-      // Build endpoint - handle both local dev and production with base path
       const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
       const basePath = isLocalhost ? '' : '/mpalaourg-astro';
-      
-      // Check if this is a "New Fact" click (skip cache)
       const skipCache = widget.dataset.skipCache === 'true';
-      widget.dataset.skipCache = 'false'; // Reset after use
-      
+      widget.dataset.skipCache = 'false';
+
       if (category === 'general') {
         endpoint = `${basePath}/api/facts/general${skipCache ? '?nocache=true' : ''}`;
       } else if (category === 'otd') {
@@ -157,16 +176,9 @@ const T = t[lang];
         endpoint = `${basePath}/api/facts/sports${skipCache ? '?nocache=true' : ''}`;
       }
 
-      // Add cache-busting timestamp
       const separator = endpoint.includes('?') ? '&' : '?';
-      const url = `${endpoint}${separator}t=${Date.now()}`;
-      
-      const res = await fetch(url);
-      
-      if (!res.ok) {
-        throw new Error(`Failed to fetch: ${res.status}`);
-      }
-      
+      const res = await fetch(`${endpoint}${separator}t=${Date.now()}`);
+      if (!res.ok) throw new Error(`Failed to fetch: ${res.status}`);
       const data = await res.json();
 
       let factText = '';
@@ -174,11 +186,9 @@ const T = t[lang];
       let isTranslated = false;
 
       if (category === 'sports') {
-        // Sports: format question and answer
         let question = data.question;
         let answer = data.answer;
 
-        // Translate if needed
         if (needsTranslation) {
           const qTranslation = await translateText(question, 'el');
           if (qTranslation.success) {
@@ -186,21 +196,14 @@ const T = t[lang];
             isTranslated = true;
           }
           const aTranslation = await translateText(answer, 'el');
-          if (aTranslation.success) {
-            answer = aTranslation.text;
-          }
+          if (aTranslation.success) answer = aTranslation.text;
         }
 
         factText = `<b>Q:</b> ${question}\n\n<div class="mt-2 pt-2 border-t border-gray-200 dark:border-gray-700"><span class="text-xs text-gray-500">${lang === 'el' ? 'Απάντηση' : 'Answer'}:</span> <span class="spoiler-text bg-gray-800 text-gray-800 dark:bg-gray-200 dark:text-gray-200 px-1 rounded cursor-pointer hover:bg-transparent hover:text-gray-800 dark:hover:bg-transparent dark:hover:text-gray-200 transition-all select-none">${answer}</span></div>`;
 
-        // Update UI for sports
-        const previewEl = widget.querySelector('.fact-preview');
-        const contentEl = widget.querySelector('.fact-content');
-
         if (previewEl) previewEl.textContent = `Q: ${question.substring(0, 30)}...`;
         if (contentEl) {
           contentEl.innerHTML = factText;
-          // Add spoiler reveal functionality
           const spoilerText = contentEl.querySelector('.spoiler-text');
           if (spoilerText) {
             spoilerText.addEventListener('mouseenter', () => {
@@ -217,10 +220,7 @@ const T = t[lang];
           }
         }
       } else {
-        // General and On This Day
         factText = data.fact;
-
-        // Translate if needed
         if (needsTranslation) {
           const translation = await translateText(factText, 'el');
           if (translation.success) {
@@ -228,15 +228,10 @@ const T = t[lang];
             isTranslated = true;
           }
         }
-
-        const previewEl = widget.querySelector('.fact-preview');
-        const contentEl = widget.querySelector('.fact-content');
-
         if (previewEl) previewEl.textContent = factText.substring(0, 30) + '...';
         if (contentEl) contentEl.textContent = factText;
       }
 
-      // Update source
       const sourceEl = widget.querySelector('.fact-source');
       if (sourceEl) {
         if (data.source === 'fallback') {
@@ -250,22 +245,13 @@ const T = t[lang];
         }
       }
 
-      // Show translation note if translated
       const translationNoteEl = widget.querySelector('.fact-translation-note');
       if (translationNoteEl) {
-        if (isTranslated && lang === 'el') {
-          translationNoteEl.classList.remove('hidden');
-        } else {
-          translationNoteEl.classList.add('hidden');
-        }
+        translationNoteEl.classList.toggle('hidden', !(isTranslated && lang === 'el'));
       }
-
     } catch (err) {
       console.error('Fact fetch error:', err);
-      const previewEl = widget.querySelector('.fact-preview');
-      const contentEl = widget.querySelector('.fact-content');
       const sourceEl = widget.querySelector('.fact-source');
-      
       if (previewEl) previewEl.textContent = lang === 'el' ? 'Σφάλμα' : 'Error';
       if (contentEl) contentEl.textContent = lang === 'el' ? 'Αποτυχία φόρτωσης' : 'Failed to load';
       if (sourceEl) sourceEl.textContent = 'Error loading';
@@ -276,25 +262,19 @@ const T = t[lang];
     const generalBtn = widget.querySelector('.fact-category-general');
     const otdBtn = widget.querySelector('.fact-category-otd');
     const sportsBtn = widget.querySelector('.fact-category-sports');
-
-    // Reset all styles
     [generalBtn, otdBtn, sportsBtn].forEach(btn => {
       btn?.classList.remove('bg-yellow-100', 'dark:bg-yellow-900/30', 'text-yellow-700', 'dark:text-yellow-300', 'border-yellow-200', 'dark:border-yellow-700');
       btn?.classList.add('bg-gray-100', 'dark:bg-slate-700', 'text-gray-600', 'dark:text-slate-400', 'border-gray-200', 'dark:border-slate-600');
     });
 
-    // Set active style
     const activeBtn = category === 'general' ? generalBtn : category === 'otd' ? otdBtn : sportsBtn;
     activeBtn?.classList.remove('bg-gray-100', 'dark:bg-slate-700', 'text-gray-600', 'dark:text-slate-400', 'border-gray-200', 'dark:border-slate-600');
     activeBtn?.classList.add('bg-yellow-100', 'dark:bg-yellow-900/30', 'text-yellow-700', 'dark:text-yellow-300', 'border-yellow-200', 'dark:border-yellow-700');
   }
 
-  // Initialize all fact widgets
   document.querySelectorAll('.fact-widget').forEach(widget => {
-    // Initial fetch
     fetchFact(widget, 'general');
 
-    // Category buttons
     const generalBtn = widget.querySelector('.fact-category-general');
     const otdBtn = widget.querySelector('.fact-category-otd');
     const sportsBtn = widget.querySelector('.fact-category-sports');
@@ -320,15 +300,12 @@ const T = t[lang];
       fetchFact(widget, 'sports');
     });
 
-    // Refresh button
     const refreshBtn = widget.querySelector('.fact-refresh');
-    if (refreshBtn) {
-      refreshBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const category = widget.dataset.category || 'general';
-        widget.dataset.skipCache = 'true';
-        fetchFact(widget, category);
-      });
-    }
+    refreshBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const category = widget.dataset.category || 'general';
+      widget.dataset.skipCache = 'true';
+      fetchFact(widget, category);
+    });
   });
 </script>

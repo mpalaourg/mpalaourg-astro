@@ -1,36 +1,145 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import NASAWidget from "../components/NASAWidget.astro";
+import F1RaceWidget from "../components/F1RaceWidget.astro";
+import PlayfulSignalsSection from "../components/PlayfulSignalsSection.astro";
 ---
 
 <BaseLayout title="About | Georgios Balaouras">
-  <main class="mx-auto max-w-3xl px-4 py-12">
-    <h1 class="text-3xl font-bold mb-6">Georgios Balaouras</h1>
+  <main class="mx-auto max-w-6xl px-6 py-12">
+    <section class="overflow-hidden rounded-[2rem] border border-slate-200/80 bg-white/40 shadow-sm dark:border-slate-700 dark:bg-slate-900/30">
+      <div class="relative h-56 overflow-hidden md:h-64">
+        <img
+          src="/mpalaourg-astro/media/cover.jpg"
+          alt="About cover"
+          class="h-full w-full object-cover object-[center_35%]"
+        />
+        <div class="absolute inset-0 bg-gradient-to-r from-slate-950/45 via-slate-900/20 to-slate-900/35"></div>
+        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/45 via-transparent to-transparent"></div>
+      </div>
 
-    <p class="mb-4">
-      Hi, I'm Georgios Balaouras, and my unsatisfied curiosity fuels my deep
-      interest in Data Science, Machine Learning, and Deep Learning.
-    </p>
+      <div class="relative px-6 pb-8 pt-0 md:px-8">
+        <div class="-mt-16 mb-6 md:-mt-20">
+          <img
+            src="/mpalaourg-astro/media/avatar.jpg"
+            alt="Georgios Balaouras"
+            class="h-32 w-32 rounded-[2rem] object-cover shadow-xl ring-4 ring-white dark:ring-slate-900 md:h-36 md:w-36"
+          />
+        </div>
 
-    <p class="mb-4">
-      I graduated from
-      <a
-        href="https://www.auth.gr/en"
-        class="text-blue-600 hover:underline"
-        >Aristotle University of Thessaloniki</a
-      >
-      with an MEng in Electrical and Computer Engineering.
-    </p>
+        <p class="text-sm font-semibold uppercase tracking-[0.22em] text-orange-600 dark:text-orange-400">About</p>
+        <h1 class="mt-4 text-4xl font-bold leading-[1.02] md:text-5xl xl:text-[4.1rem]">What I enjoy and how I think</h1>
+        <p class="mt-6 text-lg leading-8 text-gray-600 dark:text-slate-400">
+          I like work that is clear, useful, and grounded in real problems. Outside that, the same instinct shows up in simpler things: coffee, travel, Formula 1, rembetika, and small curiosities worth a second look.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href="/mpalaourg-astro/projects" class="rounded-full border border-gray-300 px-4 py-2 text-sm font-medium hover:border-slate-500 dark:border-slate-600 dark:hover:border-slate-400">Projects</a>
+          <a href="/mpalaourg-astro/publications" class="rounded-full border border-gray-300 px-4 py-2 text-sm font-medium hover:border-slate-500 dark:border-slate-600 dark:hover:border-slate-400">Publications</a>
+          <a href="/mpalaourg-astro/formula" class="rounded-full border border-gray-300 px-4 py-2 text-sm font-medium hover:border-slate-500 dark:border-slate-600 dark:hover:border-slate-400">Formula</a>
+        </div>
+      </div>
+    </section>
 
-    <p class="mb-4">
-      My research focuses on Computer Vision, self-attention mechanisms, and
-      video summarization.
-    </p>
+    <section class="mt-16">
+      <div>
+        <p class="text-sm font-semibold uppercase tracking-[0.2em] text-orange-600 dark:text-orange-400">Beyond Work</p>
+        <h2 class="mt-3 text-3xl font-bold">A few steady interests that stay with me away from the keyboard</h2>
+        <p class="mt-4 text-base leading-7 text-gray-700 dark:text-slate-300">
+          I keep returning to things that reward a second look. NASA's image of the day is one of them. I like the mix of science, scale, and quiet wonder, especially when a single image says more than a long explanation.
+        </p>
+      </div>
+    </section>
 
-    <a
-      href="/media/files/resume_en.pdf"
-      class="inline-block mt-6 rounded bg-black px-6 py-3 text-white"
-    >
-      Download CV
-    </a>
+    <section class="mx-auto mt-10 max-w-5xl">
+      <NASAWidget lang="en" variant="contained" />
+    </section>
+
+    <section class="mt-16">
+      <div class="mb-6">
+        <p class="text-sm font-semibold uppercase tracking-[0.2em] text-gray-500 dark:text-slate-400">Current Obsessions</p>
+        <h2 class="mt-3 text-3xl font-bold">The recurring themes are familiar, but never dull</h2>
+        <p class="mt-4 text-base leading-7 text-gray-600 dark:text-slate-400">
+          Most of my attention outside work returns to a small set of things I never really tire of: coffee, travel, series, race weekends, and music with character.
+        </p>
+      </div>
+
+      <div id="slider" class="relative overflow-hidden rounded-[2rem] border border-gray-200 bg-slate-900 shadow-lg dark:border-slate-700" data-interval="10000">
+        <div class="absolute inset-0">
+          <img id="slider-bg" src="/mpalaourg-astro/media/images/coffee.jpg" alt="" class="h-full w-full object-cover opacity-50" />
+        </div>
+        <div class="absolute inset-0 bg-gradient-to-r from-black/68 via-black/28 to-transparent"></div>
+        <div class="relative z-10 flex min-h-[18rem] items-end p-8 md:min-h-[20rem] md:p-10">
+          <div>
+            <p class="mb-4 text-xs font-semibold uppercase tracking-[0.28em] text-orange-300">Lately</p>
+            <div class="slider-content">
+              <p class="text-2xl font-semibold leading-tight text-white drop-shadow-lg md:text-[2.15rem]">Strong coffee is still part of the daily routine</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mt-4 flex justify-center gap-2">
+        <button class="slider-dot h-3 w-3 rounded-full bg-slate-600" data-index="0" aria-label="Slide 1"></button>
+        <button class="slider-dot h-3 w-3 rounded-full bg-slate-400" data-index="1" aria-label="Slide 2"></button>
+        <button class="slider-dot h-3 w-3 rounded-full bg-slate-400" data-index="2" aria-label="Slide 3"></button>
+        <button class="slider-dot h-3 w-3 rounded-full bg-slate-400" data-index="3" aria-label="Slide 4"></button>
+        <button class="slider-dot h-3 w-3 rounded-full bg-slate-400" data-index="4" aria-label="Slide 5"></button>
+      </div>
+    </section>
+
+    <PlayfulSignalsSection lang="en" />
+
+    <section class="mt-16 mb-8">
+      <div class="mb-6">
+        <p class="text-sm font-semibold uppercase tracking-[0.2em] text-gray-500 dark:text-slate-400">Race Weekend</p>
+        <h2 class="mt-3 text-3xl font-bold">Formula 1 is still one of the easiest ways to pull me in</h2>
+        <p class="mt-4 text-base leading-7 text-gray-600 dark:text-slate-400">
+          It is one of the few things I follow with both emotion and analysis. I enjoy the race weekends, the strategy, and the way a full season slowly builds its own story.
+        </p>
+      </div>
+      <F1RaceWidget lang="en" />
+    </section>
   </main>
+
+  <script>
+    const base = "/mpalaourg-astro";
+    const slides = [
+      { text: "Strong coffee is still part of the daily routine", bg: base + "/media/images/coffee.jpg" },
+      { text: "I like discovering new cities and walking them slowly", bg: base + "/media/images/travel.jpg" },
+      { text: "I rarely stay away from a good series for long", bg: base + "/media/images/series.jpg" },
+      { text: "Race weekends still get my full attention", bg: base + "/media/images/f1.jpg" },
+      { text: "Rembetika remains one of the sounds I return to most", bg: base + "/media/images/music.jpg" },
+    ];
+
+    let currentSlide = 0;
+    const slider = document.getElementById('slider');
+    const bgImage = document.getElementById('slider-bg');
+    const content = slider?.querySelector('.slider-content');
+    const dots = document.querySelectorAll('.slider-dot');
+
+    function showSlide(index) {
+      currentSlide = index;
+      if (bgImage) {
+        bgImage.src = slides[index].bg;
+      }
+      if (content) {
+        content.innerHTML = `<p class="text-2xl font-semibold leading-tight text-white drop-shadow-lg md:text-[2.15rem]">${slides[index].text}</p>`;
+      }
+      dots.forEach((dot, i) => {
+        dot.classList.toggle('bg-slate-600', i === index);
+        dot.classList.toggle('bg-slate-400', i !== index);
+      });
+    }
+
+    dots.forEach((dot) => {
+      dot.addEventListener('click', () => {
+        showSlide(parseInt(dot.getAttribute('data-index') || '0'));
+      });
+    });
+
+    setInterval(() => {
+      showSlide((currentSlide + 1) % slides.length);
+    }, 10000);
+
+    showSlide(0);
+  </script>
 </BaseLayout>

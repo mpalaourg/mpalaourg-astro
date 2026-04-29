@@ -1,60 +1,81 @@
 ---
-// F1 Quote Widget - Random F1 quotes from curated collection
 interface Props {
   lang?: "en" | "el";
+  variant?: "compact" | "contained";
 }
 
-const { lang = "en" } = Astro.props;
+const { lang = "en", variant = "compact" } = Astro.props;
 
 const t = {
   en: {
     title: "F1 Quote",
     newQuote: "New Quote",
-    by: "—",
+    by: "-",
   },
   el: {
     title: "F1 Quote",
     newQuote: "Νέο Quote",
-    by: "—",
+    by: "-",
   },
 } as const;
 
 const T = t[lang];
 ---
 
-<div class="quote-widget group relative" data-lang={lang}>
-  {/* Compact View */}
-  <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-red-500/10 via-red-400/10 to-rose-400/10 border border-red-200/50 dark:border-red-700/50 hover:border-red-400 dark:hover:border-red-500 transition-all cursor-pointer">
-    <span class="text-base">🏎️</span>
-    <span class="quote-preview text-xs font-medium text-gray-600 dark:text-slate-400 truncate max-w-[120px]">Loading...</span>
-  </div>
-
-  {/* Expanded Info on Hover */}
-  <div class="quote-popup absolute top-full left-0 mt-2 w-80 p-4 rounded-xl bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
-    {/* Header */}
-    <div class="flex items-center justify-between mb-3">
-      <div className="flex items-center gap-2">
-        <span class="text-xl">🏎️</span>
-        <div class="font-bold text-sm">{T.title}</div>
+<div class="quote-widget group relative" data-lang={lang} data-variant={variant}>
+  {variant === "compact" ? (
+    <>
+      <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-red-500/10 via-red-400/10 to-rose-400/10 border border-red-200/50 dark:border-red-700/50 hover:border-red-400 dark:hover:border-red-500 transition-all cursor-pointer">
+        <span class="text-base">🏎️</span>
+        <span class="quote-preview text-xs font-medium text-gray-600 dark:text-slate-400 truncate max-w-[120px]">Loading...</span>
       </div>
-      <button class="quote-refresh text-xs text-red-600 dark:text-red-400 hover:underline cursor-pointer flex items-center gap-1">
-        🔄 {T.newQuote}
-      </button>
-    </div>
 
-    {/* Quote */}
-    <div class="quote-content text-center py-2">
-      <p class="quote-text text-base font-medium text-gray-800 dark:text-slate-200 mb-3 italic leading-relaxed">
-        "Loading..."
-      </p>
-      <p class="quote-author text-sm font-bold text-red-600 dark:text-red-400">
-        {T.by} <span class="author-name">--</span>
-      </p>
-      <p class="quote-context text-xs text-gray-500 dark:text-slate-500 mt-2 italic">
-        --
-      </p>
+      <div class="quote-popup absolute top-full left-0 mt-2 w-80 p-4 rounded-xl bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-2">
+            <span class="text-xl">🏎️</span>
+            <div class="font-bold text-sm">{T.title}</div>
+          </div>
+          <button class="quote-refresh text-xs text-red-600 dark:text-red-400 hover:underline cursor-pointer flex items-center gap-1">
+            🔄 {T.newQuote}
+          </button>
+        </div>
+
+        <div class="quote-content text-center py-2">
+          <p class="quote-text text-base font-medium text-gray-800 dark:text-slate-200 mb-3 italic leading-relaxed">
+            "Loading..."
+          </p>
+          <p class="quote-author text-sm font-bold text-red-600 dark:text-red-400">
+            {T.by} <span class="author-name">--</span>
+          </p>
+          <p class="quote-context text-xs text-gray-500 dark:text-slate-500 mt-2 italic">
+            --
+          </p>
+        </div>
+      </div>
+    </>
+  ) : (
+    <div class="h-full rounded-3xl border border-gray-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+      <div class="flex items-center justify-between gap-3 mb-4">
+        <div class="text-xs font-semibold uppercase tracking-[0.18em] text-red-600 dark:text-red-400">{T.title}</div>
+        <button class="quote-refresh text-sm font-medium text-red-700 dark:text-red-400 hover:underline">
+          {T.newQuote}
+        </button>
+      </div>
+      <div class="quote-preview hidden">Loading...</div>
+      <div class="quote-content">
+        <p class="quote-text text-base font-medium text-gray-800 dark:text-slate-200 italic leading-7">
+          "Loading..."
+        </p>
+        <p class="quote-author mt-5 text-sm font-semibold text-red-600 dark:text-red-400">
+          {T.by} <span class="author-name">--</span>
+        </p>
+        <p class="quote-context mt-2 text-xs text-gray-500 dark:text-slate-500 italic">
+          --
+        </p>
+      </div>
     </div>
-  </div>
+  )}
 </div>
 
 <style>
@@ -65,28 +86,20 @@ const T = t[lang];
 
 <script is:inline>
   async function fetchQuote(widget) {
-    const lang = widget.dataset.lang;
-    
     try {
-      // Add cache-busting timestamp to ensure fresh quote every time
       const res = await fetch(`/api/quotes?t=${Date.now()}`);
       if (!res.ok) throw new Error('Failed to fetch');
       const data = await res.json();
-      
-      // Store current quote data for audio playback
+
       widget.dataset.currentQuote = JSON.stringify(data);
-      
-      // Update compact view
+
       const previewEl = widget.querySelector('.quote-preview');
-      if (previewEl) {
-        previewEl.textContent = `"${data.quote.substring(0, 25)}..."`;
-      }
-      
-      // Update expanded view
+      if (previewEl) previewEl.textContent = `"${data.quote.substring(0, 25)}..."`;
+
       const textEl = widget.querySelector('.quote-text');
       const authorEl = widget.querySelector('.author-name');
       const contextEl = widget.querySelector('.quote-context');
-      
+
       if (textEl) textEl.textContent = `"${data.quote}"`;
       if (authorEl) authorEl.textContent = data.author;
       if (contextEl) {
@@ -100,7 +113,6 @@ const T = t[lang];
           contextEl.style.display = 'none';
         }
       }
-      
     } catch (err) {
       console.error('Quote fetch error:', err);
       const previewEl = widget.querySelector('.quote-preview');
@@ -108,17 +120,12 @@ const T = t[lang];
     }
   }
 
-  // Initialize all quote widgets
   document.querySelectorAll('.quote-widget').forEach(widget => {
     fetchQuote(widget);
-    
-    // Add refresh button handler
     const refreshBtn = widget.querySelector('.quote-refresh');
-    if (refreshBtn) {
-      refreshBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        fetchQuote(widget);
-      });
-    }
+    refreshBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      fetchQuote(widget);
+    });
   });
 </script>

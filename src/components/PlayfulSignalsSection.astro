@@ -1,0 +1,536 @@
+---
+import MusicWidget from "./MusicWidget.astro";
+import FactWidget from "./FactWidget.astro";
+import F1QuoteWidget from "./F1QuoteWidget.astro";
+import JokeWidget from "./JokeWidget.astro";
+
+interface Props {
+  lang?: "en" | "el";
+}
+
+const { lang = "en" } = Astro.props;
+
+const copy = {
+  en: {
+    eyebrow: "Playful Signals",
+    title: "A lighter set of signals I still enjoy checking.",
+    description:
+      "Music, odd facts, race quotes, and the occasional programming joke are part of the same habit. I like small inputs that keep the day from feeling too flat.",
+    controls: {
+      closeLabel: "Close panel",
+    },
+    cards: {
+      music: {
+        eyebrow: "Recent Tracks",
+        title: "Music I keep looping.",
+        meta: "Last.fm",
+        arrow: "↗",
+      },
+      fact: {
+        eyebrow: "Did You Know?",
+        title: "Small facts worth the detour.",
+        meta: "General / sports / on this day",
+        arrow: "↖",
+      },
+      quote: {
+        eyebrow: "F1 Quote",
+        title: "Radio lines and race lore.",
+        meta: "Race radio archive",
+        arrow: "↗",
+      },
+      joke: {
+        eyebrow: "Programming Joke",
+        title: "A small break for terminal humor.",
+        meta: "Readme jokes",
+        arrow: "↖",
+      },
+    },
+  },
+  el: {
+    eyebrow: "Μικρά σήματα",
+    title: "Μια πιο ανάλαφρη ομάδα μικρών σημάτων που εξακολουθώ να απολαμβάνω.",
+    description:
+      "Μουσική, περίεργα facts, ατάκες από Formula 1 και το περιστασιακό προγραμματιστικό αστείο είναι μέρος της ίδιας συνήθειας. Μου αρέσουν τα μικρά ερεθίσματα που δεν αφήνουν τη μέρα να γίνει εντελώς επίπεδη.",
+    controls: {
+      closeLabel: "Κλείσιμο panel",
+    },
+    cards: {
+      music: {
+        eyebrow: "Recent Tracks",
+        title: "Η μουσική που επιστρέφει ξανά.",
+        meta: "Last.fm",
+        arrow: "↗",
+      },
+      fact: {
+        eyebrow: "Ξέρατε Ότι;",
+        title: "Μικρές πληροφορίες που αξίζουν την παράκαμψη.",
+        meta: "Γενικά / αθλητικά / σαν σήμερα",
+        arrow: "↖",
+      },
+      quote: {
+        eyebrow: "F1 Quote",
+        title: "Ατάκες από pit wall και paddock.",
+        meta: "Race radio archive",
+        arrow: "↗",
+      },
+      joke: {
+        eyebrow: "Programming Joke",
+        title: "Ένα μικρό διάλειμμα για terminal humor.",
+        meta: "Readme jokes",
+        arrow: "↖",
+      },
+    },
+  },
+} as const;
+
+const T = copy[lang];
+const sectionClass = lang === "en" ? "playful-signals--en" : "playful-signals--el";
+---
+
+<section class="mt-16">
+  <div class="mb-6 max-w-2xl">
+    <p class="text-sm font-semibold uppercase tracking-[0.2em] text-gray-500 dark:text-slate-400">{T.eyebrow}</p>
+    <h2 class="mt-3 text-3xl font-bold">{T.title}</h2>
+    <p class="mt-4 text-base leading-7 text-gray-600 dark:text-slate-400">
+      {T.description}
+    </p>
+  </div>
+
+  <div class:list={["playful-signal-grid", sectionClass]} data-playful-signals>
+    <article class="signal-item signal-item--music" data-signal-item data-open="false">
+      <div class="signal-shell">
+        <button
+          type="button"
+          class="signal-summary"
+          data-signal-toggle
+          aria-expanded="false"
+          aria-controls="signal-panel-music"
+        >
+          <p class="signal-summary__eyebrow">{T.cards.music.eyebrow}</p>
+          <h3 class="signal-summary__title">{T.cards.music.title}</h3>
+          <div class="signal-summary__meta">
+            <span>{T.cards.music.meta}</span>
+            <span class="signal-summary__direction" aria-hidden="true">{T.cards.music.arrow}</span>
+          </div>
+        </button>
+
+        <div class="signal-detail" id="signal-panel-music" aria-hidden="true">
+          <button type="button" class="signal-detail__close" data-signal-close aria-label={T.controls.closeLabel}>
+            <span aria-hidden="true">×</span>
+          </button>
+          <div class="signal-detail__body">
+            <MusicWidget lang={lang} username="mpalaurg" variant="contained" />
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <article class="signal-item signal-item--fact" data-signal-item data-open="false">
+      <div class="signal-shell">
+        <button
+          type="button"
+          class="signal-summary"
+          data-signal-toggle
+          aria-expanded="false"
+          aria-controls="signal-panel-fact"
+        >
+          <p class="signal-summary__eyebrow">{T.cards.fact.eyebrow}</p>
+          <h3 class="signal-summary__title">{T.cards.fact.title}</h3>
+          <div class="signal-summary__meta">
+            <span>{T.cards.fact.meta}</span>
+            <span class="signal-summary__direction" aria-hidden="true">{T.cards.fact.arrow}</span>
+          </div>
+        </button>
+
+        <div class="signal-detail" id="signal-panel-fact" aria-hidden="true">
+          <button type="button" class="signal-detail__close" data-signal-close aria-label={T.controls.closeLabel}>
+            <span aria-hidden="true">×</span>
+          </button>
+          <div class="signal-detail__body">
+            <FactWidget lang={lang} variant="contained" />
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <article class="signal-item signal-item--quote" data-signal-item data-open="false">
+      <div class="signal-shell">
+        <button
+          type="button"
+          class="signal-summary"
+          data-signal-toggle
+          aria-expanded="false"
+          aria-controls="signal-panel-quote"
+        >
+          <p class="signal-summary__eyebrow">{T.cards.quote.eyebrow}</p>
+          <h3 class="signal-summary__title">{T.cards.quote.title}</h3>
+          <div class="signal-summary__meta">
+            <span>{T.cards.quote.meta}</span>
+            <span class="signal-summary__direction" aria-hidden="true">{T.cards.quote.arrow}</span>
+          </div>
+        </button>
+
+        <div class="signal-detail" id="signal-panel-quote" aria-hidden="true">
+          <button type="button" class="signal-detail__close" data-signal-close aria-label={T.controls.closeLabel}>
+            <span aria-hidden="true">×</span>
+          </button>
+          <div class="signal-detail__body">
+            <F1QuoteWidget lang={lang} variant="contained" />
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <article class="signal-item signal-item--joke" data-signal-item data-open="false">
+      <div class="signal-shell">
+        <button
+          type="button"
+          class="signal-summary"
+          data-signal-toggle
+          aria-expanded="false"
+          aria-controls="signal-panel-joke"
+        >
+          <p class="signal-summary__eyebrow">{T.cards.joke.eyebrow}</p>
+          <h3 class="signal-summary__title">{T.cards.joke.title}</h3>
+          <div class="signal-summary__meta">
+            <span>{T.cards.joke.meta}</span>
+            <span class="signal-summary__direction" aria-hidden="true">{T.cards.joke.arrow}</span>
+          </div>
+        </button>
+
+        <div class="signal-detail" id="signal-panel-joke" aria-hidden="true">
+          <button type="button" class="signal-detail__close" data-signal-close aria-label={T.controls.closeLabel}>
+            <span aria-hidden="true">×</span>
+          </button>
+          <div class="signal-detail__body">
+            <JokeWidget lang={lang} variant="contained" />
+          </div>
+        </div>
+      </div>
+    </article>
+  </div>
+</section>
+
+<style is:global>
+  .playful-signal-grid {
+    display: grid;
+    gap: 1rem;
+    align-items: start;
+  }
+
+  @media (min-width: 768px) {
+    .playful-signal-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .playful-signal-grid .signal-item {
+    min-width: 0;
+  }
+
+  .playful-signal-grid .signal-item--music {
+    --signal-accent-rgb: 24 190 123;
+  }
+
+  .playful-signal-grid .signal-item--fact {
+    --signal-accent-rgb: 245 158 11;
+  }
+
+  .playful-signal-grid .signal-item--quote {
+    --signal-accent-rgb: 248 113 113;
+  }
+
+  .playful-signal-grid .signal-item--joke {
+    --signal-accent-rgb: 236 72 153;
+  }
+
+  .playful-signal-grid .signal-shell {
+    --signal-cell-min-height: 15rem;
+    position: relative;
+    min-height: var(--signal-cell-min-height);
+    overflow: hidden;
+    border-radius: 2rem;
+    border: 1px solid rgb(148 163 184 / 0.22);
+    background:
+      radial-gradient(circle at top right, rgb(var(--signal-accent-rgb) / 0.18), transparent 38%),
+      linear-gradient(180deg, rgb(255 255 255 / 0.95), rgb(248 250 252 / 0.95));
+    box-shadow: 0 24px 60px rgb(15 23 42 / 0.08);
+    backdrop-filter: blur(18px);
+    transition: border-color 220ms ease, box-shadow 220ms ease, transform 220ms ease;
+  }
+
+  .dark .playful-signal-grid .signal-shell {
+    border-color: rgb(100 116 139 / 0.35);
+    background:
+      radial-gradient(circle at top right, rgb(var(--signal-accent-rgb) / 0.18), transparent 38%),
+      linear-gradient(180deg, rgb(15 23 42 / 0.96), rgb(15 23 42 / 0.92));
+    box-shadow: 0 28px 70px rgb(2 6 23 / 0.34);
+  }
+
+  .playful-signal-grid .signal-shell::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(135deg, rgb(var(--signal-accent-rgb) / 0.1), transparent 32%),
+      radial-gradient(circle at bottom left, rgb(255 255 255 / 0.3), transparent 24%);
+    pointer-events: none;
+  }
+
+  .dark .playful-signal-grid .signal-shell::before {
+    background:
+      linear-gradient(135deg, rgb(var(--signal-accent-rgb) / 0.1), transparent 32%),
+      radial-gradient(circle at bottom left, rgb(255 255 255 / 0.06), transparent 24%);
+  }
+
+  .playful-signal-grid .signal-item[data-open="true"] .signal-shell {
+    border-color: rgb(var(--signal-accent-rgb) / 0.34);
+    box-shadow: 0 34px 80px rgb(15 23 42 / 0.13);
+  }
+
+  .dark .playful-signal-grid .signal-item[data-open="true"] .signal-shell {
+    box-shadow: 0 34px 80px rgb(2 6 23 / 0.46);
+  }
+
+  .playful-signal-grid .signal-summary {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    min-height: 15rem;
+    width: 100%;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.5rem;
+    border: 0;
+    background: transparent;
+    text-align: left;
+    cursor: pointer;
+    transition: transform 220ms ease;
+  }
+
+  @media (min-width: 768px) {
+    .playful-signal-grid .signal-shell {
+      --signal-cell-min-height: 17.8rem;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .playful-signal-grid .signal-summary {
+      min-height: var(--signal-cell-min-height);
+      padding: 1.85rem;
+    }
+  }
+
+  .playful-signal-grid .signal-summary:hover {
+    transform: translateY(-2px);
+  }
+
+  .playful-signal-grid .signal-summary:focus-visible,
+  .playful-signal-grid .signal-detail__close:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgb(var(--signal-accent-rgb) / 0.22);
+  }
+
+  .playful-signal-grid .signal-summary__eyebrow {
+    margin: 0;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: rgb(var(--signal-accent-rgb));
+  }
+
+  .playful-signal-grid .signal-summary__title {
+    margin: 0;
+    max-width: none;
+    font-size: clamp(1.8rem, 2.15vw, 2.65rem);
+    line-height: 0.98;
+    letter-spacing: -0.04em;
+    color: rgb(15 23 42);
+  }
+
+  .dark .playful-signal-grid .signal-summary__title {
+    color: rgb(241 245 249);
+  }
+
+  @media (min-width: 768px) {
+    .playful-signals--en .signal-summary__title {
+      white-space: nowrap;
+      font-size: clamp(1.35rem, 1.55vw, 2.05rem);
+    }
+  }
+
+  .playful-signal-grid .signal-summary__meta {
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgb(100 116 139);
+  }
+
+  .dark .playful-signal-grid .signal-summary__meta {
+    color: rgb(148 163 184);
+  }
+
+  .playful-signal-grid .signal-summary__direction {
+    font-size: 1rem;
+    color: rgb(var(--signal-accent-rgb));
+    transition: transform 220ms ease;
+  }
+
+  .playful-signal-grid .signal-summary:hover .signal-summary__direction {
+    transform: scale(1.12);
+  }
+
+  .playful-signal-grid .signal-item[data-open="true"] .signal-summary {
+    display: none;
+  }
+
+  .playful-signal-grid .signal-detail {
+    display: none;
+    position: relative;
+    z-index: 1;
+    min-height: var(--signal-cell-min-height);
+    padding: 3rem 1rem 1rem;
+    animation: signal-detail-enter 220ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .playful-signal-grid .signal-item[data-open="true"] .signal-detail {
+    display: block;
+  }
+
+  @media (min-width: 768px) {
+    .playful-signal-grid .signal-detail {
+      padding: 3.1rem 1.1rem 1.1rem;
+    }
+  }
+
+  .playful-signal-grid .signal-detail__close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 3;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 1.95rem;
+    width: 1.95rem;
+    border-radius: 999px;
+    border: 1px solid rgb(var(--signal-accent-rgb) / 0.18);
+    background: rgb(15 23 42 / 0.26);
+    color: rgb(var(--signal-accent-rgb));
+    font-size: 1rem;
+    line-height: 1;
+    cursor: pointer;
+    backdrop-filter: blur(10px);
+  }
+
+  .dark .playful-signal-grid .signal-detail__close {
+    background: rgb(15 23 42 / 0.62);
+  }
+
+  .playful-signal-grid .signal-detail__body > .music-widget,
+  .playful-signal-grid .signal-detail__body > .fact-widget,
+  .playful-signal-grid .signal-detail__body > .quote-widget,
+  .playful-signal-grid .signal-detail__body > .joke-widget {
+    display: block;
+    min-height: calc(var(--signal-cell-min-height) - 4rem);
+  }
+
+  .playful-signal-grid .signal-detail__body > .music-widget > div,
+  .playful-signal-grid .signal-detail__body > .fact-widget > div,
+  .playful-signal-grid .signal-detail__body > .quote-widget > div,
+  .playful-signal-grid .signal-detail__body > .joke-widget > div {
+    height: auto;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    padding: 0;
+    box-shadow: none;
+  }
+
+  .playful-signal-grid .signal-detail__body .music-current,
+  .playful-signal-grid .signal-detail__body .joke-image {
+    overflow: hidden;
+  }
+
+  .playful-signal-grid .signal-detail__body .music-recent-list {
+    max-height: none;
+  }
+
+  @keyframes signal-detail-enter {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .playful-signal-grid .signal-shell,
+    .playful-signal-grid .signal-summary,
+    .playful-signal-grid .signal-summary__direction,
+    .playful-signal-grid .signal-detail {
+      transition: none;
+      animation: none;
+    }
+  }
+</style>
+
+<script is:inline>
+  function initPlayfulSignals() {
+    document.querySelectorAll('[data-playful-signals]').forEach((grid) => {
+      if (grid.dataset.initialized === 'true') return;
+      grid.dataset.initialized = 'true';
+
+      grid.querySelectorAll('[data-signal-item]').forEach((item) => {
+        const toggle = item.querySelector('[data-signal-toggle]');
+        const closeButton = item.querySelector('[data-signal-close]');
+        const detail = item.querySelector('.signal-detail');
+
+        const setOpen = (isOpen) => {
+          item.dataset.open = isOpen ? 'true' : 'false';
+          toggle?.setAttribute('aria-expanded', String(isOpen));
+          detail?.setAttribute('aria-hidden', String(!isOpen));
+          if (detail && 'inert' in detail) {
+            detail.inert = !isOpen;
+          }
+        };
+
+        toggle?.addEventListener('click', () => {
+          if (item.dataset.open === 'true') return;
+          setOpen(true);
+        });
+
+        closeButton?.addEventListener('click', (event) => {
+          event.stopPropagation();
+          setOpen(false);
+          toggle?.focus();
+        });
+
+        item.addEventListener('keydown', (event) => {
+          if (event.key !== 'Escape' || item.dataset.open !== 'true') return;
+          setOpen(false);
+          toggle?.focus();
+        });
+
+        setOpen(false);
+      });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initPlayfulSignals, { once: true });
+  } else {
+    initPlayfulSignals();
+  }
+</script>

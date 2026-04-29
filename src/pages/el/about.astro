@@ -1,0 +1,145 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import NASAWidget from "../../components/NASAWidget.astro";
+import F1RaceWidget from "../../components/F1RaceWidget.astro";
+import PlayfulSignalsSection from "../../components/PlayfulSignalsSection.astro";
+---
+
+<BaseLayout title="Σχετικά | Γιώργος Μπαλαούρας">
+  <main class="mx-auto max-w-6xl px-6 py-12">
+    <section class="overflow-hidden rounded-[2rem] border border-slate-200/80 bg-white/40 shadow-sm dark:border-slate-700 dark:bg-slate-900/30">
+      <div class="relative h-56 overflow-hidden md:h-64">
+        <img
+          src="/mpalaourg-astro/media/cover.jpg"
+          alt="Εικόνα εξωφύλλου"
+          class="h-full w-full object-cover object-[center_35%]"
+        />
+        <div class="absolute inset-0 bg-gradient-to-r from-slate-950/45 via-slate-900/20 to-slate-900/35"></div>
+        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/45 via-transparent to-transparent"></div>
+      </div>
+
+      <div class="relative px-6 pb-8 pt-0 md:px-8">
+        <div class="-mt-16 mb-6 md:-mt-20">
+          <img
+            src="/mpalaourg-astro/media/avatar.jpg"
+            alt="Γιώργος Μπαλαούρας"
+            class="h-32 w-32 rounded-[2rem] object-cover shadow-xl ring-4 ring-white dark:ring-slate-900 md:h-36 md:w-36"
+          />
+        </div>
+
+        <p class="text-sm font-semibold uppercase tracking-[0.22em] text-orange-600 dark:text-orange-400">Σχετικά</p>
+        <h1 class="mt-4 text-4xl font-bold leading-[1.02] md:text-5xl xl:text-[4.1rem]">Τι με ενδιαφέρει και πώς σκέφτομαι</h1>
+        <p class="mt-6 text-lg leading-8 text-gray-600 dark:text-slate-400">
+          Μου αρέσει η δουλειά που είναι καθαρή, χρήσιμη και δεμένη με πραγματικά προβλήματα. Εκτός δουλειάς, το ίδιο ένστικτο φαίνεται σε πιο απλά πράγματα: καφές, ταξίδια, Formula 1, ρεμπέτικα και μικρές λεπτομέρειες που αξίζουν μια δεύτερη ματιά.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href="/mpalaourg-astro/el/projects" class="rounded-full border border-gray-300 px-4 py-2 text-sm font-medium hover:border-slate-500 dark:border-slate-600 dark:hover:border-slate-400">Projects</a>
+          <a href="/mpalaourg-astro/el/publications" class="rounded-full border border-gray-300 px-4 py-2 text-sm font-medium hover:border-slate-500 dark:border-slate-600 dark:hover:border-slate-400">Δημοσιεύσεις</a>
+          <a href="/mpalaourg-astro/el/formula" class="rounded-full border border-gray-300 px-4 py-2 text-sm font-medium hover:border-slate-500 dark:border-slate-600 dark:hover:border-slate-400">Formula</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="mt-16">
+      <div>
+        <p class="text-sm font-semibold uppercase tracking-[0.2em] text-orange-600 dark:text-orange-400">Πέρα από τη δουλειά</p>
+        <h2 class="mt-3 text-3xl font-bold">Μερικά σταθερά ενδιαφέροντα που μένουν μαζί μου και εκτός οθόνης</h2>
+        <p class="mt-4 text-base leading-7 text-gray-700 dark:text-slate-300">
+          Επιστρέφω συχνά σε πράγματα που αξίζουν μια δεύτερη ματιά. Η φωτογραφία της ημέρας από τη NASA είναι ένα από αυτά. Μου αρέσει ο συνδυασμός επιστήμης, κλίμακας και ήρεμου θαυμασμού, ειδικά όταν μια μόνο εικόνα λέει περισσότερα από μια μεγάλη εξήγηση.
+        </p>
+      </div>
+    </section>
+
+    <section class="mx-auto mt-10 max-w-5xl">
+      <NASAWidget lang="el" variant="contained" />
+    </section>
+
+    <section class="mt-16">
+      <div class="mb-6">
+        <p class="text-sm font-semibold uppercase tracking-[0.2em] text-gray-500 dark:text-slate-400">Τωρινές εμμονές</p>
+        <h2 class="mt-3 text-3xl font-bold">Τα βασικά θέματα είναι γνώριμα, αλλά ποτέ βαρετά</h2>
+        <p class="mt-4 text-base leading-7 text-gray-600 dark:text-slate-400">
+          Μεγάλο μέρος της ενέργειάς μου εκτός δουλειάς επιστρέφει στα ίδια αγαπημένα πράγματα: καφές, ταξίδια, σειρές, αγωνιστικά Σαββατοκύριακα και μουσική με χαρακτήρα.
+        </p>
+      </div>
+
+      <div id="slider" class="relative overflow-hidden rounded-[2rem] border border-gray-200 bg-slate-900 shadow-lg dark:border-slate-700" data-interval="10000">
+        <div class="absolute inset-0">
+          <img id="slider-bg" src="/mpalaourg-astro/media/images/coffee.jpg" alt="" class="h-full w-full object-cover opacity-50" />
+        </div>
+        <div class="absolute inset-0 bg-gradient-to-r from-black/68 via-black/28 to-transparent"></div>
+        <div class="relative z-10 flex min-h-[18rem] items-end p-8 md:min-h-[20rem] md:p-10">
+          <div>
+            <p class="mb-4 text-xs font-semibold uppercase tracking-[0.28em] text-orange-300">Τελευταία</p>
+            <div class="slider-content">
+              <p class="text-2xl font-semibold leading-tight text-white drop-shadow-lg md:text-[2.15rem]">Ο δυνατός καφές παραμένει μέρος της καθημερινότητας</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mt-4 flex justify-center gap-2">
+        <button class="slider-dot h-3 w-3 rounded-full bg-slate-600" data-index="0" aria-label="Slide 1"></button>
+        <button class="slider-dot h-3 w-3 rounded-full bg-slate-400" data-index="1" aria-label="Slide 2"></button>
+        <button class="slider-dot h-3 w-3 rounded-full bg-slate-400" data-index="2" aria-label="Slide 3"></button>
+        <button class="slider-dot h-3 w-3 rounded-full bg-slate-400" data-index="3" aria-label="Slide 4"></button>
+        <button class="slider-dot h-3 w-3 rounded-full bg-slate-400" data-index="4" aria-label="Slide 5"></button>
+      </div>
+    </section>
+
+    <PlayfulSignalsSection lang="el" />
+
+    <section class="mt-16 mb-8">
+      <div class="mb-6">
+        <p class="text-sm font-semibold uppercase tracking-[0.2em] text-gray-500 dark:text-slate-400">Race Weekend</p>
+        <h2 class="mt-3 text-3xl font-bold">Η Formula 1 είναι από τα λίγα πράγματα που με τραβούν αβίαστα κάθε φορά</h2>
+        <p class="mt-4 text-base leading-7 text-gray-600 dark:text-slate-400">
+          Είναι από τα λίγα πράγματα που παρακολουθώ με συναίσθημα και ανάλυση μαζί. Μου αρέσουν τα αγωνιστικά Σαββατοκύριακα, η στρατηγική και ο τρόπος με τον οποίο μια ολόκληρη σεζόν χτίζει τη δική της ιστορία.
+        </p>
+      </div>
+      <F1RaceWidget lang="el" />
+    </section>
+  </main>
+
+  <script>
+    const base = "/mpalaourg-astro";
+    const slides = [
+      { text: "Ο δυνατός καφές παραμένει μέρος της καθημερινότητας", bg: base + "/media/images/coffee.jpg" },
+      { text: "Μου αρέσει να ανακαλύπτω νέες πόλεις και να τις περπατάω με τον δικό τους ρυθμό", bg: base + "/media/images/travel.jpg" },
+      { text: "Δύσκολα μένω για πολύ μακριά από μια καλή σειρά", bg: base + "/media/images/series.jpg" },
+      { text: "Τα αγωνιστικά Σαββατοκύριακα εξακολουθούν να τραβούν όλη την προσοχή μου", bg: base + "/media/images/f1.jpg" },
+      { text: "Τα ρεμπέτικα είναι από τους ήχους στους οποίους επιστρέφω πιο συχνά", bg: base + "/media/images/music.jpg" },
+    ];
+
+    let currentSlide = 0;
+    const slider = document.getElementById('slider');
+    const bgImage = document.getElementById('slider-bg');
+    const content = slider?.querySelector('.slider-content');
+    const dots = document.querySelectorAll('.slider-dot');
+
+    function showSlide(index) {
+      currentSlide = index;
+      if (bgImage) {
+        bgImage.src = slides[index].bg;
+      }
+      if (content) {
+        content.innerHTML = `<p class="text-2xl font-semibold leading-tight text-white drop-shadow-lg md:text-[2.15rem]">${slides[index].text}</p>`;
+      }
+      dots.forEach((dot, i) => {
+        dot.classList.toggle('bg-slate-600', i === index);
+        dot.classList.toggle('bg-slate-400', i !== index);
+      });
+    }
+
+    dots.forEach((dot) => {
+      dot.addEventListener('click', () => {
+        showSlide(parseInt(dot.getAttribute('data-index') || '0'));
+      });
+    });
+
+    setInterval(() => {
+      showSlide((currentSlide + 1) % slides.length);
+    }, 10000);
+
+    showSlide(0);
+  </script>
+</BaseLayout>
