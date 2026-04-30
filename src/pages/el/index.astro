@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import SkillsetSection from "../../components/SkillsetSection.astro";
 import { getCollection } from "astro:content";
 
 const formulaPosts = await getCollection("formula-el");
@@ -470,6 +471,8 @@ const experiences = [
         });
       });
     </script>
+
+    <SkillsetSection lang="el" />
 
     <!-- Formula 1 Section -->
     <section class="py-8 px-6">

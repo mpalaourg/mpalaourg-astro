@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import SkillsetSection from "../components/SkillsetSection.astro";
 import { getCollection } from "astro:content";
 
 const formulaPosts = await getCollection("formula");
@@ -424,6 +425,9 @@ const experiences = [
         ))}
       </div>
     </section>
+
+    <!-- Formula Section -->
+    <SkillsetSection lang="en" />
 
     <!-- Formula Section -->
     <section class="py-8 px-6">
