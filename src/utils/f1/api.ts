@@ -171,6 +171,17 @@ async function getOpenF1Drivers(sessionKey: number): Promise<OpenF1Driver[]> {
   }
 }
 
+function getSortedOpenF1Results(
+  rawResults: OpenF1SessionResult[],
+): OpenF1SessionResult[] {
+  return [...rawResults].sort((a, b) => {
+    const aPosition = a.position ?? Number.POSITIVE_INFINITY;
+    const bPosition = b.position ?? Number.POSITIVE_INFINITY;
+    if (aPosition !== bPosition) return aPosition - bPosition;
+    return a.driver_number - b.driver_number;
+  });
+}
+
 export async function getOpenF1SessionResults(
   year: number,
   jolpicaCountry: string,
@@ -192,9 +203,9 @@ export async function getOpenF1SessionResults(
   const driverMap = new Map<number, OpenF1Driver>();
   drivers.forEach((d) => driverMap.set(d.driver_number, d));
 
-  const sorted = [...rawResults].sort((a, b) => a.position - b.position);
+  const sorted = getSortedOpenF1Results(rawResults);
 
-  return sorted.map((r) => {
+  return sorted.map((r, index) => {
     const driver = driverMap.get(r.driver_number);
     const fullName = driver?.full_name ?? `#${r.driver_number}`;
     const parts = fullName.trim().split(" ");
@@ -204,7 +215,7 @@ export async function getOpenF1SessionResults(
       : fullName;
 
     const row: OpenF1ResultRow = {
-      position: r.position,
+      position: r.position ?? index + 1,
       driverNumber: r.driver_number,
       name,
       teamName: driver?.team_name ?? "",

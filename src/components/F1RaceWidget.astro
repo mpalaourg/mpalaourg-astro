@@ -420,6 +420,15 @@ const T = t[lang];
 
   // ─── Module-level state ────────────────────────────────────────────────────
   let allRaces: any[] = [];
+  let seasonDriverRoster: Array<{
+    number: string;
+    code: string;
+    givenName: string;
+    familyName: string;
+    shortName: string;
+    constructorId: string;
+    constructorName: string;
+  }> = [];
   let nextRaceIndex = 0;
   let currentRaceIndex = 0;
   let sessions: { label: string; date: Date; type: string }[] = [];
@@ -628,6 +637,109 @@ const T = t[lang];
     return "";
   }
 
+  function getResultDriverNumber(row: any): string {
+    if (!row) return "";
+    if (row.driverNumber != null) return String(row.driverNumber);
+    return getDriverNumber(row.Driver);
+  }
+
+  function buildSeasonDriverRoster(driverStandings: any[]): typeof seasonDriverRoster {
+    return driverStandings
+      .map((entry) => {
+        const number = getDriverNumber(entry.Driver);
+        const constructor = entry.Constructors?.[0];
+        if (!number || !constructor?.constructorId || !entry.Driver?.familyName) return null;
+        return {
+          number,
+          code: entry.Driver?.code ?? "",
+          givenName: entry.Driver?.givenName ?? "",
+          familyName: entry.Driver?.familyName ?? "",
+          shortName: `${entry.Driver?.givenName?.[0] ?? ""}. ${entry.Driver?.familyName ?? ""}`.trim(),
+          constructorId: constructor.constructorId,
+          constructorName: constructor.name,
+        };
+      })
+      .filter(Boolean)
+      .sort((a, b) => parseInt(a!.number) - parseInt(b!.number)) as typeof seasonDriverRoster;
+  }
+
+  function findRosterDriver(driverNumber: string): (typeof seasonDriverRoster)[number] | undefined {
+    return seasonDriverRoster.find((driver) => driver.number === driverNumber);
+  }
+
+  function patchResultDriverMetadata(results: any[]): any[] {
+    return results.map((row) => {
+      const driverNumber = getResultDriverNumber(row);
+      const rosterDriver = findRosterDriver(driverNumber);
+      if (!rosterDriver) return row;
+
+      if ("driverNumber" in row) {
+        const name = typeof row.name === "string" ? row.name.trim() : "";
+        return {
+          ...row,
+          name: !name || /^#\d+$/.test(name) ? rosterDriver.shortName : row.name,
+          teamName: row.teamName || rosterDriver.constructorName,
+        };
+      }
+
+      return {
+        ...row,
+        Driver: {
+          ...row.Driver,
+          permanentNumber: row.Driver?.permanentNumber ?? rosterDriver.number,
+          code: row.Driver?.code ?? rosterDriver.code,
+          givenName: row.Driver?.givenName ?? rosterDriver.givenName,
+          familyName: row.Driver?.familyName ?? rosterDriver.familyName,
+        },
+        Constructor: row.Constructor ?? {
+          constructorId: rosterDriver.constructorId,
+          name: rosterDriver.constructorName,
+        },
+      };
+    });
+  }
+
+  function getMissingRosterDrivers(results: any[]): typeof seasonDriverRoster {
+    if (!seasonDriverRoster.length) return [];
+    const present = new Set(
+      results
+        .map((row) => getResultDriverNumber(row))
+        .filter(Boolean)
+    );
+    return seasonDriverRoster.filter((driver) => !present.has(driver.number));
+  }
+
+  function getNumericPosition(value: unknown): number | null {
+    if (typeof value === "number" && Number.isFinite(value)) return value;
+    if (typeof value === "string" && value.trim() !== "") {
+      const parsed = parseInt(value, 10);
+      if (Number.isFinite(parsed)) return parsed;
+    }
+    return null;
+  }
+
+  function getRankedQualifyingRows(results: any[]): any[] {
+    let nextPosition = 1;
+
+    return [...results]
+      .map((row, originalIndex) => ({ ...row, __originalIndex: originalIndex }))
+      .sort((a, b) => {
+        const aPosition = getNumericPosition(a.position);
+        const bPosition = getNumericPosition(b.position);
+        if (aPosition !== bPosition) {
+          return (
+            (aPosition ?? Number.POSITIVE_INFINITY) -
+            (bPosition ?? Number.POSITIVE_INFINITY)
+          );
+        }
+        return a.__originalIndex - b.__originalIndex;
+      })
+      .map(({ __originalIndex, ...row }) => ({
+        ...row,
+        displayPosition: row.dsq ? null : nextPosition++,
+      }));
+  }
+
   // Teams that need white logos (logo color matches background)
   const WHITE_LOGO_TEAMS = ["mclaren", "alpine", "williams", "cadillac"];
 
@@ -773,14 +885,6 @@ const T = t[lang];
   // ─── Modal body builders ───────────────────────────────────────────────────
 function buildQualiModal(data: any[], isOpenF1 = false): string {
     if (isOpenF1) {
-      // isOpenF1 = true means this is sprint qualifying (uses OpenF1 API)
-      // Use position-based filtering for 2026 sprint qualifying format:
-      // SQ3: positions 1-10, SQ2: positions 11-16, SQ1: positions 17-22
-      const sorted = [...data].sort((a, b) => a.position - b.position);
-      const sq3 = sorted.filter((r) => r.position >= 1 && r.position <= 10);
-      const sq2 = sorted.filter((r) => r.position >= 11 && r.position <= 16);
-      const sq1 = sorted.filter((r) => r.position >= 17);
-
       // Parse lap time to seconds for gap calculation
       function parseTime(timeStr: string): number | null {
         if (!timeStr || timeStr === "—" || timeStr === "") return null;
@@ -792,6 +896,21 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
         }
         return parseFloat(timeStr);
       }
+      const ranked = getRankedQualifyingRows(data);
+      const classified = ranked.filter((r) => !r.dsq);
+
+      const sq3 = classified.filter(
+        (r) => typeof r.displayPosition === "number" && r.displayPosition <= 10
+      );
+      const sq2 = classified.filter(
+        (r) =>
+          typeof r.displayPosition === "number" &&
+          r.displayPosition >= 11 &&
+          r.displayPosition <= 16
+      );
+      const sq1 = classified.filter(
+        (r) => typeof r.displayPosition === "number" && r.displayPosition >= 17
+      );
 
       // Calculate reference times for gaps
       // SQ3: gap to pole (fastest SQ3 time)
@@ -800,7 +919,7 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
       
       // SQ2: gap to P10 cutoff (slowest SQ2 time among top 10)
       // Need to sort ALL drivers by SQ2 time and find the 10th fastest
-      const allSq2Times = sorted
+      const allSq2Times = classified
         .map(r => ({ pos: r.position, time: parseTime(r.q2) }))
         .filter(r => r.time !== null)
         .sort((a, b) => (a.time as number) - (b.time as number));
@@ -808,43 +927,13 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
       
 // SQ1: gap to P16 cutoff (slowest SQ1 time among top 16)
       // Need to sort ALL drivers by SQ1 time and find the 16th fastest
-      const allSq1Times = sorted
+      const allSq1Times = classified
         .map(r => ({ pos: r.position, time: parseTime(r.q1) }))
         .filter(r => r.time !== null)
         .sort((a, b) => (a.time as number) - (b.time as number));
       const p16Sq1Time = allSq1Times[15]?.time ?? null; // 16th fastest SQ1 time
 
-      // Full 2026 grid - for showing missing drivers in SQ1
-      const full2026Grid = [
-        { number: 1, name: "L. Norris", team: "mclaren" },
-        { number: 3, name: "M. Verstappen", team: "red_bull" },
-        { number: 5, name: "G. Bortoleto", team: "audi" },
-        { number: 6, name: "I. Hadjar", team: "red_bull" },
-        { number: 10, name: "P. Gasly", team: "alpine" },
-        { number: 11, name: "S. Pérez", team: "cadillac" },
-        { number: 12, name: "K. Antonelli", team: "mercedes" },
-        { number: 14, name: "F. Alonso", team: "aston_martin" },
-        { number: 16, name: "C. Leclerc", team: "ferrari" },
-        { number: 18, name: "L. Stroll", team: "aston_martin" },
-        { number: 23, name: "A. Albon", team: "williams" },
-        { number: 27, name: "N. Hülkenberg", team: "audi" },
-        { number: 30, name: "L. Lawson", team: "rb" },
-        { number: 31, name: "E. Ocon", team: "haas" },
-        { number: 41, name: "A. Lindblad", team: "rb" },
-        { number: 43, name: "F. Colapinto", team: "alpine" },
-        { number: 44, name: "L. Hamilton", team: "ferrari" },
-        { number: 55, name: "C. Sainz", team: "williams" },
-        { number: 63, name: "G. Russell", team: "mercedes" },
-        { number: 77, name: "V. Bottas", team: "cadillac" },
-        { number: 81, name: "O. Piastri", team: "mclaren" },
-        { number: 87, name: "O. Bearman", team: "haas" },
-      ];
-
-      // Find missing drivers (not in results)
-      const presentNumbers = new Set(sorted.map((r: any) => r.driverNumber));
-      const missingDrivers = full2026Grid
-        .filter((d) => !presentNumbers.has(d.number))
-        .sort((a, b) => a.number - b.number);
+      const missingDrivers = getMissingRosterDrivers(ranked);
 
       function formatGap(gap: number): string {
         if (gap === 0) return "—";
@@ -858,13 +947,13 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
         timeKey: string,
         gapType: "leader" | "elimination",
         refTime: number | null,
-        extraDrivers: { number: number; name: string; team: string }[] = []
+        extraDrivers: typeof seasonDriverRoster = []
       ) {
         if (!rows.length && !extraDrivers.length) return "";
 
         const rowsHtml = rows
           .map((r) => {
-            const isTop3 = r.position <= 3;
+            const isTop3 = r.displayPosition <= 3;
             const time = (r as any)[timeKey];
             const timeValue = parseTime(time);
             const hasTime = timeValue !== null;
@@ -886,7 +975,7 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
           <div class="grid grid-cols-[1.75rem_1.5rem_1fr_5.5rem_3.5rem] gap-x-2 px-3 py-2 items-center
                       transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/50
                       ${isTop3 ? "bg-amber-50/60 dark:bg-amber-900/10" : ""}">
-            <span class="text-xs font-mono text-gray-400 dark:text-slate-500 text-center">${r.position}</span>
+            <span class="text-xs font-mono text-gray-400 dark:text-slate-500 text-center">${r.displayPosition}</span>
             <span class="text-[10px] font-bold bg-slate-200 dark:bg-slate-600 rounded px-1 py-0.5 tabular-nums text-center">${r.driverNumber}</span>
             <span class="flex items-center gap-1.5 min-w-0">
               ${logoByTeamName(r.teamName)}
@@ -906,8 +995,8 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
             <span class="text-xs font-mono text-gray-400 dark:text-slate-500 text-center">—</span>
             <span class="text-[10px] font-bold bg-slate-200 dark:bg-slate-600 rounded px-1 py-0.5 tabular-nums text-center">${d.number}</span>
             <span class="flex items-center gap-1.5 min-w-0">
-              ${logoByTeamName(d.team)}
-              <span class="truncate text-xs font-medium">${d.name}</span>
+              ${logoImg(d.constructorId, d.constructorName)}
+              <span class="truncate text-xs font-medium">${d.shortName}</span>
             </span>
             <span class="text-xs font-mono tabular-nums text-right text-gray-400 dark:text-slate-500 italic">No Time Set</span>
             <span class="text-[10px] font-mono tabular-nums text-right text-gray-400 dark:text-slate-500">—</span>
@@ -967,48 +1056,24 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
     }
 
     // Regular qualifying from Jolpica
-    const sorted = [...data].sort(
-      (a, b) => parseInt(a.position) - parseInt(b.position)
-    );
-    
-    // Full 2026 grid - for showing missing drivers
-    // Note: Norris uses #1 for 2026 (changed from his permanent #4)
-    const full2026Grid = [
-      { number: "1", name: "Norris", team: "mclaren" },
-      { number: "3", name: "Verstappen", team: "red_bull" },
-      { number: "5", name: "Bortoleto", team: "audi" },
-      { number: "6", name: "Hadjar", team: "red_bull" },
-      { number: "10", name: "Gasly", team: "alpine" },
-      { number: "11", name: "Pérez", team: "cadillac" },
-      { number: "12", name: "Antonelli", team: "mercedes" },
-      { number: "14", name: "Alonso", team: "aston_martin" },
-      { number: "16", name: "Leclerc", team: "ferrari" },
-      { number: "18", name: "Stroll", team: "aston_martin" },
-      { number: "23", name: "Albon", team: "williams" },
-      { number: "27", name: "Hülkenberg", team: "audi" },
-      { number: "30", name: "Lawson", team: "rb" },
-      { number: "31", name: "Ocon", team: "haas" },
-      { number: "41", name: "Lindblad", team: "rb" },
-      { number: "43", name: "Colapinto", team: "alpine" },
-      { number: "44", name: "Hamilton", team: "ferrari" },
-      { number: "55", name: "Sainz", team: "williams" },
-      { number: "63", name: "Russell", team: "mercedes" },
-      { number: "77", name: "Bottas", team: "cadillac" },
-      { number: "81", name: "Piastri", team: "mclaren" },
-      { number: "87", name: "Bearman", team: "haas" },
-    ];
-    
-    // Find missing drivers (not in results)
-    const presentNumbers = new Set(sorted.map(r => r.number || r.Driver?.permanentNumber || r.Driver?.code));
-    const missingDrivers = full2026Grid
-      .filter(d => !presentNumbers.has(d.number))
-      .sort((a, b) => parseInt(a.number) - parseInt(b.number));
+    const ranked = getRankedQualifyingRows(data);
+    const classified = ranked.filter((r) => !r.dsq);
+    const missingDrivers = getMissingRosterDrivers(ranked);
     
     // Filter by position, not by whether times exist
     // 2026 format: Top 10 to Q3, positions 11-16 to Q2, positions 17+ out in Q1
-    const q3 = sorted.filter((r) => parseInt(r.position) <= 10);
-    const q2 = sorted.filter((r) => parseInt(r.position) >= 11 && parseInt(r.position) <= 16);
-    const q1 = sorted.filter((r) => parseInt(r.position) >= 17);
+    const q3 = classified.filter(
+      (r) => typeof r.displayPosition === "number" && r.displayPosition <= 10
+    );
+    const q2 = classified.filter(
+      (r) =>
+        typeof r.displayPosition === "number" &&
+        r.displayPosition >= 11 &&
+        r.displayPosition <= 16
+    );
+    const q1 = classified.filter(
+      (r) => typeof r.displayPosition === "number" && r.displayPosition >= 17
+    );
 
     // Parse lap time to seconds for gap calculation
     function parseTime(timeStr: string): number | null {
@@ -1032,7 +1097,7 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
     
     // Q2: gap to the driver who was P10 at the end of Q2 (slowest Q2 time among top 10)
     // Sort by Q2 times and find the 10th fastest
-    const q2SortedByTime = [...sorted]
+    const q2SortedByTime = [...classified]
       .filter(r => parseTime(r.Q2) !== null)
       .sort((a, b) => parseTime(a.Q2)! - parseTime(b.Q2)!);
     const p10InQ2 = q2SortedByTime[9]; // 10th fastest Q2 time (0-indexed)
@@ -1040,7 +1105,7 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
     
     // Q1: gap to the driver who was P16 at the end of Q1 (slowest Q1 time among top 16)
     // Sort by Q1 times and find the 16th fastest
-    const q1SortedByTime = [...sorted]
+    const q1SortedByTime = [...classified]
       .filter(r => parseTime(r.Q1) !== null)
       .sort((a, b) => parseTime(a.Q1)! - parseTime(b.Q1)!);
     const p16InQ1 = q1SortedByTime[15]; // 16th fastest Q1 time (0-indexed)
@@ -1053,24 +1118,24 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
 
     function jSection(
       label: string,
-      color: string,
-      rows: any[],
-      timeKey: string,
-      gapType: "leader" | "elimination",
-      refTime: number | null,
-      extraDrivers: { number: string; name: string; team: string }[] = []
+        color: string,
+        rows: any[],
+        timeKey: string,
+        gapType: "leader" | "elimination",
+        refTime: number | null,
+        extraDrivers: typeof seasonDriverRoster = []
     ) {
       if (!rows.length && !extraDrivers.length) return "";
       
       const rowsHtml = rows
         .map((r) => {
-          const isTop3 = parseInt(r.position) <= 3;
+          const isTop3 = r.displayPosition <= 3;
           const time = (r as any)[timeKey];
           const timeValue = parseTime(time);
           const hasTime = timeValue !== null;
           let gap = "—";
           
-          if (hasTime && refTime !== null) {
+          if (!r.dsq && hasTime && refTime !== null) {
             if (gapType === "leader") {
               gap = formatGap(timeValue - refTime);
             } else {
@@ -1081,7 +1146,9 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
           
           // Format time display
           let timeDisplay: string;
-          if (time && time !== "") {
+          if (r.dsq) {
+            timeDisplay = "<span class='italic text-gray-400 dark:text-slate-500'>Disqualified</span>";
+          } else if (time && time !== "") {
             timeDisplay = time;
           } else {
             // No time set - show in italics
@@ -1092,7 +1159,7 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
           <div class="grid grid-cols-[1.75rem_1.5rem_1fr_5.5rem_3.5rem] gap-x-2 px-3 py-2 items-center
                       transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/50
                       ${isTop3 ? "bg-amber-50/60 dark:bg-amber-900/10" : ""}">
-            <span class="text-xs font-mono text-gray-400 dark:text-slate-500 text-center">${r.position}</span>
+            <span class="text-xs font-mono text-gray-400 dark:text-slate-500 text-center">${r.dsq ? "DSQ" : r.displayPosition}</span>
             <span class="text-[10px] font-bold bg-slate-200 dark:bg-slate-600 rounded px-1 py-0.5 tabular-nums text-center">${getDriverNumber(r.Driver) || "—"}</span>
             <span class="flex items-center gap-1.5 min-w-0">
               ${logoImg(r.Constructor?.constructorId ?? "", r.Constructor?.name ?? "")}
@@ -1112,8 +1179,8 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
             <span class="text-xs font-mono text-gray-400 dark:text-slate-500 text-center">—</span>
             <span class="text-[10px] font-bold bg-slate-200 dark:bg-slate-600 rounded px-1 py-0.5 tabular-nums text-center">${d.number}</span>
             <span class="flex items-center gap-1.5 min-w-0">
-              ${logoImg(d.team, d.team)}
-              <span class="truncate text-xs font-medium">${d.name}</span>
+              ${logoImg(d.constructorId, d.constructorName)}
+              <span class="truncate text-xs font-medium">${d.shortName}</span>
             </span>
             <span class="text-xs font-mono tabular-nums text-right text-gray-400 dark:text-slate-500 italic">No Time Set</span>
             <span class="text-[10px] font-mono tabular-nums text-right text-gray-400 dark:text-slate-500">—</span>
@@ -1176,7 +1243,7 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
     return jSection(
       "Full Grid",
       "bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300",
-      sorted,
+      classified,
       "Q1",
       "leader",
       q1Times.length > 0 ? Math.min(...q1Times.map(r => r.time!)) : null
@@ -1187,6 +1254,7 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
     const sorted = [...data].sort(
       (a, b) => parseInt(a.position) - parseInt(b.position)
     );
+    const missingDrivers = getMissingRosterDrivers(sorted);
     
     // Find winner's lap count to calculate laps down for lapped cars
     const winnerLaps = sorted.length > 0 ? parseInt(sorted[0].laps) || 0 : 0;
@@ -1308,11 +1376,30 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
       })
       .join("");
 
+    const extraRows = missingDrivers
+      .map(
+        (driver) => `
+        <div class="grid grid-cols-[1.75rem_1.5rem_1fr_3rem_5.5rem_4.5rem] gap-x-2 px-3 py-2 items-center
+                    transition-colors hover:bg-red-50 dark:hover:bg-slate-700/50 bg-slate-50 dark:bg-slate-800/50 opacity-60">
+          <span class="text-xs font-mono text-gray-300 dark:text-slate-600 text-center">—</span>
+          <span class="text-[10px] font-bold bg-slate-200 dark:bg-slate-600 rounded px-1 py-0.5 tabular-nums text-center">${driver.number}</span>
+          <span class="flex items-center gap-1.5 min-w-0">
+            ${logoImg(driver.constructorId, driver.constructorName)}
+            <span class="truncate text-xs font-medium">${driver.shortName}</span>
+          </span>
+          <span class="text-xs tabular-nums text-center text-gray-500 dark:text-slate-400">—</span>
+          <span class="text-xs font-mono tabular-nums text-right text-gray-400 dark:text-slate-500 italic">No Data</span>
+          <span class="text-xs font-mono tabular-nums text-right text-gray-400 dark:text-slate-500">—</span>
+        </div>`
+      )
+      .join("");
+
     return `
       <div>
         ${header}
         <div class="rounded-b-lg border border-gray-200 dark:border-gray-700 border-t-0 overflow-hidden divide-y divide-gray-100 dark:divide-slate-700/50">
           ${rows}
+          ${extraRows}
         </div>
         <p class="text-[10px] text-gray-400 dark:text-slate-500 mt-2 text-right">⚡ = Fastest Lap</p>
       </div>`;
@@ -1516,25 +1603,26 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
     }
 
     const type = session.type;
+    const patchedResults = patchResultDriverMetadata(results);
     let html = "";
 
     if (type === "fp1" || type === "fp2" || type === "fp3") {
-      html = renderOpenF1Podium(results);
+      html = renderOpenF1Podium(patchedResults);
     } else if (type === "sprint_qualifying") {
       html =
-        renderOpenF1Podium(results) +
+        renderOpenF1Podium(patchedResults) +
         fullGridBtn("Full Sprint Qualifying Grid", "sprint_qualifying");
     } else if (type === "qualifying") {
       html =
-        renderJolpicaQualiPodium(results) +
+        renderJolpicaQualiPodium(patchedResults) +
         fullGridBtn("Full Qualifying Grid", "qualifying");
     } else if (type === "sprint") {
       html =
-        renderJolpicaRacePodium(results) +
+        renderJolpicaRacePodium(patchedResults) +
         fullGridBtn("Full Sprint Results", "sprint");
     } else if (type === "race") {
       html =
-        renderJolpicaRacePodium(results) +
+        renderJolpicaRacePodium(patchedResults) +
         fullGridBtn("Full Race Results", "race");
     }
 
@@ -1558,8 +1646,8 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
         const isQuali =
           modalType === "qualifying" || modalType === "sprint_qualifying";
         const body = isQuali
-          ? buildQualiModal(results, isOpenF1Quali)
-          : buildRaceModal(results);
+          ? buildQualiModal(patchedResults, isOpenF1Quali)
+          : buildRaceModal(patchedResults);
 
         openModal(title, body);
       });
@@ -1851,6 +1939,7 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
       .classList.remove("hidden");
 
     // Render
+    seasonDriverRoster = buildSeasonDriverRoster(driverStandings);
     renderRace();
     renderDriverStandings(driverStandings);
     renderConstructorStandings(constructorStandings, driverStandings);

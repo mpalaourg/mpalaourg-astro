@@ -32,7 +32,7 @@ const monthYear = post.data.date.toLocaleDateString("el-GR", { month: "long", ye
         <img
           src={post.data.featuredImage}
           alt={post.data.title}
-          class="mb-6 w-full rounded-xl"
+          class="mb-6 max-h-[32rem] w-full rounded-xl border border-gray-200 bg-gray-50 object-contain dark:border-gray-800 dark:bg-slate-950"
         />
       )}
 
@@ -91,4 +91,4 @@ const monthYear = post.data.date.toLocaleDateString("el-GR", { month: "long", ye
       <Content />
     </div>
   </article>
-</ BaseLayout>
+</BaseLayout>

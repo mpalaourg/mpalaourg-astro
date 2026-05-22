@@ -95,6 +95,7 @@ const projects = defineCollection({
     url_pdf: z.string().optional(),
     url_slides: z.string().optional(),
     url_video: z.string().optional(),
+    weight: z.number().optional(),
   }),
 });
 
@@ -110,6 +111,7 @@ const projectsEl = defineCollection({
     url_pdf: z.string().optional(),
     url_slides: z.string().optional(),
     url_video: z.string().optional(),
+    weight: z.number().optional(),
   }),
 });
 

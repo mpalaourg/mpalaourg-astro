@@ -9,7 +9,7 @@ const projectsPosts = await getCollection("projects");
 
 const allFormula = formulaPosts.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
 const sortedPublications = publicationsPosts.sort((a, b) => b.data.date.getTime() - a.data.date.getTime()).slice(0, 3);
-const sortedProjects = projectsPosts.sort((a, b) => (a.data.weight || 999) - (b.data.weight || 999));
+const sortedProjects = projectsPosts.sort((a, b) => (a.data.weight ?? 999) - (b.data.weight ?? 999));
 
 const formulaTagCounts = allFormula.flatMap((post) => post.data.tags || []).reduce((acc, tag) => {
   if (tag !== "formula1") {
@@ -21,7 +21,7 @@ const formulaTags = Object.entries(formulaTagCounts)
   .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
   .slice(0, 5)
   .map(([tag]) => tag);
-const projectTags = ["machine learning", "C", "MATLAB", "multimedia"];
+const projectTags = ["workshop", "agents", "machine learning", "C", "MATLAB", "multimedia"];
 
 const experiences = [
   {

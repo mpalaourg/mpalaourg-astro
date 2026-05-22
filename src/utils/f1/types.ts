@@ -25,7 +25,7 @@ export interface ConstructorStanding {
 // OpenF1 Types
 
 export interface OpenF1SessionResult {
-  position: number;
+  position: number | null;
   driver_number: number;
   duration: number | number[] | null;
   gap_to_leader: number | number[] | null;
