@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="963" viewBox="0 0 1200 963" role="img" aria-labelledby="title desc">
+  <title id="title">2025 race retirements</title>
+  <desc id="desc">Grand Prix DNFs by driver; DNS and DSQ excluded</desc>
+  <style>
+    .display { font-family: "Avenir Next", Avenir, "Gill Sans", sans-serif; fill: #18212B; }
+    .label { font-family: "SFMono-Regular", Consolas, monospace; fill: #42505D; }
+    .muted { fill: #6E7A85; }
+  </style>
+  <rect width="100%" height="100%" rx="24" fill="#F7F4EC"/>
+  <path d="M 36 34 H 1166" stroke="#D8D2C5" stroke-width="1"/>
+  <path d="M 36 34 H 78" stroke="#4F7C76" stroke-width="4" stroke-linecap="round"/>
+  <text x="42" y="75" class="display" font-size="34" font-weight="700">2025 race retirements</text>
+  <text x="42" y="105" class="label muted" font-size="15" letter-spacing="1">GRAND PRIX DNFS BY DRIVER; DNS AND DSQ EXCLUDED</text>
+  <line x1="220.0" y1="145" x2="220.0" y2="899" stroke="#D8D2C5" stroke-width="1"/>
+  <text x="220.0" y="935" text-anchor="middle" class="label muted" font-size="14">0</text>
+  <line x1="401.0" y1="145" x2="401.0" y2="899" stroke="#D8D2C5" stroke-width="1"/>
+  <text x="401.0" y="935" text-anchor="middle" class="label muted" font-size="14">1</text>
+  <line x1="582.0" y1="145" x2="582.0" y2="899" stroke="#D8D2C5" stroke-width="1"/>
+  <text x="582.0" y="935" text-anchor="middle" class="label muted" font-size="14">2</text>
+  <line x1="763.0" y1="145" x2="763.0" y2="899" stroke="#D8D2C5" stroke-width="1"/>
+  <text x="763.0" y="935" text-anchor="middle" class="label muted" font-size="14">3</text>
+  <line x1="944.0" y1="145" x2="944.0" y2="899" stroke="#D8D2C5" stroke-width="1"/>
+  <text x="944.0" y="935" text-anchor="middle" class="label muted" font-size="14">4</text>
+  <line x1="1125.0" y1="145" x2="1125.0" y2="899" stroke="#D8D2C5" stroke-width="1"/>
+  <text x="1125.0" y="935" text-anchor="middle" class="label muted" font-size="14">5</text>
+  <text x="202" y="173" text-anchor="end" class="display" font-size="18" font-weight="600">Alonso</text>
+  <rect x="220" y="152" width="905.0" height="28" rx="4" fill="#087A68"/>
+  <text x="1137.0" y="173" class="label" font-size="17" font-weight="700">5</text>
+  <text x="202" y="215" text-anchor="end" class="display" font-size="18" font-weight="600">Bortoleto</text>
+  <rect x="220" y="194" width="905.0" height="28" rx="4" fill="#2E9B59"/>
+  <text x="1137.0" y="215" class="label" font-size="17" font-weight="700">5</text>
+  <text x="202" y="257" text-anchor="end" class="display" font-size="18" font-weight="600">Lawson</text>
+  <rect x="220" y="236" width="905.0" height="28" rx="4" fill="#5B75DB"/>
+  <text x="1137.0" y="257" class="label" font-size="17" font-weight="700">5</text>
+  <text x="202" y="299" text-anchor="end" class="display" font-size="18" font-weight="600">Albon</text>
+  <rect x="220" y="278" width="724.0" height="28" rx="4" fill="#1685D8"/>
+  <text x="956.0" y="299" class="label" font-size="17" font-weight="700">4</text>
+  <text x="202" y="341" text-anchor="end" class="display" font-size="18" font-weight="600">Antonelli</text>
+  <rect x="220" y="320" width="724.0" height="28" rx="4" fill="#00AFA0"/>
+  <text x="956.0" y="341" class="label" font-size="17" font-weight="700">4</text>
+  <text x="202" y="383" text-anchor="end" class="display" font-size="18" font-weight="600">Sainz</text>
+  <rect x="220" y="362" width="724.0" height="28" rx="4" fill="#1685D8"/>
+  <text x="956.0" y="383" class="label" font-size="17" font-weight="700">4</text>
+  <text x="202" y="425" text-anchor="end" class="display" font-size="18" font-weight="600">Bearman</text>
+  <rect x="220" y="404" width="543.0" height="28" rx="4" fill="#7C8792"/>
+  <text x="775.0" y="425" class="label" font-size="17" font-weight="700">3</text>
+  <text x="202" y="467" text-anchor="end" class="display" font-size="18" font-weight="600">Hadjar</text>
+  <rect x="220" y="446" width="543.0" height="28" rx="4" fill="#5B75DB"/>
+  <text x="775.0" y="467" class="label" font-size="17" font-weight="700">3</text>
+  <text x="202" y="509" text-anchor="end" class="display" font-size="18" font-weight="600">Doohan</text>
+  <rect x="220" y="488" width="362.0" height="28" rx="4" fill="#E968A3"/>
+  <text x="594.0" y="509" class="label" font-size="17" font-weight="700">2</text>
+  <text x="202" y="551" text-anchor="end" class="display" font-size="18" font-weight="600">Gasly</text>
+  <rect x="220" y="530" width="362.0" height="28" rx="4" fill="#E968A3"/>
+  <text x="594.0" y="551" class="label" font-size="17" font-weight="700">2</text>
+  <text x="202" y="593" text-anchor="end" class="display" font-size="18" font-weight="600">Hamilton</text>
+  <rect x="220" y="572" width="362.0" height="28" rx="4" fill="#E10600"/>
+  <text x="594.0" y="593" class="label" font-size="17" font-weight="700">2</text>
+  <text x="202" y="635" text-anchor="end" class="display" font-size="18" font-weight="600">Hülkenberg</text>
+  <rect x="220" y="614" width="362.0" height="28" rx="4" fill="#2E9B59"/>
+  <text x="594.0" y="635" class="label" font-size="17" font-weight="700">2</text>
+  <text x="202" y="677" text-anchor="end" class="display" font-size="18" font-weight="600">Leclerc</text>
+  <rect x="220" y="656" width="362.0" height="28" rx="4" fill="#E10600"/>
+  <text x="594.0" y="677" class="label" font-size="17" font-weight="700">2</text>
+  <text x="202" y="719" text-anchor="end" class="display" font-size="18" font-weight="600">Norris</text>
+  <rect x="220" y="698" width="362.0" height="28" rx="4" fill="#F47600"/>
+  <text x="594.0" y="719" class="label" font-size="17" font-weight="700">2</text>
+  <text x="202" y="761" text-anchor="end" class="display" font-size="18" font-weight="600">Stroll</text>
+  <rect x="220" y="740" width="362.0" height="28" rx="4" fill="#087A68"/>
+  <text x="594.0" y="761" class="label" font-size="17" font-weight="700">2</text>
+  <text x="202" y="803" text-anchor="end" class="display" font-size="18" font-weight="600">Ocon</text>
+  <rect x="220" y="782" width="181.0" height="28" rx="4" fill="#7C8792"/>
+  <text x="413.0" y="803" class="label" font-size="17" font-weight="700">1</text>
+  <text x="202" y="845" text-anchor="end" class="display" font-size="18" font-weight="600">Piastri</text>
+  <rect x="220" y="824" width="181.0" height="28" rx="4" fill="#F47600"/>
+  <text x="413.0" y="845" class="label" font-size="17" font-weight="700">1</text>
+  <text x="202" y="887" text-anchor="end" class="display" font-size="18" font-weight="600">Tsunoda</text>
+  <rect x="220" y="866" width="181.0" height="28" rx="4" fill="#2456C7"/>
+  <text x="413.0" y="887" class="label" font-size="17" font-weight="700">1</text>
+  <text x="202" y="929" text-anchor="end" class="display" font-size="18" font-weight="600">Verstappen</text>
+  <rect x="220" y="908" width="181.0" height="28" rx="4" fill="#2456C7"/>
+  <text x="413.0" y="929" class="label" font-size="17" font-weight="700">1</text>
+  <text x="672.5" y="957" text-anchor="middle" class="label muted" font-size="13">RACE RETIREMENTS</text>
+</svg>

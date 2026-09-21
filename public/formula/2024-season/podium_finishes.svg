@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="585" viewBox="0 0 1200 585" role="img" aria-labelledby="title desc">
+  <title id="title">2024 podium finishers</title>
+  <desc id="desc">Grand Prix podiums by driver</desc>
+  <style>
+    .display { font-family: "Avenir Next", Avenir, "Gill Sans", sans-serif; fill: #18212B; }
+    .label { font-family: "SFMono-Regular", Consolas, monospace; fill: #42505D; }
+    .muted { fill: #6E7A85; }
+  </style>
+  <rect width="100%" height="100%" rx="24" fill="#F7F4EC"/>
+  <path d="M 36 34 H 1166" stroke="#D8D2C5" stroke-width="1"/>
+  <path d="M 36 34 H 78" stroke="#4F7C76" stroke-width="4" stroke-linecap="round"/>
+  <text x="42" y="75" class="display" font-size="34" font-weight="700">2024 podium finishers</text>
+  <text x="42" y="105" class="label muted" font-size="15" letter-spacing="1">GRAND PRIX PODIUMS BY DRIVER</text>
+  <line x1="220.0" y1="145" x2="220.0" y2="521" stroke="#D8D2C5" stroke-width="1"/>
+  <text x="220.0" y="557" text-anchor="middle" class="label muted" font-size="14">0</text>
+  <line x1="521.7" y1="145" x2="521.7" y2="521" stroke="#D8D2C5" stroke-width="1"/>
+  <text x="521.7" y="557" text-anchor="middle" class="label muted" font-size="14">5</text>
+  <line x1="823.3" y1="145" x2="823.3" y2="521" stroke="#D8D2C5" stroke-width="1"/>
+  <text x="823.3" y="557" text-anchor="middle" class="label muted" font-size="14">10</text>
+  <line x1="1125.0" y1="145" x2="1125.0" y2="521" stroke="#D8D2C5" stroke-width="1"/>
+  <text x="1125.0" y="557" text-anchor="middle" class="label muted" font-size="14">15</text>
+  <text x="202" y="173" text-anchor="end" class="display" font-size="18" font-weight="600">Verstappen</text>
+  <rect x="220" y="152" width="844.7" height="28" rx="4" fill="#2456C7"/>
+  <text x="1076.7" y="173" class="label" font-size="17" font-weight="700">14</text>
+  <text x="202" y="215" text-anchor="end" class="display" font-size="18" font-weight="600">Leclerc</text>
+  <rect x="220" y="194" width="784.3" height="28" rx="4" fill="#E10600"/>
+  <text x="1016.3" y="215" class="label" font-size="17" font-weight="700">13</text>
+  <text x="202" y="257" text-anchor="end" class="display" font-size="18" font-weight="600">Norris</text>
+  <rect x="220" y="236" width="784.3" height="28" rx="4" fill="#F47600"/>
+  <text x="1016.3" y="257" class="label" font-size="17" font-weight="700">13</text>
+  <text x="202" y="299" text-anchor="end" class="display" font-size="18" font-weight="600">Sainz</text>
+  <rect x="220" y="278" width="543.0" height="28" rx="4" fill="#E10600"/>
+  <text x="775.0" y="299" class="label" font-size="17" font-weight="700">9</text>
+  <text x="202" y="341" text-anchor="end" class="display" font-size="18" font-weight="600">Piastri</text>
+  <rect x="220" y="320" width="482.7" height="28" rx="4" fill="#F47600"/>
+  <text x="714.7" y="341" class="label" font-size="17" font-weight="700">8</text>
+  <text x="202" y="383" text-anchor="end" class="display" font-size="18" font-weight="600">Hamilton</text>
+  <rect x="220" y="362" width="301.7" height="28" rx="4" fill="#00AFA0"/>
+  <text x="533.7" y="383" class="label" font-size="17" font-weight="700">5</text>
+  <text x="202" y="425" text-anchor="end" class="display" font-size="18" font-weight="600">Pérez</text>
+  <rect x="220" y="404" width="241.3" height="28" rx="4" fill="#2456C7"/>
+  <text x="473.3" y="425" class="label" font-size="17" font-weight="700">4</text>
+  <text x="202" y="467" text-anchor="end" class="display" font-size="18" font-weight="600">Russell</text>
+  <rect x="220" y="446" width="241.3" height="28" rx="4" fill="#00AFA0"/>
+  <text x="473.3" y="467" class="label" font-size="17" font-weight="700">4</text>
+  <text x="202" y="509" text-anchor="end" class="display" font-size="18" font-weight="600">Gasly</text>
+  <rect x="220" y="488" width="60.3" height="28" rx="4" fill="#E968A3"/>
+  <text x="292.3" y="509" class="label" font-size="17" font-weight="700">1</text>
+  <text x="202" y="551" text-anchor="end" class="display" font-size="18" font-weight="600">Ocon</text>
+  <rect x="220" y="530" width="60.3" height="28" rx="4" fill="#E968A3"/>
+  <text x="292.3" y="551" class="label" font-size="17" font-weight="700">1</text>
+  <text x="672.5" y="579" text-anchor="middle" class="label muted" font-size="13">PODIUM FINISHES</text>
+</svg>

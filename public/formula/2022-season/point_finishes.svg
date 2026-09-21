@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1047" viewBox="0 0 1200 1047" role="img" aria-labelledby="title desc">
+  <title id="title">2022 points finishes</title>
+  <desc id="desc">Top-ten Grand Prix finishes by driver</desc>
+  <style>
+    .display { font-family: "Avenir Next", Avenir, "Gill Sans", sans-serif; fill: #18212B; }
+    .label { font-family: "SFMono-Regular", Consolas, monospace; fill: #42505D; }
+    .muted { fill: #6E7A85; }
+  </style>
+  <rect width="100%" height="100%" rx="24" fill="#F7F4EC"/>
+  <path d="M 36 34 H 1166" stroke="#D8D2C5" stroke-width="1"/>
+  <path d="M 36 34 H 78" stroke="#4F7C76" stroke-width="4" stroke-linecap="round"/>
+  <text x="42" y="75" class="display" font-size="34" font-weight="700">2022 points finishes</text>
+  <text x="42" y="105" class="label muted" font-size="15" letter-spacing="1">TOP-TEN GRAND PRIX FINISHES BY DRIVER</text>
+  <line x1="220.0" y1="145" x2="220.0" y2="983" stroke="#D8D2C5" stroke-width="1"/>
+  <text x="220.0" y="1019" text-anchor="middle" class="label muted" font-size="14">0</text>
+  <line x1="446.2" y1="145" x2="446.2" y2="983" stroke="#D8D2C5" stroke-width="1"/>
+  <text x="446.2" y="1019" text-anchor="middle" class="label muted" font-size="14">5</text>
+  <line x1="672.5" y1="145" x2="672.5" y2="983" stroke="#D8D2C5" stroke-width="1"/>
+  <text x="672.5" y="1019" text-anchor="middle" class="label muted" font-size="14">10</text>
+  <line x1="898.8" y1="145" x2="898.8" y2="983" stroke="#D8D2C5" stroke-width="1"/>
+  <text x="898.8" y="1019" text-anchor="middle" class="label muted" font-size="14">15</text>
+  <line x1="1125.0" y1="145" x2="1125.0" y2="983" stroke="#D8D2C5" stroke-width="1"/>
+  <text x="1125.0" y="1019" text-anchor="middle" class="label muted" font-size="14">20</text>
+  <text x="202" y="173" text-anchor="end" class="display" font-size="18" font-weight="600">Russell</text>
+  <rect x="220" y="152" width="905.0" height="28" rx="4" fill="#00AFA0"/>
+  <text x="1137.0" y="173" class="label" font-size="17" font-weight="700">20</text>
+  <text x="202" y="215" text-anchor="end" class="display" font-size="18" font-weight="600">Verstappen</text>
+  <rect x="220" y="194" width="905.0" height="28" rx="4" fill="#2456C7"/>
+  <text x="1137.0" y="215" class="label" font-size="17" font-weight="700">20</text>
+  <text x="202" y="257" text-anchor="end" class="display" font-size="18" font-weight="600">Hamilton</text>
+  <rect x="220" y="236" width="859.8" height="28" rx="4" fill="#00AFA0"/>
+  <text x="1091.8" y="257" class="label" font-size="17" font-weight="700">19</text>
+  <text x="202" y="299" text-anchor="end" class="display" font-size="18" font-weight="600">Leclerc</text>
+  <rect x="220" y="278" width="859.8" height="28" rx="4" fill="#E10600"/>
+  <text x="1091.8" y="299" class="label" font-size="17" font-weight="700">19</text>
+  <text x="202" y="341" text-anchor="end" class="display" font-size="18" font-weight="600">Pérez</text>
+  <rect x="220" y="320" width="859.8" height="28" rx="4" fill="#2456C7"/>
+  <text x="1091.8" y="341" class="label" font-size="17" font-weight="700">19</text>
+  <text x="202" y="383" text-anchor="end" class="display" font-size="18" font-weight="600">Norris</text>
+  <rect x="220" y="362" width="769.2" height="28" rx="4" fill="#F47600"/>
+  <text x="1001.2" y="383" class="label" font-size="17" font-weight="700">17</text>
+  <text x="202" y="425" text-anchor="end" class="display" font-size="18" font-weight="600">Ocon</text>
+  <rect x="220" y="404" width="724.0" height="28" rx="4" fill="#E968A3"/>
+  <text x="956.0" y="425" class="label" font-size="17" font-weight="700">16</text>
+  <text x="202" y="467" text-anchor="end" class="display" font-size="18" font-weight="600">Sainz</text>
+  <rect x="220" y="446" width="724.0" height="28" rx="4" fill="#E10600"/>
+  <text x="956.0" y="467" class="label" font-size="17" font-weight="700">16</text>
+  <text x="202" y="509" text-anchor="end" class="display" font-size="18" font-weight="600">Alonso</text>
+  <rect x="220" y="488" width="633.5" height="28" rx="4" fill="#E968A3"/>
+  <text x="865.5" y="509" class="label" font-size="17" font-weight="700">14</text>
+  <text x="202" y="551" text-anchor="end" class="display" font-size="18" font-weight="600">Vettel</text>
+  <rect x="220" y="530" width="452.5" height="28" rx="4" fill="#087A68"/>
+  <text x="684.5" y="551" class="label" font-size="17" font-weight="700">10</text>
+  <text x="202" y="593" text-anchor="end" class="display" font-size="18" font-weight="600">Bottas</text>
+  <rect x="220" y="572" width="407.2" height="28" rx="4" fill="#8E1F3D"/>
+  <text x="639.2" y="593" class="label" font-size="17" font-weight="700">9</text>
+  <text x="202" y="635" text-anchor="end" class="display" font-size="18" font-weight="600">Stroll</text>
+  <rect x="220" y="614" width="362.0" height="28" rx="4" fill="#087A68"/>
+  <text x="594.0" y="635" class="label" font-size="17" font-weight="700">8</text>
+  <text x="202" y="677" text-anchor="end" class="display" font-size="18" font-weight="600">Ricciardo</text>
+  <rect x="220" y="656" width="316.8" height="28" rx="4" fill="#F47600"/>
+  <text x="548.8" y="677" class="label" font-size="17" font-weight="700">7</text>
+  <text x="202" y="719" text-anchor="end" class="display" font-size="18" font-weight="600">Gasly</text>
+  <rect x="220" y="698" width="271.5" height="28" rx="4" fill="#496B8A"/>
+  <text x="503.5" y="719" class="label" font-size="17" font-weight="700">6</text>
+  <text x="202" y="761" text-anchor="end" class="display" font-size="18" font-weight="600">Magnussen</text>
+  <rect x="220" y="740" width="271.5" height="28" rx="4" fill="#7C8792"/>
+  <text x="503.5" y="761" class="label" font-size="17" font-weight="700">6</text>
+  <text x="202" y="803" text-anchor="end" class="display" font-size="18" font-weight="600">Tsunoda</text>
+  <rect x="220" y="782" width="181.0" height="28" rx="4" fill="#496B8A"/>
+  <text x="413.0" y="803" class="label" font-size="17" font-weight="700">4</text>
+  <text x="202" y="845" text-anchor="end" class="display" font-size="18" font-weight="600">Albon</text>
+  <rect x="220" y="824" width="135.8" height="28" rx="4" fill="#1685D8"/>
+  <text x="367.8" y="845" class="label" font-size="17" font-weight="700">3</text>
+  <text x="202" y="887" text-anchor="end" class="display" font-size="18" font-weight="600">Zhou</text>
+  <rect x="220" y="866" width="135.8" height="28" rx="4" fill="#8E1F3D"/>
+  <text x="367.8" y="887" class="label" font-size="17" font-weight="700">3</text>
+  <text x="202" y="929" text-anchor="end" class="display" font-size="18" font-weight="600">Schumacher</text>
+  <rect x="220" y="908" width="90.5" height="28" rx="4" fill="#7C8792"/>
+  <text x="322.5" y="929" class="label" font-size="17" font-weight="700">2</text>
+  <text x="202" y="971" text-anchor="end" class="display" font-size="18" font-weight="600">Latifi</text>
+  <rect x="220" y="950" width="45.2" height="28" rx="4" fill="#1685D8"/>
+  <text x="277.2" y="971" class="label" font-size="17" font-weight="700">1</text>
+  <text x="202" y="1013" text-anchor="end" class="display" font-size="18" font-weight="600">Vries</text>
+  <rect x="220" y="992" width="45.2" height="28" rx="4" fill="#1685D8"/>
+  <text x="277.2" y="1013" class="label" font-size="17" font-weight="700">1</text>
+  <text x="672.5" y="1041" text-anchor="middle" class="label muted" font-size="13">TOP-TEN FINISHES</text>
+</svg>

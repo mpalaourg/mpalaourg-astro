@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1480" height="820" viewBox="0 0 1480 820" role="img" aria-labelledby="title desc">
+  <title id="title">2025 Constructors’ Championship</title>
+  <desc id="desc">Cumulative points after every round</desc>
+  <style>
+    .display { font-family: "Avenir Next", Avenir, "Gill Sans", sans-serif; fill: #18212B; }
+    .label { font-family: "SFMono-Regular", Consolas, monospace; fill: #42505D; }
+    .muted { fill: #6E7A85; }
+  </style>
+  <rect width="100%" height="100%" rx="24" fill="#F7F4EC"/>
+  <path d="M 36 34 H 1446" stroke="#D8D2C5" stroke-width="1"/>
+  <path d="M 36 34 H 78" stroke="#4F7C76" stroke-width="4" stroke-linecap="round"/>
+  <text x="42" y="75" class="display" font-size="34" font-weight="700">2025 Constructors’ Championship</text>
+  <text x="42" y="105" class="label muted" font-size="15" letter-spacing="1">CUMULATIVE POINTS AFTER EVERY ROUND</text>
+  <line x1="88" y1="665.0" x2="1220" y2="665.0" stroke="#D8D2C5" stroke-width="1"/>
+  <text x="72" y="670.0" text-anchor="end" class="label muted" font-size="14">0</text>
+  <line x1="88" y1="561.0" x2="1220" y2="561.0" stroke="#D8D2C5" stroke-width="1"/>
+  <text x="72" y="566.0" text-anchor="end" class="label muted" font-size="14">200</text>
+  <line x1="88" y1="457.0" x2="1220" y2="457.0" stroke="#D8D2C5" stroke-width="1"/>
+  <text x="72" y="462.0" text-anchor="end" class="label muted" font-size="14">400</text>
+  <line x1="88" y1="353.0" x2="1220" y2="353.0" stroke="#D8D2C5" stroke-width="1"/>
+  <text x="72" y="358.0" text-anchor="end" class="label muted" font-size="14">600</text>
+  <line x1="88" y1="249.0" x2="1220" y2="249.0" stroke="#D8D2C5" stroke-width="1"/>
+  <text x="72" y="254.0" text-anchor="end" class="label muted" font-size="14">800</text>
+  <line x1="88" y1="145.0" x2="1220" y2="145.0" stroke="#D8D2C5" stroke-width="1"/>
+  <text x="72" y="150.0" text-anchor="end" class="label muted" font-size="14">1000</text>
+  <text x="88.0" y="690" transform="rotate(52 88.0 690)" class="label muted" font-size="12">Australia</text>
+  <text x="137.2" y="690" transform="rotate(52 137.2 690)" class="label muted" font-size="12">China</text>
+  <text x="186.4" y="690" transform="rotate(52 186.4 690)" class="label muted" font-size="12">Japan</text>
+  <text x="235.7" y="690" transform="rotate(52 235.7 690)" class="label muted" font-size="12">Bahrain</text>
+  <text x="284.9" y="690" transform="rotate(52 284.9 690)" class="label muted" font-size="12">Saudi Arabia</text>
+  <text x="334.1" y="690" transform="rotate(52 334.1 690)" class="label muted" font-size="12">Miami</text>
+  <text x="383.3" y="690" transform="rotate(52 383.3 690)" class="label muted" font-size="12">Imola</text>
+  <text x="432.5" y="690" transform="rotate(52 432.5 690)" class="label muted" font-size="12">Monaco</text>
+  <text x="481.7" y="690" transform="rotate(52 481.7 690)" class="label muted" font-size="12">Spain</text>
+  <text x="531.0" y="690" transform="rotate(52 531.0 690)" class="label muted" font-size="12">Canada</text>
+  <text x="580.2" y="690" transform="rotate(52 580.2 690)" class="label muted" font-size="12">Austria</text>
+  <text x="629.4" y="690" transform="rotate(52 629.4 690)" class="label muted" font-size="12">Great Britain</text>
+  <text x="678.6" y="690" transform="rotate(52 678.6 690)" class="label muted" font-size="12">Belgium</text>
+  <text x="727.8" y="690" transform="rotate(52 727.8 690)" class="label muted" font-size="12">Hungary</text>
+  <text x="777.0" y="690" transform="rotate(52 777.0 690)" class="label muted" font-size="12">Netherlands</text>
+  <text x="826.3" y="690" transform="rotate(52 826.3 690)" class="label muted" font-size="12">Italy</text>
+  <text x="875.5" y="690" transform="rotate(52 875.5 690)" class="label muted" font-size="12">Azerbaijan</text>
+  <text x="924.7" y="690" transform="rotate(52 924.7 690)" class="label muted" font-size="12">Singapore</text>
+  <text x="973.9" y="690" transform="rotate(52 973.9 690)" class="label muted" font-size="12">United States</text>
+  <text x="1023.1" y="690" transform="rotate(52 1023.1 690)" class="label muted" font-size="12">Mexico</text>
+  <text x="1072.3" y="690" transform="rotate(52 1072.3 690)" class="label muted" font-size="12">São Paulo</text>
+  <text x="1121.6" y="690" transform="rotate(52 1121.6 690)" class="label muted" font-size="12">Las Vegas</text>
+  <text x="1170.8" y="690" transform="rotate(52 1170.8 690)" class="label muted" font-size="12">Qatar</text>
+  <text x="1220.0" y="690" transform="rotate(52 1220.0 690)" class="label muted" font-size="12">Abu Dhabi</text>
+  <polyline points="88.0,651.0 137.2,624.4 186.4,607.3 235.7,586.5 284.9,567.2 334.1,537.1 383.3,519.9 432.5,499.1 481.7,476.8 531.0,470.5 580.2,448.2 629.4,425.8 678.6,396.7 727.8,374.3 777.0,361.3 826.3,344.2 875.5,341.0 924.7,327.0 973.9,312.4 1023.1,294.2 1072.3,271.9 1121.6,271.9 1170.8,249.0 1220.0,231.8" fill="none" stroke="#F47600" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="88.0,651.0 137.2,635.4 186.4,626.0 235.7,616.6 284.9,607.3 334.1,591.7 383.3,588.6 432.5,588.6 481.7,582.3 531.0,561.5 580.2,556.3 629.4,555.8 678.6,550.6 727.8,542.3 777.0,536.0 826.3,529.8 875.5,514.2 924.7,496.0 973.9,487.7 1023.1,480.4 1072.3,458.0 1121.6,440.9 1170.8,426.3 1220.0,421.1" fill="none" stroke="#00AFA0" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="88.0,655.6 137.2,646.3 186.4,633.3 235.7,628.1 284.9,618.7 334.1,610.4 383.3,596.9 432.5,590.6 481.7,590.1 531.0,580.8 580.2,580.8 629.4,575.6 678.6,565.2 727.8,564.1 777.0,553.7 826.3,540.7 875.5,523.6 924.7,514.2 973.9,492.9 1023.1,485.1 1072.3,474.7 1121.6,461.7 1170.8,443.5 1220.0,430.5" fill="none" stroke="#2456C7" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="88.0,662.4 137.2,656.2 186.4,646.8 235.7,635.4 284.9,624.4 334.1,616.1 383.3,605.7 432.5,591.2 481.7,579.2 531.0,569.8 580.2,555.8 629.4,549.6 678.6,536.0 727.8,529.8 777.0,529.8 826.3,519.4 875.5,516.3 924.7,510.0 973.9,491.3 1023.1,479.9 1072.3,476.8 1121.6,468.4 1170.8,466.4 1220.0,458.0" fill="none" stroke="#E10600" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="88.0,659.8 137.2,656.2 186.4,655.1 235.7,655.1 284.9,652.0 334.1,645.8 383.3,638.5 432.5,636.9 481.7,636.9 531.0,636.4 580.2,636.4 629.4,634.3 678.6,628.6 727.8,628.6 777.0,623.4 826.3,620.3 875.5,612.5 924.7,612.0 973.9,607.3 1023.1,607.3 1072.3,607.3 1121.6,602.1 1170.8,593.8 1220.0,593.8" fill="none" stroke="#1685D8" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="88.0,665.0 137.2,663.4 186.4,661.4 235.7,661.4 284.9,660.8 334.1,660.8 383.3,659.8 432.5,653.6 481.7,650.4 531.0,650.4 580.2,646.3 629.4,646.3 678.6,643.7 727.8,641.6 777.0,633.8 826.3,633.3 875.5,627.6 924.7,627.6 973.9,627.6 1023.1,627.6 1072.3,622.4 1121.6,618.2 1170.8,617.2 1220.0,617.2" fill="none" stroke="#5B75DB" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="88.0,660.8 137.2,659.8 186.4,659.8 235.7,659.8 284.9,659.8 334.1,657.7 383.3,657.7 432.5,657.7 481.7,656.7 531.0,653.6 580.2,650.4 629.4,646.3 678.6,646.3 727.8,638.0 777.0,632.8 826.3,632.8 875.5,632.8 924.7,629.6 973.9,629.1 1023.1,629.1 1072.3,627.6 1121.6,627.6 1170.8,623.4 1220.0,618.7" fill="none" stroke="#087A68" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="88.0,665.0 137.2,657.7 186.4,657.2 235.7,654.6 284.9,654.6 334.1,654.6 383.3,654.6 432.5,651.5 481.7,651.5 531.0,650.4 580.2,649.9 629.4,649.9 678.6,646.8 727.8,646.8 777.0,642.1 826.3,642.1 875.5,642.1 924.7,641.1 973.9,640.0 1023.1,632.8 1072.3,628.6 1121.6,627.0 1170.8,627.0 1220.0,623.9" fill="none" stroke="#7C8792" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="88.0,661.9 137.2,661.9 186.4,661.9 235.7,661.9 284.9,661.9 334.1,661.9 383.3,661.9 432.5,661.9 481.7,656.7 531.0,654.6 580.2,651.5 629.4,643.7 678.6,642.6 727.8,638.5 777.0,638.5 826.3,636.4 875.5,636.4 924.7,636.4 973.9,634.3 1023.1,633.8 1072.3,632.8 1121.6,629.6 1170.8,629.6 1220.0,628.6" fill="none" stroke="#2E9B59" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="88.0,665.0 137.2,665.0 186.4,665.0 235.7,661.9 284.9,661.9 334.1,661.4 383.3,661.4 432.5,661.4 481.7,659.3 531.0,659.3 580.2,659.3 629.4,655.1 678.6,654.6 727.8,654.6 777.0,654.6 826.3,654.6 875.5,654.6 924.7,654.6 973.9,654.6 1023.1,654.6 1072.3,653.6 1121.6,653.6 1170.8,653.6 1220.0,653.6" fill="none" stroke="#E968A3" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+  <line x1="1254" y1="161" x2="1288" y2="161" stroke="#F47600" stroke-width="5" stroke-linecap="round"/>
+  <text x="1302" y="167" class="display" font-size="16" font-weight="600">McLaren</text>
+  <line x1="1254" y1="199" x2="1288" y2="199" stroke="#00AFA0" stroke-width="5" stroke-linecap="round"/>
+  <text x="1302" y="205" class="display" font-size="16" font-weight="600">Mercedes</text>
+  <line x1="1254" y1="237" x2="1288" y2="237" stroke="#2456C7" stroke-width="5" stroke-linecap="round"/>
+  <text x="1302" y="243" class="display" font-size="16" font-weight="600">Red Bull</text>
+  <line x1="1254" y1="275" x2="1288" y2="275" stroke="#E10600" stroke-width="5" stroke-linecap="round"/>
+  <text x="1302" y="281" class="display" font-size="16" font-weight="600">Ferrari</text>
+  <line x1="1254" y1="313" x2="1288" y2="313" stroke="#1685D8" stroke-width="5" stroke-linecap="round"/>
+  <text x="1302" y="319" class="display" font-size="16" font-weight="600">Williams</text>
+  <line x1="1254" y1="351" x2="1288" y2="351" stroke="#5B75DB" stroke-width="5" stroke-linecap="round"/>
+  <text x="1302" y="357" class="display" font-size="16" font-weight="600">Racing Bulls</text>
+  <line x1="1254" y1="389" x2="1288" y2="389" stroke="#087A68" stroke-width="5" stroke-linecap="round"/>
+  <text x="1302" y="395" class="display" font-size="16" font-weight="600">Aston Martin</text>
+  <line x1="1254" y1="427" x2="1288" y2="427" stroke="#7C8792" stroke-width="5" stroke-linecap="round"/>
+  <text x="1302" y="433" class="display" font-size="16" font-weight="600">Haas</text>
+  <line x1="1254" y1="465" x2="1288" y2="465" stroke="#2E9B59" stroke-width="5" stroke-linecap="round"/>
+  <text x="1302" y="471" class="display" font-size="16" font-weight="600">Kick Sauber</text>
+  <line x1="1254" y1="503" x2="1288" y2="503" stroke="#E968A3" stroke-width="5" stroke-linecap="round"/>
+  <text x="1302" y="509" class="display" font-size="16" font-weight="600">Alpine</text>
+  <text x="26" y="405.0" transform="rotate(-90 26 405.0)" text-anchor="middle" class="label muted" font-size="13">POINTS</text>
+</svg>
