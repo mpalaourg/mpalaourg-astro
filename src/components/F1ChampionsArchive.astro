@@ -1,0 +1,712 @@
+---
+import {
+  championCarModels,
+  constructorCarModels,
+  constructorChampions,
+  driverChampions,
+  teamColours,
+  type ConstructorChampion,
+  type DriverChampion,
+} from "../data/f1Champions";
+import { constructorSeasonStats, driverSeasonStats } from "../data/f1ChampionStats";
+
+interface Props {
+  lang?: "en" | "el";
+}
+
+const { lang = "en" } = Astro.props;
+const isEl = lang === "el";
+
+const copy = isEl
+  ? {
+      eyebrow: "FORMULA 1 · ΑΡΧΕΙΟ 1950—2025",
+      titleLead: "Η ΑΙΘΟΥΣΑ ΤΩΝ",
+      titleAccent: "ΠΡΩΤΑΘΛΗΤΩΝ",
+      intro: "Κάθε στέμμα. Κάθε εποχή. Όλοι οι Παγκόσμιοι Πρωταθλητές της Formula 1, σε μία χρονογραμμή.",
+      drivers: "Οδηγοί",
+      constructors: "Κατασκευαστές",
+      driverTab: "Πρωταθλητές Οδηγών",
+      constructorTab: "Πρωταθλητές Κατασκευαστών",
+      seasons: "σεζόν",
+      champions: "διαφορετικοί πρωταθλητές",
+      constructorSeasons: "σεζόν πρωταθλήματος",
+      constructorsCount: "διαφορετικοί κατασκευαστές",
+      year: "Σεζόν",
+      carNumber: "Αριθμός μονοθεσίου",
+      team: "Ομάδα",
+      title: "Τίτλος",
+      car: "Μονοθέσιο",
+      readArticle: "Άνοιγμα ανάλυσης σεζόν",
+      varied: "Μεταβαλλόμενος",
+      numberNote: "Πριν από το 1974 οι αριθμοί αποδίδονταν ανά αγώνα και δεν ήταν σταθεροί για ολόκληρη τη σεζόν.",
+      constructorNote: "Το Πρωτάθλημα Κατασκευαστών θεσπίστηκε το 1958· γι’ αυτό η χρονογραμμή ξεκινά οκτώ χρόνια μετά από εκείνη των οδηγών.",
+      allTime: "ALL-TIME TOP 5",
+      driverLeaders: "Οι πολυνίκες οδηγοί",
+      constructorLeaders: "Οι πολυνίκες κατασκευαστές",
+      titles: "τίτλοι",
+      latest: "ΤΕΛΕΥΤΑΙΟΣ ΠΡΩΤΑΘΛΗΤΗΣ",
+      source: "Πηγές δεδομένων",
+      seasonStats: "Στατιστικά σεζόν",
+      driver: "Οδηγός",
+      wins: "Νίκες",
+      podiums: "Βάθρα",
+      poles: "Pole",
+      dnfs: "DNF",
+      points: "Βαθμοί",
+      constructorPoints: "Βαθμοί κατασκευαστή",
+      total: "Σύνολο",
+      flipHint: "Στατιστικά",
+      back: "Πίσω στη Formula",
+    }
+  : {
+      eyebrow: "FORMULA 1 · ARCHIVE 1950—2025",
+      titleLead: "THE HALL OF",
+      titleAccent: "CHAMPIONS",
+      intro: "Every crown. Every era. Every Formula 1 World Champion, arranged on one continuous timeline.",
+      drivers: "Drivers",
+      constructors: "Constructors",
+      driverTab: "World Drivers’ Champions",
+      constructorTab: "World Constructors’ Champions",
+      seasons: "championship seasons",
+      champions: "different champions",
+      constructorSeasons: "championship seasons",
+      constructorsCount: "different constructors",
+      year: "Season",
+      carNumber: "Car number",
+      team: "Team",
+      title: "Title",
+      car: "Car",
+      readArticle: "Open season analysis",
+      varied: "Varied",
+      numberNote: "Before 1974, car numbers were allocated race by race rather than fixed for an entire season.",
+      constructorNote: "The Constructors’ Championship began in 1958, so its timeline starts eight years after the drivers’ competition.",
+      allTime: "ALL-TIME TOP 5",
+      driverLeaders: "The most decorated drivers",
+      constructorLeaders: "The most decorated constructors",
+      titles: "titles",
+      latest: "LATEST CHAMPION",
+      source: "Data sources",
+      seasonStats: "Season stats",
+      driver: "Driver",
+      wins: "Wins",
+      podiums: "Podiums",
+      poles: "Poles",
+      dnfs: "DNF",
+      points: "Points",
+      constructorPoints: "Constructor points",
+      total: "Total",
+      flipHint: "Stats",
+      back: "Back to Formula",
+    };
+
+const uniqueDrivers = new Set(driverChampions.map((champion) => champion.name)).size;
+const uniqueConstructors = new Set(constructorChampions.map((champion) => champion.team)).size;
+
+const titleAtSeason = <T extends DriverChampion | ConstructorChampion>(
+  entries: T[],
+  entry: T,
+  key: "name" | "team",
+) => entries.filter((candidate) => candidate.year <= entry.year && candidate[key as keyof T] === entry[key as keyof T]).length;
+
+const groupByDecade = <T extends { year: number }>(entries: T[]) => {
+  const groups = new Map<number, T[]>();
+  entries.forEach((entry) => {
+    const decade = Math.floor(entry.year / 10) * 10;
+    groups.set(decade, [...(groups.get(decade) ?? []), entry]);
+  });
+  return [...groups.entries()];
+};
+
+const driverDecades = groupByDecade(driverChampions);
+const constructorDecades = groupByDecade(constructorChampions);
+const driverLeaders = [...new Set(driverChampions.map((entry) => entry.name))]
+  .map((name) => {
+    const seasons = driverChampions.filter((entry) => entry.name === name);
+    return {
+      name,
+      titles: seasons.length,
+      lastYear: Math.max(...seasons.map((entry) => entry.year)),
+      teamKey: seasons[0].teamKey,
+    };
+  })
+  .sort((a, b) => b.titles - a.titles || b.lastYear - a.lastYear)
+  .slice(0, 5);
+const constructorLeaders = [...new Set(constructorChampions.map((entry) => entry.team))]
+  .map((name) => {
+    const seasons = constructorChampions.filter((entry) => entry.team === name);
+    return {
+      name,
+      titles: seasons.length,
+      lastYear: Math.max(...seasons.map((entry) => entry.year)),
+      teamKey: seasons[0].teamKey,
+    };
+  })
+  .sort((a, b) => b.titles - a.titles || b.lastYear - a.lastYear)
+  .slice(0, 5);
+const articleYears = new Set([2020, 2021, 2022, 2023, 2024, 2025]);
+const teamLogos: Record<string, string> = {
+  mclaren: "/formula/team-logos/mclaren.png",
+  "red-bull": "/formula/team-logos/red_bull.png",
+  mercedes: "/formula/team-logos/mercedes.svg",
+  ferrari: "/formula/team-logos/ferrari.svg",
+  williams: "/formula/team-logos/williams.svg",
+  renault: "/formula/team-logos/champions/renault.svg",
+  brawn: "/formula/team-logos/champions/brawn.svg",
+  benetton: "/formula/team-logos/champions/benetton.png",
+  brabham: "/formula/team-logos/champions/brabham.png",
+  lotus: "/formula/team-logos/champions/lotus.jpg",
+  tyrrell: "/formula/team-logos/champions/tyrrell.svg",
+  matra: "/formula/team-logos/champions/matra.svg",
+  brm: "/formula/team-logos/champions/brm.png",
+  cooper: "/formula/team-logos/champions/cooper.png",
+  vanwall: "/formula/team-logos/champions/vanwall.png",
+  "alfa-romeo": "/formula/team-logos/champions/alfa-romeo.png",
+  maserati: "/formula/team-logos/champions/maserati.svg",
+};
+const articlePath = (year: number) => `${isEl ? "/el" : ""}/formula/${year}-season`;
+const ordinalSuffix = (number: number) => {
+  if (isEl) return "ος";
+  const remainder = number % 100;
+  if (remainder >= 11 && remainder <= 13) return "th";
+  if (number % 10 === 1) return "st";
+  if (number % 10 === 2) return "nd";
+  if (number % 10 === 3) return "rd";
+  return "th";
+};
+---
+
+<main class="champions-page">
+  <div class="track-lines" aria-hidden="true"></div>
+
+  <header class="champions-hero">
+    <a class="back-link" href={isEl ? "/el/formula" : "/formula"}>← {copy.back}</a>
+    <p class="eyebrow">{copy.eyebrow}</p>
+    <div class="hero-layout">
+      <h1>
+        <span>{copy.titleLead}</span>
+        <strong>{copy.titleAccent}</strong>
+      </h1>
+      <p class="intro">{copy.intro}</p>
+    </div>
+  </header>
+
+  <div class="archive-shell">
+    <div class="championship-switch" role="tablist" aria-label={isEl ? "Επιλογή πρωταθλήματος" : "Choose championship"}>
+      <button class="switch-button is-active" type="button" role="tab" aria-selected="true" aria-controls="drivers-panel" id="drivers-tab" data-view="drivers">
+        <span class="switch-index">01</span>
+        <span>{copy.drivers}</span>
+        <small>1950—2025</small>
+      </button>
+      <button class="switch-button" type="button" role="tab" aria-selected="false" aria-controls="constructors-panel" id="constructors-tab" data-view="constructors" tabindex="-1">
+        <span class="switch-index">02</span>
+        <span>{copy.constructors}</span>
+        <small>1958—2025</small>
+      </button>
+    </div>
+
+    <section class="archive-panel" id="drivers-panel" role="tabpanel" aria-labelledby="drivers-tab" data-panel="drivers">
+      <div class="panel-heading">
+        <div>
+          <p class="panel-kicker">{copy.latest} · 2025</p>
+          <h2>{copy.driverTab}</h2>
+        </div>
+        <div class="panel-stats">
+          <p><strong>{driverChampions.length}</strong><span>{copy.seasons}</span></p>
+          <p><strong>{uniqueDrivers}</strong><span>{copy.champions}</span></p>
+        </div>
+      </div>
+
+      <p class="history-note"><span aria-hidden="true">#</span>{copy.numberNote}</p>
+
+      <section class="leaderboard" aria-labelledby="driver-leaders-title">
+        <header class="leaderboard-heading">
+          <p>{copy.allTime}</p>
+          <h3 id="driver-leaders-title">{copy.driverLeaders}</h3>
+        </header>
+        <div class="leader-grid">
+          {driverLeaders.map((leader, index) => (
+            <article
+              class:list={["leader-card", { "is-record-holder": index === 0 }]}
+              style={`--team:${teamColours[leader.teamKey]};--score:${(leader.titles / driverLeaders[0].titles) * 100}%`}
+            >
+              <span class="leader-rank">{String(index + 1).padStart(2, "0")}</span>
+              <div>
+                <h4>{leader.name}</h4>
+                <p><strong>{leader.titles}</strong> {copy.titles} <span>({leader.lastYear})</span></p>
+              </div>
+              <i aria-hidden="true"></i>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <div class="timeline">
+        {driverDecades.map(([decade, entries]) => (
+          <section class="decade-block" aria-labelledby={`drivers-${decade}`}>
+            <div class="decade-label">
+              <span id={`drivers-${decade}`}>{decade}s</span>
+              <i></i>
+            </div>
+            <div class="champion-grid">
+              {entries.map((champion) => {
+                const titleNumber = titleAtSeason(driverChampions, champion, "name");
+                const stats = driverSeasonStats[champion.year];
+                const hasArticle = articleYears.has(champion.year);
+                const CardTag = hasArticle ? "a" : "article";
+                return (
+                  <CardTag
+                    class:list={["champion-card", { "is-linked": hasArticle }]}
+                    style={`--team:${teamColours[champion.teamKey]}`}
+                    href={hasArticle ? articlePath(champion.year) : undefined}
+                    tabindex={hasArticle ? undefined : "0"}
+                    aria-label={`${champion.name}, ${champion.year}${hasArticle ? `. ${copy.readArticle}` : ""}`}
+                  >
+                    <div class="card-flipper">
+                      <div class="card-face card-front">
+                        <div class="card-year">{champion.year}{hasArticle && <span aria-hidden="true">↗</span>}</div>
+                        <div class="racing-number" aria-label={`${copy.carNumber}: ${champion.number === "—" ? copy.varied : champion.number}`}>
+                          {champion.number}
+                        </div>
+                        <div class="card-copy">
+                          <h3>{champion.name}</h3>
+                          <p class="team-name">
+                            <span class:list={["driver-team-logo", `driver-team-logo--${champion.teamKey}`]} aria-hidden="true">
+                              <img src={teamLogos[champion.teamKey]} alt="" width="32" height="32" loading="lazy" decoding="async" />
+                            </span>
+                            {champion.team}
+                          </p>
+                          <p class="car-model"><small>{copy.car}</small>{championCarModels[champion.year]}</p>
+                        </div>
+                        <div class="flip-hint" aria-hidden="true">↻ {copy.flipHint}</div>
+                        <div class="title-count">
+                          <span class="ordinal-number">{titleNumber}<sup>{ordinalSuffix(titleNumber)}</sup></span>
+                          <span class="title-word">{copy.title}</span>
+                        </div>
+                      </div>
+                      <div class="card-face card-back">
+                        <div class="card-year">{champion.year}</div>
+                        <p class="stats-kicker">{copy.seasonStats}</p>
+                        <h3>{champion.name}</h3>
+                        <div class="driver-stat-grid">
+                          <p><strong>{stats.wins}</strong><span>{copy.wins}</span></p>
+                          <p><strong>{stats.podiums}</strong><span>{copy.podiums}</span></p>
+                          <p><strong>{stats.poles}</strong><span>{copy.poles}</span></p>
+                          <p><strong>{stats.dnfs}</strong><span>{copy.dnfs}</span></p>
+                          <p class="points-stat"><strong>{stats.points}</strong><span>{copy.points}</span></p>
+                        </div>
+                      </div>
+                    </div>
+                  </CardTag>
+                );
+              })}
+            </div>
+          </section>
+        ))}
+      </div>
+    </section>
+
+    <section class="archive-panel" id="constructors-panel" role="tabpanel" aria-labelledby="constructors-tab" data-panel="constructors" hidden>
+      <div class="panel-heading">
+        <div>
+          <p class="panel-kicker">{copy.latest} · 2025</p>
+          <h2>{copy.constructorTab}</h2>
+        </div>
+        <div class="panel-stats">
+          <p><strong>{constructorChampions.length}</strong><span>{copy.constructorSeasons}</span></p>
+          <p><strong>{uniqueConstructors}</strong><span>{copy.constructorsCount}</span></p>
+        </div>
+      </div>
+
+      <p class="history-note"><span aria-hidden="true">★</span>{copy.constructorNote}</p>
+
+      <section class="leaderboard" aria-labelledby="constructor-leaders-title">
+        <header class="leaderboard-heading">
+          <p>{copy.allTime}</p>
+          <h3 id="constructor-leaders-title">{copy.constructorLeaders}</h3>
+        </header>
+        <div class="leader-grid">
+          {constructorLeaders.map((leader, index) => (
+            <article
+              class:list={["leader-card", { "is-record-holder": index === 0 }]}
+              style={`--team:${teamColours[leader.teamKey]};--score:${(leader.titles / constructorLeaders[0].titles) * 100}%`}
+            >
+              <span class="leader-rank">{String(index + 1).padStart(2, "0")}</span>
+              <div>
+                <h4>{leader.name}</h4>
+                <p><strong>{leader.titles}</strong> {copy.titles} <span>({leader.lastYear})</span></p>
+              </div>
+              <i aria-hidden="true"></i>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <div class="timeline constructor-timeline">
+        {constructorDecades.map(([decade, entries]) => (
+          <section class="decade-block" aria-labelledby={`constructors-${decade}`}>
+            <div class="decade-label">
+              <span id={`constructors-${decade}`}>{decade}s</span>
+              <i></i>
+            </div>
+            <div class="champion-grid constructor-grid">
+              {entries.map((champion) => {
+                const titleNumber = titleAtSeason(constructorChampions, champion, "team");
+                const stats = constructorSeasonStats[champion.year];
+                const hasArticle = articleYears.has(champion.year);
+                const CardTag = hasArticle ? "a" : "article";
+                return (
+                  <CardTag
+                    class:list={["champion-card", "constructor-card", { "is-linked": hasArticle }]}
+                    style={`--team:${teamColours[champion.teamKey]}`}
+                    href={hasArticle ? articlePath(champion.year) : undefined}
+                    tabindex={hasArticle ? undefined : "0"}
+                    aria-label={`${stats.constructorName}, ${champion.year}${hasArticle ? `. ${copy.readArticle}` : ""}`}
+                  >
+                    <div class="card-flipper">
+                      <div class="card-face card-front">
+                        <div class="card-year">{champion.year}{hasArticle && <span aria-hidden="true">↗</span>}</div>
+                        <div class:list={["constructor-logo", `constructor-logo--${champion.teamKey}`]} aria-hidden="true">
+                          <img
+                            src={teamLogos[champion.teamKey]}
+                            alt=""
+                            width="96"
+                            height="96"
+                            loading="lazy"
+                            decoding="async"
+                          />
+                        </div>
+                        <div class="card-copy">
+                          <h3 class:list={{ "is-long-name": stats.constructorName.length > 16, "is-extra-long-name": stats.constructorName.length > 21 }}>{stats.constructorName}</h3>
+                          <p class="car-model"><small>{copy.car}</small>{constructorCarModels[champion.year]}</p>
+                        </div>
+                        <div class="flip-hint" aria-hidden="true">↻ {copy.flipHint}</div>
+                        <div class="title-count">
+                          <span class="ordinal-number">{titleNumber}<sup>{ordinalSuffix(titleNumber)}</sup></span>
+                          <span class="title-word">{copy.title}</span>
+                        </div>
+                      </div>
+                      <div class="card-face card-back constructor-back">
+                        <div class="card-year">{champion.year}</div>
+                        <div class="constructor-stats-title">
+                          <p class="stats-kicker">{copy.seasonStats}</p>
+                          <h3 class:list={{ "is-long-name": stats.constructorName.length > 16, "is-extra-long-name": stats.constructorName.length > 21 }}>{stats.constructorName}</h3>
+                        </div>
+                        <div class="constructor-stat-table">
+                          <div class="constructor-stat-row stat-header" aria-hidden="true">
+                            <span>{copy.driver}</span><span>W</span><span>PD</span><span>P</span><span>D</span><span>WCC</span>
+                          </div>
+                          {stats.drivers.slice(0, 5).map((driver) => (
+                            <div class="constructor-stat-row">
+                              <span title={driver.name}>{driver.name}</span>
+                              <strong>{driver.wins}</strong>
+                              <strong>{driver.podiums}</strong>
+                              <strong>{driver.poles}</strong>
+                              <strong>{driver.dnfs}</strong>
+                              <strong>{driver.points}</strong>
+                            </div>
+                          ))}
+                          {stats.drivers.length > 5 && (
+                            <div class="constructor-stat-row stat-more">
+                              <span>+{stats.drivers.length - 5} {isEl ? "ακόμη" : "more"}</span>
+                            </div>
+                          )}
+                          <div class="constructor-stat-row stat-total">
+                            <span>{copy.total}</span>
+                            <strong>{stats.total.wins}</strong>
+                            <strong>{stats.total.podiums}</strong>
+                            <strong>{stats.total.poles}</strong>
+                            <strong>{stats.total.dnfs}</strong>
+                            <strong>{stats.total.points}</strong>
+                          </div>
+                        </div>
+                        <div class="stat-legend"><span>W {copy.wins}</span><span>PD {copy.podiums}</span><span>P {copy.poles}</span><span>D {copy.dnfs}</span><span title={copy.constructorPoints}>WCC</span></div>
+                      </div>
+                    </div>
+                  </CardTag>
+                );
+              })}
+            </div>
+          </section>
+        ))}
+      </div>
+    </section>
+  </div>
+
+  <footer class="sources">
+    <p><strong>{copy.source}</strong> · <a href="https://www.formula1.com/en/drivers/hall-of-fame" target="_blank" rel="noreferrer">Formula 1 Hall of Fame</a> · <a href="https://www.formula1.com/en/results/2025/drivers" target="_blank" rel="noreferrer">Formula 1 results</a> · <a href="https://github.com/TracingInsights/RaceData" target="_blank" rel="noreferrer">RaceData archive</a> · <a href="https://www.formula1-dictionary.net/f1-driver-constructor-championship/" target="_blank" rel="noreferrer">F1 Dictionary</a></p>
+  </footer>
+</main>
+
+<script>
+  const buttons = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-view]"));
+  const panels = Array.from(document.querySelectorAll<HTMLElement>("[data-panel]"));
+
+  const activate = (view: string, updateUrl = true) => {
+    buttons.forEach((button) => {
+      const active = button.dataset.view === view;
+      button.classList.toggle("is-active", active);
+      button.setAttribute("aria-selected", String(active));
+      button.tabIndex = active ? 0 : -1;
+    });
+    panels.forEach((panel) => panel.hidden = panel.dataset.panel !== view);
+
+    if (updateUrl) {
+      const url = new URL(window.location.href);
+      if (view === "constructors") url.searchParams.set("view", view);
+      else url.searchParams.delete("view");
+      history.replaceState({}, "", url);
+    }
+  };
+
+  buttons.forEach((button, index) => {
+    button.addEventListener("click", () => activate(button.dataset.view ?? "drivers"));
+    button.addEventListener("keydown", (event) => {
+      if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+      event.preventDefault();
+      const next = event.key === "ArrowRight" ? (index + 1) % buttons.length : (index - 1 + buttons.length) % buttons.length;
+      buttons[next].focus();
+      activate(buttons[next].dataset.view ?? "drivers");
+    });
+  });
+
+  const initialView = new URLSearchParams(window.location.search).get("view");
+  if (initialView === "constructors") activate(initialView, false);
+</script>
+
+<style>
+  .champions-page {
+    --ink: #0c0b0a;
+    --muted: #403c36;
+    --soft: #5f5951;
+    --surface: #fff;
+    --surface-alt: #e9e2d7;
+    --line: rgba(18, 15, 12, .27);
+    --wash: rgba(18, 15, 12, .075);
+    --switch-bg: rgba(255, 255, 255, .94);
+    --shadow: rgba(39, 28, 21, .2);
+    --card-shadow: 0 .45rem 1.15rem rgba(39, 28, 21, .1);
+    --track: rgba(18, 15, 12, .17);
+    --track-soft: rgba(18, 15, 12, .1);
+    --on-accent: #fff;
+    position: relative;
+    min-height: 100vh;
+    overflow: clip;
+    color: var(--ink);
+    background:
+      radial-gradient(circle at 83% 5%, rgba(225, 6, 0, .11), transparent 25rem),
+      #eee8dd;
+    font-family: "Avenir Next", "Helvetica Neue", sans-serif;
+  }
+
+  :global(.dark) .champions-page {
+    --ink: #f4f1e8;
+    --muted: #a8a59d;
+    --soft: #777771;
+    --surface: #111214;
+    --surface-alt: #0e0f11;
+    --line: rgba(255, 255, 255, .12);
+    --wash: rgba(255, 255, 255, .035);
+    --switch-bg: rgba(9, 10, 11, .92);
+    --shadow: rgba(0, 0, 0, .35);
+    --card-shadow: 0 .65rem 1.5rem transparent;
+    --track: rgba(255, 255, 255, .1);
+    --track-soft: rgba(255, 255, 255, .06);
+    background:
+      radial-gradient(circle at 83% 5%, rgba(225, 6, 0, .2), transparent 24rem),
+      #090a0b;
+  }
+
+  .track-lines {
+    position: absolute;
+    inset: 0 0 auto;
+    height: 42rem;
+    pointer-events: none;
+    opacity: .24;
+    background-image:
+      linear-gradient(115deg, transparent 0 56%, var(--track) 56% 56.15%, transparent 56.15%),
+      linear-gradient(115deg, transparent 0 61%, var(--track-soft) 61% 61.15%, transparent 61.15%);
+  }
+
+  .champions-hero, .archive-shell, .sources {
+    position: relative;
+    width: min(1240px, calc(100% - 2rem));
+    margin-inline: auto;
+  }
+
+  .champions-hero { padding: 2.25rem 0 4.5rem; }
+  .back-link { color: var(--muted); font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; transition: color .2s; }
+  .back-link:hover { color: var(--ink); }
+  .eyebrow { margin: 5.5rem 0 1.25rem; color: #ff2a20; font-size: .72rem; font-weight: 800; letter-spacing: .25em; }
+  .hero-layout { max-width: 62rem; }
+  h1 { margin: 0; font-family: "Arial Narrow", "Avenir Next Condensed", sans-serif; font-size: clamp(3.4rem, 9.5vw, 8.5rem); font-style: italic; font-weight: 900; line-height: .78; letter-spacing: -.075em; text-transform: uppercase; }
+  h1 span, h1 strong { display: block; }
+  h1 strong { color: transparent; -webkit-text-stroke: 1.5px var(--ink); }
+  :global(html:not(.dark)) h1 strong { color: rgba(255, 255, 255, .24); -webkit-text-stroke-width: 1.75px; }
+  .intro { max-width: 43rem; margin: 2.25rem 0 0; color: var(--muted); font-size: clamp(1rem, 2vw, 1.25rem); line-height: 1.6; }
+
+  .archive-shell { padding-bottom: 5rem; }
+  .championship-switch { position: sticky; z-index: 20; top: 1rem; display: grid; grid-template-columns: 1fr 1fr; max-width: 46rem; margin-bottom: 4.5rem; border: 1px solid var(--line); background: var(--switch-bg); box-shadow: 0 1.25rem 3rem var(--shadow); backdrop-filter: blur(16px); }
+  .switch-button { display: grid; grid-template-columns: auto 1fr auto; gap: .9rem; align-items: center; padding: 1rem 1.15rem; border: 0; color: var(--muted); background: transparent; cursor: pointer; text-align: left; transition: color .2s, background .2s; }
+  .switch-button + .switch-button { border-left: 1px solid var(--line); }
+  .switch-button:hover { color: var(--ink); }
+  .switch-button.is-active { color: var(--on-accent); background: #e10600; }
+  .switch-index, .switch-button small { font-size: .62rem; font-weight: 800; letter-spacing: .1em; }
+  .switch-button > span:nth-child(2) { font-size: .9rem; font-weight: 800; text-transform: uppercase; }
+  .switch-button small { opacity: .65; }
+
+  .panel-heading { display: grid; grid-template-columns: 1fr auto; gap: 2rem; align-items: end; margin-bottom: 2rem; }
+  .panel-kicker { margin: 0 0 .65rem; color: #ff2a20; font-size: .66rem; font-weight: 900; letter-spacing: .19em; }
+  h2 { margin: 0; font-family: "Arial Narrow", "Avenir Next Condensed", sans-serif; font-size: clamp(2.4rem, 5vw, 4.8rem); font-style: italic; font-weight: 900; letter-spacing: -.05em; line-height: .95; text-transform: uppercase; }
+  .panel-stats { display: flex; gap: 2.5rem; }
+  .panel-stats p { display: flex; flex-direction: column; margin: 0; }
+  .panel-stats strong { font-family: "Arial Narrow", "Avenir Next Condensed", sans-serif; font-size: 2rem; font-style: italic; line-height: 1; }
+  .panel-stats span { max-width: 8rem; margin-top: .35rem; color: var(--muted); font-size: .62rem; letter-spacing: .08em; line-height: 1.3; text-transform: uppercase; }
+  .history-note { display: flex; gap: .8rem; max-width: 52rem; margin: 0 0 2.5rem; padding: .9rem 1rem; border-left: 3px solid #e10600; color: var(--muted); background: var(--wash); font-size: .78rem; line-height: 1.55; }
+  .history-note span { color: #ff2a20; font-weight: 900; }
+
+  .leaderboard { position: relative; margin: 0 0 5.5rem; padding: 1.5rem; overflow: hidden; border: 1px solid var(--line); background: linear-gradient(135deg, var(--wash), transparent); }
+  .leaderboard::before { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .35; background: repeating-linear-gradient(135deg, transparent 0 1.2rem, var(--wash) 1.2rem calc(1.2rem + 1px)); }
+  .leaderboard-heading { position: relative; display: flex; justify-content: space-between; gap: 1rem; align-items: end; margin-bottom: 1.5rem; }
+  .leaderboard-heading p { margin: 0; color: #ff2a20; font-size: .6rem; font-weight: 900; letter-spacing: .2em; }
+  .leaderboard-heading h3 { margin: 0; font-family: "Arial Narrow", "Avenir Next Condensed", sans-serif; font-size: clamp(1.35rem, 2.5vw, 2.1rem); font-style: italic; font-weight: 900; letter-spacing: -.035em; text-align: right; text-transform: uppercase; }
+  .leader-grid { position: relative; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: .55rem; }
+  .leader-card, .champion-card { --team-readable: color-mix(in srgb, var(--team) 72%, #111); }
+  :global(.dark) .leader-card, :global(.dark) .champion-card { --team-readable: var(--team); }
+  .leader-card { position: relative; display: flex; min-width: 0; min-height: 10.5rem; flex-direction: column; justify-content: space-between; padding: .9rem .9rem 1.2rem; overflow: hidden; border: 1px solid var(--line); border-top: .25rem solid var(--team-readable); background: var(--surface-alt); box-shadow: 0 .35rem .9rem rgba(39, 28, 21, .08); }
+  :global(.dark) .leader-card { box-shadow: none; }
+  .leader-card.is-record-holder { background: linear-gradient(150deg, color-mix(in srgb, var(--team) 16%, var(--surface-alt)), var(--surface-alt) 65%); }
+  .leader-rank { color: var(--team-readable); font-family: "Arial Narrow", "Avenir Next Condensed", sans-serif; font-size: 2.7rem; font-style: italic; font-weight: 900; letter-spacing: -.08em; line-height: .85; opacity: .95; }
+  .leader-card h4 { margin: 0; font-family: "Arial Narrow", "Avenir Next Condensed", sans-serif; font-size: 1.08rem; font-style: italic; font-weight: 900; letter-spacing: -.025em; line-height: 1; text-transform: uppercase; }
+  .leader-card p { margin: .5rem 0 0; color: var(--muted); font-size: .63rem; letter-spacing: .035em; text-transform: uppercase; }
+  .leader-card p strong { color: var(--ink); font-size: .92rem; }
+  .leader-card p span { color: var(--soft); }
+  .leader-card i { position: absolute; right: 0; bottom: 0; left: 0; height: .22rem; background: linear-gradient(90deg, var(--team-readable) var(--score), var(--line) var(--score)); }
+
+  .decade-block { display: grid; grid-template-columns: 6rem minmax(0, 1fr); gap: 1.5rem; margin-bottom: 5rem; }
+  .decade-label { position: relative; display: flex; flex-direction: column; align-items: flex-end; }
+  .decade-label span { position: sticky; top: 7rem; color: var(--soft); font-family: "Arial Narrow", "Avenir Next Condensed", sans-serif; font-size: 1.3rem; font-style: italic; font-weight: 900; }
+  .decade-label i { position: absolute; top: 2.2rem; right: .45rem; bottom: -5rem; width: 1px; background: var(--line); }
+  .champion-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); gap: .75rem; }
+  .champion-card { position: relative; display: block; aspect-ratio: 1; min-width: 0; color: inherit; text-decoration: none; perspective: 70rem; outline: none; }
+  .card-flipper { position: absolute; inset: 0; transform-style: preserve-3d; transition: transform 1.15s cubic-bezier(.22,.7,.18,1); }
+  .champion-card:hover .card-flipper, .champion-card:focus-visible .card-flipper { transform: rotateY(180deg); }
+  .champion-card:focus-visible { outline: 2px solid var(--team-readable); outline-offset: 3px; }
+  .card-face { position: absolute; inset: 0; min-width: 0; overflow: hidden; border: 1px solid var(--line); background: var(--surface); box-shadow: var(--card-shadow); backface-visibility: hidden; -webkit-backface-visibility: hidden; transition: border-color .2s, box-shadow .2s; }
+  .card-face::before { content: ""; position: absolute; z-index: 2; inset: 0 auto 0 0; width: .28rem; background: var(--team-readable); }
+  .card-front { display: grid; grid-template-columns: 4.5rem minmax(0, 1fr); }
+  .card-back { display: flex; flex-direction: column; padding: 1rem 1rem .9rem 1.15rem; background: linear-gradient(145deg, color-mix(in srgb, var(--team) 12%, var(--surface)), var(--surface) 58%); transform: rotateY(180deg); }
+  .champion-card:hover .card-face, .champion-card:focus-visible .card-face { border-color: color-mix(in srgb, var(--team-readable) 65%, var(--ink)); box-shadow: 0 .65rem 1.5rem var(--shadow); }
+  .card-year { position: absolute; top: .75rem; right: .9rem; display: flex; gap: .45rem; align-items: center; color: var(--soft); font-size: .63rem; font-weight: 800; letter-spacing: .12em; }
+  .card-year span { color: var(--team-readable); font-size: .9rem; transition: transform .2s ease; }
+  .is-linked { cursor: pointer; }
+  .is-linked:hover .card-year span { transform: translate(.15rem, -.15rem); }
+  .racing-number { display: grid; place-items: center; min-width: 0; padding-left: .25rem; color: var(--team-readable); font-family: "Arial Narrow", "Avenir Next Condensed", sans-serif; font-size: 3.7rem; font-style: italic; font-weight: 900; letter-spacing: -.08em; line-height: 1; opacity: .98; }
+  .card-copy { align-self: center; min-width: 0; padding: 2.4rem .9rem 3.4rem .55rem; }
+  .card-copy h3 { margin: 0; font-family: "Arial Narrow", "Avenir Next Condensed", sans-serif; font-size: clamp(1.2rem, 2.2vw, 1.7rem); font-style: italic; font-weight: 900; letter-spacing: -.035em; line-height: 1; text-transform: uppercase; }
+  .constructor-card .card-copy h3.is-long-name { font-size: clamp(.92rem, 1.65vw, 1.28rem); line-height: .94; letter-spacing: -.045em; text-wrap: balance; }
+  .constructor-card .card-copy h3.is-extra-long-name { font-size: clamp(.8rem, 1.4vw, 1.08rem); }
+  .team-name { display: flex; gap: .45rem; align-items: center; margin: .7rem 0 0; overflow: hidden; color: var(--muted); font-size: .7rem; text-overflow: ellipsis; white-space: nowrap; }
+  .driver-team-logo { display: grid; width: 1.35rem; height: 1.35rem; flex: 0 0 auto; place-items: center; padding: .12rem; border: 1px solid color-mix(in srgb, var(--team-readable) 38%, #c8c1b5); background: #f8f6f0; transform: rotate(-2deg); }
+  .driver-team-logo img { display: block; width: 100%; height: 100%; object-fit: contain; }
+  .driver-team-logo--mclaren img,
+  .driver-team-logo--red-bull img,
+  .driver-team-logo--renault img,
+  .driver-team-logo--benetton img,
+  .driver-team-logo--tyrrell img,
+  .driver-team-logo--vanwall img,
+  .driver-team-logo--maserati img { height: auto; max-height: 74%; }
+  .driver-team-logo--lotus img { border-radius: 50%; clip-path: circle(47%); transform: scale(1.15); }
+  .car-model { display: flex; gap: .45rem; align-items: baseline; margin: .42rem 0 0; color: var(--ink); font-size: .66rem; line-height: 1.35; }
+  .car-model small { flex: 0 0 auto; color: var(--soft); font-size: .5rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+  .title-count { position: absolute; right: .9rem; bottom: 1rem; display: flex; gap: .24rem; align-items: baseline; color: var(--soft); font-family: "Arial Narrow", "Avenir Next Condensed", sans-serif; font-style: italic; font-weight: 900; white-space: nowrap; }
+  .ordinal-number { font-size: .92rem; line-height: 1; }
+  .ordinal-number sup { position: relative; top: -.16em; margin-left: .04em; font-size: .54em; font-style: normal; letter-spacing: 0; }
+  .title-word { font-size: .82rem; letter-spacing: .025em; }
+  .flip-hint { position: absolute; bottom: 1rem; left: 1.15rem; color: color-mix(in srgb, var(--team) 78%, var(--ink)); font-size: .5rem; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; }
+
+  .stats-kicker { margin: .15rem 0 .55rem; color: var(--team-readable); font-size: .52rem; font-weight: 900; letter-spacing: .16em; text-transform: uppercase; }
+  .card-back h3 { max-width: calc(100% - 1.5rem); margin: 0; font-family: "Arial Narrow", "Avenir Next Condensed", sans-serif; font-size: clamp(1.15rem, 2vw, 1.55rem); font-style: italic; font-weight: 900; letter-spacing: -.035em; line-height: 1; text-transform: uppercase; }
+  .driver-stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: .38rem; margin: auto 0 0; }
+  .driver-stat-grid p { display: flex; min-height: 3.25rem; flex-direction: column; justify-content: center; margin: 0; padding: .38rem .55rem; border: 1px solid var(--line); background: var(--wash); }
+  .driver-stat-grid strong { color: var(--ink); font-family: "Arial Narrow", "Avenir Next Condensed", sans-serif; font-size: 1.45rem; font-style: italic; line-height: .95; }
+  .driver-stat-grid span { margin-top: .25rem; color: var(--muted); font-size: .48rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+  .driver-stat-grid .points-stat { min-height: 2.55rem; grid-column: 1 / -1; flex-direction: row; gap: .65rem; align-items: baseline; justify-content: flex-start; border-color: color-mix(in srgb, var(--team) 45%, var(--line)); }
+  .driver-stat-grid .points-stat strong { color: var(--team-readable); }
+  .driver-stat-grid .points-stat span { margin: 0; }
+
+  .constructor-card .card-front { grid-template-columns: 4.8rem minmax(0, 1fr); }
+  .constructor-logo { display: grid; width: 3.75rem; height: 3.75rem; align-self: center; justify-self: center; place-items: center; margin-left: .3rem; padding: .38rem; border: 1px solid color-mix(in srgb, var(--team-readable) 52%, #cac4b8); background: #f8f6f0; box-shadow: inset 0 0 0 .18rem rgba(255, 255, 255, .8), 0 .28rem .7rem rgba(0, 0, 0, .13); transform: rotate(-2deg); }
+  .constructor-logo img { display: block; width: 100%; height: 100%; object-fit: contain; }
+  .constructor-logo--mclaren img,
+  .constructor-logo--red-bull img,
+  .constructor-logo--renault img,
+  .constructor-logo--brawn img,
+  .constructor-logo--benetton img,
+  .constructor-logo--tyrrell img,
+  .constructor-logo--vanwall img { height: auto; max-height: 72%; }
+  .constructor-logo--benetton img { transform: scale(1.18); }
+  .constructor-logo--vanwall img { transform: scale(1.1); }
+  .constructor-logo--lotus img { border-radius: 50%; clip-path: circle(47%); transform: scale(1.12); }
+
+  .constructor-back { padding: .8rem .75rem .65rem 1rem; }
+  .constructor-stats-title { padding-right: 2.7rem; }
+  .constructor-stats-title .stats-kicker { margin-bottom: .25rem; }
+  .constructor-stats-title h3 { font-size: 1.05rem; }
+  .constructor-stat-table { display: flex; min-height: 0; flex: 1; flex-direction: column; justify-content: center; margin-top: .4rem; }
+  .constructor-stat-row { display: grid; grid-template-columns: minmax(0, 1fr) repeat(4, 1.15rem) 1.7rem; gap: .15rem; align-items: center; min-height: 1.25rem; border-top: 1px solid var(--line); color: var(--ink); font-size: .49rem; }
+  .constructor-stat-row > :first-child { overflow: hidden; padding-right: .2rem; text-overflow: ellipsis; white-space: nowrap; }
+  .constructor-stat-row strong { color: var(--ink); font-size: .55rem; text-align: center; }
+  .stat-header { min-height: 1.05rem; border-top: 0; color: var(--soft); font-size: .43rem; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; }
+  .stat-header span:not(:first-child) { text-align: center; }
+  .stat-more { min-height: 1rem; color: var(--soft); font-size: .44rem; font-style: italic; }
+  .stat-total { min-height: 1.5rem; margin-top: .15rem; border-top-color: var(--team-readable); color: var(--team-readable); font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
+  .stat-legend { display: flex; gap: .45rem; justify-content: space-between; margin-top: .35rem; color: var(--soft); font-size: .38rem; font-weight: 800; text-transform: uppercase; }
+
+  .sources { padding: 2.2rem 0 3.5rem; border-top: 1px solid var(--line); color: var(--soft); font-size: .7rem; line-height: 1.6; }
+  .sources p { margin: 0; }
+  .sources strong { color: var(--muted); text-transform: uppercase; }
+  .sources a { color: var(--muted); text-decoration: underline; text-underline-offset: .2rem; }
+
+  [hidden] { display: none !important; }
+
+  @media (max-width: 900px) {
+    .panel-heading { grid-template-columns: 1fr; }
+    .panel-stats { gap: 1.5rem; }
+    .leader-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+
+  @media (max-width: 640px) {
+    .champions-hero { padding-top: 1.5rem; }
+    .eyebrow { margin-top: 4rem; }
+    .championship-switch { top: .5rem; margin-bottom: 3rem; }
+    .switch-button { grid-template-columns: auto 1fr; gap: .55rem; padding: .9rem .75rem; }
+    .switch-button small { display: none; }
+    .panel-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: .75rem; }
+    .panel-stats strong { font-size: 1.5rem; }
+    .leaderboard { padding: 1rem; }
+    .leaderboard-heading { display: block; }
+    .leaderboard-heading h3 { margin-top: .45rem; text-align: left; }
+    .leader-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .leader-card { min-height: 9rem; }
+    .decade-block { grid-template-columns: 2.2rem minmax(0, 1fr); gap: .65rem; margin-bottom: 3.5rem; }
+    .decade-label span { top: 6rem; font-size: .82rem; writing-mode: vertical-rl; }
+    .decade-label i { right: .35rem; bottom: -3.5rem; }
+    .champion-grid { grid-template-columns: repeat(auto-fill, minmax(13.5rem, 1fr)); }
+    .card-front { grid-template-columns: 4.15rem minmax(0, 1fr); }
+    .racing-number { font-size: 3.3rem; }
+    .constructor-card .card-front { grid-template-columns: 4.5rem minmax(0, 1fr); }
+    .constructor-logo { width: 3.35rem; height: 3.35rem; padding: .32rem; }
+    .card-copy { padding-left: .65rem; }
+    .card-copy h3 { font-size: 1.2rem; }
+    .sources { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 440px) {
+    .leader-grid { grid-template-columns: 1fr; }
+    .leader-card { min-height: 8.2rem; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .card-flipper { transition: none; }
+  }
+</style>
