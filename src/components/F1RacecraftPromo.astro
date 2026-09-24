@@ -1,0 +1,33 @@
+---
+interface Props { lang?: "en" | "el" }
+const { lang = "en" } = Astro.props;
+const isEl = lang === "el";
+---
+
+<a class="racecraft-promo" href={isEl ? "/el/formula/racecraft" : "/formula/racecraft"}>
+  <div class="promo-mark" aria-hidden="true"><span>01</span><i></i><span>02</span></div>
+  <div class="promo-copy">
+    <p>{isEl ? "ΕΙΚΟΝΟΓΡΑΦΗΜΕΝΟΣ ΟΔΗΓΟΣ · 2026" : "ILLUSTRATED FIELD GUIDE · 2026"}</p>
+    <h2>{isEl ? "Διάβασε τον αγώνα" : "Read the race"}</h2>
+    <span>{isEl ? "Κανονισμοί, στρατηγική και οι λέξεις που ακούμε στο pit wall" : "Rules, strategy and the language of the pit wall"}</span>
+  </div>
+  <strong class="promo-arrow" aria-hidden="true">↗</strong>
+</a>
+
+<style>
+  .racecraft-promo { display: grid; grid-template-columns: 7rem 1fr auto; gap: 1.5rem; align-items: center; min-height: 10.5rem; margin: 4rem 0 0; padding: 1.4rem 1.8rem; overflow: hidden; color: #151512; background: #e8e1d4; border: 1px solid #d5cbbb; border-radius: .25rem 1.4rem .25rem .25rem; text-decoration: none; transition: transform .2s, box-shadow .2s; }
+  :global(.dark) .racecraft-promo { color: #f5f5ef; background: #1c231e; border-color: #576158; }
+  .racecraft-promo:hover { transform: translateY(-3px); box-shadow: 0 1rem 2rem #0002; }
+  .promo-mark { position: relative; display: flex; flex-direction: column; justify-content: space-between; width: 7rem; height: 7rem; padding: .75rem; border: 1px solid #161616; font-size: .65rem; font-weight: 900; }
+  :global(.dark) .promo-mark { border-color: #d0d6cd; }
+  .promo-mark::before { content: ""; position: absolute; inset: .7rem 1.5rem; border-left: 12px solid #e10600; border-bottom: 12px solid #e10600; border-radius: 0 0 0 2rem; transform: rotate(-35deg); }
+  .promo-mark span:last-child { align-self: end; }
+  .promo-copy p { margin: 0 0 .5rem; color: #ad1712; font-size: .62rem; font-weight: 900; letter-spacing: .16em; }
+  :global(.dark) .promo-copy p { color: #ff8a7d; }
+  .promo-copy h2 { margin: 0 0 .45rem; font-family: "Arial Narrow", "Avenir Next Condensed", sans-serif; font-size: clamp(2rem, 4vw, 3rem); font-style: italic; font-weight: 900; letter-spacing: -.055em; line-height: 1; text-transform: uppercase; }
+  .promo-copy span { color: #514b43; font-size: .82rem; }
+  :global(.dark) .promo-copy span { color: #d0d6cd; }
+  .promo-arrow { display: grid; width: 2.7rem; aspect-ratio: 1; place-items: center; border-radius: 50%; color: white; background: #e10600; transition: transform .2s; }
+  .racecraft-promo:hover .promo-arrow { transform: rotate(45deg); }
+  @media (max-width: 640px) { .racecraft-promo { grid-template-columns: 1fr auto; gap: .75rem; } .promo-mark { display: none; } }
+</style>

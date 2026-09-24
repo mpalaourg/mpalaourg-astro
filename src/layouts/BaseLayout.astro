@@ -2,7 +2,7 @@
 import "../styles/global.css";
 import CookiePopup from "../components/CookiePopup.astro";
 
-const { title = "Georgios Balaouras" } = Astro.props;
+const { title = "Georgios Balaouras", description } = Astro.props;
 const pathname = Astro.url.pathname;
 const isEl = pathname === "/el" || pathname.startsWith("/el/");
 const enPath = isEl ? (pathname.replace(/^\/el/, "") || "/") : pathname;
@@ -16,12 +16,14 @@ const homePath = isEl ? "/el/" : "/";
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
     <title>{title}</title>
+    {description && <meta name="description" content={description} />}
 
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
     <!-- Open Graph -->
     <meta property="og:title" content={title} />
+    {description && <meta property="og:description" content={description} />}
     <meta property="og:image" content="https://mpalaourg.dev/media/avatar.jpg" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content={Astro.url.href} />
@@ -45,11 +47,11 @@ const homePath = isEl ? "/el/" : "/";
   >
     <header class="relative z-50 border-b border-gray-200 dark:border-gray-800">
       <div
-        class="mx-auto flex max-w-5xl items-center justify-between px-4 py-4"
+        class="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-y-2 px-4 py-4"
       >
-        <a href={homePath} class="font-semibold">Georgios Balaouras</a>
+        <a href={homePath} class="whitespace-nowrap font-semibold">Georgios Balaouras</a>
 
-        <nav class="flex items-center gap-4 text-sm">
+        <nav class="flex w-full flex-wrap items-center gap-x-4 gap-y-2 text-sm sm:w-auto">
             <a
                 href={isEl ? "/el/about" : "/about"}
                 class="text-gray-600 hover:text-gray-900

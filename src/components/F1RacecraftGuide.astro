@@ -1,0 +1,502 @@
+---
+interface Props { lang?: "en" | "el" }
+const { lang = "en" } = Astro.props;
+const isEl = lang === "el";
+
+const copy = isEl ? {
+  back: "Πίσω στη Formula",
+  eyebrow: "ΟΔΗΓΟΣ ΑΓΩΝΑ / 2026",
+  title: "Πώς να διαβάζεις έναν αγώνα",
+  lead: "Ένας οδηγός μπορεί να χάσει θέση χωρίς να τον προσπεράσουν στην πίστα. Για να καταλάβεις πώς συμβαίνει αυτό, αξίζει να ξέρεις τι σημαίνουν τα ελαστικά, οι σημαίες και οι αποφάσεις στο pit wall.",
+  note: "Ένας πρακτικός οδηγός για το 2026 · ενημερώθηκε τον Σεπτέμβριο 2026",
+  nav: ["Το τριήμερο", "Ελαστικά", "Σημαίες & SC", "Η στροφή", "Στρατηγική", "2026"],
+  chapters: ["01 / ΠΡΙΝ ΚΑΙ ΚΑΤΑ ΤΟΝ ΑΓΩΝΑ", "02 / ΣΤΗΝ ΠΙΣΤΑ", "03 / ΣΤΑ PITS", "04 / ΟΙ ΟΡΟΙ ΤΟΥ 2026"],
+  weekendTitle: "Πώς κυλά το τριήμερο",
+  weekendIntro: "Στο συνηθισμένο πρόγραμμα υπάρχουν τρεις περίοδοι ελεύθερων δοκιμών, κατατακτήριες και, στο τέλος, το Grand Prix.",
+  weekend: [
+    ["Παρασκευή", "Δοκιμές", "Οι ομάδες ψάχνουν ρυθμίσεις και βλέπουν πόσο κρατούν τα ελαστικά σε μικρά και μεγάλα stints."],
+    ["Σάββατο", "Κατατακτήριες", "Στα Q1 και Q2 αποκλείονται κάθε φορά οι έξι πιο αργοί. Οι δέκα που μένουν παλεύουν για την pole στο Q3."],
+    ["Κυριακή", "Grand Prix", "Ο νικητής παίρνει 25 βαθμούς, ο δεύτερος 18. Βαθμολογούνται οι δέκα πρώτοι."],
+  ],
+  sprint: "Σε τριήμερο Sprint υπάρχει μόνο μία περίοδος δοκιμών. Το Sprint έχει δικές του κατατακτήριες και δίνει 8 έως 1 βαθμούς στους οκτώ πρώτους· οι κανονικές κατατακτήριες εξακολουθούν να ορίζουν το grid της Κυριακής.",
+  raceFacts: [
+    ["PARC FERMÉ", "«Κλειστό πάρκο»: ελεγχόμενος χώρος της FIA αλλά και καθεστώς περιορισμών που ισχύει για τα μονοθέσια από την πρώτη έξοδό τους στις κατατακτήριες, ακόμη κι όταν βρίσκονται στο γκαράζ. Επιτρέπονται μόνο συγκεκριμένες εργασίες υπό επίβλεψη. Παράβαση των περιορισμών σημαίνει εκκίνηση από το pit lane."],
+    ["ΑΠΟΣΤΑΣΗ & ΧΡΟΝΟΣ", "Το Grand Prix διαρκεί τόσους γύρους όσοι χρειάζονται για να ξεπεραστούν τα 305 χλμ. Στο Μονακό το όριο είναι 260 χλμ. Η αγωνιστική δράση περιορίζεται στις δύο ώρες· μαζί με διακοπές, το συνολικό όριο είναι τρεις ώρες."],
+    ["ΑΝ Ο ΑΓΩΝΑΣ ΔΙΑΚΟΠΕΙ", "Πλήρεις βαθμοί δίνονται από το 75% της προγραμματισμένης απόστασης και πάνω. Αν ο αγώνας λήξει νωρίτερα, ισχύουν μικρότερες κλίμακες βαθμών. Για οποιουσδήποτε βαθμούς χρειάζονται δύο συνεχόμενοι γύροι χωρίς Safety Car ή VSC. Το βροχερό Βελγικό GP του 2021 είναι το γνωστό ιστορικό παράδειγμα, με παλαιότερους κανόνες."],
+    ["ΕΛΕΓΧΟΙ ΜΕΤΑ ΤΟΝ ΑΓΩΝΑ", "Η FIA κάνει βασικούς ελέγχους στα μονοθέσια κατά τη διάρκεια του τριημέρου. Μετά τον αγώνα επιλέγονται τυχαία ορισμένα μονοθέσια και εξαρτήματα για πρόσθετο τεχνικό έλεγχο· δεν ελέγχονται κάθε φορά όλα με τον ίδιο τρόπο."],
+  ],
+  tyresTitle: "Τι σημαίνει πραγματικά «soft»",
+  tyresIntro: "Η Pirelli έχει πέντε slick γόμες το 2026, από C1 (σκληρότερη) έως C5 (μαλακότερη). Επιλέγει τρεις για κάθε Grand Prix και μόνο τότε τους δίνει τα ονόματα hard, medium και soft.",
+  tyres: [
+    ["HARD", "Σκληρό", "Το λευκό ελαστικό του τριημέρου· γενικά κρατά περισσότερο."],
+    ["MEDIUM", "Μεσαίο", "Το κίτρινο· βρίσκεται ανάμεσα στα άλλα δύο σε πρόσφυση και αντοχή."],
+    ["SOFT", "Μαλακό", "Το κόκκινο· συνήθως δίνει περισσότερο ρυθμό, αλλά φθείρεται νωρίτερα."],
+  ],
+  tyreRange: "Όσο μεγαλώνει ο αριθμός, τόσο πιο μαλακή είναι η γόμα: η C1 είναι η σκληρότερη και η C5 η μαλακότερη της γκάμας του 2026. Η C6 ήταν η πιο μαλακή από τις έξι γόμες του 2025, αλλά δεν χρησιμοποιείται το 2026.",
+  tyreExample: "Για παράδειγμα, αν επιλεγούν C1/C2/C3, το C3 είναι το κόκκινο soft. Με C3/C4/C5, το ίδιο C3 γίνεται το λευκό hard.",
+  wetTyres: [
+    ["INTERMEDIATE", "Ενδιάμεσο", "Πράσινο: για βρεγμένη πίστα χωρίς πολύ στάσιμο νερό."],
+    ["FULL WET", "Βρόχινο", "Μπλε: για έντονη βροχή και περισσότερο στάσιμο νερό."],
+  ],
+  tyreRule: "Σε στεγνό αγώνα κάθε οδηγός πρέπει να χρησιμοποιήσει τουλάχιστον δύο σετ slick, διαφορετικής γόμας. Η αλλαγή γίνεται συνήθως σε pit stop. Τουλάχιστον μία από τις γόμες πρέπει να είναι υποχρεωτική γόμα αγώνα. Αν χρησιμοποιηθούν ενδιάμεσα ή βρόχινα, ο κανόνας των δύο διαφορετικών slick δεν ισχύει.",
+  flagsTitle: "Τι σου λένε οι σημαίες",
+  flags: [
+    ["Πράσινη", "Η πίστα είναι ελεύθερη. Ο αγώνας συνεχίζεται κανονικά."],
+    ["Κίτρινη", "Κίνδυνος μπροστά: μειώνεις ταχύτητα, δεν προσπερνάς και είσαι έτοιμος να αλλάξεις πορεία."],
+    ["Διπλή κίτρινη", "Σοβαρότερος κίνδυνος: μειώνεις σημαντικά ταχύτητα, δεν προσπερνάς και είσαι έτοιμος να αλλάξεις πορεία ή να σταματήσεις."],
+    ["Κόκκινη", "Η περίοδος διακόπτεται. Τα μονοθέσια επιστρέφουν αργά στα pits."],
+    ["Μπλε", "Στον αγώνα, ο οδηγός που δέχεται γύρο πρέπει να αφήσει το ταχύτερο μονοθέσιο να περάσει."],
+    ["Λευκή", "Πολύ πιο αργό όχημα βρίσκεται μπροστά."],
+    ["Κίτρινη / κόκκινη", "Η πρόσφυση μειώθηκε σε εκείνο το σημείο, συνήθως λόγω λαδιού ή νερού."],
+    ["Μαύρη / λευκή", "Προειδοποίηση για αντιαθλητική συμπεριφορά, μαζί με τον αριθμό του οδηγού."],
+    ["Μαύρη / πορτοκαλί", "Το μονοθέσιο έχει επικίνδυνο μηχανικό πρόβλημα· πρέπει να μπει στα pits."],
+    ["Μαύρη", "Αποκλεισμός: ο οδηγός πρέπει να επιστρέψει στο γκαράζ."],
+    ["Καρό", "Τέλος της περιόδου ή του αγώνα."],
+  ],
+  neutralTitle: "VSC, Safety Car και επανεκκίνηση",
+  vsc: "Το Virtual Safety Car επιτρέπει να συνεχιστεί με ασφάλεια ο αγώνας μετά από ένα συμβάν, χωρίς να βγει στην πίστα το κανονικό Safety Car. Οι οδηγοί μειώνουν αμέσως ταχύτητα και ακολουθούν καθορισμένο ρυθμό, ώστε οι μεταξύ τους διαφορές να μένουν περίπου ίδιες. Οι προσπεράσεις απαγορεύονται. Το VSC μπορεί να λήξει σε οποιοδήποτε σημείο της πίστας· το Safety Car πρέπει πρώτα να επιστρέψει στα pits.",
+  safety: "Το Safety Car είναι το όχημα που βγαίνει όταν υπάρχει ατύχημα, άλλο εμπόδιο ή πολύ δύσκολες καιρικές συνθήκες. Οι οδηγοί κόβουν ταχύτητα και σχηματίζουν ουρά πίσω του, χωρίς προσπεράσεις. Οδηγεί τα μονοθέσια μέχρι να είναι ασφαλής η πίστα και επιστρέφει στα pits στο τέλος ενός γύρου, πριν επανέλθει ο κανονικός αγωνιστικός ρυθμός.",
+  restart: "Μετά από κόκκινη σημαία ο αγώνας μπορεί να συνεχιστεί με standing restart: τα μονοθέσια πηγαίνουν ξανά στο grid και σβήνουν τα φώτα. Αν οι συνθήκες δεν το επιτρέπουν, υπάρχει rolling restart πίσω από το Safety Car. Αυτό διαφέρει από την απλή αποχώρηση του Safety Car, όπου δεν γίνεται νέα εκκίνηση από το grid.",
+  extraFormation: "Αν χρειαστεί επιπλέον γύρος σχηματισμού πριν από την εκκίνηση, ο αγώνας μικραίνει κατά έναν γύρο για κάθε επιπλέον γύρο. Τα μονοθέσια έχουν ήδη καταναλώσει καύσιμο καλύπτοντάς τον.",
+  penalties: "Τα όρια της πίστας και τα περιστατικά κρίνονται από τους αγωνοδίκες. Ένας χρόνος στις κατατακτήριες μπορεί να ακυρωθεί, ενώ στον αγώνα μπορεί να επιβληθεί χρονική ποινή ή ποινή διέλευσης από τα pits.",
+  apexTitle: "Από την είσοδο στην κορυφή και στην έξοδο",
+  apexIntro: "Η κορυφή (apex) είναι το σημείο της αγωνιστικής γραμμής που πλησιάζει περισσότερο στο εσωτερικό της στροφής. Ο οδηγός συνήθως ανοίγει στην είσοδο, πλησιάζει την κορυφή και αφήνει το μονοθέσιο να ανοίξει στην έξοδο. Η ακριβής γραμμή εξαρτάται από την επόμενη στροφή και την κατάσταση της πίστας.",
+  apexLabels: ["ΕΙΣΟΔΟΣ", "APEX", "ΕΞΟΔΟΣ"],
+  apexCaption: "Σχηματική κάτοψη μιας δεξιάς στροφής · σύγκρινε την κόκκινη γραμμή αναφοράς με την επιλεγμένη παραλλαγή.",
+  trajectoryPrompt: "Σύγκρινε τις γραμμές",
+  trajectoryLegend: "Συνεχής κόκκινη: γραμμή αναφοράς · διακεκομμένη γαλάζια: επιλεγμένη παραλλαγή",
+  trajectories: [
+    ["reference", "Αγωνιστική γραμμή", "Είσοδος από την εξωτερική πλευρά, πέρασμα κοντά στην εσωτερική κορυφή και άνοιγμα στην έξοδο."],
+    ["late", "Late apex", "Ο οδηγός στρίβει αργότερα και πλησιάζει την εσωτερική πλευρά πιο βαθιά στη στροφή, ώστε να ισιώσει νωρίτερα το μονοθέσιο στην έξοδο."],
+    ["understeer", "Understeer", "Το μπροστινό μέρος δεν στρίβει όσο ζητά ο οδηγός. Η γραμμή ανοίγει προς την εξωτερική πλευρά της στροφής."],
+    ["oversteer", "Oversteer", "Το πίσω μέρος γλιστρά και το μονοθέσιο περιστρέφεται περισσότερο. Η διακεκομμένη γραμμή δείχνει μια πιθανή τροχιά προς το εσωτερικό· η πραγματική εξαρτάται από τη διόρθωση του οδηγού."],
+  ],
+  lineTerms: [
+    ["Late apex", "Πιο όψιμη κορυφή: συχνά θυσιάζει λίγη ταχύτητα εισόδου για καλύτερη επιτάχυνση στην έξοδο."],
+    ["Understeer", "Το μπροστινό μέρος δεν στρίβει όσο ζητά ο οδηγός· το μονοθέσιο ανοίγει τη γραμμή του."],
+    ["Oversteer", "Το πίσω μέρος χάνει πρόσφυση και γυρίζει περισσότερο από όσο αναμένεται."],
+    ["Outbrake", "Προσπάθεια να φρενάρεις αργότερα από τον αντίπαλο για να προσπεράσεις. Αν φρενάρεις πολύ νωρίς, χάνεις χρόνο· αν αργήσεις υπερβολικά, μπορεί να μπεις στη στροφή με πολλή ταχύτητα, να βγεις εκτός πίστας ή να μπλοκάρεις τροχό."],
+  ],
+  strategyTitle: "Undercut ή overcut;",
+  strategyIntro: "Μια θέση μπορεί να αλλάξει χέρια στα pits. Το ερώτημα είναι ποιος θα σταματήσει πρώτος και τι χρόνο θα κάνει ο άλλος όσο περιμένει.",
+  undercut: "Ο οδηγός που ακολουθεί μπαίνει πρώτος. Με φρέσκα ελαστικά προσπαθεί να κάνει έναν αρκετά γρήγορο γύρο ώστε να βρεθεί μπροστά όταν σταματήσει ο αντίπαλος.",
+  overcut: "Ο οδηγός που ακολουθεί μένει έξω όταν ο αντίπαλος μπαίνει. Αν ο δικός του γύρος είναι γρήγορος ή ο αντίπαλος χάνει χρόνο στα κρύα ελαστικά ή στην κίνηση, μπορεί να βγει μπροστά όταν σταματήσει αργότερα.",
+  diagram: { leader: "ΜΠΡΟΣΤΑ", chaser: "ΠΙΣΩ", pit: "PIT", track: "ΠΙΣΤΑ", fresh: "ΦΡΕΣΚΑ", laps: ["ΓΥΡΟΣ 18", "ΓΥΡΟΣ 19", "ΓΥΡΟΣ 20", "ΓΥΡΟΣ 21"] },
+  strategyNote: "Το «κέρδος» εξαρτάται από τη φθορά, τον χρόνο που χάνεται στο pit lane, την κίνηση και τη θερμοκρασία των νέων ελαστικών. Κανένα τέχνασμα δεν εγγυάται προσπέρασμα.",
+  newTitle: "Τι άλλαξε στην ορολογία το 2026",
+  newIntro: "Το DRS ανήκει στην προηγούμενη εποχή. Τα μονοθέσια του 2026 χρησιμοποιούν κινητά αεροδυναμικά στοιχεία και περισσότερη ηλεκτρική ισχύ, οπότε θα ακούσεις άλλες τρεις λέξεις:",
+  newTerms: [
+    ["Active aero", "Οι εμπρός και πίσω αεροτομές αλλάζουν θέση ανάμεσα σε ρύθμιση για στροφές και ρύθμιση χαμηλής αντίστασης στις επιτρεπόμενες ευθείες."],
+    ["Overtake Mode", "Επιπλέον ηλεκτρική ενέργεια για τον οδηγό που βρίσκεται αρκετά κοντά στο προπορευόμενο μονοθέσιο στο σημείο μέτρησης."],
+    ["Boost & recharge", "Ο οδηγός επιλέγει πότε θα χρησιμοποιήσει διαθέσιμη ηλεκτρική ενέργεια και το μονοθέσιο την ανακτά κυρίως στο φρενάρισμα."],
+  ],
+  moreTermsTitle: "Ακόμη τρεις όροι που θα ακούσεις",
+  moreTerms: [
+    ["MGU-K", "Motor Generator Unit – Kinetic. Ανακτά ενέργεια κυρίως από το φρενάρισμα και την επιστρέφει ως ηλεκτρική ισχύ. Από το 2026 φτάνει τα 350 kW, σχεδόν τριπλάσια ισχύ από πριν, και μπορεί να ανακτά ενέργεια και στο ρολάρισμα ή με γκάζι."],
+    ["MGU-H", "Motor Generator Unit – Heat. Ανακτούσε ενέργεια από τα καυσαέρια του κινητήρα και μπορούσε να τη χρησιμοποιήσει αλλού. Αφαιρέθηκε από τις μονάδες ισχύος το 2026."],
+    ["Super Licence", "Η άδεια της FIA που χρειάζεται ένας οδηγός για να αγωνιστεί στη Formula 1. Συνήθως απαιτούνται ηλικία τουλάχιστον 18 ετών και 40 βαθμοί από άλλες διοργανώσεις: ο τίτλος της F2 δίνει 40, της F3 δίνει 30. Η FIA μπορεί κατ’ εξαίρεση να εγκρίνει οδηγό 17 ετών."],
+  ],
+  allocationsTitle: "Πόσα εξαρτήματα επιτρέπονται;",
+  allocationsIntro: "Για το 2026 κάθε οδηγός έχει συγκεκριμένο αριθμό από κάθε βασικό στοιχείο της μονάδας ισχύος για όλη τη σεζόν. Τα παρακάτω όρια περιλαμβάνουν ήδη την επιπλέον μονάδα που επιτράπηκε για τη νέα εποχή κανονισμών.",
+  allocations: [
+    ["ICE", "Κινητήρες εσωτερικής καύσης", "4"],
+    ["TC", "Τουρμπίνες", "4"],
+    ["EXH", "Σετ εξατμίσεων", "4"],
+    ["MGU-K", "Ηλεκτροκινητήρες / γεννήτριες", "3"],
+    ["ES", "Μπαταρίες", "3"],
+    ["CE", "Μονάδες ηλεκτρονικού ελέγχου", "3"],
+  ],
+  allocationsPenalty: "Η πρώτη επιπλέον μονάδα κάθε τύπου φέρνει ποινή 10 θέσεων στην εκκίνηση· οι επόμενες του ίδιου τύπου πέντε θέσεων. Οι ποινές αθροίζονται. Αν οι εκκρεμείς ποινές ξεπεράσουν τις 15 θέσεις, ο οδηγός ξεκινά πίσω από τους υπόλοιπους οδηγούς που κατατάχθηκαν.",
+} : {
+  back: "Back to Formula",
+  eyebrow: "RACE FIELD GUIDE / 2026",
+  title: "How to read an F1 race",
+  lead: "A driver can lose a place without being passed on track. To see how, it helps to know what the tyres, flags and pit wall decisions actually mean.",
+  note: "A practical guide for 2026 · updated September 2026",
+  nav: ["The weekend", "Tyres", "Flags & SC", "The corner", "Strategy", "2026"],
+  chapters: ["01 / BEFORE AND DURING THE RACE", "02 / ON TRACK", "03 / IN THE PITS", "04 / THE 2026 TERMS"],
+  weekendTitle: "How the weekend works",
+  weekendIntro: "The usual schedule has three practice sessions, qualifying and then the Grand Prix.",
+  weekend: [
+    ["Friday", "Practice", "Teams try setup changes and see how the tyres last over short and long runs."],
+    ["Saturday", "Qualifying", "The slowest six go out after Q1 and another six after Q2. The remaining ten fight for pole in Q3."],
+    ["Sunday", "Grand Prix", "The winner gets 25 points, second place gets 18, and points go down to tenth."],
+  ],
+  sprint: "A Sprint weekend has only one practice session. The Sprint has its own qualifying and awards 8 to 1 points to the top eight; regular qualifying still sets Sunday's grid.",
+  raceFacts: [
+    ["PARC FERMÉ", "French for ‘closed park’: both an FIA-controlled area and a set of restrictions that apply once a car first leaves the pits in qualifying, even when it is in the garage. Only specified work is allowed under supervision. Breaking the restrictions means a pit-lane start."],
+    ["DISTANCE & CLOCK", "A Grand Prix runs for the fewest whole laps that exceed 305 km, or 260 km at Monaco. Racing is limited to two hours; suspensions can extend the total race duration to three hours."],
+    ["IF THE RACE ENDS EARLY", "Full points apply once the leader completes 75% of the scheduled distance. A shorter race uses a reduced points scale, and no points are awarded without two consecutive laps outside Safety Car or VSC conditions. Rain-shortened Belgium 2021 is the famous historical example, though the points rules have since changed."],
+    ["POST-RACE CHECKS", "The FIA performs standard checks during the weekend. After the race, some cars and components are randomly selected for additional technical checks; every car does not receive the same detailed inspection each time."],
+  ],
+  tyresTitle: "What does ‘soft’ actually mean?",
+  tyresIntro: "Pirelli has five slick compounds in 2026, from C1 (hardest) to C5 (softest). It picks three for each Grand Prix. Only then are they called hard, medium and soft.",
+  tyres: [
+    ["HARD", "Hard", "The white tyre for that weekend. Generally lasts longer."],
+    ["MEDIUM", "Medium", "The yellow tyre. Sits between the other two for grip and life."],
+    ["SOFT", "Soft", "The red tyre. Usually quicker, but it wears sooner."],
+  ],
+  tyreRange: "The higher the number, the softer the compound: C1 is the hardest and C5 the softest in the 2026 range. C6 was the softest of six compounds in 2025, but it is not used in 2026.",
+  tyreExample: "For example: with C1/C2/C3 selected, C3 is the red soft. With C3/C4/C5 selected, that same C3 is the white hard.",
+  wetTyres: [
+    ["INTERMEDIATE", "Intermediate", "Green: for a wet track without much standing water."],
+    ["FULL WET", "Full wet", "Blue: for heavy rain and more standing water."],
+  ],
+  tyreRule: "In a dry race, every driver must use at least two sets of slick tyres of different compounds. That usually means a pit stop. At least one compound must be a designated mandatory race tyre. If intermediates or wets are used, the two-slick-compound rule no longer applies.",
+  flagsTitle: "What the flags are telling you",
+  flags: [
+    ["Green", "The track is clear. Racing can continue."],
+    ["Yellow", "Danger ahead: slow down, do not overtake and be ready to change direction."],
+    ["Double yellow", "A more serious hazard: slow down significantly, do not overtake and be ready to change direction or stop."],
+    ["Red", "The session is stopped. Cars return slowly to the pits."],
+    ["Blue", "In a race, a driver about to be lapped must let the faster car through."],
+    ["White", "A much slower vehicle is ahead."],
+    ["Yellow / red", "Grip has dropped in that area, usually because of oil or water."],
+    ["Black / white", "A warning for unsporting driving, shown with the driver's number."],
+    ["Black / orange", "The car has a dangerous mechanical problem and must come into the pits."],
+    ["Black", "Disqualification: the driver must return to the garage."],
+    ["Chequered", "The session or race is over."],
+  ],
+  neutralTitle: "VSC, Safety Car and restarts",
+  vsc: "Virtual Safety Car. It keeps the race running safely after an incident without sending a physical car onto the track. Drivers slow immediately and follow a set pace, so the gaps between them generally remain. Overtaking is forbidden. Race Control can end the VSC anywhere on the circuit; a physical Safety Car must return to the pits first.",
+  safety: "A vehicle sent out for an accident, another hazard or extreme weather. Drivers slow down and queue behind it at reduced speed, with no overtaking. It leads the field until the track is safe, then returns to the pits at the end of a lap before normal racing speed resumes.",
+  restart: "After a red flag, Race Control can choose a standing restart: the cars return to the grid and the lights go out again. If conditions make that unsuitable, they can use a rolling restart behind the Safety Car. An ordinary Safety Car withdrawal does not send the field back to the grid.",
+  extraFormation: "If another formation lap is needed before the start, the scheduled race loses one lap for each extra formation lap. The cars have already burned fuel covering it.",
+  penalties: "Stewards judge track limits and incidents. A qualifying lap can be deleted; a race infringement can bring a time penalty or a drive-through.",
+  apexTitle: "Entry, apex, exit",
+  apexIntro: "The apex is the point on the racing line closest to the inside of a corner. A driver will usually begin wide, approach the apex, then let the car run wide on exit. The exact line depends on the next corner and the track conditions.",
+  apexLabels: ["ENTRY", "APEX", "EXIT"],
+  apexCaption: "Schematic overhead view of a right-hand corner · compare the red reference line with the selected variation.",
+  trajectoryPrompt: "Compare the paths",
+  trajectoryLegend: "Solid red: reference line · dashed blue: selected variation",
+  trajectories: [
+    ["reference", "Racing line", "Enter from the outside, pass close to the inside apex, then let the car open out on exit."],
+    ["late", "Late apex", "Turn in later and reach the inside farther around the corner, leaving a straighter exit."],
+    ["understeer", "Understeer", "The front does not turn as much as the driver asks, so the path runs wide toward the outside."],
+    ["oversteer", "Oversteer", "The rear slides and the car rotates more than intended. The dashed path shows one possible move toward the inside; the real path depends on the driver's correction."],
+  ],
+  lineTerms: [
+    ["Late apex", "A later clipping point often trades some entry speed for a better launch out of the corner."],
+    ["Understeer", "The front does not turn as much as the driver asks, so the car runs wide."],
+    ["Oversteer", "The rear loses grip and rotates more than expected."],
+    ["Outbrake", "An attempt to brake later than another driver to make a pass. Brake too early and you lose time; too late and you may carry too much speed into the corner, run wide or lock a wheel under heavy braking."],
+  ],
+  strategyTitle: "Undercut or overcut?",
+  strategyIntro: "A place can change hands in the pits. The question is who stops first, and how fast the other driver can go while they wait.",
+  undercut: "The chasing driver pits first. On fresh tyres, they try to set a fast enough lap to emerge ahead when their rival stops.",
+  overcut: "The chasing driver stays out when their rival pits. If their own lap is quick, or the rival loses time on cold tyres or in traffic, they can emerge ahead after stopping later.",
+  diagram: { leader: "AHEAD", chaser: "BEHIND", pit: "PIT", track: "TRACK", fresh: "FRESH", laps: ["LAP 18", "LAP 19", "LAP 20", "LAP 21"] },
+  strategyNote: "The gain depends on tyre wear, time lost in the pit lane, traffic and how quickly new tyres warm up. Neither move guarantees a pass.",
+  newTitle: "The 2026 terms worth knowing",
+  newIntro: "DRS is gone. The 2026 cars have movable wing elements and more electric power, so the radio and commentary now use these terms:",
+  newTerms: [
+    ["Active aero", "Front and rear wings switch between corner and lower-drag straight settings in permitted sections."],
+    ["Overtake Mode", "Extra electrical energy for a driver close enough to the car ahead at the detection point."],
+    ["Boost & recharge", "The driver chooses when to deploy available electrical energy; the car recovers it mainly under braking."],
+  ],
+  moreTermsTitle: "Three more terms you will hear",
+  moreTerms: [
+    ["MGU-K", "Motor Generator Unit – Kinetic. It recovers energy mainly under braking and uses it to add electric power. From 2026 it can deliver 350 kW, nearly three times its previous output, and can recover energy while coasting or even on throttle."],
+    ["MGU-H", "Motor Generator Unit – Heat. It recovered energy from the engine’s exhaust gases for use elsewhere in the hybrid system. It was removed from F1 power units for 2026."],
+    ["Super Licence", "The FIA qualification a driver needs to race in F1. Normally, a new driver must be at least 18 and earn 40 points in other series: an F2 title earns 40, an F3 title 30. The FIA may exceptionally approve a 17-year-old."],
+  ],
+  allocationsTitle: "How many parts can a driver use?",
+  allocationsIntro: "For 2026, each driver has a season-long allowance for the main power-unit elements. These totals already include the extra unit permitted for the first year of the new rules.",
+  allocations: [
+    ["ICE", "Combustion engines", "4"],
+    ["TC", "Turbochargers", "4"],
+    ["EXH", "Exhaust sets", "4"],
+    ["MGU-K", "Motor-generator units", "3"],
+    ["ES", "Energy stores", "3"],
+    ["CE", "Control electronics", "3"],
+  ],
+  allocationsPenalty: "The first extra unit of each type costs 10 grid places; further extras of the same type cost five each. Penalties add together. Once a driver's unserved grid penalties exceed 15 places, they start behind the other classified drivers.",
+};
+
+const navIds = ["weekend", "tyres", "flags", "corner", "strategy", "new-2026"];
+---
+
+<article class="field-guide">
+  <header class="guide-hero">
+    <div class="hero-inner">
+      <a class="back-link" href={isEl ? "/el/formula" : "/formula"}>← {copy.back}</a>
+      <p class="eyebrow">{copy.eyebrow}</p>
+      <h1>{copy.title}</h1>
+      <p class="hero-lead">{copy.lead}</p>
+      <p class="hero-note">{copy.note}</p>
+      <div class="hero-turn" aria-hidden="true"><span>01</span><svg viewBox="0 0 330 210"><path d="M-15 44 H128 Q262 44 262 170 V225" fill="none" stroke="currentColor" stroke-width="22"/><path d="M-15 44 H128 Q262 44 262 170 V225" fill="none" stroke="#f6efe4" stroke-width="2" stroke-dasharray="12 12"/></svg><span>02</span></div>
+    </div>
+  </header>
+
+  <nav class="guide-contents" aria-label={isEl ? "Περιεχόμενα άρθρου" : "Article contents"}>
+    <div>{copy.nav.map((label, index) => <a href={`#${navIds[index]}`}><span>{String(index + 1).padStart(2, "0")}</span>{label}</a>)}</div>
+  </nav>
+
+  <div class="guide-body">
+    <p class="chapter">{copy.chapters[0]}</p>
+    <section id="weekend" class="guide-section">
+      <div class="section-head"><h2>{copy.weekendTitle}</h2><p>{copy.weekendIntro}</p></div>
+      <div class="weekend-grid">
+        {copy.weekend.map(([day, title, description], index) => <div class="weekend-card"><span class="card-index">0{index + 1} / {day}</span><h3>{title}</h3><p>{description}</p></div>)}
+      </div>
+      <aside class="sprint-note"><strong>SPRINT ↗</strong><p>{copy.sprint}</p></aside>
+      <div class="race-facts">{copy.raceFacts.map(([title, description]) => <div><strong>{title}</strong><p>{description}</p></div>)}</div>
+    </section>
+
+    <section id="tyres" class="guide-section split-section">
+      <div class="section-head"><h2>{copy.tyresTitle}</h2><p>{copy.tyresIntro}</p></div>
+      <div class="tyre-panel">
+        <div class="compound-range" aria-label={copy.tyreRange}><span>C1</span><span>C2</span><span>C3</span><span>C4</span><span>C5</span><span class="historical-compound">C6<small>2025</small></span></div>
+        <p class="range-note">{copy.tyreRange}</p>
+        <div class="tyre-grid">
+          {copy.tyres.map(([code, name, description], index) => <div class="tyre-item"><span class={`tyre tyre-${index}`} aria-hidden="true"><i></i></span><span class="tyre-code">{code}</span><h3>{name}</h3><p>{description}</p></div>)}
+        </div>
+        <div class="selection-map" role="img" aria-label={copy.tyreExample}>
+          <div><small>{isEl ? "ΠΑΡΑΔΕΙΓΜΑ Α" : "EXAMPLE A"}</small><span class="selected-hard">C1</span><span class="selected-medium">C2</span><span class="selected-soft">C3</span></div>
+          <div><small>{isEl ? "ΠΑΡΑΔΕΙΓΜΑ Β" : "EXAMPLE B"}</small><span class="selected-hard">C3</span><span class="selected-medium">C4</span><span class="selected-soft">C5</span></div>
+        </div>
+        <p class="example-note">{copy.tyreExample}</p>
+        <div class="wet-tyres">
+          {copy.wetTyres.map(([code, name, description], index) => <div class="tyre-item wet-tyre-item"><span class={`tyre tyre-${index + 3}`} aria-hidden="true"><i></i></span><span class="tyre-code">{code}</span><h3>{name}</h3><p>{description}</p></div>)}
+        </div>
+      </div>
+      <p class="rule-note"><span>↳</span>{copy.tyreRule}</p>
+    </section>
+
+    <section id="flags" class="guide-section flags-section">
+      <div class="section-head"><h2>{copy.flagsTitle}</h2></div>
+      <div class="flag-list">
+        {copy.flags.map(([name, description], index) => <div class={`flag-row ${index === 2 ? "flag-row-double" : ""}`}>
+          {index === 2 ? <span class="double-flag" aria-hidden="true"><span class="flag flag-2"></span><span class="flag flag-2"></span></span> : <span class={`flag flag-${index}`} aria-hidden="true"></span>}
+          <h3>{name}</h3><p>{description}</p>
+        </div>)}
+      </div>
+      <div class="race-control">
+        <h3>{copy.neutralTitle}</h3>
+        <div class="control-grid"><div><span>01 / VSC</span><p>{copy.vsc}</p></div><div><span>02 / SC</span><p>{copy.safety}</p></div></div>
+        <div class="restart-notes"><p><strong>{isEl ? "ΕΠΑΝΕΚΚΙΝΗΣΗ" : "RESTART"}</strong>{copy.restart}</p><p><strong>{isEl ? "ΕΠΙΠΛΕΟΝ ΓΥΡΟΣ" : "EXTRA LAP"}</strong>{copy.extraFormation}</p></div>
+      </div>
+      <p class="penalty-note"><strong>↯</strong> {copy.penalties}</p>
+    </section>
+
+    <p class="chapter">{copy.chapters[1]}</p>
+    <section id="corner" class="guide-section corner-section">
+      <div class="section-head"><h2>{copy.apexTitle}</h2><p>{copy.apexIntro}</p></div>
+      <div class="trajectory-explorer">
+      <fieldset class="trajectory-controls"><legend>{copy.trajectoryPrompt}</legend><div>
+        {copy.trajectories.map(([mode, label], index) => <label><input type="radio" name={`trajectory-${lang}`} value={mode} checked={index === 0} /><span>{label}</span></label>)}
+      </div></fieldset>
+      <figure class="apex-figure">
+        <svg viewBox="0 0 760 430" role="img" aria-label={copy.apexCaption}>
+          <defs><pattern id="asphalt-grain" width="18" height="18" patternUnits="userSpaceOnUse"><circle cx="4" cy="6" r=".6" fill="#fff" opacity=".15"/><circle cx="13" cy="14" r=".6" fill="#fff" opacity=".12"/></pattern></defs>
+          <path d="M0 50 H340 Q620 50 620 330 V430 H470 V330 Q470 200 340 200 H0 Z" fill="#292a29"/>
+          <path d="M0 50 H340 Q620 50 620 330 V430 H470 V330 Q470 200 340 200 H0 Z" fill="url(#asphalt-grain)"/>
+          <path d="M0 50 H340 Q620 50 620 330 V430 M0 200 H340 Q470 200 470 330 V430" fill="none" stroke="#e7ded0" stroke-width="5"/>
+          <path d="M0 125 H340 Q545 125 545 330 V430" fill="none" stroke="#b6b0a7" stroke-width="2" stroke-dasharray="8 13"/>
+          <path d="M40 82 C250 82 520 220 580 385" fill="none" stroke="#f2443b" stroke-width="6" stroke-linecap="round"/>
+          <path class="trajectory-alt trajectory-late" d="M40 78 C340 78 480 190 520 385" aria-hidden="true"/>
+          <path class="trajectory-alt trajectory-understeer" d="M366 172 C480 170 635 175 600 365" aria-hidden="true"/>
+          <path class="trajectory-alt trajectory-oversteer" d="M451 226 C465 245 535 275 515 385" aria-hidden="true"/>
+          <circle cx="451" cy="226" r="7" fill="#f2443b" stroke="#fff" stroke-width="2"/>
+          <circle class="trajectory-alt trajectory-late trajectory-point" cx="466" cy="248" r="6" aria-hidden="true"/>
+          <g class="apex-leader-halos" fill="none" stroke-width="5"><line x1="130" y1="82" x2="130" y2="245"/><line x1="451" y1="226" x2="350" y2="312"/><line x1="580" y1="350" x2="635" y2="350"/></g>
+          <g class="apex-leaders" fill="none" stroke-width="2"><line x1="130" y1="82" x2="130" y2="245"/><line x1="451" y1="226" x2="350" y2="312"/><line x1="580" y1="350" x2="635" y2="350"/></g>
+          <text x="55" y="270">01 · {copy.apexLabels[0]}</text><text x="270" y="340">02 · {copy.apexLabels[1]}</text><text x="635" y="330">03 · {copy.apexLabels[2]}</text>
+        </svg>
+        <figcaption>{copy.apexCaption}</figcaption>
+      </figure>
+      <p class="trajectory-legend">{copy.trajectoryLegend}</p>
+      <div class="trajectory-readout" aria-live="polite">{copy.trajectories.map(([mode, label, description]) => <p data-mode={mode}><strong>{label}.</strong> {description}</p>)}</div>
+      </div>
+      <div class="terms-grid">{copy.lineTerms.map(([term, description]) => <div><h3>{term}</h3><p>{description}</p></div>)}</div>
+    </section>
+
+    <p class="chapter">{copy.chapters[2]}</p>
+    <section id="strategy" class="guide-section strategy-section">
+      <div class="section-head"><h2>{copy.strategyTitle}</h2><p>{copy.strategyIntro}</p></div>
+      <div class="strategy-grid">
+        <div class="strategy-card"><div class="strategy-heading"><span>01</span><h3>Undercut</h3></div><p>{copy.undercut}</p><div class="lap-diagram" role="img" aria-label={isEl ? "Undercut: ο οδηγός πίσω σταματά στον γύρο 19, ο οδηγός μπροστά στον γύρο 20" : "Undercut: the chasing driver pits on lap 19, the leader on lap 20"}>
+          <div class="lap-head"><span></span>{copy.diagram.laps.map(lap => <span>{lap}</span>)}</div>
+          <div class="lap-row"><b>{copy.diagram.leader}</b><span>{copy.diagram.track}</span><span>{copy.diagram.track}</span><span class="pit-cell">{copy.diagram.pit}</span><span class="fresh-cell">{copy.diagram.fresh}</span></div>
+          <div class="lap-row"><b>{copy.diagram.chaser}</b><span>{copy.diagram.track}</span><span class="pit-cell">{copy.diagram.pit}</span><span class="fresh-cell">{copy.diagram.fresh}</span><span class="fresh-cell">{copy.diagram.fresh}</span></div>
+        </div></div>
+        <div class="strategy-card"><div class="strategy-heading"><span>02</span><h3>Overcut</h3></div><p>{copy.overcut}</p><div class="lap-diagram" role="img" aria-label={isEl ? "Overcut: ο οδηγός μπροστά σταματά στον γύρο 19, ο οδηγός πίσω στον γύρο 21" : "Overcut: the leader pits on lap 19, the chasing driver on lap 21"}>
+          <div class="lap-head"><span></span>{copy.diagram.laps.map(lap => <span>{lap}</span>)}</div>
+          <div class="lap-row"><b>{copy.diagram.leader}</b><span>{copy.diagram.track}</span><span class="pit-cell">{copy.diagram.pit}</span><span class="fresh-cell">{copy.diagram.fresh}</span><span class="fresh-cell">{copy.diagram.fresh}</span></div>
+          <div class="lap-row"><b>{copy.diagram.chaser}</b><span>{copy.diagram.track}</span><span>{copy.diagram.track}</span><span>{copy.diagram.track}</span><span class="pit-cell">{copy.diagram.pit}</span></div>
+        </div></div>
+      </div>
+      <p class="strategy-footnote">{copy.strategyNote}</p>
+    </section>
+
+    <p class="chapter">{copy.chapters[3]}</p>
+    <section id="new-2026" class="guide-section new-section">
+      <div class="section-head"><h2>{copy.newTitle}</h2><p>{copy.newIntro}</p></div>
+      <div class="new-terms">{copy.newTerms.map(([term, description], index) => <div><span>0{index + 1}</span><h3>{term}</h3><p>{description}</p></div>)}</div>
+      <div class="more-terms"><h3>{copy.moreTermsTitle}</h3><div class="new-terms">{copy.moreTerms.map(([term, description], index) => <div><span>0{index + 4}</span><h3>{term}</h3><p>{description}</p></div>)}</div></div>
+      <div class="allocations"><div class="allocation-head"><h3>{copy.allocationsTitle}</h3><p>{copy.allocationsIntro}</p></div><div class="allocation-grid">{copy.allocations.map(([code, name, count]) => <div><strong>{count}</strong><span>{code}</span><p>{name}</p></div>)}</div><p class="allocation-penalty">{copy.allocationsPenalty}</p></div>
+    </section>
+  </div>
+</article>
+
+<style>
+  .field-guide { --paper: #f7f5ef; --ink: #1b211d; --muted: #444d45; --line: #b9c0b6; --accent: #a8221b; --comparison: #126d8a; --panel: #fffefa; --hero-bg: #e8ebe4; --hero-ink: #172019; --hero-lead: #344037; --hero-note: #505b52; --hero-pattern: #1720190c; --callout: #e9eee7; --callout-ink: #202a23; --figure-bg: #e9ede7; --figure-caption: #414b42; --figure-leader: #485249; --diagram-cell: #dce3db; --diagram-ink: #1b211d; color: var(--ink); background: var(--paper); font-family: "Avenir Next", "Helvetica Neue", sans-serif; }
+  :global(.dark) .field-guide { --paper: #111512; --ink: #f5f5ef; --muted: #d0d6cd; --line: #576158; --accent: #ff8a7d; --comparison: #8fd7ee; --panel: #1c231e; --hero-bg: #171b18; --hero-ink: #f8f5ed; --hero-lead: #e1e8de; --hero-note: #b5c0b3; --hero-pattern: #ffffff0b; --callout: #252e27; --callout-ink: #f1f4ec; --figure-bg: #202923; --figure-caption: #d0d9cd; --figure-leader: #f8f0e5; --diagram-cell: #303a32; --diagram-ink: #f1f4ec; }
+  .guide-hero { position: relative; overflow: hidden; color: var(--hero-ink); background: var(--hero-bg); }
+  .guide-hero::before { content: ""; position: absolute; inset: 0; opacity: .7; background: repeating-linear-gradient(132deg, transparent 0 23px, var(--hero-pattern) 24px, transparent 25px), radial-gradient(circle at 83% 18%, #d7241917, transparent 35%); pointer-events: none; }
+  .hero-inner { position: relative; width: min(1180px, calc(100% - 2.5rem)); min-height: 36rem; margin: auto; padding: 2rem 0 5rem; }
+  .back-link { color: var(--hero-lead); font-size: .8rem; font-weight: 800; letter-spacing: .05em; text-decoration: none; text-transform: uppercase; }
+  .back-link:hover { color: var(--accent); }
+  .eyebrow, .chapter { color: var(--accent); font-size: .69rem; font-weight: 900; letter-spacing: .19em; text-transform: uppercase; }
+  .eyebrow { margin: 6rem 0 1rem; }
+  h1, h2, h3, p { margin-top: 0; }
+  h1 { position: relative; z-index: 1; margin-bottom: 2rem; font-family: "Arial Narrow", "Avenir Next Condensed", sans-serif; font-size: clamp(3.5rem, 7vw, 7rem); font-style: italic; font-weight: 900; letter-spacing: -.075em; line-height: .9; text-transform: uppercase; }
+  .hero-lead { position: relative; z-index: 1; max-width: 54rem; margin-bottom: 1.5rem; color: var(--hero-lead); font-size: clamp(1.05rem, 1.8vw, 1.23rem); line-height: 1.6; }
+  .hero-note { position: relative; z-index: 1; color: var(--hero-note); font-size: .8rem; letter-spacing: .04em; }
+  .hero-turn { position: absolute; right: -2rem; bottom: 0; display: flex; align-items: center; width: 35%; height: 70%; opacity: .24; color: #c52b22; transform: rotate(-10deg); }
+  .hero-turn svg { width: 100%; height: 100%; }
+  .hero-turn span { position: absolute; left: 0; top: 25%; color: var(--hero-ink); font-size: .7rem; font-weight: 900; }
+  .hero-turn span:last-child { left: auto; right: 0; top: 75%; }
+  .guide-contents { position: sticky; top: 0; z-index: 30; overflow-x: auto; color: #fff9f3; background: #a51d16; box-shadow: 0 .3rem .8rem #0003; }
+  .guide-contents > div { display: flex; width: min(1180px, calc(100% - 2.5rem)); min-width: max-content; margin: auto; }
+  .guide-contents a { display: flex; gap: .55rem; align-items: center; min-height: 3.2rem; padding: 0 1.2rem; border-right: 1px solid #ffffff55; color: inherit; font-size: .8rem; font-weight: 800; text-decoration: none; white-space: nowrap; }
+  .guide-contents a:first-child { border-left: 1px solid #ffffff55; }
+  .guide-contents a:hover, .guide-contents a:focus-visible { background: #74120e; }
+  .guide-contents span { color: #fff2e6; font-size: .68rem; }
+  .guide-body { width: min(1180px, calc(100% - 2.5rem)); margin: auto; padding: 5rem 0 6rem; }
+  .chapter { margin: 1rem 0 1.2rem; padding-top: 2rem; border-top: 1px solid var(--line); }
+  .guide-section { margin-bottom: 6rem; scroll-margin-top: 5rem; }
+  .section-head { display: grid; gap: .85rem; margin-bottom: 2.2rem; }
+  h2 { margin-bottom: 0; font-family: "Arial Narrow", "Avenir Next Condensed", sans-serif; font-size: clamp(2.55rem, 4.2vw, 4rem); font-style: italic; font-weight: 900; letter-spacing: -.055em; line-height: 1; text-transform: uppercase; }
+  .section-head p { max-width: 65rem; margin: 0; color: var(--muted); font-size: 1.07rem; line-height: 1.65; }
+  h3 { font-family: "Arial Narrow", "Avenir Next Condensed", sans-serif; font-size: 1.55rem; font-style: italic; font-weight: 900; letter-spacing: -.035em; text-transform: uppercase; }
+  .weekend-grid { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid var(--line); background: var(--panel); }
+  .weekend-card { min-height: 15rem; padding: 1.5rem; }
+  .weekend-card + .weekend-card { border-left: 1px solid var(--line); }
+  .card-index { color: var(--accent); font-size: .65rem; font-weight: 900; letter-spacing: .13em; text-transform: uppercase; }
+  .weekend-card h3 { margin: 3rem 0 .6rem; }
+  .weekend-card p, .tyre-item p, .terms-grid p, .strategy-card p, .new-terms p { color: var(--muted); font-size: .98rem; line-height: 1.6; }
+  .sprint-note { display: flex; gap: 1.5rem; align-items: baseline; margin-top: .8rem; padding: 1.1rem 1.5rem; border-left: 4px solid var(--accent); color: var(--callout-ink); background: var(--callout); }
+  .sprint-note strong { flex: 0 0 auto; color: var(--accent); font-size: .8rem; letter-spacing: .1em; }
+  .sprint-note p { margin: 0; font-size: .96rem; line-height: 1.6; }
+  .race-facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin-top: 1rem; }
+  .race-facts > div { padding: 1.25rem; border-top: 3px solid var(--accent); background: var(--panel); }
+  .race-facts strong { display: block; margin-bottom: .75rem; color: var(--accent); font-size: .75rem; letter-spacing: .12em; }
+  .race-facts p { margin: 0; color: var(--muted); font-size: .96rem; line-height: 1.6; }
+  .tyre-panel { padding: 2rem; border: 1px solid var(--line); background: var(--panel); }
+  .compound-range { display: grid; grid-template-columns: repeat(6, 1fr); gap: .3rem; max-width: 42rem; }
+  .compound-range span { padding: .75rem .2rem; border: 1px solid var(--line); color: var(--ink); background: #eef1eb; font-family: "Arial Narrow", "Avenir Next Condensed", sans-serif; font-size: 1.2rem; font-style: italic; font-weight: 900; text-align: center; }
+  .compound-range span:nth-child(2) { background: #e5eae2; } .compound-range span:nth-child(3) { background: #dae2d8; } .compound-range span:nth-child(4) { background: #ccd7ca; } .compound-range span:nth-child(5) { background: #bdcbbb; }
+  :global(.dark) .compound-range span { background: #28312a; }
+  :global(.dark) .compound-range span:nth-child(2) { background: #303a32; } :global(.dark) .compound-range span:nth-child(3) { background: #39453c; } :global(.dark) .compound-range span:nth-child(4) { background: #425044; } :global(.dark) .compound-range span:nth-child(5) { background: #4c5b4e; }
+  .compound-range .historical-compound { display: flex; gap: .2rem; align-items: baseline; justify-content: center; color: var(--muted); border: 1px dashed var(--line); background: var(--paper); }
+  .historical-compound small { font-family: "Avenir Next", sans-serif; font-size: .48rem; font-style: normal; letter-spacing: .08em; }
+  .range-note { margin: .8rem 0 2rem; color: var(--muted); font-size: .92rem; line-height: 1.6; }
+  .tyre-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; padding-top: 1.6rem; border-top: 1px solid var(--line); }
+  .tyre-item { display: flex; flex-direction: column; align-items: flex-start; }
+  .tyre { display: grid; width: 5.4rem; height: 5.4rem; place-items: center; margin-bottom: 1.4rem; border: .6rem solid #f2f0eb; border-radius: 50%; background: #151615; box-shadow: 0 .35rem .8rem #0003; }
+  .tyre i { display: block; width: 2.3rem; height: 2.3rem; border: 2px solid #777; border-radius: 50%; background: #282b2a; }
+  .tyre-1 { border-color: #eedb62; } .tyre-2 { border-color: #d8251e; }
+  .tyre-3 { border-color: #37a95f; } .tyre-4 { border-color: #438dda; }
+  .tyre-code { color: var(--accent); font-size: .7rem; font-weight: 900; letter-spacing: .12em; }
+  .tyre-item h3 { margin: .25rem 0 .5rem; }
+  .tyre-item p { margin-bottom: 0; }
+  .wet-tyres { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem; margin-top: 1.8rem; padding-top: 1.6rem; border-top: 1px solid var(--line); }
+  .wet-tyre-item { display: grid; grid-template-columns: 5.4rem 1fr; column-gap: 1rem; align-content: start; }
+  .wet-tyre-item .tyre { grid-row: span 3; margin-bottom: 0; background: repeating-conic-gradient(#242a28 0deg 20deg, #111412 20deg 32deg); }
+  .wet-tyre-item h3 { margin: .25rem 0 .35rem; }
+  .wet-tyre-item .tyre-code { align-self: end; }
+  .selection-map { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; margin-top: 1.8rem; }
+  .selection-map > div { display: grid; grid-template-columns: 5.2rem repeat(3, 1fr); gap: .25rem; align-items: center; padding: .45rem; border: 1px solid var(--line); }
+  .selection-map small { color: var(--muted); font-size: .7rem; font-weight: 900; letter-spacing: .07em; }
+  .selection-map span { padding: .4rem .2rem; border-bottom: 4px solid; color: var(--ink); background: var(--paper); font-size: .9rem; font-weight: 900; text-align: center; }
+  .selection-map .selected-hard { border-color: #d9d6d0; } .selection-map .selected-medium { border-color: #e7c946; } .selection-map .selected-soft { border-color: #d8251e; }
+  .example-note { margin: .8rem 0 0; padding: .9rem 1rem; border-left: 3px solid var(--accent); color: var(--ink); background: var(--paper); font-size: .98rem; font-weight: 600; line-height: 1.6; }
+  .rule-note { display: flex; gap: 1rem; margin: 1.2rem 0 0; color: var(--muted); font-size: .98rem; line-height: 1.6; }
+  .rule-note span { color: var(--accent); font-size: 1.4rem; line-height: 1; }
+  .flag-list { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
+  .flag-row { display: grid; grid-template-columns: 2rem 1fr; gap: .25rem 1rem; align-content: start; min-height: 7rem; padding: 1rem 1.15rem; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .flag-row-double { grid-template-columns: 3.5rem 1fr; }
+  .flag { grid-row: span 2; width: 1.5rem; height: 1.5rem; background: #36b160; transform: skewY(-10deg); box-shadow: 2px 2px #0003; }
+  .double-flag { grid-row: span 2; display: flex; gap: .25rem; }
+  .double-flag .flag { grid-row: auto; }
+  .flag-1, .flag-2 { background: #f4d538; } .flag-3 { background: #e10600; } .flag-4 { background: #2576db; }
+  .flag-5 { background: #f5f2eb; border: 1px solid #777; } .flag-6 { background: repeating-linear-gradient(0deg, #e6c53b 0 4px, #d8251e 4px 8px); }
+  .flag-7 { background: linear-gradient(135deg, #111 0 50%, #faf8f0 50%); border: 1px solid #777; }
+  .flag-8 { background: radial-gradient(circle, #ee8728 0 35%, #111 37%); border: 1px solid #777; }
+  .flag-9 { background: #111; border: 1px solid #777; }
+  .flag-10 { background: conic-gradient(#111 0 25%, #faf8f0 0 50%, #111 0 75%, #faf8f0 0); background-size: .75rem .75rem; border: 1px solid #777; }
+  .flag-row h3, .flag-row p { margin: 0; }
+  .flag-row h3 { font-size: 1.2rem; }
+  .flag-row p { color: var(--muted); font-size: .96rem; line-height: 1.6; }
+  .race-control { margin-top: 3rem; }
+  .race-control > h3 { margin-bottom: 1rem; font-size: clamp(1.8rem, 3vw, 2.6rem); }
+  .control-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .control-grid > div { padding: 1.4rem; border: 1px solid var(--line); border-top: 3px solid var(--accent); color: var(--ink); background: var(--panel); }
+  .control-grid span { color: var(--accent); font-size: .78rem; font-weight: 900; letter-spacing: .1em; }
+  .control-grid p { margin: .75rem 0 0; color: var(--muted); font-size: .98rem; line-height: 1.65; }
+  .restart-notes { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1.5rem; }
+  .restart-notes p { margin: 0; padding-left: 1rem; border-left: 2px solid var(--accent); color: var(--muted); font-size: .96rem; line-height: 1.65; }
+  .restart-notes strong { display: block; margin-bottom: .4rem; color: var(--accent); font-size: .75rem; letter-spacing: .1em; }
+  .penalty-note { margin: 1.6rem 0 0; color: var(--muted); font-size: .95rem; line-height: 1.6; }
+  .penalty-note strong { color: var(--accent); }
+  .trajectory-controls { min-width: 0; margin: 0 0 1rem; padding: 0; border: 0; }
+  .trajectory-controls legend { margin-bottom: .65rem; color: var(--muted); font-size: .76rem; font-weight: 900; letter-spacing: .1em; text-transform: uppercase; }
+  .trajectory-controls > div { display: flex; flex-wrap: wrap; gap: .5rem; }
+  .trajectory-controls label { position: relative; cursor: pointer; }
+  .trajectory-controls input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+  .trajectory-controls span { display: block; padding: .55rem .85rem; border: 1px solid var(--line); color: var(--ink); background: var(--panel); font-size: .87rem; font-weight: 800; }
+  .trajectory-controls input:checked + span { border-color: var(--ink); color: var(--paper); background: var(--ink); }
+  .trajectory-controls input:focus-visible + span { outline: 2px solid var(--comparison); outline-offset: 3px; }
+  .apex-figure { margin: 0; padding: 1rem 1rem .8rem; color: var(--ink); background: var(--figure-bg); }
+  .apex-figure svg { display: block; width: 100%; height: auto; }
+  .apex-figure .trajectory-alt { opacity: 0; fill: none; stroke: var(--comparison); stroke-width: 4; stroke-dasharray: 10 8; stroke-linecap: round; transition: opacity .2s; }
+  .apex-figure .trajectory-point { fill: var(--comparison); stroke: var(--figure-bg); stroke-width: 2; stroke-dasharray: none; }
+  .trajectory-explorer:has(input[value="late"]:checked) .trajectory-late, .trajectory-explorer:has(input[value="understeer"]:checked) .trajectory-understeer, .trajectory-explorer:has(input[value="oversteer"]:checked) .trajectory-oversteer { opacity: 1; }
+  .apex-figure .apex-leader-halos { stroke: #f8f0e5; }
+  :global(.dark) .apex-figure .apex-leader-halos { display: none; }
+  .apex-figure .apex-leaders { stroke: var(--figure-leader); }
+  .apex-figure text { fill: var(--ink); font: 900 18px "Avenir Next", sans-serif; letter-spacing: 1px; }
+  .apex-figure figcaption { padding: .35rem .5rem .2rem; color: var(--figure-caption); font-size: .85rem; }
+  .trajectory-legend { margin: .75rem 0 0; color: var(--muted); font-size: .8rem; line-height: 1.5; }
+  .trajectory-readout { min-height: 5rem; margin-top: .65rem; padding: .9rem 1rem; border-left: 3px solid var(--comparison); background: var(--panel); }
+  .trajectory-readout p { display: none; margin: 0; color: var(--muted); font-size: .96rem; line-height: 1.6; }
+  .trajectory-readout strong { color: var(--ink); }
+  .trajectory-explorer:has(input[value="reference"]:checked) .trajectory-readout p[data-mode="reference"], .trajectory-explorer:has(input[value="late"]:checked) .trajectory-readout p[data-mode="late"], .trajectory-explorer:has(input[value="understeer"]:checked) .trajectory-readout p[data-mode="understeer"], .trajectory-explorer:has(input[value="oversteer"]:checked) .trajectory-readout p[data-mode="oversteer"] { display: block; }
+  .terms-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.6rem; margin-top: 1.5rem; }
+  .terms-grid > div { border-left: 2px solid var(--accent); padding-left: 1rem; }
+  .terms-grid h3 { margin-bottom: .35rem; font-size: 1.2rem; } .terms-grid p { margin: 0; }
+  .strategy-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
+  .strategy-card { min-width: 0; padding: 1.5rem; border: 1px solid var(--line); background: var(--panel); }
+  .strategy-heading { display: flex; gap: .7rem; align-items: baseline; }
+  .strategy-heading span { color: var(--accent); font-size: .7rem; font-weight: 900; }
+  .strategy-heading h3 { margin-bottom: .5rem; font-size: 2rem; }
+  .strategy-card > p { min-height: 6.4rem; }
+  .lap-diagram { display: grid; gap: .35rem; overflow-x: auto; padding-top: 1rem; border-top: 1px solid var(--line); }
+  .lap-head, .lap-row { display: grid; grid-template-columns: 4.6rem repeat(4, minmax(3.5rem, 1fr)); gap: .2rem; min-width: 22rem; }
+  .lap-head span { color: var(--muted); font-size: .65rem; font-weight: 900; text-align: center; white-space: nowrap; }
+  .lap-row b { align-self: center; font-size: .68rem; letter-spacing: .06em; }
+  .lap-row span { padding: .5rem .1rem; color: var(--diagram-ink); background: var(--diagram-cell); font-size: .65rem; font-weight: 900; text-align: center; white-space: nowrap; }
+  .lap-row .pit-cell { color: white; background: #d8251e; } .lap-row .fresh-cell { color: #171714; background: #e2bf55; }
+  .strategy-footnote { margin: 1rem 0 0; color: var(--muted); font-size: .95rem; line-height: 1.6; }
+  .new-terms { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem; }
+  .new-terms > div { padding: 1.4rem; border-top: 4px solid var(--accent); background: var(--panel); }
+  .new-terms span { color: var(--accent); font-size: .75rem; font-weight: 900; }
+  .new-terms h3 { margin: 1.7rem 0 .5rem; } .new-terms p { margin: 0; }
+  .more-terms { margin-top: 2.5rem; }
+  .more-terms > h3 { margin-bottom: 1rem; font-size: 1.5rem; }
+  .more-terms .new-terms > div { border-color: var(--line); }
+  .allocations { margin-top: 3rem; padding: 1.5rem; border: 1px solid var(--line); background: var(--panel); }
+  .allocation-head { display: grid; grid-template-columns: minmax(15rem, .7fr) 1fr; gap: 1.5rem; align-items: baseline; margin-bottom: 1.5rem; }
+  .allocation-head h3 { margin: 0; font-size: clamp(1.5rem, 2.5vw, 2rem); }
+  .allocation-head p { margin: 0; color: var(--muted); font-size: .98rem; line-height: 1.6; }
+  .allocation-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
+  .allocation-grid > div { display: grid; grid-template-columns: auto 1fr; gap: .1rem .8rem; align-content: center; min-height: 6.5rem; padding: 1rem; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .allocation-grid strong { grid-row: span 2; align-self: center; color: var(--accent); font-family: "Arial Narrow", "Avenir Next Condensed", sans-serif; font-size: 3rem; font-style: italic; line-height: 1; }
+  .allocation-grid span { align-self: end; font-size: .74rem; font-weight: 900; letter-spacing: .1em; }
+  .allocation-grid p { margin: 0; color: var(--muted); font-size: .88rem; line-height: 1.35; }
+  .allocation-penalty { margin: 1.5rem 0 0; padding: .9rem 1rem; border-left: 3px solid var(--accent); color: var(--ink); background: var(--paper); font-size: .98rem; line-height: 1.6; }
+  @media (max-width: 800px) { .hero-turn { opacity: .15; width: 55%; } .race-facts { grid-template-columns: 1fr; } .strategy-grid { grid-template-columns: 1fr; } .strategy-card > p { min-height: 0; } .selection-map { grid-template-columns: 1fr; } .allocation-head { grid-template-columns: 1fr; gap: .5rem; } .allocation-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 620px) { .hero-inner { min-height: 31rem; padding-bottom: 3rem; } .hero-turn { display: none; } .eyebrow { margin-top: 4rem; } .guide-body { padding-top: 3rem; } .weekend-grid, .tyre-grid, .wet-tyres, .terms-grid, .new-terms, .flag-list, .control-grid, .restart-notes { grid-template-columns: 1fr; } .weekend-card { min-height: 0; } .weekend-card + .weekend-card { border-left: 0; border-top: 1px solid var(--line); } .weekend-card h3 { margin-top: 1.4rem; } .sprint-note { display: block; } .sprint-note p { margin-top: .5rem; } .tyre-grid { gap: 1.8rem; } .tyre-item { display: grid; grid-template-columns: 5.4rem 1fr; column-gap: 1rem; } .tyre { grid-row: span 3; margin-bottom: 0; } .flag-row { min-height: 0; } .allocations { padding: 1rem; } .allocation-grid { grid-template-columns: 1fr; } .guide-section { margin-bottom: 4.5rem; } }
+  @media (prefers-reduced-motion: reduce) { .guide-contents a { scroll-behavior: auto; } }
+</style>
