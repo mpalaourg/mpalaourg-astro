@@ -150,7 +150,7 @@ const experiences = [
 <BaseLayout title="Home | Georgios Balaouras">
   <main class="max-w-6xl mx-auto">
     <!-- About Me Section -->
-    <section class="py-12 px-6">
+    <section class="py-10 px-4 sm:py-12 sm:px-6">
       <div class="flex flex-col md:flex-row gap-8 items-center md:items-start">
         <div class="shrink-0 flex justify-center">
           <img
@@ -165,7 +165,7 @@ const experiences = [
           <h1 class="text-4xl font-bold mb-2">Georgios Balaouras</h1>
           <p class="text-xl text-gray-600 dark:text-slate-400 mb-4">Senior Machine Learning Engineer</p>
           
-          <p class="text-gray-600 dark:text-slate-400 mb-4 text-justify leading-relaxed">
+          <p class="text-gray-600 dark:text-slate-400 mb-4 text-left sm:text-justify leading-relaxed">
             I build machine learning systems that actually solve real problems. My background spans academic research on video summarization at CERTH-ITI and deploying ML at scale in enterprise settings. I enjoy turning complex research into practical, production-ready solutions. When I'm not training models, you'll find me analyzing the latest Formula 1 race or hunting for the perfect freddo espresso. 🏎️☕
           </p>
           
@@ -201,7 +201,7 @@ const experiences = [
     </section>
 
     <!-- Experience Section -->
-    <section class="py-8 px-6" id="experience">
+    <section class="py-8 px-4 sm:px-6" id="experience">
       <h2 class="text-2xl font-bold mb-8">Experience</h2>
       
       <div class="relative" id="timeline-container">
@@ -250,7 +250,7 @@ const experiences = [
                       <p class="text-sm text-gray-500 dark:text-slate-400 mb-2">
                         {pos.date_start} – {pos.current ? 'Present' : pos.date_end}
                       </p>
-                      <p class="text-sm text-gray-600 dark:text-slate-400 mb-3 text-justify whitespace-pre-line">{pos.description}</p>
+                      <p class="text-sm text-gray-600 dark:text-slate-400 mb-3 text-left sm:text-justify whitespace-pre-line">{pos.description}</p>
                       <div class="flex flex-wrap gap-2">
                         {pos.skills.map((skill) => (
                           <span class="text-xs px-2 py-1 rounded-md bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-300">{skill}</span>
@@ -339,7 +339,7 @@ const experiences = [
     </script>
 
     <!-- Publications Section -->
-    <section class="py-8 px-6">
+    <section class="py-8 px-4 sm:px-6">
       <div class="flex justify-between items-center mb-6">
         <h2 class="text-2xl font-bold">Publications</h2>
         <a href="/publications" class="text-sm text-gray-500 hover:underline">View all →</a>
@@ -371,7 +371,7 @@ const experiences = [
                 )}
               </div>
               <div class="absolute inset-0 backface-hidden rotate-y-180 rounded-xl border border-gray-200 dark:border-gray-700 bg-gradient-to-br from-slate-700 to-slate-800 p-4 flex items-center justify-center overflow-hidden">
-                <p class="text-sm text-gray-200 leading-relaxed line-clamp-6 text-justify">
+                <p class="text-sm text-gray-200 leading-relaxed line-clamp-6 text-left sm:text-justify">
                   {pub.data.abstract}
                 </p>
               </div>
@@ -382,10 +382,10 @@ const experiences = [
     </section>
 
     <!-- Projects Section -->
-    <section class="py-8 px-6">
+    <section class="py-8 px-4 sm:px-6">
       <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <h2 class="text-2xl font-bold">Projects</h2>
-        <div class="flex items-center gap-4">
+        <div class="flex flex-wrap items-center gap-3 sm:gap-4">
           <div class="flex flex-wrap items-center gap-2">
             <input
               type="text"
@@ -430,10 +430,10 @@ const experiences = [
     <SkillsetSection lang="en" />
 
     <!-- Formula Section -->
-    <section class="py-8 px-6">
+    <section class="py-8 px-4 sm:px-6">
       <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <h2 class="text-2xl font-bold">Formula 1</h2>
-        <div class="flex items-center gap-4">
+        <div class="flex flex-wrap items-center gap-3 sm:gap-4">
           <div class="flex flex-wrap items-center gap-2">
             <input
               type="text"
@@ -482,7 +482,7 @@ const experiences = [
     </section>
 
     <!-- Contact Section -->
-    <section class="py-8 px-6">
+    <section class="py-8 px-4 sm:px-6">
       <h2 class="text-2xl font-bold mb-4">Get in Touch</h2>
       <p class="text-gray-600 dark:text-slate-400 mb-6">
         Feel free to reach out for collaborations, questions, or just to say hello! 
