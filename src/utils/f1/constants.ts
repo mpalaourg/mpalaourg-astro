@@ -2,6 +2,7 @@
 export const JOLPICA_TO_OPENF1_COUNTRY: Record<string, string> = {
   Australia: "Australia",
   Bahrain: "Bahrain",
+  Malaysia: "Bahrain",
   "Saudi Arabia": "Saudi Arabia",
   Japan: "Japan",
   China: "China",
@@ -37,7 +38,7 @@ export const PRACTICE_SESSION_NAMES: Record<number, string> = {
 // Country flags for UI
 export const COUNTRY_FLAGS: Record<string, string> = {
   Australia: "🇦🇺", Bahrain: "🇧🇭", "Saudi Arabia": "🇸🇦",
-  Japan: "🇯🇵", China: "🇨🇳", USA: "🇺🇸", "United States": "🇺🇸",
+  Japan: "🇯🇵", China: "🇨🇳", USA: "🇺🇸", "United States": "🇺🇸", Malaysia: "🇲🇾",
   Italy: "🇮🇹", Monaco: "🇲🇨", Canada: "🇨🇦", Spain: "🇪🇸",
   Austria: "🇦🇹", UK: "🇬🇧", "United Kingdom": "🇬🇧",
   Hungary: "🇭🇺", Belgium: "🇧🇪", Netherlands: "🇳🇱",

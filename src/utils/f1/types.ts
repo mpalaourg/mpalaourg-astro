@@ -40,6 +40,8 @@ export interface OpenF1SessionResult {
 export interface OpenF1Driver {
   driver_number: number;
   full_name: string;
+  first_name?: string;
+  last_name?: string;
   name_acronym: string;
   team_name: string;
   team_colour: string;
@@ -57,6 +59,7 @@ export interface OpenF1Session {
 // Normalised result row for UI
 export interface OpenF1ResultRow {
   position: number;
+  positionReported?: boolean;
   driverNumber: number;
   name: string;
   teamName: string;
@@ -66,6 +69,8 @@ export interface OpenF1ResultRow {
   dnf: boolean;
   dns: boolean;
   dsq: boolean;
+  noResult?: boolean;
+  qualifyingPositionKnown?: boolean;
   // qualifying-only
   q1?: string;
   q2?: string;

@@ -364,6 +364,7 @@ const T = t[lang];
     Belgium: "🇧🇪",
     Netherlands: "🇳🇱",
     Azerbaijan: "🇦🇿",
+    Malaysia: "🇲🇾",
     Singapore: "🇸🇬",
     Mexico: "🇲🇽",
     Brazil: "🇧🇷",
@@ -420,6 +421,8 @@ const T = t[lang];
 
   // ─── Module-level state ────────────────────────────────────────────────────
   let allRaces: any[] = [];
+  // Championship standings can include substitutes from other rounds. Use this
+  // roster only to fill metadata on rows already present in a session result.
   let seasonDriverRoster: Array<{
     number: string;
     code: string;
@@ -639,6 +642,9 @@ const T = t[lang];
 
   function getResultDriverNumber(row: any): string {
     if (!row) return "";
+    // Jolpica's result number is the number used at this event; the driver's
+    // permanentNumber can lag behind a season change (for example Norris #1).
+    if (row.number != null) return String(row.number);
     if (row.driverNumber != null) return String(row.driverNumber);
     return getDriverNumber(row.Driver);
   }
@@ -697,16 +703,6 @@ const T = t[lang];
         },
       };
     });
-  }
-
-  function getMissingRosterDrivers(results: any[]): typeof seasonDriverRoster {
-    if (!seasonDriverRoster.length) return [];
-    const present = new Set(
-      results
-        .map((row) => getResultDriverNumber(row))
-        .filter(Boolean)
-    );
-    return seasonDriverRoster.filter((driver) => !present.has(driver.number));
   }
 
   function getNumericPosition(value: unknown): number | null {
@@ -846,7 +842,7 @@ const T = t[lang];
     return podiumCards(
       rows.slice(0, 3),
       (r) => `${r.Driver?.givenName?.[0] || ''}. ${r.Driver?.familyName || ''}`,
-      (r) => getDriverNumber(r.Driver),
+      (r) => getResultDriverNumber(r),
       (r) => r.Constructor?.name ?? "",
       (r) => r.Constructor?.constructorId ?? "",
       (r) => r.Q3 ?? r.Q2 ?? r.Q1 ?? "—"
@@ -857,7 +853,7 @@ const T = t[lang];
     return podiumCards(
       rows.slice(0, 3),
       (r) => `${r.Driver?.givenName?.[0] || ''}. ${r.Driver?.familyName || ''}`,
-      (r) => getDriverNumber(r.Driver),
+      (r) => getResultDriverNumber(r),
       (r) => r.Constructor?.name ?? "",
       (r) => r.Constructor?.constructorId ?? "",
       (r) => r.Time?.time ?? r.status ?? "—"
@@ -908,8 +904,8 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
           r.displayPosition >= 11 &&
           r.displayPosition <= 16
       );
-      const sq1 = classified.filter(
-        (r) => typeof r.displayPosition === "number" && r.displayPosition >= 17
+      const sq1 = ranked.filter(
+        (r) => r.dsq || (typeof r.displayPosition === "number" && r.displayPosition >= 17)
       );
 
       // Calculate reference times for gaps
@@ -933,8 +929,6 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
         .sort((a, b) => (a.time as number) - (b.time as number));
       const p16Sq1Time = allSq1Times[15]?.time ?? null; // 16th fastest SQ1 time
 
-      const missingDrivers = getMissingRosterDrivers(ranked);
-
       function formatGap(gap: number): string {
         if (gap === 0) return "—";
         return `+${gap.toFixed(3)}`;
@@ -946,10 +940,9 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
         rows: any[],
         timeKey: string,
         gapType: "leader" | "elimination",
-        refTime: number | null,
-        extraDrivers: typeof seasonDriverRoster = []
+        refTime: number | null
       ) {
-        if (!rows.length && !extraDrivers.length) return "";
+        if (!rows.length) return "";
 
         const rowsHtml = rows
           .map((r) => {
@@ -965,17 +958,19 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
 
             // Format time display
             let timeDisplay: string;
-            if (time && time !== "—" && time !== "") {
+            if (r.noResult) {
+              timeDisplay = "<span class='italic text-gray-400 dark:text-slate-500'>No Time</span>";
+            } else if (time && time !== "—" && time !== "") {
               timeDisplay = time;
             } else {
-              timeDisplay = "<span class='italic text-gray-400 dark:text-slate-500'>No Time Set</span>";
+              timeDisplay = "<span class='italic text-gray-400 dark:text-slate-500'>No Time</span>";
             }
 
             return `
           <div class="grid grid-cols-[1.75rem_1.5rem_1fr_5.5rem_3.5rem] gap-x-2 px-3 py-2 items-center
                       transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/50
                       ${isTop3 ? "bg-amber-50/60 dark:bg-amber-900/10" : ""}">
-            <span class="text-xs font-mono text-gray-400 dark:text-slate-500 text-center">${r.displayPosition}</span>
+            <span class="text-xs font-mono text-gray-400 dark:text-slate-500 text-center">${r.noResult && !r.qualifyingPositionKnown ? "—" : r.displayPosition}</span>
             <span class="text-[10px] font-bold bg-slate-200 dark:bg-slate-600 rounded px-1 py-0.5 tabular-nums text-center">${r.driverNumber}</span>
             <span class="flex items-center gap-1.5 min-w-0">
               ${logoByTeamName(r.teamName)}
@@ -985,22 +980,6 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
             <span class="text-[10px] font-mono tabular-nums text-right ${gap === "—" ? "text-gray-400 dark:text-slate-500" : "text-gray-500 dark:text-slate-400"}">${gap}</span>
           </div>`;
           })
-          .join("");
-
-        // Add missing drivers at the end (for SQ1 section)
-        const extraRowsHtml = extraDrivers
-          .map((d) => `
-          <div class="grid grid-cols-[1.75rem_1.5rem_1fr_5.5rem_3.5rem] gap-x-2 px-3 py-2 items-center
-                      transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/50 opacity-60">
-            <span class="text-xs font-mono text-gray-400 dark:text-slate-500 text-center">—</span>
-            <span class="text-[10px] font-bold bg-slate-200 dark:bg-slate-600 rounded px-1 py-0.5 tabular-nums text-center">${d.number}</span>
-            <span class="flex items-center gap-1.5 min-w-0">
-              ${logoImg(d.constructorId, d.constructorName)}
-              <span class="truncate text-xs font-medium">${d.shortName}</span>
-            </span>
-            <span class="text-xs font-mono tabular-nums text-right text-gray-400 dark:text-slate-500 italic">No Time Set</span>
-            <span class="text-[10px] font-mono tabular-nums text-right text-gray-400 dark:text-slate-500">—</span>
-          </div>`)
           .join("");
 
         const gapHeader = gapType === "leader" ? "Gap" : "Gap to Cutoff";
@@ -1020,7 +999,6 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
               </div>
               <div class="divide-y divide-gray-100 dark:divide-slate-700/50">
                 ${rowsHtml}
-                ${extraRowsHtml}
               </div>
             </div>
           </div>`;
@@ -1049,8 +1027,7 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
           sq1,
           "q1",
           "elimination",
-          p16Sq1Time,
-          missingDrivers
+          p16Sq1Time
 ),
       ].join("");
     }
@@ -1058,7 +1035,6 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
     // Regular qualifying from Jolpica
     const ranked = getRankedQualifyingRows(data);
     const classified = ranked.filter((r) => !r.dsq);
-    const missingDrivers = getMissingRosterDrivers(ranked);
     
     // Filter by position, not by whether times exist
     // 2026 format: Top 10 to Q3, positions 11-16 to Q2, positions 17+ out in Q1
@@ -1071,8 +1047,8 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
         r.displayPosition >= 11 &&
         r.displayPosition <= 16
     );
-    const q1 = classified.filter(
-      (r) => typeof r.displayPosition === "number" && r.displayPosition >= 17
+    const q1 = ranked.filter(
+      (r) => r.dsq || (typeof r.displayPosition === "number" && r.displayPosition >= 17)
     );
 
     // Parse lap time to seconds for gap calculation
@@ -1122,10 +1098,9 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
         rows: any[],
         timeKey: string,
         gapType: "leader" | "elimination",
-        refTime: number | null,
-        extraDrivers: typeof seasonDriverRoster = []
+        refTime: number | null
     ) {
-      if (!rows.length && !extraDrivers.length) return "";
+      if (!rows.length) return "";
       
       const rowsHtml = rows
         .map((r) => {
@@ -1148,19 +1123,21 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
           let timeDisplay: string;
           if (r.dsq) {
             timeDisplay = "<span class='italic text-gray-400 dark:text-slate-500'>Disqualified</span>";
+          } else if (r.noResult) {
+            timeDisplay = "<span class='italic text-gray-400 dark:text-slate-500'>No Time</span>";
           } else if (time && time !== "") {
             timeDisplay = time;
           } else {
             // No time set - show in italics
-            timeDisplay = "<span class='italic text-gray-400 dark:text-slate-500'>No Time Set</span>";
+            timeDisplay = "<span class='italic text-gray-400 dark:text-slate-500'>No Time</span>";
           }
           
           return `
           <div class="grid grid-cols-[1.75rem_1.5rem_1fr_5.5rem_3.5rem] gap-x-2 px-3 py-2 items-center
                       transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/50
                       ${isTop3 ? "bg-amber-50/60 dark:bg-amber-900/10" : ""}">
-            <span class="text-xs font-mono text-gray-400 dark:text-slate-500 text-center">${r.dsq ? "DSQ" : r.displayPosition}</span>
-            <span class="text-[10px] font-bold bg-slate-200 dark:bg-slate-600 rounded px-1 py-0.5 tabular-nums text-center">${getDriverNumber(r.Driver) || "—"}</span>
+            <span class="text-xs font-mono text-gray-400 dark:text-slate-500 text-center">${r.dsq ? "DSQ" : r.noResult && !r.qualifyingPositionKnown ? "—" : r.displayPosition}</span>
+            <span class="text-[10px] font-bold bg-slate-200 dark:bg-slate-600 rounded px-1 py-0.5 tabular-nums text-center">${getResultDriverNumber(r) || "—"}</span>
             <span class="flex items-center gap-1.5 min-w-0">
               ${logoImg(r.Constructor?.constructorId ?? "", r.Constructor?.name ?? "")}
               <span class="truncate text-xs font-medium">${r.Driver.givenName[0]}. ${r.Driver.familyName}</span>
@@ -1169,22 +1146,6 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
             <span class="text-[10px] font-mono tabular-nums text-right ${gap === "—" ? "text-gray-400 dark:text-slate-500" : "text-gray-500 dark:text-slate-400"}">${gap}</span>
           </div>`;
         })
-        .join("");
-      
-      // Add missing drivers at the end (for Q1 section)
-      const extraRowsHtml = extraDrivers
-        .map((d) => `
-          <div class="grid grid-cols-[1.75rem_1.5rem_1fr_5.5rem_3.5rem] gap-x-2 px-3 py-2 items-center
-                      transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/50 opacity-60">
-            <span class="text-xs font-mono text-gray-400 dark:text-slate-500 text-center">—</span>
-            <span class="text-[10px] font-bold bg-slate-200 dark:bg-slate-600 rounded px-1 py-0.5 tabular-nums text-center">${d.number}</span>
-            <span class="flex items-center gap-1.5 min-w-0">
-              ${logoImg(d.constructorId, d.constructorName)}
-              <span class="truncate text-xs font-medium">${d.shortName}</span>
-            </span>
-            <span class="text-xs font-mono tabular-nums text-right text-gray-400 dark:text-slate-500 italic">No Time Set</span>
-            <span class="text-[10px] font-mono tabular-nums text-right text-gray-400 dark:text-slate-500">—</span>
-          </div>`)
         .join("");
       
       const gapHeader = gapType === "leader" ? "Gap" : "Gap to Cutoff";
@@ -1204,7 +1165,6 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
             </div>
             <div class="divide-y divide-gray-100 dark:divide-slate-700/50">
               ${rowsHtml}
-              ${extraRowsHtml}
             </div>
           </div>
         </div>`;
@@ -1234,8 +1194,7 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
           q1,
           "Q1",
           "elimination",
-          p16Q1Time,
-          missingDrivers
+          p16Q1Time
         ),
       ].join("");
     }
@@ -1254,7 +1213,6 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
     const sorted = [...data].sort(
       (a, b) => parseInt(a.position) - parseInt(b.position)
     );
-    const missingDrivers = getMissingRosterDrivers(sorted);
     
     // Find winner's lap count to calculate laps down for lapped cars
     const winnerLaps = sorted.length > 0 ? parseInt(sorted[0].laps) || 0 : 0;
@@ -1291,33 +1249,31 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
         const status = (r.status || "").toString();
         const laps = parseInt(r.laps) || 0;
         
-        // DNS: Did Not Start - no laps completed and not classified
-        const isDNS = laps === 0 && (status.toLowerCase().includes("did not start") || 
-                       status === "DNS" || pos === "DNS" || (!status && !r.Time));
-        
-        // DNF: Did Not Finish - retired during race
-        const isDNF = !isDNS && (["R", "D", "E", "N", "W"].includes(pos) || 
-          (!!status && status !== "Finished" && !status.startsWith("+") && 
-           !status.toLowerCase().includes("lap") && !isDNS));
-        
-        // DSQ: Disqualified
-        const isDSQ = status === "Disqualified" || status === "DSQ";
-        
-        // Lapped: Status is "Lapped" or starts with + (e.g., "+1 Lap", "+2 Laps")
-        const isLapped = !!status && (status === "Lapped" || status.toLowerCase().includes("lapped") || status.startsWith("+"));
+        const statusLower = status.toLowerCase();
+        const isDNS = statusLower === "did not start" || statusLower === "dns" ||
+          (laps === 0 && (pos === "W" || pos === "DNS"));
+        const isDSQ = statusLower === "disqualified" || statusLower === "dsq";
+        const isLapped = !isDNS && !isDSQ &&
+          (statusLower === "lapped" || /^\+\d+ laps?$/i.test(status));
+        const isDNF = !isDNS && !isDSQ && !isLapped &&
+          (["R", "E", "N"].includes(pos) ||
+            (!!status && statusLower !== "finished"));
         
         // Calculate laps down for lapped cars (only if not DNF)
-        const lapsDown = !isDNF && winnerLaps > 0 && laps > 0 && laps < winnerLaps ? winnerLaps - laps : 0;
+        const lapsDown = isLapped && winnerLaps > 0 && laps > 0 && laps < winnerLaps
+          ? winnerLaps - laps : 0;
         
         // Fastest lap - check if this driver has the fastest lap
         const isFastest = r.Driver?.driverId === fastestId && fastestId;
         
         // Time column
         let timeDisplay = "—";
-        if (isDNF) {
+        if (isLapped) {
+          timeDisplay = lapsDown > 0
+            ? `+${lapsDown} Lap${lapsDown > 1 ? 's' : ''}`
+            : /^\+\d+ laps?$/i.test(status) ? status : "—";
+        } else if (isDNF || isDNS || isDSQ) {
           timeDisplay = "—";
-        } else if (isLapped && lapsDown > 0) {
-          timeDisplay = `+${lapsDown} Lap${lapsDown > 1 ? 's' : ''}`;
         } else if (r.Time?.time) {
           timeDisplay = r.Time.time;
         }
@@ -1330,10 +1286,10 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
         
         if (isDNS) {
           statusParts.push("<span class=\"text-gray-400 dark:text-slate-500\">DNS</span>");
-        } else if (isDNF) {
-          statusParts.push("<span class=\"text-red-500 dark:text-red-400 font-semibold\">DNF</span>");
         } else if (isDSQ) {
           statusParts.push("<span class=\"text-red-600 dark:text-red-500 font-semibold\">DSQ</span>");
+        } else if (isDNF) {
+          statusParts.push("<span class=\"text-red-500 dark:text-red-400 font-semibold\">DNF</span>");
         } else if (isLapped) {
           statusParts.push("<span class=\"text-gray-500 dark:text-slate-400\">Lapped</span>");
         } else if (posNum >= 1 && posNum <= 3) {
@@ -1364,7 +1320,7 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
         <div class="grid grid-cols-[1.75rem_1.5rem_1fr_3rem_5.5rem_4.5rem] gap-x-2 px-3 py-2 items-center
                     transition-colors hover:bg-red-50 dark:hover:bg-slate-700/50 ${rowBg}">
           <span class="text-xs font-mono ${isDNF || isDNS || isDSQ ? "text-gray-300 dark:text-slate-600" : "text-gray-400 dark:text-slate-500"} text-center">${pos}</span>
-          <span class="text-[10px] font-bold bg-slate-200 dark:bg-slate-600 rounded px-1 py-0.5 tabular-nums text-center">${getDriverNumber(r.Driver)}</span>
+          <span class="text-[10px] font-bold bg-slate-200 dark:bg-slate-600 rounded px-1 py-0.5 tabular-nums text-center">${getResultDriverNumber(r)}</span>
           <span class="flex items-center gap-1.5 min-w-0">
             ${logoImg(cid, cname)}
             <span class="truncate text-xs font-medium">${name}</span>
@@ -1376,30 +1332,11 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
       })
       .join("");
 
-    const extraRows = missingDrivers
-      .map(
-        (driver) => `
-        <div class="grid grid-cols-[1.75rem_1.5rem_1fr_3rem_5.5rem_4.5rem] gap-x-2 px-3 py-2 items-center
-                    transition-colors hover:bg-red-50 dark:hover:bg-slate-700/50 bg-slate-50 dark:bg-slate-800/50 opacity-60">
-          <span class="text-xs font-mono text-gray-300 dark:text-slate-600 text-center">—</span>
-          <span class="text-[10px] font-bold bg-slate-200 dark:bg-slate-600 rounded px-1 py-0.5 tabular-nums text-center">${driver.number}</span>
-          <span class="flex items-center gap-1.5 min-w-0">
-            ${logoImg(driver.constructorId, driver.constructorName)}
-            <span class="truncate text-xs font-medium">${driver.shortName}</span>
-          </span>
-          <span class="text-xs tabular-nums text-center text-gray-500 dark:text-slate-400">—</span>
-          <span class="text-xs font-mono tabular-nums text-right text-gray-400 dark:text-slate-500 italic">No Data</span>
-          <span class="text-xs font-mono tabular-nums text-right text-gray-400 dark:text-slate-500">—</span>
-        </div>`
-      )
-      .join("");
-
     return `
       <div>
         ${header}
         <div class="rounded-b-lg border border-gray-200 dark:border-gray-700 border-t-0 overflow-hidden divide-y divide-gray-100 dark:divide-slate-700/50">
           ${rows}
-          ${extraRows}
         </div>
         <p class="text-[10px] text-gray-400 dark:text-slate-500 mt-2 text-right">⚡ = Fastest Lap</p>
       </div>`;

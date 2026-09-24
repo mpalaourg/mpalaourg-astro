@@ -136,16 +136,20 @@ async function getOpenF1SessionKey(
     if (!res.ok) return null;
     const sessions: any[] = await res.json();
     if (!sessions.length) return null;
-    if (sessions.length === 1) return sessions[0].session_key;
 
-    // Disambiguate by closest date
+    // A country can host more than one round, and cancelled sessions can
+    // remain listed. Never substitute a session from another race weekend.
     const expectedMs = new Date(expectedDateISO).getTime();
+    if (!Number.isFinite(expectedMs)) return null;
     sessions.sort((a, b) => {
       const da = Math.abs(new Date(a.date_start).getTime() - expectedMs);
       const db = Math.abs(new Date(b.date_start).getTime() - expectedMs);
       return da - db;
     });
-    return sessions[0].session_key;
+    const closest = sessions[0];
+    return Math.abs(new Date(closest.date_start).getTime() - expectedMs) <= 3 * 24 * 60 * 60 * 1000
+      ? closest.session_key
+      : null;
   } catch {
     return null;
   }
@@ -171,6 +175,21 @@ async function getOpenF1Drivers(sessionKey: number): Promise<OpenF1Driver[]> {
   }
 }
 
+function uniqueSessionDrivers(drivers: OpenF1Driver[]): OpenF1Driver[] {
+  return [...new Map(drivers.map((driver) => [driver.driver_number, driver])).values()];
+}
+
+export async function getOpenF1SessionDrivers(
+  year: number,
+  jolpicaCountry: string,
+  sessionName: string,
+  expectedDateISO: string,
+): Promise<OpenF1Driver[]> {
+  const openF1Country = JOLPICA_TO_OPENF1_COUNTRY[jolpicaCountry] ?? jolpicaCountry;
+  const sessionKey = await getOpenF1SessionKey(year, openF1Country, sessionName, expectedDateISO);
+  return sessionKey ? uniqueSessionDrivers(await getOpenF1Drivers(sessionKey)) : [];
+}
+
 function getSortedOpenF1Results(
   rawResults: OpenF1SessionResult[],
 ): OpenF1SessionResult[] {
@@ -188,24 +207,25 @@ export async function getOpenF1SessionResults(
   sessionName: string,
   expectedDateISO: string,
   isQualifying = false
-): Promise<OpenF1ResultRow[]> {
+): Promise<{ results: OpenF1ResultRow[]; drivers: OpenF1Driver[] }> {
   const openF1Country = JOLPICA_TO_OPENF1_COUNTRY[jolpicaCountry] ?? jolpicaCountry;
 
   const sessionKey = await getOpenF1SessionKey(year, openF1Country, sessionName, expectedDateISO);
-  if (!sessionKey) return [];
+  if (!sessionKey) return { results: [], drivers: [] };
 
   const [rawResults, drivers] = await Promise.all([
     getOpenF1Results(sessionKey),
     getOpenF1Drivers(sessionKey),
   ]);
-  if (!rawResults.length) return [];
+  const uniqueDrivers = uniqueSessionDrivers(drivers);
+  if (!rawResults.length) return { results: [], drivers: uniqueDrivers };
 
   const driverMap = new Map<number, OpenF1Driver>();
-  drivers.forEach((d) => driverMap.set(d.driver_number, d));
+  uniqueDrivers.forEach((d) => driverMap.set(d.driver_number, d));
 
   const sorted = getSortedOpenF1Results(rawResults);
 
-  return sorted.map((r, index) => {
+  const results = sorted.map((r, index) => {
     const driver = driverMap.get(r.driver_number);
     const fullName = driver?.full_name ?? `#${r.driver_number}`;
     const parts = fullName.trim().split(" ");
@@ -216,6 +236,7 @@ export async function getOpenF1SessionResults(
 
     const row: OpenF1ResultRow = {
       position: r.position ?? index + 1,
+      positionReported: r.position != null,
       driverNumber: r.driver_number,
       name,
       teamName: driver?.team_name ?? "",
@@ -242,4 +263,23 @@ export async function getOpenF1SessionResults(
 
     return row;
   });
+
+  const resultNumbers = new Set(sorted.map((row) => row.driver_number));
+  const missingResults = uniqueDrivers
+    .filter((driver) => !resultNumbers.has(driver.driver_number))
+    .map((driver, index): OpenF1ResultRow => ({
+      position: results.length + index + 1,
+      driverNumber: driver.driver_number,
+      name: `${driver.first_name?.[0] ?? driver.full_name?.[0] ?? ""}. ${driver.last_name ?? driver.full_name?.split(" ").slice(1).join(" ") ?? ""}`.trim(),
+      teamName: driver.team_name ?? "",
+      lapTime: "—",
+      gapToLeader: "—",
+      laps: 0,
+      dnf: false,
+      dns: false,
+      dsq: false,
+      noResult: true,
+    }));
+
+  return { results: [...results, ...missingResults], drivers: uniqueDrivers };
 }

@@ -67,6 +67,10 @@ export async function upsertSchedule(
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
     ON CONFLICT(season, round) DO UPDATE SET
       race_name        = excluded.race_name,
+      circuit_id       = excluded.circuit_id,
+      circuit_name     = excluded.circuit_name,
+      locality         = excluded.locality,
+      country          = excluded.country,
       race_date        = excluded.race_date,
       race_time        = excluded.race_time,
       fp1_date         = excluded.fp1_date,   fp1_time         = excluded.fp1_time,

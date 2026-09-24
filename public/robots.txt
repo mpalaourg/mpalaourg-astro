@@ -1,12 +1,7 @@
-# robots.txt for Georgios Balaouras Portfolio
-# https://mpalaourg.dev/
+# Georgios Balaouras portfolio: https://mpalaourg.dev/
+# Agent-friendly content guide: https://mpalaourg.dev/llms.txt
 
 User-agent: *
 Allow: /
 
-# Sitemap location
 Sitemap: https://mpalaourg.dev/sitemap-index.xml
-
-# Disallow specific paths if needed
-# Disallow: /admin
-# Disallow: /private
