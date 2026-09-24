@@ -30,28 +30,27 @@ export async function getSeasonRaces(season?: number): Promise<any[]> {
   }
 }
 
-export async function getDriverStandings(): Promise<DriverStanding[]> {
-  try {
-    const res = await fetch(`${JOLPICA_BASE}/current/driverStandings.json`);
-    const json = (await res.json()) as {
-      MRData: { StandingsTable: { StandingsLists: { DriverStandings: DriverStanding[] }[] } };
-    };
-    return json.MRData.StandingsTable.StandingsLists[0]?.DriverStandings ?? [];
-  } catch {
-    return [];
+export async function getChampionshipStandings(
+  season: number,
+  type: "drivers" | "constructors",
+): Promise<{ round: number; standings: DriverStanding[] | ConstructorStanding[] }> {
+  const endpoint = type === "drivers" ? "driverStandings" : "constructorStandings";
+  const res = await fetch(`${JOLPICA_BASE}/${season}/${endpoint}.json`);
+  if (!res.ok) throw new Error(`Jolpica standings returned ${res.status}`);
+  const json = (await res.json()) as {
+    MRData: { StandingsTable: { StandingsLists: Array<{
+      round: string;
+      DriverStandings?: DriverStanding[];
+      ConstructorStandings?: ConstructorStanding[];
+    }> } };
+  };
+  const snapshot = json.MRData?.StandingsTable?.StandingsLists?.[0];
+  const round = Number(snapshot?.round);
+  const standings = type === "drivers" ? snapshot?.DriverStandings : snapshot?.ConstructorStandings;
+  if (!snapshot || !Number.isInteger(round) || !standings?.length) {
+    throw new Error("Jolpica standings snapshot is incomplete");
   }
-}
-
-export async function getConstructorStandings(): Promise<ConstructorStanding[]> {
-  try {
-    const res = await fetch(`${JOLPICA_BASE}/current/constructorStandings.json`);
-    const json = (await res.json()) as {
-      MRData: { StandingsTable: { StandingsLists: { ConstructorStandings: ConstructorStanding[] }[] } };
-    };
-    return json.MRData.StandingsTable.StandingsLists[0]?.ConstructorStandings ?? [];
-  } catch {
-    return [];
-  }
+  return { round, standings };
 }
 
 export async function getJolpicaQualifying(season: string, round: string): Promise<any[] | null> {
