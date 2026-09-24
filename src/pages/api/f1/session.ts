@@ -252,6 +252,18 @@ export const GET: APIRoute = async ({ url, locals }) => {
             completed.ranked ? "jolpica+practice" : "jolpica+roster",
             "complete", results,
           );
+        } else if (results.some((row: any) => row.noResult)) {
+          // A previously cached exact-session roster is sufficient to retry
+          // practice ranking when the qualifying roster API is unavailable.
+          const completed = await rankNoTimeQualifiers(
+            db, season, round, country, sessionDate, results, false,
+          );
+          results = completed.results;
+          await upsertSession(
+            db, season, round, sessionType,
+            completed.ranked ? "jolpica+practice" : "jolpica+roster",
+            "complete", results,
+          );
         }
       }
 
