@@ -50,7 +50,52 @@ export async function getChampionshipStandings(
   if (!snapshot || !Number.isInteger(round) || !standings?.length) {
     throw new Error("Jolpica standings snapshot is incomplete");
   }
+  if (type === "drivers") {
+    const drivers = standings as DriverStanding[];
+    await Promise.all(drivers.filter((driver) => driver.Constructors.length > 1).map(async (driver) => {
+      driver.constructorPoints = await getDriverConstructorPoints(
+        season, round, driver.Driver.driverId, Number(driver.points),
+      );
+    }));
+  }
   return { round, standings };
+}
+
+async function getDriverConstructorPoints(
+  season: number,
+  throughRound: number,
+  driverId: string,
+  expectedPoints: number,
+): Promise<Record<string, number>> {
+  const results = await Promise.all(["results", "sprint"].map(async (session) => {
+    const url = `${JOLPICA_BASE}/${season}/drivers/${encodeURIComponent(driverId)}/${session}.json?limit=100`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`Jolpica ${session} points returned ${res.status}`);
+    const json = (await res.json()) as { MRData: { RaceTable: { Races: Array<{
+      round: string;
+      Results?: Array<{ points: string; Constructor: { constructorId: string } }>;
+      SprintResults?: Array<{ points: string; Constructor: { constructorId: string } }>;
+    }> } } };
+    return json.MRData?.RaceTable?.Races ?? [];
+  }));
+  const points: Record<string, number> = {};
+  for (const [index, races] of results.entries()) {
+    const key: "Results" | "SprintResults" = index === 0 ? "Results" : "SprintResults";
+    for (const race of races) {
+      if (Number(race.round) > throughRound) continue;
+      for (const result of race[key] ?? []) {
+        const id = result.Constructor?.constructorId;
+        const value = Number(result.points);
+        if (!id || !Number.isFinite(value)) throw new Error("Incomplete constructor points result");
+        points[id] = (points[id] ?? 0) + value;
+      }
+    }
+  }
+  const total = Object.values(points).reduce((sum, value) => sum + value, 0);
+  if (Math.abs(total - expectedPoints) > 0.001) {
+    throw new Error(`Constructor points do not reconcile for ${driverId}`);
+  }
+  return points;
 }
 
 export async function getJolpicaQualifying(season: string, round: string): Promise<any[] | null> {

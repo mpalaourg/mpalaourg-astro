@@ -4,8 +4,7 @@
 // Re-export everything from api.ts
 export {
   getSeasonRaces,
-  getDriverStandings,
-  getConstructorStandings,
+  getChampionshipStandings,
   getJolpicaQualifying,
   getJolpicaRaceResults,
   getJolpicaSprintResults,

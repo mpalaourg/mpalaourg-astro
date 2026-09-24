@@ -1368,13 +1368,9 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
 
     const rows = standings
       .map((d, i) => {
-        const cid = d.Constructors[0]?.constructorId ?? "";
-        const logo = TEAM_LOGOS[cid];
-        const teamColor = TEAM_COLORS[cid] || "#94a3b8";
-        const whiteLogo = WHITE_LOGO_TEAMS.includes(cid);
-        const logoHtml = logo
-          ? `<span class="inline-flex items-center justify-center h-5 w-7 rounded shrink-0" style="background-color: ${teamColor};"><img src="${logo}" alt="${d.Constructors[0]?.name}" class="h-full w-full object-contain p-0.5${whiteLogo ? ' brightness-0 invert' : ''}"/></span>`
-          : `<span class="h-3 w-3 rounded-full shrink-0 bg-slate-400"></span>`;
+        const logoHtml = d.Constructors.map((constructor: any) =>
+          logoImg(constructor.constructorId, constructor.name)
+        ).join("");
         const rowBg =
           i % 2 === 0
             ? "bg-white dark:bg-slate-800"
@@ -1387,7 +1383,7 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
           <span class="text-xs text-gray-400 dark:text-slate-500 font-mono text-center">${position}</span>
           <span class="text-xs font-bold text-center bg-slate-200 dark:bg-slate-700 rounded px-1 py-0.5 tabular-nums">${driverNumber}</span>
           <span class="flex items-center gap-2 min-w-0">
-            ${logoHtml}
+            <span class="flex items-center gap-0.5 shrink-0">${logoHtml}</span>
             <span class="truncate text-sm font-medium">${d.Driver.givenName[0]}. ${d.Driver.familyName}</span>
           </span>
           <span class="text-sm font-bold tabular-nums text-right">${d.points}</span>
@@ -1453,17 +1449,22 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
         const constructorDrivers = drivers
           .filter((d) =>
             d.Constructors.some(
-              (co: any) => co.name === c.Constructor.name
+              (co: any) => co.constructorId === c.Constructor.constructorId
             )
           )
           .map((d) => {
-            const dPts = parseFloat(d.points);
+            const dPts = d.constructorPoints?.[c.Constructor.constructorId] ??
+              (d.Constructors.length === 1 ? Number(d.points) : null);
             const cPts = parseFloat(c.points);
             const pct =
-              totalPts > 0 && cPts > 0
+              dPts !== null && totalPts > 0 && cPts > 0
                 ? ((dPts / cPts) * 100).toFixed(0)
                 : "0";
-            return { name: `${d.Driver.givenName[0]}. ${d.Driver.familyName}`, points: d.points, pct };
+            return {
+              name: `${d.Driver.givenName[0]}. ${d.Driver.familyName}`,
+              points: dPts === null ? "—" : String(dPts),
+              pct,
+            };
           });
 
         const driverRows = constructorDrivers

@@ -4,7 +4,9 @@ export interface DriverStanding {
   position: string;
   points: string;
   wins: string;
+  constructorPoints?: Record<string, number>;
   Driver: {
+    driverId: string;
     permanentNumber?: string;
     number?: string;
     code: string;
