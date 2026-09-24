@@ -5,8 +5,8 @@ import F1RaceWidget from "../components/F1RaceWidget.astro";
 import PlayfulSignalsSection from "../components/PlayfulSignalsSection.astro";
 ---
 
-<BaseLayout title="About | Georgios Balaouras">
-  <main class="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-12">
+<BaseLayout title="About | Georgios Balaouras" description="Get to know Georgios Balaouras beyond machine learning: coffee, travel, Formula 1, music, and the curiosities that shape how he thinks.">
+  <div class="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-12">
     <section class="overflow-hidden rounded-[2rem] border border-slate-200/80 bg-white/40 shadow-sm dark:border-slate-700 dark:bg-slate-900/30">
       <div class="relative h-56 overflow-hidden md:h-64">
         <img
@@ -65,24 +65,27 @@ import PlayfulSignalsSection from "../components/PlayfulSignalsSection.astro";
 
       <div id="slider" class="relative overflow-hidden rounded-[2rem] border border-gray-200 bg-slate-900 shadow-lg dark:border-slate-700" data-interval="10000">
         <div class="absolute inset-0">
-          <img id="slider-bg" src="/media/images/coffee.jpg" alt="" class="h-full w-full object-cover opacity-50" />
+          <img id="slider-bg" src="/media/images/coffee.webp" alt="" loading="lazy" decoding="async" class="h-full w-full object-cover opacity-50" />
         </div>
         <div class="absolute inset-0 bg-gradient-to-r from-black/68 via-black/28 to-transparent"></div>
         <div class="relative z-10 flex min-h-[18rem] items-end p-8 md:min-h-[20rem] md:p-10">
           <div>
             <p class="mb-4 text-xs font-semibold uppercase tracking-[0.28em] text-orange-300">Lately</p>
-            <div class="slider-content">
+            <div class="slider-content" aria-live="off" aria-atomic="true">
               <p class="text-2xl font-semibold leading-tight text-white drop-shadow-lg md:text-[2.15rem]">Strong coffee is still part of the daily routine</p>
             </div>
           </div>
         </div>
       </div>
-      <div class="mt-4 flex justify-center gap-2">
-        <button class="slider-dot h-3 w-3 rounded-full bg-slate-600" data-index="0" aria-label="Slide 1"></button>
-        <button class="slider-dot h-3 w-3 rounded-full bg-slate-400" data-index="1" aria-label="Slide 2"></button>
-        <button class="slider-dot h-3 w-3 rounded-full bg-slate-400" data-index="2" aria-label="Slide 3"></button>
-        <button class="slider-dot h-3 w-3 rounded-full bg-slate-400" data-index="3" aria-label="Slide 4"></button>
-        <button class="slider-dot h-3 w-3 rounded-full bg-slate-400" data-index="4" aria-label="Slide 5"></button>
+      <div class="mt-4 flex flex-wrap items-center justify-center gap-3" role="group" aria-label="Slideshow controls">
+        <div class="flex gap-1">
+          <button type="button" class="slider-dot h-8 w-8 rounded-full border-[10px] border-transparent bg-clip-padding bg-slate-600" data-index="0" aria-label="Coffee" aria-pressed="true"></button>
+          <button type="button" class="slider-dot h-8 w-8 rounded-full border-[10px] border-transparent bg-clip-padding bg-slate-400" data-index="1" aria-label="Travel" aria-pressed="false"></button>
+          <button type="button" class="slider-dot h-8 w-8 rounded-full border-[10px] border-transparent bg-clip-padding bg-slate-400" data-index="2" aria-label="Series" aria-pressed="false"></button>
+          <button type="button" class="slider-dot h-8 w-8 rounded-full border-[10px] border-transparent bg-clip-padding bg-slate-400" data-index="3" aria-label="Formula 1" aria-pressed="false"></button>
+          <button type="button" class="slider-dot h-8 w-8 rounded-full border-[10px] border-transparent bg-clip-padding bg-slate-400" data-index="4" aria-label="Music" aria-pressed="false"></button>
+        </div>
+        <button id="slider-playback" type="button" aria-pressed="false" class="rounded-full border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:border-slate-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-500 dark:border-slate-600 dark:text-slate-200">Pause slides</button>
       </div>
     </section>
 
@@ -98,47 +101,66 @@ import PlayfulSignalsSection from "../components/PlayfulSignalsSection.astro";
       </div>
       <F1RaceWidget lang="en" />
     </section>
-  </main>
+  </div>
 
   <script>
     const slides = [
-      { text: "Strong coffee is still part of the daily routine", bg: "/media/images/coffee.jpg" },
-      { text: "I like discovering new cities and walking them slowly", bg: "/media/images/travel.jpg" },
-      { text: "I rarely stay away from a good series for long", bg: "/media/images/series.jpg" },
-      { text: "Race weekends still get my full attention", bg: "/media/images/f1.jpg" },
-      { text: "Rembetika remains one of the sounds I return to most", bg: "/media/images/music.jpg" },
+      { text: "Strong coffee is still part of the daily routine", bg: "/media/images/coffee.webp" },
+      { text: "I like discovering new cities and walking them slowly", bg: "/media/images/travel.webp" },
+      { text: "I rarely stay away from a good series for long", bg: "/media/images/series.webp" },
+      { text: "Race weekends still get my full attention", bg: "/media/images/f1.webp" },
+      { text: "Rembetika remains one of the sounds I return to most", bg: "/media/images/music.webp" },
     ];
 
+    const bgImage = document.getElementById('slider-bg') as HTMLImageElement | null;
+    const slideContent = document.querySelector('.slider-content');
+    const slideText = slideContent?.querySelector('p');
+    const dots = document.querySelectorAll<HTMLButtonElement>('.slider-dot');
+    const playbackButton = document.getElementById('slider-playback');
+    const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
     let currentSlide = 0;
-    const slider = document.getElementById('slider');
-    const bgImage = document.getElementById('slider-bg');
-    const content = slider?.querySelector('.slider-content');
-    const dots = document.querySelectorAll('.slider-dot');
+    let isPaused = motionPreference.matches;
+    let timer: ReturnType<typeof setInterval> | undefined;
 
-    function showSlide(index) {
+    function showSlide(index: number) {
       currentSlide = index;
-      if (bgImage) {
-        bgImage.src = slides[index].bg;
-      }
-      if (content) {
-        content.innerHTML = `<p class="text-2xl font-semibold leading-tight text-white drop-shadow-lg md:text-[2.15rem]">${slides[index].text}</p>`;
-      }
+      if (bgImage) bgImage.src = slides[index].bg;
+      if (slideText) slideText.textContent = slides[index].text;
       dots.forEach((dot, i) => {
         dot.classList.toggle('bg-slate-600', i === index);
         dot.classList.toggle('bg-slate-400', i !== index);
+        dot.setAttribute('aria-pressed', String(i === index));
       });
+    }
+
+    function updatePlayback() {
+      if (timer) clearInterval(timer);
+      timer = undefined;
+      if (!isPaused) timer = setInterval(() => showSlide((currentSlide + 1) % slides.length), 10000);
+      slideContent?.setAttribute('aria-live', isPaused ? 'polite' : 'off');
+      if (playbackButton) {
+        playbackButton.textContent = isPaused ? 'Play slides' : 'Pause slides';
+        playbackButton.setAttribute('aria-pressed', String(isPaused));
+      }
     }
 
     dots.forEach((dot) => {
       dot.addEventListener('click', () => {
-        showSlide(parseInt(dot.getAttribute('data-index') || '0'));
+        showSlide(Number(dot.dataset.index ?? 0));
+        isPaused = true;
+        updatePlayback();
       });
     });
-
-    setInterval(() => {
-      showSlide((currentSlide + 1) % slides.length);
-    }, 10000);
-
-    showSlide(0);
+    playbackButton?.addEventListener('click', () => {
+      isPaused = !isPaused;
+      updatePlayback();
+    });
+    motionPreference.addEventListener('change', (event) => {
+      if (event.matches) {
+        isPaused = true;
+        updatePlayback();
+      }
+    });
+    updatePlayback();
   </script>
 </BaseLayout>

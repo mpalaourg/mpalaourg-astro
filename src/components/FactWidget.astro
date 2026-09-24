@@ -23,7 +23,7 @@ const t = {
     onThisDay: "Σαν Σήμερα",
     sports: "Αθλητισμός",
     answer: "Απάντηση",
-    translationNote: "Best effort μετάφραση από DeepL API. Ενδέχονται λάθη.",
+    translationNote: "Αυτόματη μετάφραση. Ενδέχονται λάθη.",
   },
 } as const;
 
@@ -35,7 +35,7 @@ const T = t[lang];
     <>
       <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-yellow-500/10 via-orange-400/10 to-amber-400/10 border border-yellow-200/50 dark:border-yellow-700/50 hover:border-yellow-400 dark:hover:border-yellow-500 transition-all cursor-pointer">
         <span class="text-base">💡</span>
-        <span class="fact-preview text-xs font-medium text-gray-600 dark:text-slate-400 truncate max-w-[120px]">Loading...</span>
+        <span class="fact-preview text-xs font-medium text-gray-600 dark:text-slate-400 truncate max-w-[120px]">{lang === "el" ? "Φόρτωση..." : "Loading..."}</span>
       </div>
 
       <div class="fact-popup absolute top-full left-0 mt-2 w-80 p-4 rounded-xl bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
@@ -62,7 +62,7 @@ const T = t[lang];
         </div>
 
         <div class="fact-content text-sm text-gray-700 dark:text-slate-300 leading-relaxed min-h-[60px]">
-          Loading interesting fact...
+          {lang === "el" ? "Φόρτωση πληροφορίας..." : "Loading interesting fact..."}
         </div>
 
         <div class="fact-source text-[10px] text-gray-400 mt-2 text-right">--</div>
@@ -90,9 +90,9 @@ const T = t[lang];
         </button>
       </div>
 
-      <div class="fact-preview hidden">Loading...</div>
+      <div class="fact-preview hidden">{lang === "el" ? "Φόρτωση..." : "Loading..."}</div>
       <div class="fact-content text-sm text-gray-700 dark:text-slate-300 leading-7 min-h-[96px]">
-        Loading interesting fact...
+        {lang === "el" ? "Φόρτωση πληροφορίας..." : "Loading interesting fact..."}
       </div>
 
       <div class="fact-source break-words text-xs text-gray-400 dark:text-slate-500 mt-4">--</div>
@@ -197,9 +197,9 @@ const T = t[lang];
           if (aTranslation.success) answer = aTranslation.text;
         }
 
-        factText = `<b>Q:</b> ${question}\n\n<div class="mt-2 pt-2 border-t border-gray-200 dark:border-gray-700"><span class="text-xs text-gray-500">${lang === 'el' ? 'Απάντηση' : 'Answer'}:</span> <span class="spoiler-text bg-gray-800 text-gray-800 dark:bg-gray-200 dark:text-gray-200 px-1 rounded cursor-pointer hover:bg-transparent hover:text-gray-800 dark:hover:bg-transparent dark:hover:text-gray-200 transition-all select-none">${answer}</span></div>`;
+        factText = `<b>${lang === 'el' ? 'Ερώτηση' : 'Question'}:</b> ${question}\n\n<div class="mt-2 pt-2 border-t border-gray-200 dark:border-gray-700"><span class="text-xs text-gray-500">${lang === 'el' ? 'Απάντηση' : 'Answer'}:</span> <span class="spoiler-text bg-gray-800 text-gray-800 dark:bg-gray-200 dark:text-gray-200 px-1 rounded cursor-pointer hover:bg-transparent hover:text-gray-800 dark:hover:bg-transparent dark:hover:text-gray-200 transition-all select-none">${answer}</span></div>`;
 
-        if (previewEl) previewEl.textContent = `Q: ${question.substring(0, 30)}...`;
+        if (previewEl) previewEl.textContent = `${lang === 'el' ? 'Ερώτηση' : 'Question'}: ${question.substring(0, 30)}...`;
         if (contentEl) {
           contentEl.innerHTML = factText;
           const spoilerText = contentEl.querySelector('.spoiler-text');
@@ -237,9 +237,9 @@ const T = t[lang];
         } else if (category === 'otd' && data.date) {
           sourceEl.innerHTML = `<a href="${data.sourceUrl}" target="_blank" rel="noopener" class="hover:underline">${data.date} • ${data.source} →</a>`;
         } else if (data.sourceUrl) {
-          sourceEl.innerHTML = `<a href="${data.sourceUrl}" target="_blank" rel="noopener" class="hover:underline">Source: ${data.source} →</a>`;
+          sourceEl.innerHTML = `<a href="${data.sourceUrl}" target="_blank" rel="noopener" class="hover:underline">${lang === 'el' ? 'Πηγή' : 'Source'}: ${data.source} →</a>`;
         } else {
-          sourceEl.textContent = `Source: ${data.source}`;
+          sourceEl.textContent = `${lang === 'el' ? 'Πηγή' : 'Source'}: ${data.source}`;
         }
       }
 
@@ -252,7 +252,7 @@ const T = t[lang];
       const sourceEl = widget.querySelector('.fact-source');
       if (previewEl) previewEl.textContent = lang === 'el' ? 'Σφάλμα' : 'Error';
       if (contentEl) contentEl.textContent = lang === 'el' ? 'Αποτυχία φόρτωσης' : 'Failed to load';
-      if (sourceEl) sourceEl.textContent = 'Error loading';
+      if (sourceEl) sourceEl.textContent = lang === 'el' ? 'Σφάλμα φόρτωσης' : 'Error loading';
     }
   }
 
@@ -271,7 +271,16 @@ const T = t[lang];
   }
 
   document.querySelectorAll('.fact-widget').forEach(widget => {
-    fetchFact(widget, 'general');
+    const signalItem = widget.closest('[data-signal-item]');
+    if (signalItem) {
+      signalItem.addEventListener('playful-signal:open', () => {
+        if (widget.dataset.initialized === 'true') return;
+        widget.dataset.initialized = 'true';
+        fetchFact(widget, 'general');
+      });
+    } else {
+      fetchFact(widget, 'general');
+    }
 
     const generalBtn = widget.querySelector('.fact-category-general');
     const otdBtn = widget.querySelector('.fact-category-otd');

@@ -48,6 +48,31 @@ const t = {
     wins: "Wins",
     pts: "pts",
     loading: "Loading…",
+    loadingResults: "Loading results…",
+    noResults: "No results yet.",
+    noTime: "No Time",
+    qualifying: "Qualifying",
+    sprintQualifying: "Sprint Quali",
+    sprint: "Sprint",
+    race: "Race",
+    close: "Close",
+    time: "Time",
+    laps: "Laps",
+    status: "Status",
+    gap: "Gap",
+    gapCutoff: "Gap to Cutoff",
+    topTen: "Top 10",
+    out: "Out",
+    fullGrid: "Full Grid",
+    fullResults: "Full Results",
+    sessionLive: "Session in progress — check back shortly",
+    resultsUnavailable: "Results not yet available.",
+    disqualified: "Disqualified",
+    lapped: "Lapped",
+    podium: "Podium",
+    finished: "Finished",
+    fastestLap: "Fastest Lap",
+    lap: "Lap",
   },
   el: {
     nextRace: "Επόμενος Αγώνας",
@@ -74,6 +99,31 @@ const t = {
     wins: "Νίκες",
     pts: "βαθ",
     loading: "Φόρτωση…",
+    loadingResults: "Φόρτωση αποτελεσμάτων…",
+    noResults: "Δεν υπάρχουν ακόμη αποτελέσματα.",
+    noTime: "Χωρίς χρόνο",
+    qualifying: "Κατατακτήριες",
+    sprintQualifying: "Κατατακτήριες σπριντ",
+    sprint: "Σπριντ",
+    race: "Αγώνας",
+    close: "Κλείσιμο",
+    time: "Χρόνος",
+    laps: "Γύροι",
+    status: "Κατάσταση",
+    gap: "Διαφορά",
+    gapCutoff: "Διαφορά πρόκρισης",
+    topTen: "Πρώτοι 10",
+    out: "Εκτός",
+    fullGrid: "Πλήρης κατάταξη",
+    fullResults: "Πλήρη αποτελέσματα",
+    sessionLive: "Η περίοδος είναι σε εξέλιξη — δοκιμάστε ξανά σύντομα",
+    resultsUnavailable: "Τα αποτελέσματα δεν είναι ακόμη διαθέσιμα.",
+    disqualified: "Αποκλείστηκε",
+    lapped: "Με γύρο διαφορά",
+    podium: "Βάθρο",
+    finished: "Τερμάτισε",
+    fastestLap: "Ταχύτερος γύρος",
+    lap: "Γύρος",
   },
 } as const;
 
@@ -98,6 +148,30 @@ const T = t[lang];
     driverStandingsEmpty: T.driverStandingsEmpty,
     constructorStandingsEmpty: T.constructorStandingsEmpty,
     noRaceData: T.noRaceData,
+    loadingResults: T.loadingResults,
+    noResults: T.noResults,
+    noTime: T.noTime,
+    qualifying: T.qualifying,
+    sprintQualifying: T.sprintQualifying,
+    sprint: T.sprint,
+    race: T.race,
+    time: T.time,
+    laps: T.laps,
+    status: T.status,
+    gap: T.gap,
+    gapCutoff: T.gapCutoff,
+    topTen: T.topTen,
+    out: T.out,
+    fullGrid: T.fullGrid,
+    fullResults: T.fullResults,
+    sessionLive: T.sessionLive,
+    resultsUnavailable: T.resultsUnavailable,
+    disqualified: T.disqualified,
+    lapped: T.lapped,
+    podium: T.podium,
+    finished: T.finished,
+    fastestLap: T.fastestLap,
+    lap: T.lap,
   })}
   class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-800 p-5 shadow-sm"
 >
@@ -199,7 +273,7 @@ const T = t[lang];
         <img
           id="f1-circuit-img"
           src=""
-          alt="Circuit map"
+          alt={lang === "el" ? "Χάρτης πίστας" : "Circuit map"}
           class="max-h-40 max-w-full object-contain hidden"
         />
       </div>
@@ -209,7 +283,7 @@ const T = t[lang];
     <div class="flex items-center justify-between mt-2 gap-2">
       <button
         id="f1-prev"
-        aria-label="Previous race"
+        aria-label={lang === "el" ? "Προηγούμενος αγώνας" : "Previous race"}
         class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium
                bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-slate-300
                hover:bg-gray-200 dark:hover:bg-slate-600 disabled:opacity-30
@@ -236,7 +310,7 @@ const T = t[lang];
       />
       <button
         id="f1-next"
-        aria-label="Next race"
+        aria-label={lang === "el" ? "Επόμενος αγώνας" : "Next race"}
         class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium
                bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-slate-300
                hover:bg-gray-200 dark:hover:bg-slate-600 disabled:opacity-30
@@ -317,7 +391,7 @@ const T = t[lang];
       />
       <button
         id="f1-modal-close"
-        aria-label="Close"
+        aria-label={T.close}
         class="rounded-lg p-1.5 text-gray-400 hover:text-gray-700 dark:hover:text-white
                hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
       >
@@ -506,7 +580,7 @@ const T = t[lang];
   }
 
   function formatLocalDateTime(date: Date): string {
-    const base = date.toLocaleString(undefined, {
+    const base = date.toLocaleString(document.documentElement.lang === "el" ? "el-GR" : undefined, {
       weekday: "short",
       day: "numeric",
       month: "short",
@@ -548,14 +622,14 @@ const T = t[lang];
       { label: "FP2", type: "fp2", obj: race.SecondPractice },
       { label: "FP3", type: "fp3", obj: race.ThirdPractice },
       {
-        label: "Sprint Quali",
+        label: LABELS.sprintQualifying,
         type: "sprint_qualifying",
         obj: race.SprintQualifying,
       },
-      { label: "Sprint", type: "sprint", obj: race.Sprint },
-      { label: "Qualifying", type: "qualifying", obj: race.Qualifying },
+      { label: LABELS.sprint, type: "sprint", obj: race.Sprint },
+      { label: LABELS.qualifying, type: "qualifying", obj: race.Qualifying },
       {
-        label: "Race",
+        label: LABELS.race,
         type: "race",
         obj: { date: race.date, time: race.time },
       },
@@ -805,7 +879,7 @@ const T = t[lang];
     getTime: (r: any) => string
   ): string {
     if (!top3.length)
-      return `<p class="text-xs text-gray-400 dark:text-slate-500 italic">No results yet.</p>`;
+      return `<p class="text-xs text-gray-400 dark:text-slate-500 italic">${LABELS.noResults}</p>`;
 
     return `<div class="flex gap-2">${top3
       .slice(0, 3)
@@ -959,11 +1033,11 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
             // Format time display
             let timeDisplay: string;
             if (r.noResult) {
-              timeDisplay = "<span class='italic text-gray-400 dark:text-slate-500'>No Time</span>";
+              timeDisplay = `<span class='italic text-gray-400 dark:text-slate-500'>${LABELS.noTime}</span>`;
             } else if (time && time !== "—" && time !== "") {
               timeDisplay = time;
             } else {
-              timeDisplay = "<span class='italic text-gray-400 dark:text-slate-500'>No Time</span>";
+              timeDisplay = `<span class='italic text-gray-400 dark:text-slate-500'>${LABELS.noTime}</span>`;
             }
 
             return `
@@ -982,7 +1056,7 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
           })
           .join("");
 
-        const gapHeader = gapType === "leader" ? "Gap" : "Gap to Cutoff";
+        const gapHeader = gapType === "leader" ? LABELS.gap : LABELS.gapCutoff;
 
         return `
           <div>
@@ -992,9 +1066,9 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
             <div class="rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
               <div class="grid grid-cols-[1.75rem_1.5rem_1fr_5.5rem_3.5rem] gap-x-2 px-3 py-1.5 bg-slate-100 dark:bg-slate-700/50 border-b border-gray-200 dark:border-gray-700">
                 <span class="text-[10px] font-semibold text-gray-400 dark:text-slate-500 text-center">#</span>
-                <span class="text-[10px] font-semibold text-gray-400 dark:text-slate-500 text-center">No</span>
-                <span class="text-[10px] font-semibold text-gray-400 dark:text-slate-500">Driver</span>
-                <span class="text-[10px] font-semibold text-gray-400 dark:text-slate-500 text-right">Time</span>
+                <span class="text-[10px] font-semibold text-gray-400 dark:text-slate-500 text-center">${LABELS.number}</span>
+                <span class="text-[10px] font-semibold text-gray-400 dark:text-slate-500">${LABELS.driver}</span>
+                <span class="text-[10px] font-semibold text-gray-400 dark:text-slate-500 text-right">${LABELS.time}</span>
                 <span class="text-[10px] font-semibold text-gray-400 dark:text-slate-500 text-right">${gapHeader}</span>
               </div>
               <div class="divide-y divide-gray-100 dark:divide-slate-700/50">
@@ -1006,7 +1080,7 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
 
       return [
         sqSection(
-          "SQ3 — Top 10",
+          `SQ3 — ${LABELS.topTen}`,
           "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300",
           sq3,
           "q3",
@@ -1014,7 +1088,7 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
           sq3PoleTime
         ),
         sqSection(
-          "SQ2 — Out",
+          `SQ2 — ${LABELS.out}`,
           "bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300",
           sq2,
           "q2",
@@ -1022,7 +1096,7 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
           p10Sq2Time
         ),
         sqSection(
-          "SQ1 — Out",
+          `SQ1 — ${LABELS.out}`,
           "bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300",
           sq1,
           "q1",
@@ -1122,14 +1196,14 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
           // Format time display
           let timeDisplay: string;
           if (r.dsq) {
-            timeDisplay = "<span class='italic text-gray-400 dark:text-slate-500'>Disqualified</span>";
+            timeDisplay = `<span class='italic text-gray-400 dark:text-slate-500'>${LABELS.disqualified}</span>`;
           } else if (r.noResult) {
-            timeDisplay = "<span class='italic text-gray-400 dark:text-slate-500'>No Time</span>";
+            timeDisplay = `<span class='italic text-gray-400 dark:text-slate-500'>${LABELS.noTime}</span>`;
           } else if (time && time !== "") {
             timeDisplay = time;
           } else {
             // No time set - show in italics
-            timeDisplay = "<span class='italic text-gray-400 dark:text-slate-500'>No Time</span>";
+            timeDisplay = `<span class='italic text-gray-400 dark:text-slate-500'>${LABELS.noTime}</span>`;
           }
           
           return `
@@ -1148,7 +1222,7 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
         })
         .join("");
       
-      const gapHeader = gapType === "leader" ? "Gap" : "Gap to Cutoff";
+      const gapHeader = gapType === "leader" ? LABELS.gap : LABELS.gapCutoff;
       
       return `
         <div>
@@ -1158,9 +1232,9 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
           <div class="rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
             <div class="grid grid-cols-[1.75rem_1.5rem_1fr_5.5rem_3.5rem] gap-x-2 px-3 py-1.5 bg-slate-100 dark:bg-slate-700/50 border-b border-gray-200 dark:border-gray-700">
               <span class="text-[10px] font-semibold text-gray-400 dark:text-slate-500 text-center">#</span>
-              <span class="text-[10px] font-semibold text-gray-400 dark:text-slate-500 text-center">No</span>
-              <span class="text-[10px] font-semibold text-gray-400 dark:text-slate-500">Driver</span>
-              <span class="text-[10px] font-semibold text-gray-400 dark:text-slate-500 text-right">Time</span>
+              <span class="text-[10px] font-semibold text-gray-400 dark:text-slate-500 text-center">${LABELS.number}</span>
+              <span class="text-[10px] font-semibold text-gray-400 dark:text-slate-500">${LABELS.driver}</span>
+              <span class="text-[10px] font-semibold text-gray-400 dark:text-slate-500 text-right">${LABELS.time}</span>
               <span class="text-[10px] font-semibold text-gray-400 dark:text-slate-500 text-right">${gapHeader}</span>
             </div>
             <div class="divide-y divide-gray-100 dark:divide-slate-700/50">
@@ -1173,7 +1247,7 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
     if (q3.length) {
       return [
         jSection(
-          "Q3 — Top 10",
+          `Q3 — ${LABELS.topTen}`,
           "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300",
           q3,
           "Q3",
@@ -1181,7 +1255,7 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
           q3LeaderTime
         ),
         jSection(
-          "Q2 — Out",
+          `Q2 — ${LABELS.out}`,
           "bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300",
           q2,
           "Q2",
@@ -1189,7 +1263,7 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
           p10Q2Time
         ),
         jSection(
-          "Q1 — Out",
+          `Q1 — ${LABELS.out}`,
           "bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300",
           q1,
           "Q1",
@@ -1200,7 +1274,7 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
     }
 
     return jSection(
-      "Full Grid",
+      LABELS.fullGrid,
       "bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300",
       classified,
       "Q1",
@@ -1233,11 +1307,11 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
                   bg-slate-100 dark:bg-slate-700/80 rounded-t-lg
                   border border-gray-200 dark:border-gray-700 border-b-0">
         <span class="text-[10px] font-semibold text-gray-400 dark:text-slate-500 text-center">#</span>
-        <span class="text-[10px] font-semibold text-gray-400 dark:text-slate-500 text-center">No</span>
-        <span class="text-[10px] font-semibold text-gray-400 dark:text-slate-500">Driver</span>
-        <span class="text-[10px] font-semibold text-gray-400 dark:text-slate-500 text-center">Laps</span>
-        <span class="text-[10px] font-semibold text-gray-400 dark:text-slate-500 text-right">Time</span>
-        <span class="text-[10px] font-semibold text-gray-400 dark:text-slate-500 text-right">Status</span>
+        <span class="text-[10px] font-semibold text-gray-400 dark:text-slate-500 text-center">${LABELS.number}</span>
+        <span class="text-[10px] font-semibold text-gray-400 dark:text-slate-500">${LABELS.driver}</span>
+        <span class="text-[10px] font-semibold text-gray-400 dark:text-slate-500 text-center">${LABELS.laps}</span>
+        <span class="text-[10px] font-semibold text-gray-400 dark:text-slate-500 text-right">${LABELS.time}</span>
+        <span class="text-[10px] font-semibold text-gray-400 dark:text-slate-500 text-right">${LABELS.status}</span>
       </div>`;
 
     const rows = sorted
@@ -1270,7 +1344,7 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
         let timeDisplay = "—";
         if (isLapped) {
           timeDisplay = lapsDown > 0
-            ? `+${lapsDown} Lap${lapsDown > 1 ? 's' : ''}`
+            ? `+${lapsDown} ${lapsDown > 1 ? LABELS.laps : LABELS.lap}`
             : /^\+\d+ laps?$/i.test(status) ? status : "—";
         } else if (isDNF || isDNS || isDSQ) {
           timeDisplay = "—";
@@ -1291,14 +1365,14 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
         } else if (isDNF) {
           statusParts.push("<span class=\"text-red-500 dark:text-red-400 font-semibold\">DNF</span>");
         } else if (isLapped) {
-          statusParts.push("<span class=\"text-gray-500 dark:text-slate-400\">Lapped</span>");
+          statusParts.push(`<span class="text-gray-500 dark:text-slate-400">${LABELS.lapped}</span>`);
         } else if (posNum >= 1 && posNum <= 3) {
           // Podium positions
           const medals = ["🥇", "🥈", "🥉"];
-          statusParts.push(`<span class=\"font-bold\">${medals[posNum - 1]} Podium</span>`);
+          statusParts.push(`<span class="font-bold">${medals[posNum - 1]} ${LABELS.podium}</span>`);
         } else {
           // Regular finishers
-          statusParts.push("<span class=\"text-gray-600 dark:text-slate-300\">Finished</span>");
+          statusParts.push(`<span class="text-gray-600 dark:text-slate-300">${LABELS.finished}</span>`);
         }
         
         // Add fastest lap bolt (can be combined with other statuses)
@@ -1338,7 +1412,7 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
         <div class="rounded-b-lg border border-gray-200 dark:border-gray-700 border-t-0 overflow-hidden divide-y divide-gray-100 dark:divide-slate-700/50">
           ${rows}
         </div>
-        <p class="text-[10px] text-gray-400 dark:text-slate-500 mt-2 text-right">⚡ = Fastest Lap</p>
+        <p class="text-[10px] text-gray-400 dark:text-slate-500 mt-2 text-right">⚡ = ${LABELS.fastestLap}</p>
       </div>`;
   }
 
@@ -1517,7 +1591,7 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
     race: any
   ): Promise<void> {
     const panel = document.getElementById("f1-results-panel")!;
-    panel.innerHTML = `<p class="text-xs text-gray-400 dark:text-slate-500 italic animate-pulse">Loading results…</p>`;
+    panel.innerHTML = `<p class="text-xs text-gray-400 dark:text-slate-500 italic animate-pulse">${LABELS.loadingResults}</p>`;
     panel.classList.remove("hidden");
 
     const country = race.Circuit?.Location?.country ?? "";
@@ -1531,12 +1605,12 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
     );
 
     if (status === "live") {
-      panel.innerHTML = `<p class="text-xs text-orange-500 dark:text-orange-400 font-semibold">🔴 Session in progress — check back shortly</p>`;
+      panel.innerHTML = `<p class="text-xs text-orange-500 dark:text-orange-400 font-semibold">🔴 ${LABELS.sessionLive}</p>`;
       return;
     }
 
     if (!results?.length) {
-      panel.innerHTML = `<p class="text-xs text-gray-400 dark:text-slate-500 italic">Results not yet available.</p>`;
+      panel.innerHTML = `<p class="text-xs text-gray-400 dark:text-slate-500 italic">${LABELS.resultsUnavailable}</p>`;
       return;
     }
 
@@ -1549,19 +1623,19 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
     } else if (type === "sprint_qualifying") {
       html =
         renderOpenF1Podium(patchedResults) +
-        fullGridBtn("Full Sprint Qualifying Grid", "sprint_qualifying");
+        fullGridBtn(`${LABELS.fullGrid} — ${LABELS.sprintQualifying}`, "sprint_qualifying");
     } else if (type === "qualifying") {
       html =
         renderJolpicaQualiPodium(patchedResults) +
-        fullGridBtn("Full Qualifying Grid", "qualifying");
+        fullGridBtn(`${LABELS.fullGrid} — ${LABELS.qualifying}`, "qualifying");
     } else if (type === "sprint") {
       html =
         renderJolpicaRacePodium(patchedResults) +
-        fullGridBtn("Full Sprint Results", "sprint");
+        fullGridBtn(`${LABELS.fullResults} — ${LABELS.sprint}`, "sprint");
     } else if (type === "race") {
       html =
         renderJolpicaRacePodium(patchedResults) +
-        fullGridBtn("Full Race Results", "race");
+        fullGridBtn(`${LABELS.fullResults} — ${LABELS.race}`, "race");
     }
 
     panel.innerHTML = html;
@@ -1573,12 +1647,12 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
         const modalType = btn.dataset.modal!;
         const title =
           modalType === "qualifying"
-            ? `${race.raceName} — Qualifying`
+            ? `${race.raceName} — ${LABELS.qualifying}`
             : modalType === "sprint_qualifying"
-              ? `${race.raceName} — Sprint Qualifying`
+              ? `${race.raceName} — ${LABELS.sprintQualifying}`
               : modalType === "sprint"
-                ? `${race.raceName} — Sprint`
-                : `${race.raceName} — Race Results`;
+                ? `${race.raceName} — ${LABELS.sprint}`
+                : `${race.raceName} — ${LABELS.race}`;
 
         const isOpenF1Quali = modalType === "sprint_qualifying";
         const isQuali =
@@ -1716,7 +1790,7 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
     allRaces.forEach((r, i) => {
       const ms = new Date(`${r.date}T${r.time ?? "00:00:00"}`).getTime();
       const dot = document.createElement("button");
-      dot.setAttribute("aria-label", `Round ${i + 1}: ${r.raceName}`);
+      dot.setAttribute("aria-label", `${LABELS.round} ${i + 1}: ${r.raceName}`);
       dot.className = [
         "w-2 h-2 rounded-full transition-all duration-200 focus:outline-none",
         i === currentRaceIndex
@@ -1783,7 +1857,7 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
       imgEl.onload = () => imgEl.classList.remove("hidden");
       imgEl.onerror = () => imgEl.classList.add("hidden");
       imgEl.src = imgSrc;
-      imgEl.alt = `${race.raceName} circuit map`;
+      imgEl.alt = `${race.raceName} — ${document.documentElement.lang === 'el' ? 'χάρτης πίστας' : 'circuit map'}`;
     }
 
     // Sessions

@@ -44,8 +44,8 @@ const filteredPosts = posts.filter((post) => {
 });
 ---
 
-<BaseLayout title="Formula 1 | Georgios Balaouras">
-  <main class="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-12">
+<BaseLayout title="Formula 1 | Georgios Balaouras" description="Formula 1 season stories, race guides, and interactive data from Georgios Balaouras, a fan of the strategy and stories behind each race.">
+  <div class="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-12">
     <h1 class="text-4xl font-bold mb-6">Formula 1</h1>
 
    <!-- Next Race Widget -->
@@ -114,11 +114,15 @@ const filteredPosts = posts.filter((post) => {
             data-year={postYear}
         >
           {post.data.featuredImage && (
-            <a href={`/formula/${post.slug}`}>
+            <a href={`/formula/${post.slug}`} class="block self-start rounded-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-500">
                 <img
                 src={post.data.featuredImage}
                 alt={post.data.title}
-                class="h-full w-full rounded-lg object-cover"
+                width="570"
+                height="400"
+                loading="lazy"
+                decoding="async"
+                class="block h-auto w-full rounded-lg"
                 />
             </a>
           )}
@@ -202,5 +206,5 @@ const filteredPosts = posts.filter((post) => {
         });
       }
     </script>
-  </main>
+  </div>
 </BaseLayout>

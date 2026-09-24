@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#121c2d"/>
+      <stop offset="1" stop-color="#0b1220"/>
+    </linearGradient>
+    <pattern id="grid" width="42" height="42" patternUnits="userSpaceOnUse">
+      <path d="M42 0H0V42" fill="none" stroke="#496078" stroke-opacity=".16" stroke-width="1"/>
+    </pattern>
+    <clipPath id="panel"><rect width="1200" height="630" rx="28"/></clipPath>
+  </defs>
+  <g clip-path="url(#panel)">
+    <rect width="1200" height="630" fill="url(#background)"/>
+    <rect width="1200" height="630" fill="url(#grid)"/>
+    <path d="M-50 0h14v630h-14z" fill="#e9874d"/>
+    <circle cx="1050" cy="300" r="296" fill="none" stroke="#dce8f3" stroke-opacity=".1" stroke-width="2"/>
+    <circle cx="1050" cy="300" r="210" fill="none" stroke="#dce8f3" stroke-opacity=".14" stroke-width="2"/>
+    <circle cx="1050" cy="300" r="126" fill="none" stroke="#e9874d" stroke-opacity=".55" stroke-width="2"/>
+    <path d="M760 430c89-62 165-79 290-130 83-34 159-97 234-195" fill="none" stroke="#e9874d" stroke-width="4" stroke-linecap="round"/>
+    <path d="M735 485c145-12 260-65 365-117 90-44 178-53 280-34" fill="none" stroke="#dce8f3" stroke-opacity=".28" stroke-width="2"/>
+    <circle cx="1050" cy="300" r="10" fill="#e9874d"/>
+    <circle cx="894" cy="366" r="7" fill="#e9874d"/>
+    <circle cx="1172" cy="184" r="7" fill="#e9874d"/>
+    <path d="M80 88h62" stroke="#e9874d" stroke-width="5" stroke-linecap="round"/>
+    <text x="80" y="128" fill="#e9874d" font-family="Avenir Next, Helvetica, sans-serif" font-size="23" font-weight="700" letter-spacing="5">PERSONAL SITE  /  PORTFOLIO</text>
+    <text x="74" y="267" fill="#f6f1e8" font-family="Georgia, Times New Roman, serif" font-size="100" font-weight="700" letter-spacing="-4">Georgios</text>
+    <text x="74" y="373" fill="#f6f1e8" font-family="Georgia, Times New Roman, serif" font-size="100" font-weight="700" letter-spacing="-4">Balaouras</text>
+    <text x="80" y="437" fill="#c8d5e3" font-family="Avenir Next, Helvetica, sans-serif" font-size="33" font-weight="500">Machine Learning Engineer</text>
+    <path d="M80 494h645" stroke="#dce8f3" stroke-opacity=".3" stroke-width="1"/>
+    <text x="80" y="546" fill="#dce8f3" font-family="Avenir Next, Helvetica, sans-serif" font-size="24" letter-spacing="1">AI systems  ·  Projects  ·  Research</text>
+    <text x="80" y="590" fill="#e9874d" font-family="Avenir Next, Helvetica, sans-serif" font-size="21" letter-spacing="3">MPALAOURG.DEV</text>
+  </g>
+</svg>

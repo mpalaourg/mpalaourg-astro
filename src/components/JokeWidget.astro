@@ -42,7 +42,7 @@ const T = t[lang];
         </div>
 
         <div class="joke-content text-center py-2">
-          <img src="" alt="Joke" class="joke-image w-full rounded-lg" />
+          <img alt={lang === "el" ? "Αστείο προγραμματισμού" : "Programming joke"} loading="lazy" class="joke-image w-full rounded-lg" />
         </div>
       </div>
     </>
@@ -56,7 +56,7 @@ const T = t[lang];
       </div>
       <div class="joke-preview hidden">{T.preview}</div>
       <div class="joke-content text-center">
-        <img src="" alt="Joke" class="joke-image w-full rounded-2xl border border-gray-100 dark:border-slate-700" />
+        <img alt={lang === "el" ? "Αστείο προγραμματισμού" : "Programming joke"} loading="lazy" class="joke-image w-full rounded-2xl border border-gray-100 dark:border-slate-700" />
       </div>
     </div>
   )}
@@ -80,7 +80,16 @@ const T = t[lang];
   }
 
   document.querySelectorAll('.joke-widget').forEach(widget => {
-    fetchJoke(widget);
+    const signalItem = widget.closest('[data-signal-item]');
+    if (signalItem) {
+      signalItem.addEventListener('playful-signal:open', () => {
+        if (widget.dataset.initialized === 'true') return;
+        widget.dataset.initialized = 'true';
+        fetchJoke(widget);
+      });
+    } else {
+      fetchJoke(widget);
+    }
     const refreshBtn = widget.querySelector('.joke-refresh');
     refreshBtn?.addEventListener('click', (e) => {
       e.stopPropagation();

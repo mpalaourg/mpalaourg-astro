@@ -30,17 +30,20 @@ export const GET: APIRoute = async ({ url, locals }) => {
   const cacheKey = `citations:${doi}`;
   
   // Check cache first
-  let cachedData = null;
+  type CitationCache = { citationCount: number; source: string; year?: number; cachedAt: string };
+  let staleData: CitationCache | null = null;
   if (cache) {
-    cachedData = await cache.get<{ 
-      citationCount: number; 
-      source: string;
-      cachedAt: string;
-    }>(cacheKey);
+    const cachedData = await cache.get<CitationCache>(cacheKey);
     
     if (cachedData) {
-      console.log(`Serving cached citations for DOI: ${doi} (count: ${cachedData.citationCount})`);
+      return Response.json({
+        citationCount: cachedData.citationCount,
+        source: cachedData.source,
+        year: cachedData.year,
+        cached: true,
+      });
     }
+    staleData = await cache.getStale<CitationCache>(cacheKey);
   }
   
   try {
@@ -57,14 +60,6 @@ export const GET: APIRoute = async ({ url, locals }) => {
       if (res.status === 404) {
         // Paper not found in Semantic Scholar
         console.log(`Paper not found in Semantic Scholar for DOI: ${doi}`);
-        // Return cached data if available (even if expired)
-        if (cachedData) {
-          return new Response(JSON.stringify({
-            citationCount: cachedData.citationCount,
-            source: `${cachedData.source} (cached)`,
-            cached: true,
-          }), { status: 200, headers: { "Content-Type": "application/json" } });
-        }
         return new Response(
           JSON.stringify({ 
             citationCount: null,
@@ -72,17 +67,6 @@ export const GET: APIRoute = async ({ url, locals }) => {
           }),
           { status: 200, headers: { "Content-Type": "application/json" } }
         );
-      }
-      if (res.status === 429) {
-        // Rate limited - return cached data
-        console.log(`Rate limited for DOI: ${doi}`);
-        if (cachedData) {
-          return new Response(JSON.stringify({
-            citationCount: cachedData.citationCount,
-            source: `${cachedData.source} (cached)`,
-            cached: true,
-          }), { status: 200, headers: { "Content-Type": "application/json" } });
-        }
       }
       throw new Error(`Semantic Scholar API error: ${res.status}`);
     }
@@ -112,18 +96,15 @@ export const GET: APIRoute = async ({ url, locals }) => {
   } catch (error) {
     console.error("Citation fetch error:", error);
     
-    // API failed - return cached data if available (stale cache)
-    if (cachedData) {
-      console.log(`API failed, serving stale cache for DOI: ${doi}`);
-      return new Response(JSON.stringify({
-        citationCount: cachedData.citationCount,
-        source: `${cachedData.source} (cached)`,
+    if (staleData) {
+      return Response.json({
+        citationCount: staleData.citationCount,
+        source: staleData.source,
+        year: staleData.year,
         cached: true,
-        error: "Failed to fetch fresh data, showing cached value",
-      }), { status: 200, headers: { "Content-Type": "application/json" } });
+        stale: true,
+      });
     }
-    
-    // No cache available
     return new Response(
       JSON.stringify({ 
         citationCount: null,

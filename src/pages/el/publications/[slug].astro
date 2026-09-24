@@ -33,7 +33,7 @@ const hasEqualContribution = post.data.author_notes && post.data.author_notes.so
 const monthYear = post.data.date.toLocaleDateString("el-GR", { month: "long", year: "numeric" });
 ---
 
-<BaseLayout title={`${post.data.title} | Δημοσιεύσεις`}>
+<BaseLayout title={`${post.data.title} | Δημοσιεύσεις | Γιώργος Μπαλαούρας`} description={post.data.summary}>
   <article class="mx-auto max-w-4xl px-4 py-10 sm:px-6 sm:py-12">
     <header class="mb-8">
       <a
@@ -116,7 +116,7 @@ const monthYear = post.data.date.toLocaleDateString("el-GR", { month: "long", ye
           target="_blank"
           class="inline-block rounded-md px-3 py-1.5 text-sm bg-slate-700 hover:bg-slate-600 text-white"
         >
-          Slides
+          Διαφάνειες
         </a>
       )}
 
@@ -126,7 +126,7 @@ const monthYear = post.data.date.toLocaleDateString("el-GR", { month: "long", ye
           target="_blank"
           class="inline-block rounded-md px-3 py-1.5 text-sm bg-slate-700 hover:bg-slate-600 text-white"
         >
-          Project
+          Έργο
         </a>
       )}
     </div>

@@ -2,7 +2,7 @@
 title: "From Workflows to Agents: Building LLM Systems in Practice"
 summary: "Ένα πρακτικό workshop στο TechSaloniki X για LLM συστήματα με workflows, agents, tools και evaluations."
 date: 2026-05-01
-featuredImage: "/projects/from-workflows-to-agents/featured.png"
+featuredImage: "/projects/from-workflows-to-agents/featured.webp"
 tags:
   - workshop
   - agents

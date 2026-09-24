@@ -50,13 +50,13 @@ const copy = {
     eyebrow: "Μικρά σήματα",
     title: "Μια πιο ανάλαφρη ομάδα μικρών σημάτων που εξακολουθώ να απολαμβάνω.",
     description:
-      "Μουσική, περίεργα facts, ατάκες από Formula 1 και το περιστασιακό προγραμματιστικό αστείο είναι μέρος της ίδιας συνήθειας. Μου αρέσουν τα μικρά ερεθίσματα που δεν αφήνουν τη μέρα να γίνει εντελώς επίπεδη.",
+      "Μουσική, περίεργες πληροφορίες, ατάκες από τη Formula 1 και το περιστασιακό προγραμματιστικό αστείο είναι μέρος της ίδιας συνήθειας. Μου αρέσουν τα μικρά ερεθίσματα που δεν αφήνουν τη μέρα να γίνει εντελώς επίπεδη.",
     controls: {
-      closeLabel: "Κλείσιμο panel",
+      closeLabel: "Κλείσιμο πλαισίου",
     },
     cards: {
       music: {
-        eyebrow: "Recent Tracks",
+        eyebrow: "Πρόσφατα κομμάτια",
         title: "Η μουσική που επιστρέφει ξανά.",
         meta: "Last.fm",
         arrow: "↗",
@@ -68,15 +68,15 @@ const copy = {
         arrow: "↖",
       },
       quote: {
-        eyebrow: "F1 Quote",
-        title: "Ατάκες από pit wall και paddock.",
-        meta: "Race radio archive",
+        eyebrow: "Ατάκα F1",
+        title: "Ατάκες από τους αγώνες της Formula 1.",
+        meta: "Αρχείο αγωνιστικών ατακών",
         arrow: "↗",
       },
       joke: {
-        eyebrow: "Programming Joke",
-        title: "Ένα μικρό διάλειμμα για terminal humor.",
-        meta: "Readme jokes",
+        eyebrow: "Αστείο προγραμματισμού",
+        title: "Ένα μικρό διάλειμμα με χιούμορ για προγραμματιστές.",
+        meta: "Readme Jokes",
         arrow: "↖",
       },
     },
@@ -504,6 +504,7 @@ const sectionClass = lang === "en" ? "playful-signals--en" : "playful-signals--e
           if (detail && 'inert' in detail) {
             detail.inert = !isOpen;
           }
+          if (isOpen) item.dispatchEvent(new Event('playful-signal:open'));
         };
 
         toggle?.addEventListener('click', () => {

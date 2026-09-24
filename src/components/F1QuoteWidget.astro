@@ -13,8 +13,8 @@ const t = {
     by: "-",
   },
   el: {
-    title: "F1 Quote",
-    newQuote: "Νέο Quote",
+    title: "Ατάκα F1",
+    newQuote: "Νέα ατάκα",
     by: "-",
   },
 } as const;
@@ -27,7 +27,7 @@ const T = t[lang];
     <>
       <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-red-500/10 via-red-400/10 to-rose-400/10 border border-red-200/50 dark:border-red-700/50 hover:border-red-400 dark:hover:border-red-500 transition-all cursor-pointer">
         <span class="text-base">🏎️</span>
-        <span class="quote-preview text-xs font-medium text-gray-600 dark:text-slate-400 truncate max-w-[120px]">Loading...</span>
+        <span class="quote-preview text-xs font-medium text-gray-600 dark:text-slate-400 truncate max-w-[120px]">{lang === "el" ? "Φόρτωση..." : "Loading..."}</span>
       </div>
 
       <div class="quote-popup absolute top-full left-0 mt-2 w-80 p-4 rounded-xl bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
@@ -43,7 +43,7 @@ const T = t[lang];
 
         <div class="quote-content text-center py-2">
           <p class="quote-text text-base font-medium text-gray-800 dark:text-slate-200 mb-3 italic leading-relaxed">
-            "Loading..."
+            "{lang === "el" ? "Φόρτωση..." : "Loading..."}"
           </p>
           <p class="quote-author text-sm font-bold text-red-600 dark:text-red-400">
             {T.by} <span class="author-name">--</span>
@@ -62,10 +62,10 @@ const T = t[lang];
           {T.newQuote}
         </button>
       </div>
-      <div class="quote-preview hidden">Loading...</div>
+      <div class="quote-preview hidden">{lang === "el" ? "Φόρτωση..." : "Loading..."}</div>
       <div class="quote-content">
         <p class="quote-text text-base font-medium text-gray-800 dark:text-slate-200 italic leading-7">
-          "Loading..."
+          "{lang === "el" ? "Φόρτωση..." : "Loading..."}"
         </p>
         <p class="quote-author mt-5 text-sm font-semibold text-red-600 dark:text-red-400">
           {T.by} <span class="author-name">--</span>
@@ -121,7 +121,16 @@ const T = t[lang];
   }
 
   document.querySelectorAll('.quote-widget').forEach(widget => {
-    fetchQuote(widget);
+    const signalItem = widget.closest('[data-signal-item]');
+    if (signalItem) {
+      signalItem.addEventListener('playful-signal:open', () => {
+        if (widget.dataset.initialized === 'true') return;
+        widget.dataset.initialized = 'true';
+        fetchQuote(widget);
+      });
+    } else {
+      fetchQuote(widget);
+    }
     const refreshBtn = widget.querySelector('.quote-refresh');
     refreshBtn?.addEventListener('click', (e) => {
       e.stopPropagation();

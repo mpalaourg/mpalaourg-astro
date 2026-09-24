@@ -34,7 +34,7 @@ const T = t[lang];
     <>
       <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-green-500/10 via-emerald-400/10 to-teal-400/10 border border-green-200/50 dark:border-green-700/50 hover:border-green-400 dark:hover:border-green-500 transition-all cursor-pointer">
         <span class="text-base">🎵</span>
-        <span class="music-status text-xs font-medium text-gray-600 dark:text-slate-400">Loading...</span>
+        <span class="music-status text-xs font-medium text-gray-600 dark:text-slate-400">{lang === "el" ? "Φόρτωση..." : "Loading..."}</span>
       </div>
 
       <div class="music-popup absolute top-full left-0 mt-2 w-72 p-4 rounded-xl bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
@@ -320,7 +320,18 @@ const T = t[lang];
   }
 
   document.querySelectorAll('.music-widget').forEach(widget => {
-    fetchMusic(widget);
-    setInterval(() => fetchMusic(widget), 60000);
+    const start = () => {
+      if (widget.dataset.initialized === 'true') return;
+      widget.dataset.initialized = 'true';
+      fetchMusic(widget);
+      setInterval(() => {
+        if (!widget.closest('[data-signal-item]') || widget.closest('[data-signal-item]').dataset.open === 'true') {
+          fetchMusic(widget);
+        }
+      }, 60000);
+    };
+    const signalItem = widget.closest('[data-signal-item]');
+    if (signalItem) signalItem.addEventListener('playful-signal:open', start);
+    else start();
   });
 </script>

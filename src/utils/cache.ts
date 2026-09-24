@@ -36,6 +36,20 @@ export class Cache {
     }
   }
 
+  /** Read an expired entry only for a fallback when its upstream service fails. */
+  async getStale<T>(key: string): Promise<T | null> {
+    try {
+      const result = await this.db
+        .prepare('SELECT data FROM cache WHERE key = ?')
+        .bind(key)
+        .first<{ data: string }>();
+      return result ? JSON.parse(result.data) as T : null;
+    } catch (error) {
+      console.error('Cache stale get error:', error);
+      return null;
+    }
+  }
+
   /**
    * Set cached data with TTL (time to live in seconds)
    */

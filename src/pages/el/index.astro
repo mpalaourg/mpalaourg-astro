@@ -125,30 +125,8 @@ const experiences = [
 ];
 ---
 
-<style>
-.perspective-1000 {
-  perspective: 1000px;
-}
-.preserve-3d {
-  transform-style: preserve-3d;
-}
-.transform-style-preserve-3d {
-  transform-style: preserve-3d;
-}
-.backface-hidden {
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-}
-.rotate-y-180 {
-  transform: rotateY(180deg);
-}
-.group:hover .rotate-y-180 {
-  transform: rotateY(180deg);
-}
-</style>
-
-<BaseLayout title="Αρχική | Γιώργος Μπαλαούρας">
-  <main class="max-w-6xl mx-auto">
+<BaseLayout title="Γιώργος Μπαλαούρας | Μηχανικός Μηχανικής Μάθησης" description="Ο Γιώργος Μπαλαούρας δημιουργεί συστήματα μηχανικής μάθησης και τεχνητής νοημοσύνης. Δείτε έργα, δημοσιεύσεις, επαγγελματική εμπειρία και ενδιαφέροντα.">
+  <div class="max-w-6xl mx-auto">
     <!-- About Me Section -->
     <section class="py-10 px-4 sm:py-12 sm:px-6">
       <div class="flex flex-col md:flex-row gap-8 items-center md:items-start">
@@ -163,7 +141,7 @@ const experiences = [
         <!-- Right: Info -->
         <div class="flex-1">
           <h1 class="text-4xl font-bold mb-2">Γιώργος Μπαλαούρας</h1>
-          <p class="text-xl text-gray-600 dark:text-slate-400 mb-4">Senior Machine Learning Engineer</p>
+          <p class="text-xl text-gray-600 dark:text-slate-400 mb-4">Ανώτερος μηχανικός μηχανικής μάθησης</p>
           
           <p class="text-gray-600 dark:text-slate-400 mb-4 text-left sm:text-justify leading-relaxed">
             Χτίζω συστήματα machine learning που πράγματι λύνουν πραγματικά προβλήματα. Το υπόβαθρό μου εκτείνεται από ακαδημαϊκή έρευνα στο video summarization στο CERTH-ITI μέχρι το deployment ML μοντέλων σε enterprise κλίμακα. Απολαμβάνω να μετατρέπω πολύπλοκη έρευνα σε πρακτικές, production-ready λύσεις. Όταν δεν εκπαιδευώ μοντέλα, θα με βρείτε να ασχολούμαι με τη Formula 1 ή να ψάχνω για το τέλειο freddo espresso. 🏎️☕
@@ -217,7 +195,7 @@ const experiences = [
         </div>
         
         {experiences.map((exp, idx) => (
-          <div class="experience-item relative mb-8 last:mb-0 opacity-0 translate-y-8 transition-all duration-700" data-delay={idx * 200}>
+          <div class="experience-item relative mb-8 last:mb-0">
             <div class={`flex flex-col md:flex-row gap-6 ${idx % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'}`}>
               <div class="flex-1 pl-12 md:pl-0">
                 <div class={`bg-white dark:bg-slate-800 rounded-xl p-5 shadow-sm hover:shadow-lg transition-all duration-300 ${exp.prominent ? 'border-2 border-blue-500 dark:border-blue-400 ring-2 ring-blue-100 dark:ring-blue-900 transform scale-105 md:mr-4' : exp.gapYear ? 'border-2 border-dashed border-amber-400 dark:border-amber-600' : exp.education ? 'border-2 border-emerald-500 dark:border-emerald-400 ring-2 ring-emerald-100 dark:ring-emerald-900' : 'border border-gray-200 dark:border-gray-700'}`}>
@@ -237,7 +215,7 @@ const experiences = [
                     )}
                     {!exp.prominent && (
                       <span class={`text-xs px-2 py-1 rounded-full font-medium ${exp.education ? 'bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300' : exp.gapYear ? 'bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-300' : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-300'}`}>
-                        {exp.positions[0].current ? 'Present' : `${exp.positions[0].date_start.split(' ')[1]}`}
+                        {exp.positions[0].current ? 'Σήμερα' : `${exp.positions[0].date_start.split(' ')[1]}`}
                       </span>
                     )}
                   </div>
@@ -309,35 +287,29 @@ const experiences = [
       
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         {sortedPublications.map((pub) => (
-          <a href={`/el/publications/${pub.slug}`} class="block group perspective-1000">
-            <div class="relative w-full h-72 preserve-3d group-hover:rotate-y-180 transition-transform duration-500 transform-style-preserve-3d">
-              <div class="absolute inset-0 backface-hidden rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-800 p-4 flex flex-col overflow-hidden">
-                {pub.data.featuredImage && (
-                  <img
-                    src={pub.data.featuredImage}
-                    alt={pub.data.title}
-                    class="w-full h-32 object-cover rounded-lg mb-3"
-                  />
-                )}
-                <h3 class="font-semibold text-base leading-tight mb-1 line-clamp-2">{pub.data.title}</h3>
-                <p class="text-sm text-gray-600 dark:text-slate-400 mb-1">
-                  {pub.data.publication} · {pub.data.date.toLocaleDateString("el-GR", { year: "numeric", month: "short" })}
-                </p>
-                {pub.data.doi && (
-                  <span class="inline-flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 citation-badge" data-doi={pub.data.doi} data-citation-count style="opacity: 0;">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                    </svg>
-                    <span class="citation-number">...</span> αναφορές
-                  </span>
-                )}
-              </div>
-              <div class="absolute inset-0 backface-hidden rotate-y-180 rounded-xl border border-gray-200 dark:border-gray-700 bg-gradient-to-br from-slate-700 to-slate-800 p-4 flex items-center justify-center overflow-hidden">
-                <p class="text-sm text-gray-200 leading-relaxed line-clamp-6 text-left sm:text-justify">
-                  {pub.data.abstract}
-                </p>
-              </div>
-            </div>
+          <a href={`/el/publications/${pub.slug}`} class="group flex h-full flex-col rounded-xl border border-gray-200 bg-white p-4 transition-colors hover:border-slate-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-500 dark:border-gray-700 dark:bg-slate-800 dark:hover:border-slate-500">
+            {pub.data.featuredImage && (
+              <img
+                src={pub.data.featuredImage}
+                alt=""
+                width="640"
+                height="360"
+                loading="lazy"
+                decoding="async"
+                class="mb-3 h-32 w-full rounded-lg object-cover"
+              />
+            )}
+            <h3 class="mb-2 line-clamp-3 text-base font-semibold leading-tight">{pub.data.title}</h3>
+            <p class="mb-3 text-sm text-gray-600 dark:text-slate-400">
+              {pub.data.publication} · {pub.data.date.toLocaleDateString("el-GR", { year: "numeric", month: "short" })}
+            </p>
+            {pub.data.doi && (
+              <span class="citation-badge mb-2 text-xs text-blue-700 dark:text-blue-300" data-doi={pub.data.doi} hidden>
+                <span class="citation-number"></span> αναφορές
+              </span>
+            )}
+            <p class="mb-4 text-sm leading-relaxed text-gray-700 dark:text-slate-300">{pub.data.summary}</p>
+            <span class="mt-auto text-sm font-medium text-orange-700 group-hover:underline dark:text-orange-400">Δείτε τη δημοσίευση →</span>
           </a>
         ))}
       </div>
@@ -346,11 +318,12 @@ const experiences = [
     <!-- Projects Section -->
     <section class="py-8 px-4 sm:px-6">
       <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-        <h2 class="text-2xl font-bold">Projects</h2>
+        <h2 class="text-2xl font-bold">Έργα</h2>
         <div class="flex flex-wrap items-center gap-3 sm:gap-4">
           <div class="flex flex-wrap items-center gap-2">
+            <label for="projects-search" class="sr-only">Αναζήτηση έργων</label>
             <input
-              type="text"
+              type="search"
               id="projects-search"
               placeholder="Αναζήτηση..."
               class="px-3 py-1 text-sm rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-400"
@@ -372,7 +345,11 @@ const experiences = [
               <div class="aspect-video overflow-hidden">
                 <img
                   src={proj.data.featuredImage}
-                  alt={proj.data.title}
+                  alt=""
+                  width="640"
+                  height="360"
+                  loading="lazy"
+                  decoding="async"
                   class="w-full h-full object-cover"
                 />
               </div>
@@ -388,89 +365,7 @@ const experiences = [
       </div>
     </section>
 
-    <script>
-      const observerOptions = {
-        root: null,
-        rootMargin: '0px',
-        threshold: 0.1
-      };
 
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            const delay = parseInt(entry.target.getAttribute('data-delay') || '0');
-            setTimeout(() => {
-              entry.target.classList.remove('opacity-0', 'translate-y-8');
-              entry.target.classList.add('opacity-100', 'translate-y-0');
-            }, delay);
-          } else {
-            entry.target.classList.remove('opacity-100', 'translate-y-0');
-            entry.target.classList.add('opacity-0', 'translate-y-8');
-          }
-        });
-      }, observerOptions);
-
-      document.querySelectorAll('.experience-item').forEach(item => {
-        observer.observe(item);
-      });
-
-      // Projects search and filter
-      const projectsSearch = document.getElementById('projects-search');
-      const projectCards = document.querySelectorAll('.project-card');
-      const projectTagButtons = document.querySelectorAll('.project-tag');
-      let currentProjectTag = '';
-
-      function filterProjects() {
-        const searchTerm = (projectsSearch as HTMLInputElement)?.value?.toLowerCase() || '';
-        const isFiltering = searchTerm !== '' || currentProjectTag !== '';
-        let visibleCount = 0;
-        
-        projectCards.forEach((card, index) => {
-          const title = card.getAttribute('data-title') || '';
-          const tags = JSON.parse(card.getAttribute('data-tags') || '[]');
-          
-          const matchesSearch = title.includes(searchTerm);
-          const matchesTag = currentProjectTag === '' || tags.includes(currentProjectTag);
-          
-          if (matchesSearch && matchesTag) {
-            if (!isFiltering && index >= 3) {
-              (card as HTMLElement).style.display = 'none';
-            } else if (visibleCount < 3) {
-              (card as HTMLElement).style.display = 'block';
-              visibleCount++;
-            } else {
-              (card as HTMLElement).style.display = 'none';
-            }
-          } else {
-            (card as HTMLElement).style.display = 'none';
-          }
-        });
-      }
-
-      filterProjects();
-
-      projectsSearch?.addEventListener('input', filterProjects);
-
-      projectTagButtons.forEach(tag => {
-        tag.addEventListener('click', () => {
-          const tagValue = tag.getAttribute('data-tag') || '';
-          currentProjectTag = currentProjectTag === tagValue ? '' : tagValue;
-          
-          projectTagButtons.forEach(t => {
-            const tTag = t.getAttribute('data-tag') || '';
-            if (tTag === currentProjectTag && currentProjectTag !== '') {
-              t.classList.remove('bg-gray-200', 'dark:bg-slate-700', 'text-gray-700', 'dark:text-slate-300');
-              t.classList.add('bg-blue-600', 'text-white');
-            } else {
-              t.classList.remove('bg-blue-600', 'text-white');
-              t.classList.add('bg-gray-200', 'dark:bg-slate-700', 'text-gray-700', 'dark:text-slate-300');
-            }
-          });
-          
-          filterProjects();
-        });
-      });
-    </script>
 
     <SkillsetSection lang="el" />
 
@@ -480,8 +375,9 @@ const experiences = [
         <h2 class="text-2xl font-bold">Formula 1</h2>
         <div class="flex flex-wrap items-center gap-3 sm:gap-4">
           <div class="flex flex-wrap items-center gap-2">
+            <label for="formula-search" class="sr-only">Αναζήτηση άρθρων Formula 1</label>
             <input
-              type="text"
+              type="search"
               id="formula-search"
               placeholder="Αναζήτηση..."
               class="px-3 py-1 text-sm rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-400"
@@ -502,7 +398,11 @@ const experiences = [
             {season.data.featuredImage && (
               <img
                 src={season.data.featuredImage}
-                alt={season.data.title}
+                alt=""
+                width="640"
+                height="256"
+                loading="lazy"
+                decoding="async"
                 class="w-full h-32 object-cover"
               />
             )}
@@ -645,30 +545,36 @@ const experiences = [
 
     </script>
 
+
+  </div>
+
   <script>
-      // Fetch citation counts for publications on homepage
-      const citationBadges = document.querySelectorAll('.citation-badge');
-      citationBadges.forEach(badge => {
-        const doi = badge.getAttribute('data-doi');
-        const numberEl = badge.querySelector('.citation-number');
-        
-        if (doi && numberEl) {
-          fetch(`/api/citations?doi=${encodeURIComponent(doi)}`)
-            .then(res => res.json())
-            .then(data => {
-              if (data.citationCount !== null && data.citationCount !== undefined) {
-                numberEl.textContent = data.citationCount.toLocaleString();
-                badge.style.opacity = '1';
-              } else {
-                badge.style.display = 'none';
-              }
-            })
-            .catch(err => {
-              console.error('Failed to fetch citations:', err);
-              badge.style.display = 'none';
-            });
+    // Citation counts are requested only when the publication cards enter the viewport.
+    const citationBadges = document.querySelectorAll<HTMLElement>('.citation-badge');
+    const citationObserver = new IntersectionObserver((entries, observer) => {
+      entries.forEach(async (entry) => {
+        if (!entry.isIntersecting) return;
+        observer.unobserve(entry.target);
+        const badge = entry.target.querySelector<HTMLElement>('.citation-badge');
+        if (!badge) return;
+        const doi = badge.dataset.doi;
+        const number = badge.querySelector('.citation-number');
+        if (!doi || !number) return;
+        try {
+          const response = await fetch(`/api/citations?doi=${encodeURIComponent(doi)}`);
+          const data = await response.json();
+          if (typeof data.citationCount === 'number') {
+            number.textContent = data.citationCount.toLocaleString();
+            badge.hidden = false;
+          }
+        } catch {
+          // Leave the optional badge hidden if the citation service is unavailable.
         }
       });
-    </script>
-  </main>
+    }, { rootMargin: '200px' });
+    citationBadges.forEach((badge) => {
+      const card = badge.closest('a');
+      if (card) citationObserver.observe(card);
+    });
+  </script>
 </BaseLayout>

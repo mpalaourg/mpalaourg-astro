@@ -2,12 +2,22 @@
 import "../styles/global.css";
 import CookiePopup from "../components/CookiePopup.astro";
 
-const { title = "Georgios Balaouras", description } = Astro.props;
+const {
+  title = "Georgios Balaouras",
+  description = "Georgios Balaouras is a machine learning engineer building practical AI systems and sharing projects, research, and interests.",
+  noindex = false,
+} = Astro.props;
 const pathname = Astro.url.pathname;
 const isEl = pathname === "/el" || pathname.startsWith("/el/");
 const enPath = isEl ? (pathname.replace(/^\/el/, "") || "/") : pathname;
 const elPath = isEl ? pathname : pathname === "/" ? "/el/" : `/el${pathname}`;
 const homePath = isEl ? "/el/" : "/";
+const canonicalPath = (path: string) => path === "/" || path.endsWith("/") ? path : `${path}/`;
+const siteUrl = Astro.site ?? new URL("https://mpalaourg.dev");
+const canonicalUrl = new URL(canonicalPath(pathname), siteUrl).href;
+const enUrl = new URL(canonicalPath(enPath), siteUrl).href;
+const elUrl = new URL(canonicalPath(elPath), siteUrl).href;
+const shareImageUrl = new URL("/media/share-preview.png", siteUrl).href;
 ---
 
 <!DOCTYPE html>
@@ -16,17 +26,30 @@ const homePath = isEl ? "/el/" : "/";
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
-    {description && <meta name="description" content={description} />}
+    <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex, follow" />}
+    <link rel="canonical" href={canonicalUrl} />
+    <link rel="alternate" hreflang="en" href={enUrl} />
+    <link rel="alternate" hreflang="el" href={elUrl} />
+    <link rel="alternate" hreflang="x-default" href={enUrl} />
 
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
     <!-- Open Graph -->
     <meta property="og:title" content={title} />
-    {description && <meta property="og:description" content={description} />}
-    <meta property="og:image" content="https://mpalaourg.dev/media/avatar.jpg" />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={shareImageUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:type" content="image/png" />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content={Astro.url.href} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:locale" content={isEl ? "el_GR" : "en_US"} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={shareImageUrl} />
     
     <!-- Theme script (runs before paint) -->
     <script>
@@ -71,7 +94,7 @@ const homePath = isEl ? "/el/" : "/";
                 class="text-gray-600 hover:text-gray-900
                     dark:text-gray-300 dark:hover:text-white"
             >
-                Projects
+                {isEl ? "Έργα" : "Projects"}
             </a>
             <a
                 href={isEl ? "/el/publications" : "/publications"}
@@ -93,7 +116,7 @@ const homePath = isEl ? "/el/" : "/";
           <div class="relative z-50 group">
             <button
               type="button"
-              aria-label="Change language"
+              aria-label={isEl ? "Αλλαγή γλώσσας" : "Change language"}
               tabindex="0"
               class="flex items-center gap-1 rounded-md border px-2 py-1 text-sm
                      border-gray-300 bg-gray-100 text-gray-800
@@ -133,7 +156,7 @@ const homePath = isEl ? "/el/" : "/";
           <button
             id="theme-toggle"
             type="button"
-            aria-label="Toggle dark mode"
+            aria-label={isEl ? "Εναλλαγή σκοτεινής εμφάνισης" : "Toggle dark mode"}
             class="cursor-pointer rounded-md border px-2 py-1 text-sm
                     border-gray-300 bg-gray-100 text-gray-800
                     hover:bg-gray-200

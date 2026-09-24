@@ -2,7 +2,7 @@
 title: "Optimization Algorithms"
 summary: "Implementation of various optimization algorithms for finding function minima."
 date: 2018-02-01
-featuredImage: "/projects/optimization-algorithms/featured.png"
+featuredImage: "/projects/optimization-algorithms/featured.webp"
 tags:
   - function minimum
   - function estimation

@@ -28,7 +28,7 @@ const T = t[lang];
     <>
       <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-pink-500/10 border border-indigo-200/50 dark:border-indigo-700/50 hover:border-indigo-400 dark:hover:border-indigo-500 transition-all cursor-pointer">
         <span class="text-base">🚀</span>
-        <span class="nasa-title text-xs font-medium text-gray-600 dark:text-slate-400 truncate max-w-[120px]">Loading...</span>
+        <span class="nasa-title text-xs font-medium text-gray-600 dark:text-slate-400 truncate max-w-[120px]">{lang === "el" ? "Φόρτωση..." : "Loading..."}</span>
       </div>
 
       <div class="nasa-popup absolute top-full left-0 mt-2 w-80 p-4 rounded-xl bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">

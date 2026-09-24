@@ -22,8 +22,8 @@ const formatAuthors = (authors: string[], authorNotes?: string[]) => {
 };
 ---
 
-<BaseLayout title="Δημοσιεύσεις | Γεώργιος Μπαλαούρας">
-  <main class="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-12">
+<BaseLayout title="Δημοσιεύσεις | Γεώργιος Μπαλαούρας" description="Ερευνητικές δημοσιεύσεις του Γιώργου Μπαλαούρα για τη σύνοψη βίντεο, τους μηχανισμούς προσοχής και την εξηγήσιμη μηχανική μάθηση.">
+  <div class="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-12">
     <h1 class="text-4xl font-bold mb-6">Δημοσιεύσεις</h1>
 
     <div class="grid grid-cols-1 gap-8">
@@ -88,7 +88,7 @@ const formatAuthors = (authors: string[], authorNotes?: string[]) => {
                     target="_blank"
                     class="inline-block rounded-md px-2 py-1.5 text-sm bg-slate-700 hover:bg-slate-600 text-white text-center min-w-[3.5rem]"
                   >
-                    Slides
+                    Διαφάνειες
                   </a>
                 )}
 
@@ -98,7 +98,7 @@ const formatAuthors = (authors: string[], authorNotes?: string[]) => {
                     target="_blank"
                     class="inline-block rounded-md px-2 py-1.5 text-sm bg-slate-700 hover:bg-slate-600 text-white text-center min-w-[3.5rem]"
                   >
-                    Project
+                    Έργο
                   </a>
                 )}
               </div>
@@ -148,7 +148,7 @@ const formatAuthors = (authors: string[], authorNotes?: string[]) => {
         </article>
       ))}
     </div>
-  </main>
+  </div>
   
   <script is:inline>
     // Fetch citation counts for all publications with DOI

@@ -18,14 +18,14 @@ const { Content } = await post.render();
 const monthYear = post.data.date.toLocaleDateString("el-GR", { month: "long", year: "numeric" });
 ---
 
-<BaseLayout title={`${post.data.title} | Projects`}>
+<BaseLayout title={`${post.data.title} | Έργα | Γιώργος Μπαλαούρας`} description={post.data.summary}>
   <article class="mx-auto max-w-4xl px-4 py-10 sm:px-6 sm:py-12">
     <header class="mb-8">
       <a
         href="/el/projects"
         class="text-sm text-gray-500 dark:text-slate-400 hover:underline mb-4 inline-block"
       >
-        ← Επιστροφή στα projects
+        ← Επιστροφή στα έργα
       </a>
 
       {post.data.featuredImage && (
@@ -72,7 +72,7 @@ const monthYear = post.data.date.toLocaleDateString("el-GR", { month: "long", ye
           target="_blank"
           class="inline-block rounded-md px-3 py-1.5 text-sm bg-slate-700 hover:bg-slate-600 text-white"
         >
-          Slides
+          Διαφάνειες
         </a>
       )}
 

@@ -11,9 +11,9 @@ const posts = allPosts.sort((a, b) => {
 });
 ---
 
-<BaseLayout title="Projects | Γεώργιος Μπαλαούρας">
-  <main class="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-12">
-    <h1 class="text-4xl font-bold mb-6">Projects</h1>
+<BaseLayout title="Έργα | Γεώργιος Μπαλαούρας" description="Εξερευνήστε έργα του Γιώργου Μπαλαούρα στη μηχανική μάθηση, την τεχνητή νοημοσύνη, το λογισμικό και την έρευνα.">
+  <div class="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-12">
+    <h1 class="text-4xl font-bold mb-6">Έργα</h1>
 
     <div class="grid grid-cols-1 gap-8">
       {posts.map((post) => (
@@ -57,7 +57,7 @@ const posts = allPosts.sort((a, b) => {
                     target="_blank"
                     class="inline-block rounded-md px-2 py-1.5 text-sm bg-slate-700 hover:bg-slate-600 text-white text-center min-w-[3.5rem]"
                   >
-                    Slides
+                    Διαφάνειες
                   </a>
                 )}
 
@@ -92,5 +92,5 @@ const posts = allPosts.sort((a, b) => {
         </article>
       ))}
     </div>
-  </main>
+  </div>
 </BaseLayout>

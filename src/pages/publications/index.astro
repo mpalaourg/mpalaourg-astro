@@ -22,8 +22,8 @@ const formatAuthors = (authors: string[], authorNotes?: string[]) => {
 };
 ---
 
-<BaseLayout title="Publications | Georgios Balaouras">
-  <main class="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-12">
+<BaseLayout title="Publications | Georgios Balaouras" description="Research publications by Georgios Balaouras on video summarization, attention mechanisms, and explainable machine learning.">
+  <div class="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-12">
     <h1 class="text-4xl font-bold mb-6">Publications</h1>
 
     <div class="grid grid-cols-1 gap-8">
@@ -148,7 +148,7 @@ const formatAuthors = (authors: string[], authorNotes?: string[]) => {
         </article>
       ))}
     </div>
-  </main>
+  </div>
   
   <script is:inline>
     // Fetch citation counts for all publications with DOI
