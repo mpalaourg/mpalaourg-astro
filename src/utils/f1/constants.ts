@@ -78,7 +78,7 @@ export const CIRCUIT_IMAGE_PATHS: Record<string, string> = {
   silverstone: "formula/circuit-images/silverstone.png",
   hungaroring: "formula/circuit-images/hungaroring.svg",
   spa: "formula/circuit-images/spa.svg",
-  zandvoort: "formula/circuit-images/zandvoort.png",
+  zandvoort: "formula/circuit-images/zandvoort.webp",
   monza: "formula/circuit-images/monza.svg",
   baku: "formula/circuit-images/baku.svg",
   marina_bay: "formula/circuit-images/marina_bay.svg",
@@ -87,6 +87,6 @@ export const CIRCUIT_IMAGE_PATHS: Record<string, string> = {
   interlagos: "formula/circuit-images/interlagos.svg",
   vegas: "formula/circuit-images/vegas.svg",
   losail: "formula/circuit-images/losail.svg",
-  yas_marina: "formula/circuit-images/yas_marina.png",
+  yas_marina: "formula/circuit-images/yas_marina.webp",
   madring: "formula/circuit-images/madrid.svg",
 };

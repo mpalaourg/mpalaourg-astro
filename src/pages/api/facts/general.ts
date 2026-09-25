@@ -1,18 +1,26 @@
 import type { APIRoute } from "astro";
 import { getRandomFallback, fallbackGeneralFacts } from "../../../utils/facts/fallbacks";
 import { createCache } from "../../../utils/cache";
+import { claimFactRefresh } from "../../../utils/facts/refresh";
 
 export const GET: APIRoute = async ({ url, locals }) => {
-  // Check if this is a "New Fact" request (bypass cache)
-  const skipCache = url.searchParams.get('nocache') === 'true';
+  const refreshRequested = url.searchParams.get('nocache') === 'true';
   
   // Create cache instance
   const runtime = locals.runtime as { env: { DB?: D1Database } };
   const cache = createCache(runtime.env.DB);
+  const refreshAllowed = refreshRequested && await claimFactRefresh(runtime.env.DB, 'general');
   
   try {
-    // Check cache first (only if not skipping cache)
-    if (!skipCache && cache) {
+    if (refreshRequested && !refreshAllowed) {
+      return new Response(JSON.stringify({
+        fact: getRandomFallback(fallbackGeneralFacts),
+        source: 'fallback',
+        sourceUrl: '',
+        needsTranslation: true,
+      }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+    }
+    if (!refreshAllowed && cache) {
       const cached = await cache.get<{ fact: string; source: string; sourceUrl: string; needsTranslation: boolean }>('facts:general');
       if (cached) {
         console.log('Serving cached general fact');
@@ -39,8 +47,8 @@ export const GET: APIRoute = async ({ url, locals }) => {
       needsTranslation: true,
     };
     
-    // Cache the result for 90 seconds (only if not skipping cache)
-    if (!skipCache && cache) {
+    // Refreshes update the shared cache so other visitors can reuse the result.
+    if (cache) {
       await cache.set('facts:general', result, 90);
     }
     

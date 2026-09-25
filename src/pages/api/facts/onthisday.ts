@@ -10,10 +10,7 @@ export const GET: APIRoute = async ({ request, locals }) => {
   try {
     // Get language parameter
     const url = new URL(request.url);
-    const lang = url.searchParams.get('lang') || 'en';
-    
-    // Check if this is a "New Fact" request (bypass cache to get fresh events)
-    const skipCache = url.searchParams.get('nocache') === 'true';
+    const lang = url.searchParams.get('lang') === 'el' ? 'el' : 'en';
 
     // Always use today's date
     const today = new Date();
@@ -27,17 +24,14 @@ export const GET: APIRoute = async ({ request, locals }) => {
     const dayStr = day.toString().padStart(2, '0');
     const monthName = monthNames[month - 1];
 
-    // Wikipedia API supports: ar, de, en, es, fi, fr, he, it, ja, ko, nl, no, pl, pt, ro, ru, sv, uk, vi, zh
-    // Greek (el) is NOT supported, so we'll fetch English and translate if needed
-    const supportedLangs = ['ar', 'de', 'en', 'es', 'fi', 'fr', 'he', 'it', 'ja', 'ko', 'nl', 'no', 'pl', 'pt', 'ro', 'ru', 'sv', 'uk', 'vi', 'zh'];
     const isGreek = lang === 'el';
-    const apiLang = supportedLangs.includes(lang) ? lang : 'en';
+    const apiLang = 'en';
     
     // Create cache key - cache the events list for today
     const cacheKey = `facts:otd:${monthStr}:${dayStr}:${apiLang}`;
     
-    // Check cache (only if not skipping cache)
-    if (!skipCache && cache) {
+    // Each click can choose another event from today's cached list.
+    if (cache) {
       const cached = await cache.get<{ events: Array<{ text: string }>; date: string; source: string; sourceUrl: string }>(cacheKey);
       if (cached && cached.events && cached.events.length > 0) {
         // Return a random event from cached list

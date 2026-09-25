@@ -1,18 +1,28 @@
 import type { APIRoute } from "astro";
 import { getRandomFallbackObject, fallbackSportsQuestions } from "../../../utils/facts/fallbacks";
 import { createCache } from "../../../utils/cache";
+import { claimFactRefresh } from "../../../utils/facts/refresh";
 
 export const GET: APIRoute = async ({ url, locals }) => {
-  // Check if this is a "New Fact" request (bypass cache)
-  const skipCache = url.searchParams.get('nocache') === 'true';
+  const refreshRequested = url.searchParams.get('nocache') === 'true';
   
   // Create cache instance
   const runtime = locals.runtime as { env: { DB?: D1Database } };
   const cache = createCache(runtime.env.DB);
+  const refreshAllowed = refreshRequested && await claimFactRefresh(runtime.env.DB, 'sports');
   
   try {
-    // Check cache first (only if not skipping cache)
-    if (!skipCache && cache) {
+    if (refreshRequested && !refreshAllowed) {
+      const fallback = getRandomFallbackObject(fallbackSportsQuestions);
+      return new Response(JSON.stringify({
+        question: fallback.question,
+        answer: fallback.answer,
+        source: 'fallback',
+        sourceUrl: '',
+        needsTranslation: true,
+      }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+    }
+    if (!refreshAllowed && cache) {
       const cached = await cache.get<{ question: string; answer: string; source: string; sourceUrl: string; needsTranslation: boolean }>('facts:sports');
       if (cached) {
         console.log('Serving cached sports fact');
@@ -51,8 +61,7 @@ export const GET: APIRoute = async ({ url, locals }) => {
       needsTranslation: true,
     };
     
-    // Cache the result for 90 seconds (only if not skipping cache)
-    if (!skipCache && cache) {
+    if (cache) {
       await cache.set('facts:sports', result, 90);
     }
     

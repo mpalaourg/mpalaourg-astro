@@ -193,6 +193,7 @@ const T = t[lang];
 
 <script is:inline>
   const failedImages = new Set();
+  const musicIconPath = 'M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.369 4.369 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z';
   const placeholderPatterns = [
     '/star.',
     'default_album',
@@ -207,6 +208,67 @@ const T = t[lang];
   function isPlaceholderImage(src) {
     if (!src) return true;
     return placeholderPatterns.some(pattern => src.includes(pattern));
+  }
+
+  function safeHttpUrl(value) {
+    if (typeof value !== 'string') return null;
+    try {
+      const url = new URL(value);
+      return url.protocol === 'https:' || url.protocol === 'http:' ? url.href : null;
+    } catch {
+      return null;
+    }
+  }
+
+  function createMusicFallback() {
+    const fallback = document.createElement('div');
+    fallback.className = 'flex w-8 h-8 shrink-0 items-center justify-center rounded bg-gradient-to-br from-green-400 via-emerald-500 to-teal-600 text-white';
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('viewBox', '0 0 20 20');
+    svg.setAttribute('fill', 'currentColor');
+    svg.setAttribute('class', 'h-4 w-4');
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', musicIconPath);
+    svg.append(path);
+    fallback.append(svg);
+    return fallback;
+  }
+
+  function createRecentTrackRow(track, index, count) {
+    const row = document.createElement('div');
+    row.className = `flex items-center gap-2 py-1.5 ${index < count - 1 ? 'border-b border-gray-100 dark:border-gray-700' : ''}`;
+    const cover = safeHttpUrl(track.cover);
+    if (cover && !failedImages.has(cover) && !isPlaceholderImage(cover)) {
+      const image = document.createElement('img');
+      image.src = cover;
+      image.alt = '';
+      image.className = 'w-8 h-8 rounded object-cover';
+      const fallback = createMusicFallback();
+      fallback.classList.add('hidden');
+      image.addEventListener('error', () => {
+        failedImages.add(cover);
+        image.classList.add('hidden');
+        fallback.classList.remove('hidden');
+      });
+      row.append(image, fallback);
+    } else {
+      row.append(createMusicFallback());
+    }
+
+    const details = document.createElement('div');
+    details.className = 'min-w-0 flex-1';
+    const title = document.createElement('div');
+    title.className = 'truncate text-sm font-medium';
+    title.textContent = String(track.track ?? '');
+    const artist = document.createElement('div');
+    artist.className = 'truncate text-xs text-gray-500 dark:text-slate-500';
+    artist.textContent = String(track.artist ?? '');
+    details.append(title, artist);
+    const time = document.createElement('span');
+    time.className = 'shrink-0 text-[10px] text-gray-400';
+    time.textContent = String(track.timeAgo ?? '');
+    row.append(details, time);
+    return row;
   }
 
   function handleImageError(img, fallbackEl) {
@@ -242,6 +304,11 @@ const T = t[lang];
 
       const tracks = data.tracks;
       const currentTrack = tracks[0];
+      if (!currentTrack) {
+        const statusEl = widget.querySelector('.music-status');
+        if (statusEl) statusEl.textContent = lang === 'el' ? 'Κανένα κομμάτι' : 'No tracks';
+        return;
+      }
       const recentTracks = tracks.slice(1, variant === 'contained' ? 6 : 6);
 
       const statusEl = widget.querySelector('.music-status');
@@ -264,13 +331,14 @@ const T = t[lang];
       const indicatorEl = widget.querySelector('.music-playing-indicator');
       const waveformEl = widget.querySelector('.music-waveform');
 
-      if (currentCoverEl && currentTrack.cover && !isPlaceholderImage(currentTrack.cover)) {
-        if (failedImages.has(currentTrack.cover)) {
+      const currentCover = safeHttpUrl(currentTrack.cover);
+      if (currentCoverEl && currentCover && !isPlaceholderImage(currentCover)) {
+        if (failedImages.has(currentCover)) {
           handleImageError(currentCoverEl, currentCoverFallback);
         } else {
-          currentCoverEl.src = currentTrack.cover;
+          currentCoverEl.src = currentCover;
           currentCoverEl.onerror = () => handleImageError(currentCoverEl, currentCoverFallback);
-          currentCoverEl.onload = () => handleImageLoad(currentCoverEl, currentCoverFallback, currentTrack.cover);
+          currentCoverEl.onload = () => handleImageLoad(currentCoverEl, currentCoverFallback, currentCover);
         }
       } else if (currentCoverEl) {
         handleImageError(currentCoverEl, currentCoverFallback);
@@ -288,25 +356,8 @@ const T = t[lang];
       if (waveformEl) waveformEl.classList.toggle('hidden', !currentTrack.isPlaying);
 
       const recentListEl = widget.querySelector('.music-recent-list');
-      if (recentListEl && recentTracks.length > 0) {
-        recentListEl.innerHTML = recentTracks.map((t, index) => {
-          const hasValidCover = t.cover && !failedImages.has(t.cover) && !isPlaceholderImage(t.cover);
-          const musicIconSvg = '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.369 4.369 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z" /></svg>';
-          const coverHtml = hasValidCover
-            ? `<img src="${t.cover}" alt="" class="w-8 h-8 rounded object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" /><div class="w-8 h-8 rounded bg-gradient-to-br from-green-400 via-emerald-500 to-teal-600 hidden items-center justify-center text-white shrink-0">${musicIconSvg}</div>`
-            : `<div class="w-8 h-8 rounded bg-gradient-to-br from-green-400 via-emerald-500 to-teal-600 flex items-center justify-center text-white shrink-0">${musicIconSvg}</div>`;
-
-          return `
-            <div class="flex items-center gap-2 py-1.5 ${index < recentTracks.length - 1 ? 'border-b border-gray-100 dark:border-gray-700' : ''}">
-              ${coverHtml}
-              <div class="min-w-0 flex-1">
-                <div class="text-sm font-medium truncate">${t.track}</div>
-                <div class="text-xs text-gray-500 dark:text-slate-500 truncate">${t.artist}</div>
-              </div>
-              <span class="text-[10px] text-gray-400 shrink-0">${t.timeAgo || ''}</span>
-            </div>
-          `;
-        }).join('');
+      if (recentListEl) {
+        recentListEl.replaceChildren(...recentTracks.map((track, index) => createRecentTrackRow(track, index, recentTracks.length)));
       }
 
       const updatedEl = widget.querySelector('.music-updated');

@@ -14,6 +14,8 @@ const t = {
     onThisDay: "On This Day",
     sports: "Sports",
     answer: "Answer",
+    revealAnswer: "Reveal answer",
+    hideAnswer: "Hide answer",
     translationNote: "",
   },
   el: {
@@ -23,6 +25,8 @@ const t = {
     onThisDay: "Σαν Σήμερα",
     sports: "Αθλητισμός",
     answer: "Απάντηση",
+    revealAnswer: "Εμφάνιση απάντησης",
+    hideAnswer: "Απόκρυψη απάντησης",
     translationNote: "Αυτόματη μετάφραση. Ενδέχονται λάθη.",
   },
 } as const;
@@ -30,7 +34,7 @@ const t = {
 const T = t[lang];
 ---
 
-<div class="fact-widget group relative" data-lang={lang} data-category="general" data-variant={variant}>
+<div class="fact-widget group relative" data-lang={lang} data-category="general" data-variant={variant} data-reveal-answer={T.revealAnswer} data-hide-answer={T.hideAnswer}>
   {variant === "compact" ? (
     <>
       <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-yellow-500/10 via-orange-400/10 to-amber-400/10 border border-yellow-200/50 dark:border-yellow-700/50 hover:border-yellow-400 dark:hover:border-yellow-500 transition-all cursor-pointer">
@@ -113,6 +117,16 @@ const T = t[lang];
 
 <script is:inline>
   const translationCache = new Map();
+
+  function safeHttpUrl(value) {
+    if (typeof value !== 'string') return null;
+    try {
+      const url = new URL(value);
+      return url.protocol === 'https:' || url.protocol === 'http:' ? url.href : null;
+    } catch {
+      return null;
+    }
+  }
 
   async function translateText(text, targetLang) {
     const cacheKey = `${text}_${targetLang}`;
@@ -197,25 +211,33 @@ const T = t[lang];
           if (aTranslation.success) answer = aTranslation.text;
         }
 
-        factText = `<b>${lang === 'el' ? 'Ερώτηση' : 'Question'}:</b> ${question}\n\n<div class="mt-2 pt-2 border-t border-gray-200 dark:border-gray-700"><span class="text-xs text-gray-500">${lang === 'el' ? 'Απάντηση' : 'Answer'}:</span> <span class="spoiler-text bg-gray-800 text-gray-800 dark:bg-gray-200 dark:text-gray-200 px-1 rounded cursor-pointer hover:bg-transparent hover:text-gray-800 dark:hover:bg-transparent dark:hover:text-gray-200 transition-all select-none">${answer}</span></div>`;
-
         if (previewEl) previewEl.textContent = `${lang === 'el' ? 'Ερώτηση' : 'Question'}: ${question.substring(0, 30)}...`;
         if (contentEl) {
-          contentEl.innerHTML = factText;
-          const spoilerText = contentEl.querySelector('.spoiler-text');
-          if (spoilerText) {
-            spoilerText.addEventListener('mouseenter', () => {
-              spoilerText.classList.remove('bg-gray-800', 'text-gray-800', 'dark:bg-gray-200', 'dark:text-gray-200');
-            });
-            spoilerText.addEventListener('click', () => {
-              spoilerText.classList.toggle('revealed');
-              if (spoilerText.classList.contains('revealed')) {
-                spoilerText.classList.add('bg-gray-800', 'text-gray-800', 'dark:bg-gray-200', 'dark:text-gray-200');
-              } else {
-                spoilerText.classList.remove('bg-gray-800', 'text-gray-800', 'dark:bg-gray-200', 'dark:text-gray-200');
-              }
-            });
-          }
+          const questionLabel = document.createElement('strong');
+          questionLabel.textContent = `${lang === 'el' ? 'Ερώτηση' : 'Question'}: `;
+          const answerRow = document.createElement('div');
+          answerRow.className = 'mt-2 border-t border-gray-200 pt-2 dark:border-gray-700';
+          const answerLabel = document.createElement('span');
+          answerLabel.className = 'text-xs text-gray-500';
+          answerLabel.textContent = `${lang === 'el' ? 'Απάντηση' : 'Answer'}: `;
+          const revealButton = document.createElement('button');
+          revealButton.type = 'button';
+          revealButton.className = 'cursor-pointer rounded px-1 text-xs font-medium text-yellow-700 underline underline-offset-2 hover:text-yellow-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-yellow-600 dark:text-yellow-400 dark:hover:text-yellow-300';
+          revealButton.textContent = widget.dataset.revealAnswer;
+          revealButton.setAttribute('aria-expanded', 'false');
+          const answerText = document.createElement('span');
+          answerText.className = 'ml-1';
+          answerText.id = `fact-answer-${Math.random().toString(36).slice(2)}`;
+          answerText.textContent = String(answer ?? '');
+          answerText.hidden = true;
+          revealButton.setAttribute('aria-controls', answerText.id);
+          revealButton.addEventListener('click', () => {
+            answerText.hidden = !answerText.hidden;
+            revealButton.setAttribute('aria-expanded', String(!answerText.hidden));
+            revealButton.textContent = answerText.hidden ? widget.dataset.revealAnswer : widget.dataset.hideAnswer;
+          });
+          answerRow.append(answerLabel, revealButton, answerText);
+          contentEl.replaceChildren(questionLabel, document.createTextNode(String(question ?? '')), answerRow);
         }
       } else {
         factText = data.fact;
@@ -232,12 +254,28 @@ const T = t[lang];
 
       const sourceEl = widget.querySelector('.fact-source');
       if (sourceEl) {
+        const sourceUrl = safeHttpUrl(data.sourceUrl);
         if (data.source === 'fallback') {
           sourceEl.textContent = lang === 'el' ? 'Τυχαίο γεγονός' : 'Random fact';
         } else if (category === 'otd' && data.date) {
-          sourceEl.innerHTML = `<a href="${data.sourceUrl}" target="_blank" rel="noopener" class="hover:underline">${data.date} • ${data.source} →</a>`;
-        } else if (data.sourceUrl) {
-          sourceEl.innerHTML = `<a href="${data.sourceUrl}" target="_blank" rel="noopener" class="hover:underline">${lang === 'el' ? 'Πηγή' : 'Source'}: ${data.source} →</a>`;
+          const label = `${data.date} • ${data.source} →`;
+          if (sourceUrl) {
+            const link = document.createElement('a');
+            link.href = sourceUrl;
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+            link.className = 'hover:underline';
+            link.textContent = label;
+            sourceEl.replaceChildren(link);
+          } else sourceEl.textContent = label;
+        } else if (sourceUrl) {
+          const link = document.createElement('a');
+          link.href = sourceUrl;
+          link.target = '_blank';
+          link.rel = 'noopener noreferrer';
+          link.className = 'hover:underline';
+          link.textContent = `${lang === 'el' ? 'Πηγή' : 'Source'}: ${data.source} →`;
+          sourceEl.replaceChildren(link);
         } else {
           sourceEl.textContent = `${lang === 'el' ? 'Πηγή' : 'Source'}: ${data.source}`;
         }

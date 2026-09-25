@@ -52,8 +52,17 @@ function formatTimeAgo(uts: string | undefined): string {
   return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
+const MUSIC_USERNAME = "mpalaurg";
+
 export const GET: APIRoute = async ({ url, locals }) => {
-  const username = url.searchParams.get("username") || "mpalaurg";
+  const requestedUsername = url.searchParams.get("username");
+  if (requestedUsername && requestedUsername !== MUSIC_USERNAME) {
+    return new Response(JSON.stringify({ error: "Unknown music profile" }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+  const username = MUSIC_USERNAME;
   
   // Get API key from environment
   const runtime = locals.runtime as { env: { LASTFM_API_KEY?: string; DB?: D1Database } };
@@ -88,9 +97,9 @@ export const GET: APIRoute = async ({ url, locals }) => {
       cacheKey,
       async () => {
         // Fetch recent tracks (last 8)
-        const res = await fetch(
-          `https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${username}&api_key=${apiKey}&format=json&limit=8`
-        );
+        const recentUrl = new URL('https://ws.audioscrobbler.com/2.0/');
+        recentUrl.search = new URLSearchParams({ method: 'user.getrecenttracks', user: username, api_key: apiKey, format: 'json', limit: '8' }).toString();
+        const res = await fetch(recentUrl);
         
         if (!res.ok) throw new Error(`Last.fm API error: ${res.status}`);
         
@@ -121,9 +130,9 @@ export const GET: APIRoute = async ({ url, locals }) => {
         // Fetch user info for scrobbles count
         let scrobbles = 0;
         try {
-          const userRes = await fetch(
-            `https://ws.audioscrobbler.com/2.0/?method=user.getinfo&user=${username}&api_key=${apiKey}&format=json`
-          );
+          const userUrl = new URL('https://ws.audioscrobbler.com/2.0/');
+          userUrl.search = new URLSearchParams({ method: 'user.getinfo', user: username, api_key: apiKey, format: 'json' }).toString();
+          const userRes = await fetch(userUrl);
           
           if (userRes.ok) {
             const userData = await userRes.json() as LastFmUserInfo;
