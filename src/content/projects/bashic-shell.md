@@ -1,6 +1,6 @@
 ---
 title: "Bash-ic Shell"
-summary: "My own Unix shell implementation in C."
+summary: "A Unix shell in C with built-in commands, external programs, redirection, and batch mode."
 date: 2018-05-01
 featuredImage: "/projects/bashic-shell/featured.png"
 tags:
@@ -15,11 +15,11 @@ url_video: ""
 weight: 3
 ---
 
-A custom Unix shell implementation in C with the following features:
+I built a Unix shell in C to work through process execution, input/output redirection, and command handling. It supports:
 
-- **Built-in commands**: cd, help, and quit
-- **External commands**: Run any command using ```@function_name @arguments```
-- **Input/Output redirection**: Support for > and < operators
-- **Two modes**: Interactive (no arguments) and Batch (file as argument)
+- **Built-in commands:** `cd`, `help`, and `quit`.
+- **External programs:** Run commands with arguments.
+- **Input/output redirection:** Use `>` and `<` operators.
+- **Two modes:** Interactive input or a batch file passed as an argument.
 
-More details on [GitHub](https://github.com/mpalaourg/OperatingSystems_MyBash#operating-systems-final-assignment-auth-2018).
+The [repository](https://github.com/mpalaourg/OperatingSystems_MyBash#operating-systems-final-assignment-auth-2018) contains the source and usage details.

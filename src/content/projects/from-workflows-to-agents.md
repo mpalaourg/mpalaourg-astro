@@ -1,6 +1,6 @@
 ---
 title: "From Workflows to Agents: Building LLM Systems in Practice"
-summary: "A practical TechSaloniki X workshop on building LLM systems with workflows, agents, tools, and evaluations."
+summary: "A hands-on TechSaloniki X workshop comparing LLM workflows, agents, tools, and evaluation."
 date: 2026-05-01
 featuredImage: "/projects/from-workflows-to-agents/featured.webp"
 tags:
@@ -16,20 +16,20 @@ weight: 0
 
 **TechSaloniki X · May 2026 · Thessaloniki, Greece**
 
-This workshop explored how to build LLM systems that go beyond a single prompt.
+This workshop used a support-ticket assistant to show how an LLM application grows beyond a single prompt.
 
-The running example was a small support-ticket assistant. We started with a plain LLM call and gradually added the pieces that make these systems more useful in practice: structured outputs, tools, deterministic workflows, bounded agent loops, and evaluation checks.
+We started with a plain LLM call, then added structured outputs, tools, a fixed workflow, a bounded agent loop, and evaluation checks. Each step had a reason to exist in the example rather than treating more autonomy as the goal.
 
-The main question was simple:
+## Workflow or agent?
 
-Should this be a fixed workflow, or does it actually need an agent?
+A fixed workflow works well when the path is known: its steps are easier to inspect, test, and debug. An agent is useful when the next step depends on what the system discovers while running. That flexibility also increases variability, cost, latency, and the work needed to evaluate behavior.
 
-A workflow is usually the better choice when the path is known. It gives you control over the steps, makes debugging easier, and keeps the system more predictable.
+The aim was to choose only the autonomy needed to solve the task reliably.
 
-An agent becomes useful when the next step depends on what the system discovers at runtime. It can decide which tool to call next, but that flexibility comes with tradeoffs: more variability, more cost, more latency, and a harder evaluation problem.
+## What the demo covered
 
-So the point was not to present agents as the natural endpoint of every LLM application. It was to show how to reason about the tradeoff and choose the least amount of autonomy needed to solve the problem reliably.
+- Structured outputs and tool calls.
+- Deterministic workflows and bounded agent loops.
+- Golden dataset checks and an optional LLM-as-a-judge step.
 
-The demo covered plain LLM calls, structured outputs, tool usage, deterministic workflows, bounded agent loops, golden dataset evaluation, and optional LLM-as-a-Judge evaluation.
-
-The main takeaway: evaluation is not an add-on. It is the part that lets you change the system with confidence.
+Evaluation was the thread connecting the demo: it provides a way to check whether each change actually helps.

@@ -1,6 +1,6 @@
 ---
 title: "Optimization Algorithms"
-summary: "Implementation of various optimization algorithms for finding function minima."
+summary: "MATLAB implementations of local, constrained, and global optimization methods."
 date: 2018-02-01
 featuredImage: "/projects/optimization-algorithms/featured.webp"
 tags:
@@ -15,7 +15,7 @@ url_video: ""
 weight: 5
 ---
 
-Implementation of various optimization algorithms for different scenarios:
+I implemented optimization methods in MATLAB, from one-dimensional searches to methods for multivariable and constrained problems. The repository groups them by the type of objective:
 
 **1-D Convex Functions:**
 - Bisection Method ([Algorithm](https://mathworld.wolfram.com/Bisection.html))
@@ -35,3 +35,5 @@ Implementation of various optimization algorithms for different scenarios:
 
 **Global Optimization:**
 - Genetic Algorithm for unknown continuous functions
+
+The surface shown above illustrates how an optimization path moves across an objective function toward a minimum.

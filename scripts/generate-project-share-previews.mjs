@@ -8,7 +8,7 @@ const root = resolve(import.meta.dirname, '..');
 const chrome = process.env.CHROME_BINARY ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 const projects = [
   { slug: 'from-workflows-to-agents', year: '2026', title: 'From Workflows to Agents: Building LLM Systems in Practice', summary: 'LLM systems with workflows, agents, tools, and evaluations.', image: 'featured.webp' },
-  { slug: 'thesis', year: '2020', title: 'Thesis', summary: 'Mobile energy data collection and battery drain prediction.', image: 'featured.png' },
+  { slug: 'thesis', year: '2020', title: 'Mobile Battery Drain Prediction', summary: 'An Android app and machine learning pipeline for studying phone energy use.', image: 'featured.png' },
   { slug: 'JPEG', year: '2020', title: 'JPEG Image Compression', summary: 'Baseline JPEG encoding and decoding, from DCT to Huffman coding.', image: 'featured.png' },
   { slug: 'bashic-shell', year: '2018', title: 'Bash-ic Shell', summary: 'A custom Unix shell implementation in C.', image: 'featured.png', imageScale: 2 },
   { slug: 'image-segmentation', year: '2019', title: 'Image Segmentation', summary: 'Graph-based segmentation with spectral clustering and normalized cuts.', image: 'featured.png', imageScale: 1.1 },

@@ -1,6 +1,6 @@
 ---
 title: "Τμηματοποίηση Εικόνων"
-summary: "Τμηματοποίηση εικόνων με χρήση αλγορίθμων βασισμένων σε γράφους."
+summary: "Σύγκριση φασματικής ομαδοποίησης και normalized cuts για τμηματοποίηση εικόνων με γράφους."
 date: 2019-02-01
 featuredImage: "/projects/image-segmentation/featured.png"
 tags:
@@ -13,10 +13,10 @@ url_video: ""
 weight: 4
 ---
 
-Αναπαράσταση εικόνας ως πλήρως συνδεδεμένο, μη κατευθυντικό γράφο και διαχωρισμός σε τμήματα βάσει κοινών χαρακτηριστικών (χρώμα, ένταση).
+Αναπαρέστησα την εικόνα ως μη κατευθυντικό γράφο και ομαδοποίησα τα εικονοστοιχεία με βάση ομοιότητες όπως το χρώμα και η ένταση. Το έργο συγκρίνει τρεις προσεγγίσεις:
 
-Υλοποιημένες τεχνικές:
+- **Φασματική ομαδοποίηση:** Χρήση ιδιοδιανυσμάτων της Λαπλασιανής μήτρας του γράφου για ομαδοποίηση σε επιλεγμένο αριθμό συστάδων ([μέθοδος](https://www.kaggle.com/vipulgandhi/spectral-clustering-detailed-explanation#-Algorithm:-)).
+- **Normalized cuts:** Διαχωρισμός του γράφου με συνεκτίμηση των συνδέσεων μέσα και ανάμεσα στα τμήματα ([δημοσίευση](https://people.eecs.berkeley.edu/~malik/papers/SM-ncut.pdf#page=4)).
+- **Επαναληπτικά normalized cuts:** Διαδοχικός διαχωρισμός τμημάτων με βάση το κριτήριο normalized cut ([δημοσίευση](https://people.eecs.berkeley.edu/~malik/papers/SM-ncut.pdf#page=6)).
 
-- **Spectral Clustering**: Διαίρεση σε k συστάδες χρησιμοποιώντας ιδιοτιμές του γραφο-Λαπλασιάν ([Αλγόριθμος](https://www.kaggle.com/vipulgandhi/spectral-clustering-detailed-explanation#-Algorithm:-))
-- **Normalized Cuts**: Τμηματοποίηση με τις k μικρότερες ιδιοτιμές για διαχωρισμό γράφου ([Αλγόριθμος](https://people.eecs.berkeley.edu/~malik/papers/SM-ncut.pdf#page=4))
-- **Recursive Normalized Cuts**: Αυτόματος προσδιορισμός αριθμού συστάδων με χρήση της μετρικής Ncut(A, B) ([Αλγόριθμος](https://people.eecs.berkeley.edu/~malik/papers/SM-ncut.pdf#page=6))
+Η εικόνα παραπάνω δείχνει πώς διαφέρουν τα τμήματα που προκύπτουν από την ίδια αρχική εικόνα.
