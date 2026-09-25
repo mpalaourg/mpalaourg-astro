@@ -1,0 +1,99 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProjectResources from './ProjectResources.astro';
+import { projectVisuals } from '../../utils/projects';
+import type { ProjectEntry, ProjectLanguage } from '../../utils/projects';
+
+interface Props {
+  post: ProjectEntry;
+  lang: ProjectLanguage;
+}
+
+const { post, lang } = Astro.props;
+const { Content } = await post.render();
+const isEl = lang === 'el';
+const visual = projectVisuals[post.slug];
+const siteUrl = Astro.site ?? new URL('https://mpalaourg.dev');
+const pageUrl = new URL(`${isEl ? '/el' : ''}/projects/${post.slug}/`, siteUrl).href;
+const shareImage = post.data.featuredImage?.replace(/\/featured\.(?:png|webp)$/i, '/share.png');
+const shareImageUrl = shareImage ? new URL(shareImage, siteUrl).href : undefined;
+const labels = isEl
+  ? { back: 'Επιστροφή στα έργα', eyebrow: 'Έργο', figure: 'Εικόνα έργου', openFigure: 'Άνοιγμα εικόνας σε πλήρες μέγεθος', details: 'Λεπτομέρειες έργου' }
+  : { back: 'Back to projects', eyebrow: 'Project', figure: 'Project image', openFigure: 'Open full-size image', details: 'Project details' };
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'CreativeWork',
+  '@id': pageUrl,
+  url: pageUrl,
+  name: post.data.title,
+  description: post.data.summary,
+  inLanguage: lang,
+  dateCreated: post.data.date.toISOString().slice(0, 10),
+  author: { '@type': 'Person', name: 'Georgios Balaouras' },
+  image: shareImageUrl,
+};
+const jsonLd = JSON.stringify(structuredData).replace(/</g, '\\u003c');
+---
+
+<BaseLayout
+  title={`${post.data.title} | ${isEl ? 'Έργα | Γιώργος Μπαλαούρας' : 'Projects | Georgios Balaouras'}`}
+  description={post.data.summary}
+  ogImage={shareImage}
+  ogImageAlt={`${post.data.title} — project by Georgios Balaouras`}
+  ogType="article"
+>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={jsonLd} />
+  </Fragment>
+
+  <article class="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
+    <header>
+      <a href={isEl ? '/el/projects' : '/projects'} class="mb-8 inline-flex min-h-10 items-center text-sm font-medium text-gray-600 hover:text-orange-700 focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-500 dark:text-slate-300 dark:hover:text-orange-400">
+        <span aria-hidden="true">←</span>&nbsp;{labels.back}
+      </a>
+
+      <p class="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-orange-700 dark:text-orange-400">
+        {labels.eyebrow} <span aria-hidden="true">·</span> {post.data.date.toLocaleDateString(isEl ? 'el-GR' : 'en-GB', { month: 'long', year: 'numeric' })}
+      </p>
+      <h1 class="mb-5 text-[1.625rem] font-bold leading-tight tracking-tight sm:text-4xl lg:text-[2.625rem]">{post.data.title}</h1>
+      <p class="text-justify text-lg leading-8 text-gray-700 dark:text-slate-200 sm:text-xl">{post.data.summary}</p>
+    </header>
+
+    <div class="mt-7"><ProjectResources post={post} lang={lang} /></div>
+
+    {post.data.featuredImage && (
+      <figure class="mt-10 border-t border-gray-200 pt-8 dark:border-slate-700">
+        <a
+          href={post.data.featuredImage}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={`${labels.openFigure}: ${post.data.title}`}
+          class="block overflow-hidden rounded-2xl border border-gray-200 bg-slate-100 p-3 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-500 dark:border-slate-700 dark:bg-slate-800 sm:p-5"
+        >
+          <img
+            src={post.data.featuredImage}
+            alt={visual?.alt[lang] ?? post.data.title}
+            width={visual?.width ?? 1200}
+            height={visual?.height ?? 800}
+            loading="lazy"
+            decoding="async"
+            class="mx-auto h-auto max-w-full object-contain"
+          />
+        </a>
+        <figcaption class="mt-3 flex flex-wrap items-baseline justify-between gap-2 text-sm text-gray-500 dark:text-slate-400">
+          <span>{labels.figure}: {visual?.caption[lang]}</span>
+          <a href={post.data.featuredImage} target="_blank" rel="noopener noreferrer" class="font-medium text-orange-700 hover:underline dark:text-orange-400">
+            {labels.openFigure} ↗
+          </a>
+        </figcaption>
+      </figure>
+    )}
+
+    <section aria-labelledby="project-details" class="mt-12 border-t border-gray-200 pt-8 dark:border-slate-700">
+      <h2 id="project-details" class="mb-5 text-2xl font-semibold tracking-tight">{labels.details}</h2>
+      <div class="prose prose-neutral max-w-none text-justify dark:prose-invert">
+        <Content />
+      </div>
+    </section>
+  </article>
+</BaseLayout>

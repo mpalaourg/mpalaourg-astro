@@ -1,0 +1,85 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProjectResources from './ProjectResources.astro';
+import { projectVisuals } from '../../utils/projects';
+import type { ProjectEntry, ProjectLanguage } from '../../utils/projects';
+
+interface Props {
+  posts: ProjectEntry[];
+  lang: ProjectLanguage;
+}
+
+const { posts, lang } = Astro.props;
+const isEl = lang === 'el';
+const prefix = isEl ? '/el' : '';
+const labels = isEl
+  ? {
+      title: 'Έργα',
+      eyebrow: 'Επιλεγμένη δουλειά',
+      intro: 'Εφαρμοσμένη τεχνητή νοημοσύνη, έρευνα και λογισμικό: από LLM workflows έως επεξεργασία εικόνας και ενσωματωμένα συστήματα.',
+      imageLink: 'Προβολή έργου',
+    }
+  : {
+      title: 'Projects',
+      eyebrow: 'Selected work',
+      intro: 'Applied AI, research, and software projects, from LLM workflows to image processing and embedded systems.',
+      imageLink: 'View project',
+    };
+---
+
+<BaseLayout
+  title={isEl ? 'Έργα | Γεώργιος Μπαλαούρας' : 'Projects | Georgios Balaouras'}
+  description={isEl
+    ? 'Έργα του Γιώργου Μπαλαούρα στη μηχανική μάθηση, την τεχνητή νοημοσύνη, το λογισμικό και την έρευνα.'
+    : 'Explore Georgios Balaouras’s machine learning, AI, software engineering, and research projects, from LLM systems to embedded applications.'}
+>
+  <div class="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
+    <header class="mb-8 sm:mb-10">
+      <p class="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-orange-600 dark:text-orange-400">{labels.eyebrow}</p>
+      <h1 class="mb-4 text-4xl font-bold tracking-tight sm:text-5xl">{labels.title}</h1>
+      <p class="text-base leading-7 text-gray-600 dark:text-slate-300 sm:text-lg">{labels.intro}</p>
+    </header>
+
+    <div class="grid gap-5 sm:gap-6">
+      {posts.map((post) => {
+        const visual = projectVisuals[post.slug];
+        const detailUrl = `${prefix}/projects/${post.slug}`;
+        return (
+          <article class="grid min-w-0 gap-6 rounded-3xl border border-gray-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800/50 sm:p-7 md:grid-cols-[minmax(0,1fr)_14rem] md:items-start lg:grid-cols-[minmax(0,1fr)_17rem]">
+            <div class="min-w-0">
+              <p class="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-orange-700 dark:text-orange-400">
+                {post.data.date.toLocaleDateString(isEl ? 'el-GR' : 'en-GB', { month: 'long', year: 'numeric' })}
+              </p>
+              <h2 class="mb-3 text-2xl font-semibold leading-tight tracking-tight sm:text-[1.7rem]">
+                <a href={detailUrl} class="hover:text-orange-700 focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-500 dark:hover:text-orange-400">
+                  {post.data.title}
+                </a>
+              </h2>
+              <p class="text-base leading-7 text-gray-700 dark:text-slate-200">{post.data.summary}</p>
+              <div class="mt-5"><ProjectResources post={post} lang={lang} /></div>
+            </div>
+
+            {post.data.featuredImage && (
+              <figure class="min-w-0">
+                <a href={detailUrl} aria-label={`${labels.imageLink}: ${post.data.title}`} class="block rounded-2xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-500">
+                  <div class="flex aspect-[4/3] items-center justify-center overflow-hidden rounded-2xl bg-slate-100 p-3 dark:bg-slate-700/60">
+                    <img
+                      src={post.data.featuredImage}
+                      alt={visual?.alt[lang] ?? post.data.title}
+                      width={visual?.width ?? 1200}
+                      height={visual?.height ?? 800}
+                      loading="lazy"
+                      decoding="async"
+                      class="max-h-full max-w-full object-contain"
+                    />
+                  </div>
+                </a>
+                <figcaption class="sr-only">{visual?.caption[lang]}</figcaption>
+              </figure>
+            )}
+          </article>
+        );
+      })}
+    </div>
+  </div>
+</BaseLayout>

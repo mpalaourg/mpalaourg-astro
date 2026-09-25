@@ -62,8 +62,8 @@ const jsonLd = JSON.stringify(structuredData).replace(/</g, '\\u003c');
     <script type="application/ld+json" set:html={jsonLd} />
   </Fragment>
 
-  <article class="mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-14">
-    <header class="max-w-4xl">
+  <article class="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
+    <header>
       <a href={isEl ? '/el/publications' : '/publications'} class="mb-8 inline-flex min-h-10 items-center text-sm font-medium text-gray-600 hover:text-orange-700 focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-500 dark:text-slate-300 dark:hover:text-orange-400">
         <span aria-hidden="true">←</span>&nbsp;{labels.back}
       </a>
@@ -71,8 +71,8 @@ const jsonLd = JSON.stringify(structuredData).replace(/</g, '\\u003c');
       <p class="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-orange-700 dark:text-orange-400">
         {labels.paper} <span aria-hidden="true">·</span> {post.data.publication_short} {date.getFullYear()}
       </p>
-      <h1 class="mb-5 text-justify text-3xl font-bold leading-tight tracking-tight sm:text-4xl lg:text-5xl">{post.data.title}</h1>
-      <p class="mb-6 max-w-3xl text-justify text-lg leading-8 text-gray-700 dark:text-slate-200 sm:text-xl">{post.data.summary}</p>
+      <h1 class="mb-5 text-left text-[1.625rem] font-bold leading-tight tracking-tight sm:text-justify sm:text-4xl lg:text-[2.625rem]">{post.data.title}</h1>
+      <p class="mb-6 text-justify text-lg leading-8 text-gray-700 dark:text-slate-200 sm:text-xl">{post.data.summary}</p>
 
       <p class="mb-1 text-sm text-gray-600 dark:text-slate-400">
         {post.data.publication} <span aria-hidden="true">·</span> {date.toLocaleDateString(isEl ? 'el-GR' : 'en-GB', { month: 'long', year: 'numeric' })}
@@ -83,13 +83,13 @@ const jsonLd = JSON.stringify(structuredData).replace(/</g, '\\u003c');
 
     <div class="mt-7"><PublicationResources post={post} lang={lang} /></div>
 
-    <section aria-labelledby="publication-abstract" class="mt-10 max-w-4xl border-t border-gray-200 pt-8 dark:border-slate-700">
+    <section aria-labelledby="publication-abstract" class="mt-10 border-t border-gray-200 pt-8 dark:border-slate-700">
       <h2 id="publication-abstract" class="mb-4 text-2xl font-semibold tracking-tight">{labels.abstract}</h2>
-      <p class="max-w-3xl text-justify text-base leading-8 text-gray-700 dark:text-slate-300">{post.data.abstract}</p>
+      <p class="text-justify text-base leading-8 text-gray-700 dark:text-slate-300">{post.data.abstract}</p>
     </section>
 
     {post.data.featuredImage && (
-      <figure class="mt-10 max-w-4xl">
+      <figure class="mt-10">
         <a
           href={post.data.featuredImage}
           target="_blank"
@@ -104,7 +104,7 @@ const jsonLd = JSON.stringify(structuredData).replace(/</g, '\\u003c');
             height={visual?.height ?? 800}
             loading="lazy"
             decoding="async"
-            class="mx-auto h-auto max-h-[38rem] w-auto max-w-full object-contain"
+            class="h-auto w-full object-contain"
           />
         </a>
         <figcaption class="mt-3 flex flex-wrap items-baseline justify-between gap-2 text-sm text-gray-500 dark:text-slate-400">
@@ -116,7 +116,7 @@ const jsonLd = JSON.stringify(structuredData).replace(/</g, '\\u003c');
       </figure>
     )}
 
-    <section aria-labelledby="publication-notes" class="mt-12 max-w-3xl border-t border-gray-200 pt-8 dark:border-slate-700">
+    <section aria-labelledby="publication-notes" class="mt-12 border-t border-gray-200 pt-8 dark:border-slate-700">
       <h2 id="publication-notes" class="mb-5 text-2xl font-semibold tracking-tight">{labels.notes}</h2>
       <div class="prose prose-neutral max-w-none text-justify dark:prose-invert">
         <Content />

@@ -1,0 +1,40 @@
+---
+import type { ProjectEntry, ProjectLanguage } from '../../utils/projects';
+
+interface Props {
+  post: ProjectEntry;
+  lang: ProjectLanguage;
+}
+
+const { post, lang } = Astro.props;
+const isEl = lang === 'el';
+const labels = isEl
+  ? { files: 'Αρχεία workshop', code: 'Κώδικας', pdf: 'PDF', slides: 'Διαφάνειες', video: 'Βίντεο', group: 'Σύνδεσμοι έργου', newTab: 'ανοίγει σε νέα καρτέλα' }
+  : { files: 'Workshop files', code: 'Code', pdf: 'PDF', slides: 'Slides', video: 'Video', group: 'Project links', newTab: 'opens in a new tab' };
+const resources = [
+  { label: post.slug === 'from-workflows-to-agents' ? labels.files : labels.code, href: post.data.url_code, primary: true },
+  { label: labels.pdf, href: post.data.url_pdf },
+  { label: labels.slides, href: post.data.url_slides },
+  { label: labels.video, href: post.data.url_video },
+].filter((resource) => resource.href);
+---
+
+{resources.length > 0 && (
+  <div role="group" aria-label={labels.group} class="flex flex-wrap items-center gap-2">
+    {resources.map((resource) => (
+      <a
+        href={resource.href}
+        target="_blank"
+        rel="noopener noreferrer"
+        class:list={[
+          'inline-flex min-h-10 items-center rounded-lg px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-500',
+          resource.primary
+            ? 'bg-orange-600 text-white hover:bg-orange-500'
+            : 'border border-slate-300 bg-white text-slate-800 hover:border-orange-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:hover:border-orange-500',
+        ]}
+      >
+        {resource.label}<span class="sr-only"> ({labels.newTab})</span>
+      </a>
+    ))}
+  </div>
+)}

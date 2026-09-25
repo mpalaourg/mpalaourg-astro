@@ -38,7 +38,7 @@ const labels = isEl
     : 'Research publications by Georgios Balaouras on video summarization, attention mechanisms, and explainable machine learning.'}
 >
   <div class="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
-    <header class="mb-8 max-w-3xl sm:mb-10">
+    <header class="mb-8 sm:mb-10">
       <p class="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-orange-600 dark:text-orange-400">
         {isEl ? 'Έρευνα' : 'Research'}
       </p>
@@ -56,12 +56,12 @@ const labels = isEl
               <p class="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-orange-700 dark:text-orange-400">
                 {post.data.publication_short} <span aria-hidden="true">·</span> {post.data.date.getFullYear()}
               </p>
-              <h2 class="mb-3 text-justify text-2xl font-semibold leading-tight tracking-tight sm:text-[1.7rem]">
+              <h2 class="mb-3 text-2xl font-semibold leading-tight tracking-tight sm:text-[1.7rem]">
                 <a href={detailUrl} class="hover:text-orange-700 focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-500 dark:hover:text-orange-400">
                   {post.data.title}
                 </a>
               </h2>
-              <p class="mb-4 max-w-3xl text-justify text-base leading-7 text-gray-700 dark:text-slate-200">{post.data.summary}</p>
+              <p class="mb-4 text-justify text-base leading-7 text-gray-700 dark:text-slate-200">{post.data.summary}</p>
               <p class="mb-1 text-sm text-gray-600 dark:text-slate-400">
                 {post.data.publication} <span aria-hidden="true">·</span> {post.data.date.toLocaleDateString(isEl ? 'el-GR' : 'en-GB', { month: 'long', year: 'numeric' })}
               </p>
