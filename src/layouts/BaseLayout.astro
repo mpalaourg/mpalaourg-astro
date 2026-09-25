@@ -6,6 +6,9 @@ const {
   title = "Georgios Balaouras",
   description = "Georgios Balaouras is a machine learning engineer building practical AI systems and sharing projects, research, and interests.",
   noindex = false,
+  ogImage,
+  ogImageAlt,
+  ogType = "website",
 } = Astro.props;
 const pathname = Astro.url.pathname;
 const isEl = pathname === "/el" || pathname.startsWith("/el/");
@@ -17,7 +20,7 @@ const siteUrl = Astro.site ?? new URL("https://mpalaourg.dev");
 const canonicalUrl = new URL(canonicalPath(pathname), siteUrl).href;
 const enUrl = new URL(canonicalPath(enPath), siteUrl).href;
 const elUrl = new URL(canonicalPath(elPath), siteUrl).href;
-const shareImageUrl = new URL("/media/share-preview.png", siteUrl).href;
+const shareImageUrl = new URL(ogImage ?? "/media/share-preview.png", siteUrl).href;
 ---
 
 <!DOCTYPE html>
@@ -32,6 +35,7 @@ const shareImageUrl = new URL("/media/share-preview.png", siteUrl).href;
     <link rel="alternate" hreflang="en" href={enUrl} />
     <link rel="alternate" hreflang="el" href={elUrl} />
     <link rel="alternate" hreflang="x-default" href={enUrl} />
+    <slot name="head" />
 
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -43,7 +47,8 @@ const shareImageUrl = new URL("/media/share-preview.png", siteUrl).href;
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:image:type" content="image/png" />
-    <meta property="og:type" content="website" />
+    {ogImageAlt && <meta property="og:image:alt" content={ogImageAlt} />}
+    <meta property="og:type" content={ogType} />
     <meta property="og:url" content={canonicalUrl} />
     <meta property="og:locale" content={isEl ? "el_GR" : "en_US"} />
     <meta name="twitter:card" content="summary_large_image" />
