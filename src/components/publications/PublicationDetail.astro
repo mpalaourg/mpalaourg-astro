@@ -71,8 +71,8 @@ const jsonLd = JSON.stringify(structuredData).replace(/</g, '\\u003c');
       <p class="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-orange-700 dark:text-orange-400">
         {labels.paper} <span aria-hidden="true">·</span> {post.data.publication_short} {date.getFullYear()}
       </p>
-      <h1 class="mb-5 text-3xl font-bold leading-tight tracking-tight sm:text-4xl lg:text-5xl">{post.data.title}</h1>
-      <p class="mb-6 max-w-3xl text-lg leading-8 text-gray-700 dark:text-slate-200 sm:text-xl">{post.data.summary}</p>
+      <h1 class="mb-5 text-justify text-3xl font-bold leading-tight tracking-tight sm:text-4xl lg:text-5xl">{post.data.title}</h1>
+      <p class="mb-6 max-w-3xl text-justify text-lg leading-8 text-gray-700 dark:text-slate-200 sm:text-xl">{post.data.summary}</p>
 
       <p class="mb-1 text-sm text-gray-600 dark:text-slate-400">
         {post.data.publication} <span aria-hidden="true">·</span> {date.toLocaleDateString(isEl ? 'el-GR' : 'en-GB', { month: 'long', year: 'numeric' })}
@@ -85,7 +85,7 @@ const jsonLd = JSON.stringify(structuredData).replace(/</g, '\\u003c');
 
     <section aria-labelledby="publication-abstract" class="mt-10 max-w-4xl border-t border-gray-200 pt-8 dark:border-slate-700">
       <h2 id="publication-abstract" class="mb-4 text-2xl font-semibold tracking-tight">{labels.abstract}</h2>
-      <p class="max-w-3xl text-base leading-8 text-gray-700 dark:text-slate-300">{post.data.abstract}</p>
+      <p class="max-w-3xl text-justify text-base leading-8 text-gray-700 dark:text-slate-300">{post.data.abstract}</p>
     </section>
 
     {post.data.featuredImage && (
@@ -118,7 +118,7 @@ const jsonLd = JSON.stringify(structuredData).replace(/</g, '\\u003c');
 
     <section aria-labelledby="publication-notes" class="mt-12 max-w-3xl border-t border-gray-200 pt-8 dark:border-slate-700">
       <h2 id="publication-notes" class="mb-5 text-2xl font-semibold tracking-tight">{labels.notes}</h2>
-      <div class="prose prose-neutral max-w-none dark:prose-invert">
+      <div class="prose prose-neutral max-w-none text-justify dark:prose-invert">
         <Content />
       </div>
     </section>
