@@ -164,26 +164,21 @@ const experiences = [
 
     <!-- Experience Section -->
     <section class="py-8 px-4 sm:px-6" id="experience">
-      <h2 class="text-2xl font-bold mb-8">Experience</h2>
-      
-      <div class="relative" id="timeline-container">
-        <!-- Timeline line -->
-        <div class="timeline-line absolute left-[15px] md:left-1/2 top-0 bottom-0 w-0.5 bg-slate-300 dark:bg-slate-600 md:-translate-x-1/2">
-          <!-- Blue solid line for current job -->
-          <div class="timeline-blue-line absolute top-0 w-0.5 bg-blue-500" style="height: 20%;"></div>
-          <!-- Arrow inside line container -->
-          <div class="timeline-arrow absolute left-1/2 -translate-x-1/2 -mt-2 w-5 h-5 text-orange-500">
-            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clip-rule="evenodd"/>
-            </svg>
-          </div>
-        </div>
+      <div class="mb-5 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+        <h2 class="text-2xl font-bold" id="experience-heading">Experience</h2>
+        <p class="text-sm text-gray-500 dark:text-slate-400" id="experience-scroll-hint">Scroll to explore earlier roles ↓</p>
+      </div>
+
+      <div class="relative">
+      <div class="experience-scroll-area relative overflow-y-auto px-2 py-2 focus-visible:rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-500" id="timeline-container" role="region" aria-labelledby="experience-heading" aria-describedby="experience-scroll-hint" tabindex="0">
         
+        <div class="timeline-blue-line pointer-events-none absolute left-[23px] top-0 z-10 w-0.5 -translate-x-1/2 bg-blue-500 md:left-1/2" aria-hidden="true"></div>
+
         {experiences.map((exp, idx) => (
           <div class="experience-item relative mb-8 last:mb-0">
             <div class={`flex flex-col md:flex-row gap-6 ${idx % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'}`}>
               <div class="flex-1 pl-12 md:pl-0">
-                <div class={`bg-white dark:bg-slate-800 rounded-xl p-5 shadow-sm hover:shadow-lg transition-all duration-300 ${exp.prominent ? 'border-2 border-blue-500 dark:border-blue-400 ring-2 ring-blue-100 dark:ring-blue-900 transform scale-105 md:mr-4' : exp.gapYear ? 'border-2 border-dashed border-amber-400 dark:border-amber-600' : exp.education ? 'border-2 border-emerald-500 dark:border-emerald-400 ring-2 ring-emerald-100 dark:ring-emerald-900' : 'border border-gray-200 dark:border-gray-700'}`}>
+                <div class={`bg-white dark:bg-slate-800 rounded-xl p-5 shadow-sm hover:shadow-lg transition-all duration-300 ${exp.prominent ? 'border-2 border-blue-500 dark:border-blue-400 ring-2 ring-blue-100 dark:ring-blue-900' : exp.gapYear ? 'border-2 border-dashed border-amber-400 dark:border-amber-600' : exp.education ? 'border-2 border-emerald-500 dark:border-emerald-400 ring-2 ring-emerald-100 dark:ring-emerald-900' : 'border border-gray-200 dark:border-gray-700'}`}>
                   {exp.prominent && (
                     <div class="flex items-center gap-2 mb-3">
                       <span class="text-xs px-2 py-1 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 text-white font-bold">CURRENT</span>
@@ -194,7 +189,7 @@ const experiences = [
                       <svg class="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3L1 9l4 2.18v6L12 21l7-3.82v-6l2-1.09V17h2V9L12 3zm6.82 6L12 12.72 5.18 9 12 5.28 18.82 9zM17 15.99l-5 2.73-5-2.73v-3.72L12 15l5-2.73v3.72z"/></svg>
                     )}
                     {exp.company_url ? (
-                      <a href={exp.company_url} target="_blank" class={`font-semibold text-lg hover:underline ${exp.prominent ? 'text-blue-600 dark:text-blue-400' : exp.education ? 'text-emerald-600 dark:text-emerald-400' : ''}`}>{exp.company}</a>
+                      <a id={exp.prominent ? "current-company" : undefined} href={exp.company_url} target="_blank" class={`font-semibold text-lg hover:underline ${exp.prominent ? 'text-blue-600 dark:text-blue-400' : exp.education ? 'text-emerald-600 dark:text-emerald-400' : ''}`}>{exp.company}</a>
                     ) : (
                       <span class={`font-semibold text-lg ${exp.education ? 'text-emerald-600 dark:text-emerald-400' : ''}`}>{exp.company}</span>
                     )}
@@ -207,7 +202,7 @@ const experiences = [
                   <p class="text-sm text-gray-500 dark:text-slate-500 mb-3">{exp.location}</p>
                   
                   {exp.positions.map((pos, posIdx) => (
-                    <div class={posIdx > 0 ? 'mt-4 pt-4 border-t border-gray-100 dark:border-gray-700' : ''}>
+                    <div id={exp.prominent && posIdx === 0 ? "current-position" : undefined} class={posIdx > 0 ? 'mt-4 pt-4 border-t border-gray-100 dark:border-gray-700' : ''}>
                       <h3 class="font-semibold text-gray-800 dark:text-slate-200">{pos.title}</h3>
                       <p class="text-sm text-gray-500 dark:text-slate-400 mb-2">
                         {pos.date_start} – {pos.current ? 'Present' : pos.date_end}
@@ -223,7 +218,7 @@ const experiences = [
                 </div>
               </div>
               
-              <div class="absolute left-[15px] md:left-1/2 transform -translate-x-1/2 mt-5">
+              <div class={`experience-marker absolute left-[15px] top-5 z-10 -translate-x-1/2 md:left-1/2 ${exp.prominent ? "experience-marker-current" : ""}`}>
                 <div class={`w-4 h-4 rounded-full ring-4 ring-white dark:ring-slate-800 ${exp.prominent ? 'bg-blue-500' : exp.gapYear ? 'bg-amber-400' : exp.education ? 'bg-emerald-500' : 'bg-slate-400'}`}></div>
               </div>
               
@@ -231,6 +226,14 @@ const experiences = [
             </div>
           </div>
         ))}
+      </div>
+      <div class="timeline-line pointer-events-none absolute bottom-0 left-[23px] top-0 w-0.5 -translate-x-1/2 bg-slate-300 dark:bg-slate-600 md:left-1/2" aria-hidden="true"></div>
+      <div class="timeline-arrow pointer-events-none absolute left-[23px] z-20 -mt-2 h-5 w-5 -translate-x-1/2 text-orange-500 motion-reduce:hidden md:left-1/2" aria-hidden="true">
+        <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clip-rule="evenodd"/>
+        </svg>
+      </div>
+      <div class="experience-scroll-fade pointer-events-none absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-white to-transparent dark:from-slate-900" aria-hidden="true"></div>
       </div>
     </section>
 
@@ -310,3 +313,15 @@ const experiences = [
   </div>
 
 </BaseLayout>
+
+<style>
+  .experience-scroll-area {
+    max-height: min(68vh, 38rem);
+    scrollbar-width: thin;
+    scrollbar-color: rgb(148 163 184 / 0.55) transparent;
+  }
+
+  @media (max-width: 640px) {
+    .experience-scroll-area { max-height: min(74vh, 39rem); }
+  }
+</style>

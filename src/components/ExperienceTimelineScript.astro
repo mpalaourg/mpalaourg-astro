@@ -1,44 +1,61 @@
 <script>
   const timelineContainer = document.getElementById("timeline-container");
-  const timelineArrow = timelineContainer?.querySelector<HTMLElement>(".timeline-arrow");
+  const timelineArrow = document.querySelector<HTMLElement>(".timeline-arrow");
+  const blueLine = timelineContainer?.querySelector<HTMLElement>(".timeline-blue-line");
+  const currentMarker = timelineContainer?.querySelector<HTMLElement>(".experience-marker-current");
+  const currentCompany = document.getElementById("current-company");
+  const currentPosition = document.getElementById("current-position");
+  const scrollFade = document.querySelector<HTMLElement>(".experience-scroll-fade");
+  const scrollHint = document.getElementById("experience-scroll-hint");
 
   if (timelineContainer && timelineArrow) {
-    timelineArrow.style.top = "3%";
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let frameId = 0;
 
-    if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      let frameId = 0;
-      let visible = false;
+    const measureCurrentRole = () => {
+      const item = currentMarker?.closest<HTMLElement>(".experience-item");
+      if (!item || !currentMarker || !currentCompany || !currentPosition) return;
+      const company = currentCompany.getBoundingClientRect();
+      const companyCenter = company.top + company.height / 2;
+      const itemTop = item.getBoundingClientRect().top;
+      const markerTop = companyCenter - itemTop - currentMarker.offsetHeight / 2;
+      currentMarker.style.top = `${markerTop}px`;
 
-      const updatePosition = () => {
-        frameId = 0;
-        if (!visible) return;
+      if (blueLine) {
+        const scrollAreaTop = timelineContainer.getBoundingClientRect().top;
+        const lineTop = companyCenter - scrollAreaTop + timelineContainer.scrollTop;
+        const lineBottom = currentPosition.getBoundingClientRect().bottom - scrollAreaTop + timelineContainer.scrollTop;
+        blueLine.style.top = `${lineTop}px`;
+        blueLine.style.height = `${Math.max(0, lineBottom - lineTop)}px`;
+      }
+    };
 
-        const { top, height } = timelineContainer.getBoundingClientRect();
-        if (height <= 0) return;
-        const progress = (-top / height) * 100;
-        const offset = progress < 10 ? 3 : 15;
-        timelineArrow.style.top = `${Math.min(100, Math.max(offset, progress + offset))}%`;
-      };
+    const updatePosition = () => {
+      frameId = 0;
+      const maxScroll = Math.max(0, timelineContainer.scrollHeight - timelineContainer.clientHeight);
+      const progress = maxScroll > 0 ? timelineContainer.scrollTop / maxScroll : 1;
+      const hasMore = progress < 0.98;
+      if (scrollFade) scrollFade.hidden = !hasMore;
+      if (scrollHint) scrollHint.hidden = !hasMore;
 
-      const scheduleUpdate = () => {
-        if (visible && frameId === 0) frameId = requestAnimationFrame(updatePosition);
-      };
+      if (reducedMotion) return;
+      const inset = Math.min(24, timelineContainer.clientHeight / 4);
+      timelineArrow.style.top = `${inset + Math.max(0, timelineContainer.clientHeight - 2 * inset) * progress}px`;
+    };
 
-      const observer = new IntersectionObserver(([entry]) => {
-        if (entry.isIntersecting === visible) return;
-        visible = entry.isIntersecting;
-        if (visible) {
-          window.addEventListener("scroll", scheduleUpdate, { passive: true });
-          scheduleUpdate();
-        } else {
-          window.removeEventListener("scroll", scheduleUpdate);
-          if (frameId) cancelAnimationFrame(frameId);
-          frameId = 0;
-        }
-      }, { rootMargin: "100px" });
+    const scheduleUpdate = () => {
+      if (frameId === 0) frameId = requestAnimationFrame(updatePosition);
+    };
 
-      observer.observe(timelineContainer);
-      window.addEventListener("resize", scheduleUpdate);
-    }
+    timelineContainer.addEventListener("scroll", scheduleUpdate, { passive: true });
+    const resizeObserver = new ResizeObserver(() => {
+      measureCurrentRole();
+      scheduleUpdate();
+    });
+    resizeObserver.observe(timelineContainer);
+    if (currentCompany) resizeObserver.observe(currentCompany);
+    if (currentPosition) resizeObserver.observe(currentPosition);
+    measureCurrentRole();
+    updatePosition();
   }
 </script>
