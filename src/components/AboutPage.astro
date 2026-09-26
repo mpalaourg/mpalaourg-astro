@@ -1,0 +1,94 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import NASAWidget from './NASAWidget.astro';
+import AboutCarousel from './AboutCarousel.astro';
+import F1RacePreview from './F1RacePreview.astro';
+import PlayfulSignalsSection from './PlayfulSignalsSection.astro';
+
+interface Props { lang: 'en' | 'el' }
+const { lang } = Astro.props;
+const isEl = lang === 'el';
+const copy = isEl
+  ? {
+      title: 'Σχετικά | Γιώργος Μπαλαούρας',
+      description: 'Ο Γιώργος Μπαλαούρας μιλά για τη δουλειά του στη μηχανική μάθηση και για όσα τον ενδιαφέρουν πέρα από αυτήν.',
+      eyebrow: 'Σχετικά',
+      heading: 'Τι με ενδιαφέρει και πώς σκέφτομαι',
+      introduction: 'Μου αρέσει η στιγμή που μια ιδέα γίνεται ένα σύστημα που μπορεί κάποιος να χρησιμοποιήσει και να εμπιστευτεί. Η έρευνά μου στην περίληψη βίντεο με έμαθε να αναζητώ το ουσιαστικό μέσα σε πολλά δεδομένα. Στα συστήματα μηχανικής μάθησης και LLM που δουλεύω σήμερα, δίνω την ίδια σημασία στην αξιολόγηση και την αξιοπιστία.',
+      personal: 'Εκτός δουλειάς, χαλαρώνω με δυνατό καφέ, περπάτημα σε νέες πόλεις, Formula 1 και ρεμπέτικα.',
+      projects: 'Έργα', publications: 'Δημοσιεύσεις', contact: 'Επικοινωνία',
+      nasaEyebrow: 'Πέρα από τη δουλειά',
+      nasaHeading: 'Μια καθημερινή ματιά στο διάστημα',
+      nasaIntro: 'Η εικόνα της ημέρας από τη NASA είναι μια μικρή αφορμή να σταματήσω και να μάθω κάτι έξω από την καθημερινή μου δουλειά.',
+      interestsEyebrow: 'Προσωπικά',
+      interestsHeading: 'Πράγματα στα οποία επιστρέφω',
+      raceEyebrow: 'Αγωνιστικό Σαββατοκύριακο',
+      raceHeading: 'Η στρατηγική πίσω από τον αγώνα',
+      raceIntro: 'Στη Formula 1 με τραβούν οι αποφάσεις που αλλάζουν έναν αγώνα: τα ελαστικά, η σωστή στιγμή και το ρίσκο. Το πλήρες ημερολόγιο και οι βαθμολογίες βρίσκονται στη σελίδα Formula.',
+    }
+  : {
+      title: 'About | Georgios Balaouras',
+      description: 'Meet Georgios Balaouras: his work in machine learning, how he approaches useful systems, and the interests he follows outside work.',
+      eyebrow: 'About',
+      heading: 'What I enjoy and how I think',
+      introduction: 'I enjoy the moment an idea becomes a system someone can use and trust. Researching video summarization taught me to find what matters in a lot of data. In the machine learning and LLM systems I work on today, evaluation and reliability matter just as much.',
+      personal: 'Away from work, I slow down with strong coffee, walks through new cities, Formula 1, and rembetika.',
+      projects: 'Projects', publications: 'Publications', contact: 'Get in touch',
+      nasaEyebrow: 'Beyond work',
+      nasaHeading: 'A daily look at the wider universe',
+      nasaIntro: 'NASA’s image of the day is a small reason to pause and learn something outside my usual work.',
+      interestsEyebrow: 'Personal',
+      interestsHeading: 'Things I keep returning to',
+      raceEyebrow: 'Race weekend',
+      raceHeading: 'The strategy behind the race',
+      raceIntro: 'I follow the decisions that change a Formula 1 race: tyre calls, timing, and risk. The full calendar and standings live on the Formula page.',
+    };
+const prefix = isEl ? '/el' : '';
+---
+
+<BaseLayout title={copy.title} description={copy.description}>
+  <div class="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-12">
+    <section class="overflow-hidden rounded-[2rem] border border-slate-200/80 bg-white/40 shadow-sm dark:border-slate-700 dark:bg-slate-900/30">
+      <div class="relative h-56 overflow-hidden md:h-64">
+        <img src="/media/cover.jpg" alt="" width="1110" height="580" fetchpriority="high" class="h-full w-full object-cover object-[center_35%]" />
+        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/35 via-transparent to-transparent" aria-hidden="true"></div>
+      </div>
+      <div class="relative px-4 pb-8 pt-0 sm:px-6 md:px-8">
+        <div class="-mt-16 mb-6 md:-mt-20">
+          <img src="/media/avatar.jpg" alt={isEl ? 'Γιώργος Μπαλαούρας' : 'Georgios Balaouras'} width="370" height="370" class="h-32 w-32 rounded-[2rem] object-cover shadow-xl ring-4 ring-white dark:ring-slate-900 md:h-36 md:w-36" />
+        </div>
+        <p class="text-sm font-semibold uppercase tracking-[0.22em] text-orange-700 dark:text-orange-400">{copy.eyebrow}</p>
+        <h1 class="mt-4 text-4xl font-bold leading-[1.05] md:text-5xl xl:text-[4.1rem]">{copy.heading}</h1>
+        <p class="mt-6 text-lg leading-8 text-slate-700 dark:text-slate-300">{copy.introduction}</p>
+        <p class="mt-4 text-lg leading-8 text-slate-700 dark:text-slate-300">{copy.personal}</p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href={`${prefix}/projects`} class="inline-flex min-h-11 items-center rounded-full border border-slate-300 px-4 py-2 text-sm font-medium hover:border-orange-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-500 dark:border-slate-600">{copy.projects}</a>
+          <a href={`${prefix}/publications`} class="inline-flex min-h-11 items-center rounded-full border border-slate-300 px-4 py-2 text-sm font-medium hover:border-orange-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-500 dark:border-slate-600">{copy.publications}</a>
+          <a href="mailto:gbalaouras@gmail.com" class="inline-flex min-h-11 items-center rounded-full bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-orange-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-500 dark:bg-white dark:text-slate-900 dark:hover:bg-orange-200">{copy.contact} ↗</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="mt-16" aria-labelledby="about-nasa-heading">
+      <p class="text-sm font-semibold uppercase tracking-[0.2em] text-orange-700 dark:text-orange-400">{copy.nasaEyebrow}</p>
+      <h2 id="about-nasa-heading" class="mt-3 text-3xl font-bold tracking-tight">{copy.nasaHeading}</h2>
+      <p class="mt-4 text-base leading-7 text-slate-700 dark:text-slate-300">{copy.nasaIntro}</p>
+      <div class="mt-8"><NASAWidget lang={lang} /></div>
+    </section>
+
+    <section class="mt-16" aria-labelledby="about-interests-heading">
+      <p class="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">{copy.interestsEyebrow}</p>
+      <h2 id="about-interests-heading" class="mt-3 mb-6 text-3xl font-bold tracking-tight">{copy.interestsHeading}</h2>
+      <AboutCarousel lang={lang} />
+    </section>
+
+    <PlayfulSignalsSection lang={lang} />
+
+    <section class="mb-8 mt-16" aria-labelledby="about-race-heading">
+      <p class="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">{copy.raceEyebrow}</p>
+      <h2 id="about-race-heading" class="mt-3 text-3xl font-bold tracking-tight">{copy.raceHeading}</h2>
+      <p class="mt-4 text-base leading-7 text-slate-700 dark:text-slate-300">{copy.raceIntro}</p>
+      <div class="mt-6"><F1RacePreview lang={lang} /></div>
+    </section>
+  </div>
+</BaseLayout>

@@ -1,0 +1,62 @@
+---
+interface Props { lang: 'en' | 'el' }
+const { lang } = Astro.props;
+const isEl = lang === 'el';
+---
+
+<article class="f1-race-preview relative overflow-hidden rounded-[1.75rem] border border-slate-200 bg-gradient-to-br from-slate-50 to-white p-6 shadow-sm dark:border-slate-700 dark:from-slate-800 dark:to-slate-900 sm:p-8" data-lang={lang}>
+  <div class="absolute right-0 top-0 h-32 w-32 translate-x-1/4 -translate-y-1/4 rounded-full bg-orange-500/10 blur-3xl" aria-hidden="true"></div>
+  <div class="relative flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+    <div>
+      <p class="race-label text-xs font-semibold uppercase tracking-[0.18em] text-orange-700 dark:text-orange-400">{isEl ? 'Επόμενος αγώνας' : 'Next race'}</p>
+      <h3 class="race-name mt-3 text-2xl font-semibold tracking-tight sm:text-3xl" aria-live="polite">{isEl ? 'Φόρτωση ημερολογίου…' : 'Loading calendar…'}</h3>
+      <p class="race-detail mt-2 text-sm text-slate-600 dark:text-slate-300"></p>
+    </div>
+    <a href={isEl ? '/el/formula' : '/formula'} class="inline-flex min-h-11 shrink-0 items-center self-start rounded-full bg-slate-900 px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-orange-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-500 dark:bg-white dark:text-slate-900 dark:hover:bg-orange-200 sm:self-auto">
+      {isEl ? 'Όλη η Formula 1' : 'Explore Formula 1'} <span class="ml-2" aria-hidden="true">↗</span>
+    </a>
+  </div>
+</article>
+
+<script>
+  document.querySelectorAll<HTMLElement>('.f1-race-preview').forEach((preview) => {
+    const isEl = preview.dataset.lang === 'el';
+    const label = preview.querySelector<HTMLElement>('.race-label');
+    const name = preview.querySelector<HTMLElement>('.race-name');
+    const detail = preview.querySelector<HTMLElement>('.race-detail');
+
+    async function load() {
+      try {
+        const season = new Date().getFullYear();
+        const response = await fetch(`/api/f1/schedule?season=${season}`);
+        if (!response.ok) throw new Error('Schedule unavailable');
+        const data = await response.json();
+        const races = Array.isArray(data.races) ? data.races : [];
+        const today = new Date().toISOString().slice(0, 10);
+        const next = races.find((race: { date: string }) => race.date >= today);
+        if (!next) {
+          if (label) label.textContent = isEl ? 'Σεζόν Formula 1' : 'Formula 1 season';
+          if (name) name.textContent = isEl ? 'Δείτε το πλήρες ημερολόγιο' : 'Explore the full calendar';
+          return;
+        }
+        const date = new Date(`${next.date}T12:00:00Z`).toLocaleDateString(isEl ? 'el-GR' : 'en-GB', { day: 'numeric', month: 'long' });
+        if (name) name.textContent = next.raceName;
+        if (detail) detail.textContent = `${next.Circuit?.circuitName ?? ''} · ${date}`;
+      } catch {
+        if (label) label.textContent = isEl ? 'Σεζόν Formula 1' : 'Formula 1 season';
+        if (name) name.textContent = isEl ? 'Δείτε το πλήρες ημερολόγιο' : 'Explore the full calendar';
+      }
+    }
+
+    if (!('IntersectionObserver' in window)) {
+      load();
+      return;
+    }
+    const observer = new IntersectionObserver((entries) => {
+      if (!entries.some((entry) => entry.isIntersecting)) return;
+      observer.disconnect();
+      load();
+    }, { rootMargin: '400px' });
+    observer.observe(preview);
+  });
+</script>
