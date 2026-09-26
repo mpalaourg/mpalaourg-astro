@@ -1,0 +1,217 @@
+---
+import { getCollection } from "astro:content";
+import SkillsetSection from "./SkillsetSection.astro";
+
+interface Props {
+  lang: "en" | "el";
+}
+
+const { lang } = Astro.props;
+const prefix = lang === "el" ? "/el" : "";
+const copy = lang === "el" ? {
+  publications: "Δημοσιεύσεις",
+  projects: "Έργα",
+  viewAll: "Προβολή όλων →",
+  readPublication: "Δείτε τη δημοσίευση →",
+  citations: "αναφορές",
+  searchProjects: "Αναζήτηση έργων",
+  searchFormula: "Αναζήτηση άρθρων Formula 1",
+  formulaPlaceholder: "Αναζήτηση Formula 1...",
+} : {
+  publications: "Publications",
+  projects: "Projects",
+  viewAll: "View all →",
+  readPublication: "Read publication →",
+  citations: "citations",
+  searchProjects: "Search projects",
+  searchFormula: "Search Formula 1 articles",
+  formulaPlaceholder: "Search Formula 1...",
+};
+
+const [formulaPosts, publicationPosts, projectPosts] = await Promise.all([
+  getCollection(lang === "el" ? "formula-el" : "formula"),
+  getCollection(lang === "el" ? "publications-el" : "publications"),
+  getCollection(lang === "el" ? "projects-el" : "projects"),
+]);
+const allFormula = formulaPosts.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+const sortedPublications = publicationPosts.sort((a, b) => b.data.date.getTime() - a.data.date.getTime()).slice(0, 3);
+const sortedProjects = projectPosts.sort((a, b) => (a.data.weight ?? 999) - (b.data.weight ?? 999));
+
+const formulaTagCounts = allFormula.flatMap((post) => post.data.tags || []).reduce((counts, tag) => {
+  if (tag !== "formula1") counts[tag] = (counts[tag] || 0) + 1;
+  return counts;
+}, {} as Record<string, number>);
+const formulaTags = Object.entries(formulaTagCounts)
+  .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+  .slice(0, 5)
+  .map(([tag]) => tag);
+const projectTags = ["workshop", "agents", "machine learning", "C", "MATLAB", "multimedia"];
+---
+
+<section class="py-8 px-4 sm:px-6">
+  <div class="mb-6 flex items-center justify-between gap-4">
+    <h2 class="text-2xl font-bold">{copy.publications}</h2>
+    <a href={`${prefix}/publications`} class="shrink-0 whitespace-nowrap text-sm font-semibold text-orange-700 hover:underline focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-500 dark:text-orange-400">{copy.viewAll}</a>
+  </div>
+
+  <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
+    {sortedPublications.map((pub) => (
+      <a href={`${prefix}/publications/${pub.slug}`} class="group flex h-full flex-col rounded-xl border border-gray-200 bg-white p-4 transition-colors hover:border-slate-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-500 dark:border-gray-700 dark:bg-slate-800 dark:hover:border-slate-500">
+        {pub.data.featuredImage && (
+          <div class="mb-3 flex aspect-video items-center justify-center overflow-hidden rounded-lg bg-slate-100 p-2 dark:bg-slate-900/60">
+            <img src={pub.data.featuredImage} alt="" width="640" height="360" loading="lazy" decoding="async" class="h-full w-full object-contain" />
+          </div>
+        )}
+        <h3 class="mb-2 line-clamp-3 text-base font-semibold leading-tight">{pub.data.title}</h3>
+        <p class="mb-3 text-sm text-gray-600 dark:text-slate-400">
+          {pub.data.publication} · {pub.data.date.toLocaleDateString(lang === "el" ? "el-GR" : "en-GB", { year: "numeric", month: "short" })}
+        </p>
+        {pub.data.doi && (
+          <span class="citation-badge mb-2 text-xs text-blue-700 dark:text-blue-300" data-doi={pub.data.doi} hidden>
+            <span class="citation-number"></span> {copy.citations}
+          </span>
+        )}
+        <p class="mb-4 text-sm leading-relaxed text-gray-700 dark:text-slate-300">{pub.data.summary}</p>
+        <span class="mt-auto text-sm font-medium text-orange-700 group-hover:underline dark:text-orange-400">{copy.readPublication}</span>
+      </a>
+    ))}
+  </div>
+</section>
+
+<section class="py-8 px-4 sm:px-6">
+  <div class="mb-4 flex items-center justify-between gap-4">
+    <h2 class="text-2xl font-bold">{copy.projects}</h2>
+    <a href={`${prefix}/projects`} class="shrink-0 whitespace-nowrap text-sm font-semibold text-orange-700 hover:underline focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-500 dark:text-orange-400">{copy.viewAll}</a>
+  </div>
+  <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center">
+    <label for="projects-search" class="sr-only">{copy.searchProjects}</label>
+    <input type="search" id="projects-search" placeholder={`${copy.searchProjects}...`} class="w-full rounded-md border border-gray-300 bg-white px-3 py-1 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-slate-400 dark:border-gray-600 dark:bg-slate-800 dark:text-slate-100 sm:w-44" />
+    <div class="flex flex-wrap gap-1" id="projects-tags">
+      {projectTags.map((tag) => (
+        <button type="button" class="project-tag rounded-full bg-gray-200 px-2 py-1 text-xs text-gray-700 hover:bg-gray-300 aria-pressed:bg-blue-600 aria-pressed:text-white aria-pressed:hover:bg-blue-700 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600 dark:aria-pressed:bg-blue-600 dark:aria-pressed:text-white dark:aria-pressed:hover:bg-blue-700" data-tag={tag} aria-pressed="false">{tag}</button>
+      ))}
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 gap-4 md:grid-cols-3" id="projects-grid">
+    {sortedProjects.map((proj) => (
+      <a href={`${prefix}/projects/${proj.slug}`} class="project-card block overflow-hidden rounded-lg border border-gray-200 transition-colors hover:border-slate-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-500 dark:border-gray-700 dark:hover:border-slate-500" data-title={proj.data.title.toLowerCase()} data-tags={JSON.stringify(proj.data.tags || [])}>
+        {proj.data.featuredImage && (
+          <div class="flex aspect-video items-center justify-center overflow-hidden bg-slate-100 p-2 dark:bg-slate-900/60">
+            <img src={proj.data.featuredImage} alt="" width="640" height="360" loading="lazy" decoding="async" class="h-full w-full object-contain" />
+          </div>
+        )}
+        <div class="p-4">
+          <h3 class="mb-1 font-semibold">{proj.data.title}</h3>
+          <p class="line-clamp-2 text-sm text-gray-600 dark:text-slate-400">{proj.data.summary}</p>
+        </div>
+      </a>
+    ))}
+  </div>
+</section>
+
+<SkillsetSection lang={lang} />
+
+<section class="py-8 px-4 sm:px-6">
+  <div class="mb-4 flex items-center justify-between gap-4">
+    <h2 class="text-2xl font-bold">Formula 1</h2>
+    <a href={`${prefix}/formula`} class="shrink-0 whitespace-nowrap text-sm font-semibold text-orange-700 hover:underline focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-500 dark:text-orange-400">{copy.viewAll}</a>
+  </div>
+  <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center">
+    <label for="formula-search" class="sr-only">{copy.searchFormula}</label>
+    <input type="search" id="formula-search" placeholder={copy.formulaPlaceholder} class="w-full rounded-md border border-gray-300 bg-white px-3 py-1 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-slate-400 dark:border-gray-600 dark:bg-slate-800 dark:text-slate-100 sm:w-44" />
+    <div class="flex flex-wrap gap-1" id="formula-tags">
+      {formulaTags.map((tag) => (
+        <button type="button" class="formula-tag rounded-full bg-gray-200 px-2 py-1 text-xs text-gray-700 hover:bg-gray-300 aria-pressed:bg-blue-600 aria-pressed:text-white aria-pressed:hover:bg-blue-700 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600 dark:aria-pressed:bg-blue-600 dark:aria-pressed:text-white dark:aria-pressed:hover:bg-blue-700" data-tag={tag} aria-pressed="false">{tag}</button>
+      ))}
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 gap-4 md:grid-cols-3" id="formula-grid">
+    {allFormula.map((season, index) => (
+      <a href={`${prefix}/formula/${season.slug}`} class="formula-card block overflow-hidden rounded-lg border border-gray-200 transition-colors hover:border-slate-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-500 dark:border-gray-700 dark:hover:border-slate-500" data-title={season.data.title.toLowerCase()} data-tags={JSON.stringify(season.data.tags || [])} data-rank={index}>
+        {season.data.featuredImage && (
+          <div class="flex aspect-video items-center justify-center overflow-hidden bg-slate-100 p-2 dark:bg-slate-900/60">
+            <img src={season.data.featuredImage} alt="" width="570" height="400" loading="lazy" decoding="async" class="h-full w-full object-contain" />
+          </div>
+        )}
+        <div class="p-4">
+          <h3 class="mb-1 font-semibold">{season.data.title}</h3>
+          <p class="line-clamp-2 text-sm text-gray-600 dark:text-slate-400">{season.data.summary}</p>
+          {season.data.tags && season.data.tags.length > 0 && (
+            <div class="mt-3 flex flex-wrap gap-1">
+              {season.data.tags.slice(0, 3).map((tag) => (
+                <span class="rounded-full bg-gray-200 px-2 py-0.5 text-xs text-gray-700 dark:bg-slate-700 dark:text-slate-300">#{tag}</span>
+              ))}
+            </div>
+          )}
+        </div>
+      </a>
+    ))}
+  </div>
+</section>
+
+<script>
+  function setupFilter(kind: "projects" | "formula") {
+    const classPrefix = kind === "projects" ? "project" : "formula";
+    const search = document.getElementById(`${kind}-search`) as HTMLInputElement | null;
+    const cards = Array.from(document.querySelectorAll<HTMLElement>(`.${classPrefix}-card`));
+    const buttons = Array.from(document.querySelectorAll<HTMLButtonElement>(`.${classPrefix}-tag`));
+    let selectedTag = "";
+
+    function updateCards() {
+      const query = search?.value.trim().toLowerCase() ?? "";
+      let shown = 0;
+      cards.forEach((card) => {
+        const tags = JSON.parse(card.dataset.tags || "[]") as string[];
+        const matches = (card.dataset.title || "").includes(query) && (!selectedTag || tags.includes(selectedTag));
+        const visible = matches && (query !== "" || selectedTag !== "" || shown < 3);
+        card.style.display = visible ? "" : "none";
+        if (visible) shown++;
+      });
+    }
+
+    search?.addEventListener("input", updateCards);
+    buttons.forEach((button) => {
+      button.addEventListener("click", () => {
+        selectedTag = selectedTag === button.dataset.tag ? "" : button.dataset.tag || "";
+        buttons.forEach((item) => {
+          const active = item.dataset.tag === selectedTag && selectedTag !== "";
+          item.setAttribute("aria-pressed", String(active));
+        });
+        updateCards();
+      });
+    });
+    updateCards();
+  }
+
+  setupFilter("projects");
+  setupFilter("formula");
+
+  const citationBadges = document.querySelectorAll<HTMLElement>(".citation-badge");
+  const citationObserver = new IntersectionObserver((entries, observer) => {
+    entries.forEach(async (entry) => {
+      if (!entry.isIntersecting) return;
+      observer.unobserve(entry.target);
+      const badge = entry.target.querySelector<HTMLElement>(".citation-badge");
+      if (!badge) return;
+      const doi = badge.dataset.doi;
+      const number = badge.querySelector(".citation-number");
+      if (!doi || !number) return;
+      try {
+        const response = await fetch(`/api/citations?doi=${encodeURIComponent(doi)}`);
+        const data = await response.json();
+        if (typeof data.citationCount === "number") {
+          number.textContent = data.citationCount.toLocaleString();
+          badge.hidden = false;
+        }
+      } catch {
+        // Citation counts are optional when the service is unavailable.
+      }
+    });
+  }, { rootMargin: "200px" });
+  citationBadges.forEach((badge) => {
+    const card = badge.closest("a");
+    if (card) citationObserver.observe(card);
+  });
+</script>

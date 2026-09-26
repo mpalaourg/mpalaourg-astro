@@ -1,6 +1,5 @@
 ---
 import "../styles/global.css";
-import CookiePopup from "../components/CookiePopup.astro";
 
 const {
   title = "Georgios Balaouras",
@@ -177,8 +176,6 @@ const shareImageUrl = new URL(ogImage ?? "/media/share-preview.png", siteUrl).hr
     <main>
       <slot />
     </main>
-
-    <CookiePopup lang={isEl ? "el" : "en"} />
 
     <script>
       const toggle = document.getElementById("theme-toggle");

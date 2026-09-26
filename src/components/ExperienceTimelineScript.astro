@@ -1,0 +1,44 @@
+<script>
+  const timelineContainer = document.getElementById("timeline-container");
+  const timelineArrow = timelineContainer?.querySelector<HTMLElement>(".timeline-arrow");
+
+  if (timelineContainer && timelineArrow) {
+    timelineArrow.style.top = "3%";
+
+    if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      let frameId = 0;
+      let visible = false;
+
+      const updatePosition = () => {
+        frameId = 0;
+        if (!visible) return;
+
+        const { top, height } = timelineContainer.getBoundingClientRect();
+        if (height <= 0) return;
+        const progress = (-top / height) * 100;
+        const offset = progress < 10 ? 3 : 15;
+        timelineArrow.style.top = `${Math.min(100, Math.max(offset, progress + offset))}%`;
+      };
+
+      const scheduleUpdate = () => {
+        if (visible && frameId === 0) frameId = requestAnimationFrame(updatePosition);
+      };
+
+      const observer = new IntersectionObserver(([entry]) => {
+        if (entry.isIntersecting === visible) return;
+        visible = entry.isIntersecting;
+        if (visible) {
+          window.addEventListener("scroll", scheduleUpdate, { passive: true });
+          scheduleUpdate();
+        } else {
+          window.removeEventListener("scroll", scheduleUpdate);
+          if (frameId) cancelAnimationFrame(frameId);
+          frameId = 0;
+        }
+      }, { rootMargin: "100px" });
+
+      observer.observe(timelineContainer);
+      window.addEventListener("resize", scheduleUpdate);
+    }
+  }
+</script>

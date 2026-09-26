@@ -1,28 +1,8 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import SkillsetSection from "../../components/SkillsetSection.astro";
-import { getCollection } from "astro:content";
+import HomeContentSections from "../../components/HomeContentSections.astro";
+import ExperienceTimelineScript from "../../components/ExperienceTimelineScript.astro";
 import { jsonLd, personStructuredData } from "../../utils/seo";
-
-const formulaPosts = await getCollection("formula-el");
-const publicationsEl = await getCollection("publications-el");
-const projectsPosts = await getCollection("projects-el");
-
-const allFormula = formulaPosts.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
-const sortedPublications = publicationsEl.sort((a, b) => b.data.date.getTime() - a.data.date.getTime()).slice(0, 3);
-const sortedProjects = projectsPosts.sort((a, b) => (a.data.weight ?? 999) - (b.data.weight ?? 999));
-
-const formulaTagCounts = allFormula.flatMap((post) => post.data.tags || []).reduce((acc, tag) => {
-  if (tag !== "formula1") {
-    acc[tag] = (acc[tag] || 0) + 1;
-  }
-  return acc;
-}, {} as Record<string, number>);
-const formulaTags = Object.entries(formulaTagCounts)
-  .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
-  .slice(0, 5)
-  .map(([tag]) => tag);
-const projectTags = ["workshop", "agents", "machine learning", "C", "MATLAB", "multimedia"];
 
 const experiences = [
   {
@@ -145,7 +125,7 @@ const experiences = [
         <!-- Right: Info -->
         <div class="flex-1">
           <h1 class="text-4xl font-bold mb-2">Γιώργος Μπαλαούρας</h1>
-          <p class="text-xl text-gray-600 dark:text-slate-400 mb-4">Ανώτερος μηχανικός μηχανικής μάθησης</p>
+          <p class="text-xl text-gray-600 dark:text-slate-400 mb-4">Senior Machine Learning Engineer</p>
           
           <p class="text-gray-600 dark:text-slate-400 mb-4 text-left sm:text-justify leading-relaxed">
             Αναπτύσσω συστήματα ML και LLM για παραγωγική χρήση, μαζί με agentic AI εφαρμογές που μετατρέπουν σύνθετα δεδομένα σε χρήσιμες αποφάσεις. Το υπόβαθρό μου εκτείνεται από την έρευνα στην περίληψη βίντεο στο CERTH-ITI μέχρι τη μηχανική μάθηση σε επιχειρησιακή κλίμακα. Με ενδιαφέρει τα συστήματα αυτά να είναι αξιόπιστα, μετρήσιμα και πρακτικά. Εκτός δουλειάς, θα με βρείτε να αναλύω τον τελευταίο αγώνα Formula 1 ή να ψάχνω για το τέλειο freddo espresso. 🏎️☕
@@ -253,185 +233,15 @@ const experiences = [
       </div>
     </section>
 
-    <script>
-      // Timeline arrow - follows scroll
-      const timelineContainer = document.getElementById('timeline-container');
-      const timelineArrow = timelineContainer?.querySelector('.timeline-arrow');
-      
-      function updateArrowPosition() {
-        if (!timelineContainer || !timelineArrow) return;
-        
-        const containerRect = timelineContainer.getBoundingClientRect();
-        
-        // Calculate scroll progress through the container (0% = top, 100% = bottom)
-        const scrollProgress = -containerRect.top;
-        const totalHeight = containerRect.height;
-        
-        let percent = (scrollProgress / totalHeight) * 100;
-        
-        // Add offset - 3% at top, 15% when scrolling further down
-        const baseOffset = percent < 10 ? 3 : 15;
-        percent = Math.max(baseOffset, percent + baseOffset);
-        percent = Math.min(100, percent);
-        
-        (timelineArrow as HTMLElement).style.top = `${percent}%`;
-      }
-      
-      window.addEventListener('scroll', updateArrowPosition);
-      window.addEventListener('resize', updateArrowPosition);
-      updateArrowPosition();
-    </script>
+    <ExperienceTimelineScript />
 
-    <!-- Publications Section -->
-    <section class="py-8 px-4 sm:px-6">
-      <div class="mb-6 flex items-center justify-between gap-4">
-        <h2 class="text-2xl font-bold">Δημοσιεύσεις</h2>
-        <a href="/el/publications" class="shrink-0 whitespace-nowrap text-sm font-semibold text-orange-700 hover:underline focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-500 dark:text-orange-400">Προβολή όλων →</a>
-      </div>
-      
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {sortedPublications.map((pub) => (
-          <a href={`/el/publications/${pub.slug}`} class="group flex h-full flex-col rounded-xl border border-gray-200 bg-white p-4 transition-colors hover:border-slate-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-500 dark:border-gray-700 dark:bg-slate-800 dark:hover:border-slate-500">
-            {pub.data.featuredImage && (
-              <div class="mb-3 flex aspect-video items-center justify-center overflow-hidden rounded-lg bg-slate-100 p-2 dark:bg-slate-900/60">
-                <img
-                  src={pub.data.featuredImage}
-                  alt=""
-                  width="640"
-                  height="360"
-                  loading="lazy"
-                  decoding="async"
-                  class="h-full w-full object-contain"
-                />
-              </div>
-            )}
-            <h3 class="mb-2 line-clamp-3 text-base font-semibold leading-tight">{pub.data.title}</h3>
-            <p class="mb-3 text-sm text-gray-600 dark:text-slate-400">
-              {pub.data.publication} · {pub.data.date.toLocaleDateString("el-GR", { year: "numeric", month: "short" })}
-            </p>
-            {pub.data.doi && (
-              <span class="citation-badge mb-2 text-xs text-blue-700 dark:text-blue-300" data-doi={pub.data.doi} hidden>
-                <span class="citation-number"></span> αναφορές
-              </span>
-            )}
-            <p class="mb-4 text-sm leading-relaxed text-gray-700 dark:text-slate-300">{pub.data.summary}</p>
-            <span class="mt-auto text-sm font-medium text-orange-700 group-hover:underline dark:text-orange-400">Δείτε τη δημοσίευση →</span>
-          </a>
-        ))}
-      </div>
-    </section>
-
-    <!-- Projects Section -->
-    <section class="py-8 px-4 sm:px-6">
-      <div class="mb-4 flex items-center justify-between gap-4">
-        <h2 class="text-2xl font-bold">Έργα</h2>
-        <a href="/el/projects" class="shrink-0 whitespace-nowrap text-sm font-semibold text-orange-700 hover:underline focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-500 dark:text-orange-400">Προβολή όλων →</a>
-      </div>
-      <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center">
-        <label for="projects-search" class="sr-only">Αναζήτηση έργων</label>
-        <input
-          type="search"
-          id="projects-search"
-          placeholder="Αναζήτηση έργων..."
-          class="w-full rounded-md border border-gray-300 bg-white px-3 py-1 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-slate-400 dark:border-gray-600 dark:bg-slate-800 dark:text-slate-100 sm:w-44"
-        />
-        <div class="flex flex-wrap gap-1" id="projects-tags">
-          {projectTags.map((tag) => (
-            <button class="project-tag px-2 py-1 text-xs rounded-full bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-slate-300 hover:bg-gray-300 dark:hover:bg-slate-600" data-tag={tag}>{tag}</button>
-          ))}
-        </div>
-      </div>
-      
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="projects-grid">
-        {sortedProjects.map((proj) => (
-          <a href={`/el/projects/${proj.slug}`} class="project-card block overflow-hidden rounded-lg border border-gray-200 transition-colors hover:border-slate-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-500 dark:border-gray-700 dark:hover:border-slate-500" data-title={proj.data.title.toLowerCase()} data-tags={JSON.stringify(proj.data.tags || [])}>
-            {proj.data.featuredImage && (
-              <div class="flex aspect-video items-center justify-center overflow-hidden bg-slate-100 p-2 dark:bg-slate-900/60">
-                <img
-                  src={proj.data.featuredImage}
-                  alt=""
-                  width="640"
-                  height="360"
-                  loading="lazy"
-                  decoding="async"
-                  class="h-full w-full object-contain"
-                />
-              </div>
-            )}
-            <div class="p-4">
-              <h3 class="font-semibold mb-1">{proj.data.title}</h3>
-              <p class="line-clamp-2 text-sm text-gray-600 dark:text-slate-400">{proj.data.summary}</p>
-            </div>
-          </a>
-        ))}
-      </div>
-    </section>
-
-
-
-    <SkillsetSection lang="el" />
-
-    <!-- Formula 1 Section -->
-    <section class="py-8 px-4 sm:px-6">
-      <div class="mb-4 flex items-center justify-between gap-4">
-        <h2 class="text-2xl font-bold">Formula 1</h2>
-        <a href="/el/formula" class="shrink-0 whitespace-nowrap text-sm font-semibold text-orange-700 hover:underline focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-500 dark:text-orange-400">Προβολή όλων →</a>
-      </div>
-      <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center">
-        <label for="formula-search" class="sr-only">Αναζήτηση άρθρων Formula 1</label>
-        <input
-          type="search"
-          id="formula-search"
-          placeholder="Αναζήτηση Formula 1..."
-          class="w-full rounded-md border border-gray-300 bg-white px-3 py-1 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-slate-400 dark:border-gray-600 dark:bg-slate-800 dark:text-slate-100 sm:w-44"
-        />
-        <div class="flex flex-wrap gap-1" id="formula-tags">
-          {formulaTags.map((tag) => (
-            <button class="formula-tag px-2 py-1 text-xs rounded-full bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-slate-300 hover:bg-gray-300 dark:hover:bg-slate-600" data-tag={tag}>{tag}</button>
-          ))}
-        </div>
-      </div>
-      
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="formula-grid">
-        {allFormula.map((season, index) => (
-          <a href={`/el/formula/${season.slug}`} class="formula-card block overflow-hidden rounded-lg border border-gray-200 transition-colors hover:border-slate-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-500 dark:border-gray-700 dark:hover:border-slate-500" data-title={season.data.title.toLowerCase()} data-tags={JSON.stringify(season.data.tags || [])} data-rank={index}>
-            {season.data.featuredImage && (
-              <div class="flex aspect-video items-center justify-center overflow-hidden bg-slate-100 p-2 dark:bg-slate-900/60">
-                <img
-                  src={season.data.featuredImage}
-                  alt=""
-                  width="570"
-                  height="400"
-                  loading="lazy"
-                  decoding="async"
-                  class="h-full w-full object-contain"
-                />
-              </div>
-            )}
-            <div class="p-4">
-              <h3 class="font-semibold mb-1">{season.data.title}</h3>
-              <p class="line-clamp-2 text-sm text-gray-600 dark:text-slate-400">{season.data.summary}</p>
-              {season.data.tags && season.data.tags.length > 0 && (
-                <div class="mt-3 flex flex-wrap gap-1">
-                  {season.data.tags.slice(0, 3).map((tag) => (
-                    <span class="px-2 py-0.5 text-xs rounded-full bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-slate-300">
-                      #{tag}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
-          </a>
-        ))}
-      </div>
-    </section>
+    <HomeContentSections lang="el" />
 
     <!-- Contact Section -->
     <section class="py-8 px-4 sm:px-6">
       <h2 class="text-2xl font-bold mb-4">Επικοινωνία</h2>
       <p class="text-gray-600 dark:text-slate-400 mb-6">
-        Μη διστάσετε να επικοινωνήσετε για συνεργασίες, ερωτήσεις ή απλώς για να πείτε ένα γεια!
-        Είτε θέλετε να συζητήσετε για αγώνες Formula 1 είτε να πιούμε έναν καφέ ☕ — χαίρομαι πάντα να γνωρίζω νέους ανθρώπους! 🏎️
+        Έχεις μια ιδέα για συνεργασία ή απορία για κάποιο από τα έργα μου; Στείλε μου μήνυμα. Αν είσαι στη Θεσσαλονίκη, μπορούμε να τα πούμε και από κοντά με έναν freddo espresso και κουβέντα για Formula 1.
       </p>
       <div class="flex flex-wrap gap-4 mb-6">
         <a
@@ -485,96 +295,5 @@ const experiences = [
       </div>
     </section>
 
-    <script>
-      // Formula search and filter
-      const formulaSearch = document.getElementById('formula-search');
-      const formulaCards = document.querySelectorAll('.formula-card');
-      const formulaTagButtons = document.querySelectorAll('.formula-tag');
-      let currentTag = '';
-
-      function filterFormula() {
-        const searchTerm = (formulaSearch as HTMLInputElement)?.value?.toLowerCase() || '';
-        const isFiltering = searchTerm !== '' || currentTag !== '';
-        let visibleCount = 0;
-        
-        formulaCards.forEach(card => {
-          const title = card.getAttribute('data-title') || '';
-          const tags = JSON.parse(card.getAttribute('data-tags') || '[]');
-          
-          const matchesSearch = title.includes(searchTerm);
-          const matchesTag = currentTag === '' || tags.includes(currentTag);
-          
-          if (matchesSearch && matchesTag) {
-            if (!isFiltering && visibleCount < 3) {
-              (card as HTMLElement).style.display = 'block';
-              visibleCount++;
-            } else if (isFiltering) {
-              (card as HTMLElement).style.display = 'block';
-            } else {
-              (card as HTMLElement).style.display = 'none';
-            }
-          } else {
-            (card as HTMLElement).style.display = 'none';
-          }
-        });
-      }
-
-      filterFormula();
-
-      formulaSearch?.addEventListener('input', filterFormula);
-
-      formulaTagButtons.forEach(tag => {
-        tag.addEventListener('click', () => {
-          const tagValue = tag.getAttribute('data-tag') || '';
-          currentTag = currentTag === tagValue ? '' : tagValue;
-          
-          formulaTagButtons.forEach(t => {
-            const tTag = t.getAttribute('data-tag') || '';
-            if (tTag === currentTag && currentTag !== '') {
-              t.classList.remove('bg-gray-200', 'dark:bg-slate-700', 'text-gray-700', 'dark:text-slate-300');
-              t.classList.add('bg-blue-600', 'text-white');
-            } else {
-              t.classList.remove('bg-blue-600', 'text-white');
-              t.classList.add('bg-gray-200', 'dark:bg-slate-700', 'text-gray-700', 'dark:text-slate-300');
-            }
-          });
-          
-          filterFormula();
-        });
-      });
-
-    </script>
-
-
   </div>
-
-  <script>
-    // Citation counts are requested only when the publication cards enter the viewport.
-    const citationBadges = document.querySelectorAll<HTMLElement>('.citation-badge');
-    const citationObserver = new IntersectionObserver((entries, observer) => {
-      entries.forEach(async (entry) => {
-        if (!entry.isIntersecting) return;
-        observer.unobserve(entry.target);
-        const badge = entry.target.querySelector<HTMLElement>('.citation-badge');
-        if (!badge) return;
-        const doi = badge.dataset.doi;
-        const number = badge.querySelector('.citation-number');
-        if (!doi || !number) return;
-        try {
-          const response = await fetch(`/api/citations?doi=${encodeURIComponent(doi)}`);
-          const data = await response.json();
-          if (typeof data.citationCount === 'number') {
-            number.textContent = data.citationCount.toLocaleString();
-            badge.hidden = false;
-          }
-        } catch {
-          // Leave the optional badge hidden if the citation service is unavailable.
-        }
-      });
-    }, { rootMargin: '200px' });
-    citationBadges.forEach((badge) => {
-      const card = badge.closest('a');
-      if (card) citationObserver.observe(card);
-    });
-  </script>
 </BaseLayout>
