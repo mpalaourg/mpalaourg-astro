@@ -2,6 +2,7 @@
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import SkillsetSection from "../../components/SkillsetSection.astro";
 import { getCollection } from "astro:content";
+import { jsonLd, personStructuredData } from "../../utils/seo";
 
 const formulaPosts = await getCollection("formula-el");
 const publicationsEl = await getCollection("publications-el");
@@ -125,7 +126,10 @@ const experiences = [
 ];
 ---
 
-<BaseLayout title="Γιώργος Μπαλαούρας | Μηχανικός Μηχανικής Μάθησης" description="Ο Γιώργος Μπαλαούρας δημιουργεί συστήματα μηχανικής μάθησης και τεχνητής νοημοσύνης. Δείτε έργα, δημοσιεύσεις, επαγγελματική εμπειρία και ενδιαφέροντα.">
+<BaseLayout title="Γιώργος Μπαλαούρας — Ανώτερος Μηχανικός ML | Συστήματα LLM & AI" description="Ο Γιώργος Μπαλαούρας αναπτύσσει συστήματα ML, LLM και agentic AI για χρήση σε παραγωγή. Δείτε έργα μηχανικής, ερευνητικές δημοσιεύσεις και επαγγελματική εμπειρία.">
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={jsonLd({ '@context': 'https://schema.org', ...personStructuredData })} />
+  </Fragment>
   <div class="max-w-6xl mx-auto">
     <!-- About Me Section -->
     <section class="py-10 px-4 sm:py-12 sm:px-6">
@@ -144,7 +148,7 @@ const experiences = [
           <p class="text-xl text-gray-600 dark:text-slate-400 mb-4">Ανώτερος μηχανικός μηχανικής μάθησης</p>
           
           <p class="text-gray-600 dark:text-slate-400 mb-4 text-left sm:text-justify leading-relaxed">
-            Χτίζω συστήματα machine learning που πράγματι λύνουν πραγματικά προβλήματα. Το υπόβαθρό μου εκτείνεται από ακαδημαϊκή έρευνα στο video summarization στο CERTH-ITI μέχρι το deployment ML μοντέλων σε enterprise κλίμακα. Απολαμβάνω να μετατρέπω πολύπλοκη έρευνα σε πρακτικές, production-ready λύσεις. Όταν δεν εκπαιδευώ μοντέλα, θα με βρείτε να ασχολούμαι με τη Formula 1 ή να ψάχνω για το τέλειο freddo espresso. 🏎️☕
+            Αναπτύσσω συστήματα ML και LLM για παραγωγική χρήση, μαζί με agentic AI εφαρμογές που μετατρέπουν σύνθετα δεδομένα σε χρήσιμες αποφάσεις. Το υπόβαθρό μου εκτείνεται από την έρευνα στην περίληψη βίντεο στο CERTH-ITI μέχρι τη μηχανική μάθηση σε επιχειρησιακή κλίμακα. Με ενδιαφέρει τα συστήματα αυτά να είναι αξιόπιστα, μετρήσιμα και πρακτικά. Εκτός δουλειάς, θα με βρείτε να αναλύω τον τελευταίο αγώνα Formula 1 ή να ψάχνω για το τέλειο freddo espresso. 🏎️☕
           </p>
           
           <div class="flex gap-4">

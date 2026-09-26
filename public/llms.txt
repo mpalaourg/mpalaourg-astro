@@ -10,6 +10,7 @@ The pages below are public and contain server-rendered text and ordinary links. 
 - [About](https://mpalaourg.dev/about): Personal interests and background.
 - [Projects](https://mpalaourg.dev/projects): Index of projects and workshop material.
 - [Publications](https://mpalaourg.dev/publications): Index of peer-reviewed research papers and their source files.
+- [Google Scholar profile](https://scholar.google.com/citations?user=63n7Lc8AAAAJ&hl=en): Complete research publication record.
 - [Formula 1](https://mpalaourg.dev/formula): Season articles, statistics, and live race information.
 - [Formula 1 world champions](https://mpalaourg.dev/formula/champions): Drivers' and constructors' champions archive.
 

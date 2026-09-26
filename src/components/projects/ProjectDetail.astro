@@ -3,6 +3,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import ProjectResources from './ProjectResources.astro';
 import { projectVisuals } from '../../utils/projects';
 import type { ProjectEntry, ProjectLanguage } from '../../utils/projects';
+import { jsonLd, personId } from '../../utils/seo';
 
 interface Props {
   post: ProjectEntry;
@@ -29,10 +30,9 @@ const structuredData = {
   description: post.data.summary,
   inLanguage: lang,
   dateCreated: post.data.date.toISOString().slice(0, 10),
-  author: { '@type': 'Person', name: 'Georgios Balaouras' },
+  author: { '@type': 'Person', '@id': personId, name: 'Georgios Balaouras', url: 'https://mpalaourg.dev/about/' },
   image: shareImageUrl,
 };
-const jsonLd = JSON.stringify(structuredData).replace(/</g, '\\u003c');
 ---
 
 <BaseLayout
@@ -43,7 +43,7 @@ const jsonLd = JSON.stringify(structuredData).replace(/</g, '\\u003c');
   ogType="article"
 >
   <Fragment slot="head">
-    <script type="application/ld+json" set:html={jsonLd} />
+    <script type="application/ld+json" set:html={jsonLd(structuredData)} />
   </Fragment>
 
   <article class="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">

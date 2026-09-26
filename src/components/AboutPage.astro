@@ -4,6 +4,7 @@ import NASAWidget from './NASAWidget.astro';
 import AboutCarousel from './AboutCarousel.astro';
 import F1RacePreview from './F1RacePreview.astro';
 import PlayfulSignalsSection from './PlayfulSignalsSection.astro';
+import { jsonLd, personStructuredData } from '../utils/seo';
 
 interface Props { lang: 'en' | 'el' }
 const { lang } = Astro.props;
@@ -44,9 +45,23 @@ const copy = isEl
       raceIntro: 'I follow the decisions that change a Formula 1 race: tyre calls, timing, and risk. The full calendar and standings live on the Formula page.',
     };
 const prefix = isEl ? '/el' : '';
+const pageUrl = `https://mpalaourg.dev${prefix}/about/`;
+const profilePageData = {
+  '@context': 'https://schema.org',
+  '@type': 'ProfilePage',
+  '@id': `${pageUrl}#profile`,
+  url: pageUrl,
+  inLanguage: lang,
+  name: copy.title,
+  description: copy.description,
+  mainEntity: personStructuredData,
+};
 ---
 
 <BaseLayout title={copy.title} description={copy.description}>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={jsonLd(profilePageData)} />
+  </Fragment>
   <div class="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-12">
     <section class="overflow-hidden rounded-[2rem] border border-slate-200/80 bg-white/40 shadow-sm dark:border-slate-700 dark:bg-slate-900/30">
       <div class="relative h-56 overflow-hidden md:h-64">

@@ -2,6 +2,7 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import SkillsetSection from "../components/SkillsetSection.astro";
 import { getCollection } from "astro:content";
+import { jsonLd, personStructuredData } from "../utils/seo";
 
 const formulaPosts = await getCollection("formula");
 const publicationsPosts = await getCollection("publications");
@@ -125,7 +126,10 @@ const experiences = [
 ];
 ---
 
-<BaseLayout title="Georgios Balaouras | Machine Learning Engineer" description="Georgios Balaouras builds production machine learning and AI systems. Explore his projects, research publications, experience, and interests.">
+<BaseLayout title="Georgios Balaouras — Senior Machine Learning Engineer | LLM & AI Systems" description="Georgios Balaouras builds production ML, LLM, and agentic AI systems. Explore his engineering projects, research publications, and experience.">
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={jsonLd({ '@context': 'https://schema.org', ...personStructuredData })} />
+  </Fragment>
   <div class="max-w-6xl mx-auto">
     <!-- About Me Section -->
     <section class="py-10 px-4 sm:py-12 sm:px-6">
@@ -144,7 +148,7 @@ const experiences = [
           <p class="text-xl text-gray-600 dark:text-slate-400 mb-4">Senior Machine Learning Engineer</p>
           
           <p class="text-gray-600 dark:text-slate-400 mb-4 text-left sm:text-justify leading-relaxed">
-            I build machine learning systems that actually solve real problems. My background spans academic research on video summarization at CERTH-ITI and deploying ML at scale in enterprise settings. I enjoy turning complex research into practical, production-ready solutions. When I'm not training models, you'll find me analyzing the latest Formula 1 race or hunting for the perfect freddo espresso. 🏎️☕
+            I build production ML and LLM systems, including agentic AI applications that turn complex data into useful decisions. My background spans video summarization research at CERTH-ITI and ML engineering at enterprise scale. I care about making these systems reliable, measurable, and practical to use. Away from work, you'll find me analyzing the latest Formula 1 race or hunting for the perfect freddo espresso. 🏎️☕
           </p>
           
           <div class="flex gap-4">

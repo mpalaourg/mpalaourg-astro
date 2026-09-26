@@ -4,6 +4,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import PublicationResources from './PublicationResources.astro';
 import { formatPublicationAuthors, hasEqualContribution, publicationVisuals } from '../../utils/publications';
 import type { PublicationEntry, PublicationLanguage } from '../../utils/publications';
+import { jsonLd, personId } from '../../utils/seo';
 
 interface Props {
   post: PublicationEntry;
@@ -37,12 +38,15 @@ const structuredData = {
   abstract: post.data.abstract,
   inLanguage: lang,
   datePublished: date.toISOString().slice(0, 10),
-  author: citationAuthors.map((name) => ({ '@type': 'Person', name })),
+  author: citationAuthors.map((name) =>
+    name.includes('Balaouras') || name.includes('Μπαλαούρας')
+      ? { '@type': 'Person', '@id': personId, name, url: 'https://mpalaourg.dev/about/' }
+      : { '@type': 'Person', name }
+  ),
   image: shareImageUrl,
   sameAs: paperUrl,
   identifier: post.data.doi ? { '@type': 'PropertyValue', propertyID: 'DOI', value: post.data.doi } : undefined,
 };
-const jsonLd = JSON.stringify(structuredData).replace(/</g, '\\u003c');
 ---
 
 <BaseLayout
@@ -59,7 +63,7 @@ const jsonLd = JSON.stringify(structuredData).replace(/</g, '\\u003c');
     <meta name="citation_publication_date" content={`${date.getUTCFullYear()}/${date.getUTCMonth() + 1}/${date.getUTCDate()}`} />
     <meta name="citation_conference_title" content={post.data.publication} />
     {post.data.doi && <meta name="citation_doi" content={post.data.doi} />}
-    <script type="application/ld+json" set:html={jsonLd} />
+    <script type="application/ld+json" set:html={jsonLd(structuredData)} />
   </Fragment>
 
   <article class="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
