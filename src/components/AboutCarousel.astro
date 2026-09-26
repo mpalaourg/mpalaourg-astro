@@ -4,18 +4,18 @@ const { lang } = Astro.props;
 const isEl = lang === 'el';
 const slides = isEl
   ? [
-      { name: 'Καφές', text: 'Ο δυνατός καφές είναι μια μικρή καθημερινή σταθερά.', image: '/media/images/coffee.webp' },
-      { name: 'Ταξίδια', text: 'Μου αρέσει να γνωρίζω μια πόλη περπατώντας τη χωρίς βιασύνη.', image: '/media/images/travel.webp' },
-      { name: 'Σειρές', text: 'Μια καλή σειρά είναι πάντα ευπρόσδεκτη.', image: '/media/images/series.webp' },
-      { name: 'Formula 1', text: 'Στους αγώνες παρακολουθώ τη στρατηγική όσο και τη δράση.', image: '/media/images/f1.webp' },
-      { name: 'Μουσική', text: 'Τα ρεμπέτικα είναι από τους ήχους στους οποίους επιστρέφω.', image: '/media/images/music.webp' },
+      { name: 'Καφές', text: 'Καφές δυνατός, κάθε μέρα.', image: '/media/images/coffee.webp' },
+      { name: 'Ταξίδια', text: 'Μια νέα πόλη τη γνωρίζω με τα πόδια.', image: '/media/images/travel.webp' },
+      { name: 'Σειρές', text: 'Πάντα υπάρχει χρόνος για μια καλή σειρά.', image: '/media/images/series.webp' },
+      { name: 'Formula 1', text: 'Στη Formula 1 με τραβά η στρατηγική.', image: '/media/images/f1.webp' },
+      { name: 'Μουσική', text: 'Τα ρεμπέτικα έχουν πάντα θέση.', image: '/media/images/music.webp' },
     ]
   : [
-      { name: 'Coffee', text: 'Strong coffee is a small daily constant.', image: '/media/images/coffee.webp' },
-      { name: 'Travel', text: 'I like getting to know a city by walking it without a schedule.', image: '/media/images/travel.webp' },
-      { name: 'Series', text: 'A good series is always welcome.', image: '/media/images/series.webp' },
-      { name: 'Formula 1', text: 'I follow the strategy as closely as the action.', image: '/media/images/f1.webp' },
-      { name: 'Music', text: 'Rembetika is one of the sounds I keep returning to.', image: '/media/images/music.webp' },
+      { name: 'Coffee', text: 'Strong coffee, every day.', image: '/media/images/coffee.webp' },
+      { name: 'Travel', text: 'I get to know a new city on foot.', image: '/media/images/travel.webp' },
+      { name: 'Series', text: 'There’s always time for a good series.', image: '/media/images/series.webp' },
+      { name: 'Formula 1', text: 'F1 is as much about strategy as speed.', image: '/media/images/f1.webp' },
+      { name: 'Music', text: 'There’s always room for rembetika.', image: '/media/images/music.webp' },
     ];
 ---
 
@@ -26,7 +26,7 @@ const slides = isEl
     <div class="relative flex min-h-72 items-end p-7 sm:min-h-80 sm:p-10">
       <div>
         <p class="about-slide-name mb-4 text-xs font-semibold uppercase tracking-[0.24em] text-orange-300">{slides[0].name}</p>
-        <p class="about-slide-text max-w-2xl text-2xl font-semibold leading-tight text-white drop-shadow-lg sm:text-[2.15rem]" aria-live="off" aria-atomic="true">{slides[0].text}</p>
+        <p class="about-slide-text text-xl font-semibold leading-tight text-white drop-shadow-lg sm:text-[2.15rem]" aria-live="off" aria-atomic="true">{slides[0].text}</p>
       </div>
     </div>
   </div>
