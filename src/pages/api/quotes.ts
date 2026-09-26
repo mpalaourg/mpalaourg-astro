@@ -1,9 +1,9 @@
 import type { APIRoute } from "astro";
 import { getRandomQuote, type F1Quote } from "../../utils/f1/quotes";
 
-export const GET: APIRoute = async () => {
+export const GET: APIRoute = async ({ url }) => {
   try {
-    const quote = getRandomQuote();
+    const quote = getRandomQuote(url.searchParams.get('exclude') ?? undefined);
     
     return new Response(JSON.stringify(quote), {
       status: 200,

@@ -11,11 +11,13 @@ const t = {
     title: "F1 Quote",
     newQuote: "New Quote",
     by: "-",
+    source: "Source",
   },
   el: {
     title: "Ατάκα F1",
     newQuote: "Νέα ατάκα",
     by: "-",
+    source: "Πηγή",
   },
 } as const;
 
@@ -51,6 +53,7 @@ const T = t[lang];
           <p class="quote-context text-xs text-gray-500 dark:text-slate-500 mt-2 italic">
             --
           </p>
+          <a class="quote-source mt-2 hidden text-xs font-medium text-red-700 underline-offset-2 hover:underline dark:text-red-400" target="_blank" rel="noopener noreferrer">{T.source} ↗</a>
         </div>
       </div>
     </>
@@ -73,6 +76,7 @@ const T = t[lang];
         <p class="quote-context mt-2 text-xs text-gray-500 dark:text-slate-500 italic">
           --
         </p>
+        <a class="quote-source mt-3 hidden text-xs font-medium text-red-700 underline-offset-2 hover:underline dark:text-red-400" target="_blank" rel="noopener noreferrer">{T.source} ↗</a>
       </div>
     </div>
   )}
@@ -87,18 +91,22 @@ const T = t[lang];
 <script is:inline>
   async function fetchQuote(widget) {
     try {
-      const res = await fetch(`/api/quotes?t=${Date.now()}`);
+      const previous = widget.dataset.currentQuote ? JSON.parse(widget.dataset.currentQuote).quote : '';
+      const query = new URLSearchParams({ t: String(Date.now()) });
+      if (previous) query.set('exclude', previous);
+      const res = await fetch(`/api/quotes?${query}`);
       if (!res.ok) throw new Error('Failed to fetch');
       const data = await res.json();
 
       widget.dataset.currentQuote = JSON.stringify(data);
 
       const previewEl = widget.querySelector('.quote-preview');
-      if (previewEl) previewEl.textContent = `"${data.quote.substring(0, 25)}..."`;
+      if (previewEl) previewEl.textContent = `"${data.quote.length > 25 ? `${data.quote.slice(0, 25)}…` : data.quote}"`;
 
       const textEl = widget.querySelector('.quote-text');
       const authorEl = widget.querySelector('.author-name');
       const contextEl = widget.querySelector('.quote-context');
+      const sourceEl = widget.querySelector('.quote-source');
 
       if (textEl) textEl.textContent = `"${data.quote}"`;
       if (authorEl) authorEl.textContent = data.author;
@@ -111,6 +119,15 @@ const T = t[lang];
           contextEl.style.display = 'block';
         } else {
           contextEl.style.display = 'none';
+        }
+      }
+      if (sourceEl) {
+        if (data.source) {
+          sourceEl.href = data.source;
+          sourceEl.classList.remove('hidden');
+        } else {
+          sourceEl.removeAttribute('href');
+          sourceEl.classList.add('hidden');
         }
       }
     } catch (err) {

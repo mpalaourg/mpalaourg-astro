@@ -4,20 +4,23 @@ export interface F1Quote {
   author: string;
   context?: string;
   year?: string;
+  source?: string;
 }
 
 export const f1Quotes: F1Quote[] = [
   {
-    quote: "Leave me alone, I know what I'm doing.",
+    quote: "Just leave me alone, I know what to do!",
     author: "Kimi Räikkönen",
     context: "To his race engineer during the 2012 Abu Dhabi Grand Prix",
-    year: "2012"
+    year: "2012",
+    source: "https://www.formula1.com/en/latest/article/watch-just-leave-me-alone-the-ultimate-kimi-raikkonen-team-radio-collection.xWAYjOM6avYZuELwCOS4m"
   },
   {
-    quote: "To whom it may concern...",
-    author: "Sebastian Vettel",
-    context: "His signature radio message after winning races",
-    year: "2010-2013"
+    quote: "To whom it may concern: f*** you!",
+    author: "Valtteri Bottas",
+    context: "After winning the Australian Grand Prix and answering his critics",
+    year: "2019",
+    source: "https://www.formula1.com/en/latest/article/must-see-mercedes-hilarious-bottas-3-0-skit.1sB4N3qRX0oqeDkUTGOmgq"
   },
   {
     quote: "GP2 engine! GP2!",
@@ -89,9 +92,10 @@ export const f1Quotes: F1Quote[] = [
   },
   {
     quote: "Is that Glock?",
-    author: "Felipe Massa",
-    context: "His father reacting to Timo Glock slowing down, costing Massa the 2008 championship",
-    year: "2008"
+    author: "Martin Brundle",
+    context: "Spotting Timo Glock as Hamilton passed him for the title in Brazil",
+    year: "2008",
+    source: "https://www.formula1.com/en/latest/article/9-thrilling-title-deciding-finales-from-f1-history.57lx35G8vIsWRCOL5LV6cF"
   },
   {
     quote: "There is something loose between my legs.",
@@ -102,8 +106,9 @@ export const f1Quotes: F1Quote[] = [
   {
     quote: "I am stupid.",
     author: "Charles Leclerc",
-    context: "After crashing out at his home race in Monaco",
-    year: "2019"
+    context: "After crashing in Azerbaijan Grand Prix qualifying",
+    year: "2019",
+    source: "https://www.formula1.com/en/latest/article/%27i-threw-all-the-potential-in-the-bin%27-leclerc-on-costly-qualifying-crash.4CGzc8n06C9QX25gvPybim"
   },
   {
     quote: "I don't check my mirrors.",
@@ -131,9 +136,10 @@ export const f1Quotes: F1Quote[] = [
   },
   {
     quote: "I think Ericsson hit us.",
-    author: "Fernando Alonso",
-    context: "After being hit by his teammate Vandoorne, blaming the wrong driver",
-    year: "2018"
+    author: "Haas race engineer",
+    context: "After Grosjean crashed behind the Safety Car in Azerbaijan",
+    year: "2018",
+    source: "https://www.formula1.com/en/latest/article/f1s-wildest-azerbaijan-moments-from-10-years-of-racing-in-baku.4hKjzE3m20ov49AE4kSf0F"
   },
   {
     quote: "The engine feels good. Much slower than before.",
@@ -166,10 +172,11 @@ export const f1Quotes: F1Quote[] = [
     year: "2012-2021"
   },
   {
-    quote: "No, no, no! That was so not right!",
+    quote: "No Michael! No Michael, no! That was so not right!",
     author: "Toto Wolff",
-    context: "After Russell crashed into Verstappen at the 2024 Qatar GP",
-    year: "2024"
+    context: "To race director Michael Masi during the Abu Dhabi title decider",
+    year: "2021",
+    source: "https://www.formula1.com/en/latest/article/explained-understanding-one-of-themost-chaotic-controversial-title.4B98awxwP7JPgBWxIt5KnL"
   },
   {
     quote: "Checo is a legend.",
@@ -305,12 +312,62 @@ export const f1Quotes: F1Quote[] = [
     author: "Ferrari Race Engineer",
     context: "Deadpan reply after Leclerc said his seat was full of water",
     year: "2025"
+  },
+  {
+    quote: "Stop inventing.",
+    author: "Carlos Sainz",
+    context: "Rejecting a team instruction at the British Grand Prix restart",
+    year: "2022",
+    source: "https://www.formula1.com/en/latest/article/we-stopped-inventing-jokes-perez-as-he-explains-2024-improvements-with-sainz.6FOFwkBCVK4RvgCaHlWjqF"
+  },
+  {
+    quote: "Happy birthday to Will's mum!",
+    author: "Lando Norris",
+    context: "Singing to his race engineer's mother at Imola",
+    year: "2022",
+    source: "https://www.formula1.com/en/latest/article/sweary-outbursts-emotional-celebrations-and-cheeky-jokes-12-of-the-most.1dNv0yv1Dx6C1jX3gYPjCS"
+  },
+  {
+    quote: "You will not have the drink.",
+    author: "Ferrari race engineer",
+    context: "Replying to Räikkönen's request at the Hungarian Grand Prix",
+    year: "2018",
+    source: "https://www.formula1.com/en/latest/article/sweary-outbursts-emotional-celebrations-and-cheeky-jokes-12-of-the-most.1dNv0yv1Dx6C1jX3gYPjCS"
+  },
+  {
+    quote: "We did it, Will.",
+    author: "Lando Norris",
+    context: "To race engineer Will Joseph after his first Grand Prix win in Miami",
+    year: "2024",
+    source: "https://www.formula1.com/en/latest/article/leave-him-to-it-norris-race-engineer-reflects-on-an-emotional-victory-for.2Bd3Asyh5pccH1eMGsnzH6"
+  },
+  {
+    quote: "George, you can win this!",
+    author: "Toto Wolff",
+    context: "Urging Russell on after the leaders collided in Austria",
+    year: "2024",
+    source: "https://www.formula1.com/en/latest/article/the-single-dumbest-thing-ive-done-wolff-reflects-on-embarrassing-radio.2M3VV4joVYFTBKEkwJDhxj"
+  },
+  {
+    quote: "I love you guys.",
+    author: "Lewis Hamilton",
+    context: "At the end of his final race with Mercedes in Abu Dhabi",
+    year: "2024",
+    source: "https://www.formula1.com/en/latest/article/must-see-listen-in-to-hamiltons-emotional-radio-as-he-crosses-the-line-in.KoY6xK98TJqVbs4pNqZt1"
+  },
+  {
+    quote: "Have a tea break while you're at it.",
+    author: "Lewis Hamilton",
+    context: "Waiting for Ferrari to decide on a team order in Miami",
+    year: "2025",
+    source: "https://www.formula1.com/en/latest/article/we-took-the-tough-decision-vasseur-defends-ferrari-team-orders-situation-in.4ejF8x5boJaBm4ixbzZ59S"
   }
 ];
 
-export function getRandomQuote(): F1Quote {
-  const randomIndex = Math.floor(Math.random() * f1Quotes.length);
-  return f1Quotes[randomIndex];
+export function getRandomQuote(excludedQuote?: string): F1Quote {
+  const choices = excludedQuote ? f1Quotes.filter(({ quote }) => quote !== excludedQuote) : f1Quotes;
+  const randomIndex = Math.floor(Math.random() * choices.length);
+  return choices[randomIndex];
 }
 
 export function getAllQuotes(): F1Quote[] {
