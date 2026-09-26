@@ -361,6 +361,48 @@ export const f1Quotes: F1Quote[] = [
     context: "Waiting for Ferrari to decide on a team order in Miami",
     year: "2025",
     source: "https://www.formula1.com/en/latest/article/we-took-the-tough-decision-vasseur-defends-ferrari-team-orders-situation-in.4ejF8x5boJaBm4ixbzZ59S"
+  },
+  {
+    quote: "This is like a mushroom in Mario Kart.",
+    author: "Charles Leclerc",
+    context: "On the new boost while battling Russell in Australia",
+    year: "2026",
+    source: "https://www.youtube.com/watch?v=E1hMTsfwJuU"
+  },
+  {
+    quote: "My battery level had nothing in the tank.",
+    author: "George Russell",
+    context: "Reflecting on his start from pole in Australia",
+    year: "2026",
+    source: "https://www.formula1.com/en/latest/article/russell-wins-action-packed-australian-gp-from-antonelli-as-mercedes-secure-1.4WRxPAtF4dFtrKCsWIiQX2"
+  },
+  {
+    quote: "I got no power, man!",
+    author: "Lewis Hamilton",
+    context: "On the radio as Verstappen passed him in Canada",
+    year: "2026",
+    source: "https://www.formula1.com/en/latest/article/antonelli-wins-dramatic-canadian-grand-prix-as-russell-retires-amid-thrilling-mercedes-battle.MzvclJaqCidlYMUXonuDq"
+  },
+  {
+    quote: "When trying to overtake, there was no battery on the main straight.",
+    author: "Max Verstappen",
+    context: "Explaining why he could not pass Gasly in Japan",
+    year: "2026",
+    source: "https://www.formula1.com/en/latest/article/what-the-teams-said-race-day-in-japan-2026.7ljwEx0ZL2qA0lytKAwXLI"
+  },
+  {
+    quote: "Yo-yo-racing will be a topic tomorrow.",
+    author: "Charles Leclerc",
+    context: "Predicting Monza's battery deployment battles after qualifying",
+    year: "2026",
+    source: "https://www.formula1.com/en/latest/article/what-the-teams-said-qualifying-in-italy-2026.5lH9hjhYdtN3xqlAu25I2D"
+  },
+  {
+    quote: "Are you using me as a guinea pig?",
+    author: "Lewis Hamilton",
+    context: "Questioning Ferrari's strategy under a Virtual Safety Car in the Netherlands",
+    year: "2026",
+    source: "https://www.formula1.com/en/latest/article/i-want-to-win-hamilton-explains-frustrated-radio-messages-in-dutch-grand-prix.4mMvpLPKV7T2kfnkITCYuO"
   }
 ];
 
