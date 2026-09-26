@@ -25,7 +25,7 @@ const slides = isEl
     <div class="absolute inset-0 bg-gradient-to-r from-slate-950/80 via-slate-950/35 to-transparent"></div>
     <div class="relative flex min-h-72 items-end p-7 sm:min-h-80 sm:p-10">
       <div>
-        <p class="mb-4 text-xs font-semibold uppercase tracking-[0.24em] text-orange-300">{isEl ? 'Μικρές σταθερές' : 'Small constants'}</p>
+        <p class="about-slide-name mb-4 text-xs font-semibold uppercase tracking-[0.24em] text-orange-300">{slides[0].name}</p>
         <p class="about-slide-text max-w-2xl text-2xl font-semibold leading-tight text-white drop-shadow-lg sm:text-[2.15rem]" aria-live="off" aria-atomic="true">{slides[0].text}</p>
       </div>
     </div>
@@ -50,8 +50,9 @@ const slides = isEl
 
 <script>
   document.querySelectorAll<HTMLElement>('[data-about-carousel]').forEach((carousel) => {
-    const slides = JSON.parse(carousel.dataset.slides ?? '[]') as Array<{ text: string; image: string }>;
+    const slides = JSON.parse(carousel.dataset.slides ?? '[]') as Array<{ name: string; text: string; image: string }>;
     const image = carousel.querySelector<HTMLImageElement>('.about-slide-image');
+    const name = carousel.querySelector<HTMLElement>('.about-slide-name');
     const text = carousel.querySelector<HTMLElement>('.about-slide-text');
     const dots = carousel.querySelectorAll<HTMLButtonElement>('.about-slide-dot');
     const playback = carousel.querySelector<HTMLButtonElement>('.about-slide-playback');
@@ -65,6 +66,7 @@ const slides = isEl
     function show(index: number) {
       current = index;
       if (image) image.src = slides[index].image;
+      if (name) name.textContent = slides[index].name;
       if (text) text.textContent = slides[index].text;
       dots.forEach((dot, position) => {
         dot.classList.toggle('bg-orange-400', position === index);
