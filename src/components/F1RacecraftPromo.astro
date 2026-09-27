@@ -4,7 +4,7 @@ const { lang = "en" } = Astro.props;
 const isEl = lang === "el";
 ---
 
-<a class="racecraft-promo" href={isEl ? "/el/formula/racecraft" : "/formula/racecraft"}>
+<a class="racecraft-promo" href={isEl ? "/el/formula/racecraft/" : "/formula/racecraft/"}>
   <div class="promo-mark" aria-hidden="true"><span>01</span><i></i><span>02</span></div>
   <div class="promo-copy">
     <p>{isEl ? "ΕΙΚΟΝΟΓΡΑΦΗΜΕΝΟΣ ΟΔΗΓΟΣ · 2026" : "ILLUSTRATED FIELD GUIDE · 2026"}</p>

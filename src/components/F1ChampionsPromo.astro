@@ -4,7 +4,7 @@ const { lang = "en" } = Astro.props;
 const isEl = lang === "el";
 ---
 
-<a class="champions-promo" href={isEl ? "/el/formula/champions" : "/formula/champions"}>
+<a class="champions-promo" href={isEl ? "/el/formula/champions/" : "/formula/champions/"}>
   <div class="promo-copy">
     <p>{isEl ? "ΔΙΑΔΡΑΣΤΙΚΟ ΑΡΧΕΙΟ · 1950—2025" : "INTERACTIVE ARCHIVE · 1950—2025"}</p>
     <h2>{isEl ? "Η αίθουσα των πρωταθλητών" : "The Hall of Champions"}</h2>

@@ -163,7 +163,7 @@ const teamLogos: Record<string, string> = {
   "alfa-romeo": "/formula/team-logos/champions/alfa-romeo.png",
   maserati: "/formula/team-logos/champions/maserati.svg",
 };
-const articlePath = (year: number) => `${isEl ? "/el" : ""}/formula/${year}-season`;
+const articlePath = (year: number) => `${isEl ? "/el" : ""}/formula/${year}-season/`;
 const ordinalSuffix = (number: number) => {
   if (isEl) return "ος";
   const remainder = number % 100;
@@ -179,7 +179,7 @@ const ordinalSuffix = (number: number) => {
   <div class="track-lines" aria-hidden="true"></div>
 
   <header class="champions-hero">
-    <a class="back-link" href={isEl ? "/el/formula" : "/formula"}>← {copy.back}</a>
+    <a class="back-link" href={isEl ? "/el/formula/" : "/formula/"}>← {copy.back}</a>
     <p class="eyebrow">{copy.eyebrow}</p>
     <div class="hero-layout">
       <h1>

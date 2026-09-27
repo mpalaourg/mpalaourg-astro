@@ -12,7 +12,7 @@ const isEl = lang === 'el';
       <h3 class="race-name mt-3 text-2xl font-semibold tracking-tight sm:text-3xl" aria-live="polite">{isEl ? 'Φόρτωση ημερολογίου…' : 'Loading calendar…'}</h3>
       <p class="race-detail mt-2 text-sm text-slate-600 dark:text-slate-300"></p>
     </div>
-    <a href={isEl ? '/el/formula' : '/formula'} class="inline-flex min-h-11 shrink-0 items-center self-start rounded-full bg-slate-900 px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-orange-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-500 dark:bg-white dark:text-slate-900 dark:hover:bg-orange-200 sm:self-auto">
+    <a href={isEl ? '/el/formula/' : '/formula/'} class="inline-flex min-h-11 shrink-0 items-center self-start rounded-full bg-slate-900 px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-orange-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-500 dark:bg-white dark:text-slate-900 dark:hover:bg-orange-200 sm:self-auto">
       {isEl ? 'Όλη η Formula 1' : 'Explore Formula 1'} <span class="ml-2" aria-hidden="true">↗</span>
     </a>
   </div>
