@@ -1,14 +1,24 @@
 ---
 import "../styles/global.css";
 
+interface Props {
+  title: string;
+  description: string;
+  noindex?: boolean;
+  ogImage?: string;
+  ogImageAlt?: string;
+  ogType?: string;
+}
+
 const {
-  title = "Georgios Balaouras",
-  description = "Georgios Balaouras is a machine learning engineer building practical AI systems and sharing projects, research, and interests.",
+  title,
+  description,
   noindex = false,
   ogImage,
   ogImageAlt,
   ogType = "website",
 } = Astro.props;
+if (!description.trim()) throw new Error(`Missing meta description for ${Astro.url.pathname}`);
 const pathname = Astro.url.pathname;
 const isEl = pathname === "/el" || pathname.startsWith("/el/");
 const enPath = isEl ? (pathname.replace(/^\/el/, "") || "/") : pathname;
