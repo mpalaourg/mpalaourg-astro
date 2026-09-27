@@ -29,13 +29,14 @@ function err(message: string, status = 400): Response {
 }
 
 export const GET: APIRoute = async ({ url, locals }) => {
-  const season = parseInt(url.searchParams.get("season") ?? "");
+  const seasonParam = url.searchParams.get("season") ?? "";
+  const season = Number(seasonParam);
   const type = url.searchParams.get("type") as
     | "drivers"
     | "constructors"
     | null;
 
-  if (isNaN(season) || !type) return err("season, type params required");
+  if (!/^\d{4}$/.test(seasonParam) || season < 1950 || season > new Date().getUTCFullYear() + 1 || !type) return err("Invalid season or type");
   if (type !== "drivers" && type !== "constructors") {
     return err("type must be drivers or constructors");
   }

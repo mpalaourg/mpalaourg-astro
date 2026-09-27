@@ -7,6 +7,30 @@ export interface CacheEntry {
   expires_at: number;
 }
 
+/** Claim one cleanup per day across Workers, then remove expired cache and old rate-limit rows. */
+export async function maybeCleanupExpired(db: D1Database): Promise<void> {
+  const now = Date.now();
+  const key = "maintenance:cleanup";
+  try {
+    const marker = await db.prepare("SELECT expires_at FROM cache WHERE key = ?")
+      .bind(key).first<{ expires_at: number }>();
+    if (marker && marker.expires_at > now) return;
+    const claim = await db.prepare(`
+      INSERT INTO cache (key, data, expires_at) VALUES (?, '{}', ?)
+      ON CONFLICT(key) DO UPDATE SET expires_at = excluded.expires_at
+      WHERE cache.expires_at <= ?
+    `).bind(key, now + 86_400_000, now).run();
+    if (claim.meta.changes !== 1) return;
+    await db.batch([
+      db.prepare("DELETE FROM cache WHERE expires_at <= ? AND key != ?").bind(now, key),
+      db.prepare("DELETE FROM translation_limits WHERE window_start < ?")
+        .bind(now - 2 * 86_400_000),
+    ]);
+  } catch (error) {
+    console.error("Cache cleanup error:", error);
+  }
+}
+
 export class Cache {
   private db: D1Database;
 
@@ -68,6 +92,7 @@ export class Cache {
         `)
         .bind(key, serialized, expiresAt)
         .run();
+      await maybeCleanupExpired(this.db);
     } catch (error) {
       console.error('Cache set error:', error);
     }

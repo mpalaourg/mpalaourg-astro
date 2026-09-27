@@ -1,6 +1,7 @@
 import type { APIRoute } from "astro";
 import {
   getSessionFromDb,
+  getRaceFromDb,
   upsertSession,
   type SessionResultRow,
 } from "../../../utils/f1/db";
@@ -12,6 +13,7 @@ import {
 } from "../../../utils/f1/api";
 import { PRACTICE_SESSION_NAMES } from "../../../utils/f1/constants";
 import { getTeamIdFromName } from "../../../utils/f1/formatters";
+import { isSessionOver } from "../../../utils/f1/session-timing";
 import type { OpenF1Driver, OpenF1ResultRow } from "../../../utils/f1/types";
 import type { SessionType } from "../../../utils/f1/types";
 
@@ -39,28 +41,6 @@ function isRetryReady(row: SessionResultRow): boolean {
   );
   const lastAttempt = new Date(row.last_attempted_at).getTime();
   return Date.now() - lastAttempt >= backoffMs;
-}
-
-function isSessionOver(
-  race: { date: string; time: string | null } | null,
-  sessionType: string
-): boolean {
-  if (!race) return false;
-  const GRACE_MS = 30 * 60 * 1000;
-  const DURATION_MS: Record<string, number> = {
-    fp1: 60 * 60 * 1000,
-    fp2: 60 * 60 * 1000,
-    fp3: 60 * 60 * 1000,
-    qualifying: 75 * 60 * 1000,
-    sprint_qualifying: 45 * 60 * 1000,
-    sprint: 30 * 60 * 1000,
-    race: 120 * 60 * 1000,
-  };
-  const start = new Date(
-    `${race.date}T${race.time ?? "00:00:00"}`
-  ).getTime();
-  const estimatedEnd = start + (DURATION_MS[sessionType] ?? 120 * 60 * 1000);
-  return Date.now() > estimatedEnd + GRACE_MS;
 }
 
 async function getQualifyingPracticeOrder(
@@ -216,23 +196,35 @@ async function rankNoTimeQualifiers(
 }
 
 export const GET: APIRoute = async ({ url, locals }) => {
-  const season = parseInt(url.searchParams.get("season") ?? "");
-  const round = parseInt(url.searchParams.get("round") ?? "");
+  const seasonParam = url.searchParams.get("season") ?? "";
+  const roundParam = url.searchParams.get("round") ?? "";
+  const season = Number(seasonParam);
+  const round = Number(roundParam);
   const sessionType = url.searchParams.get("type") as SessionType | null;
-  const country = url.searchParams.get("country") ?? "";
-  const sessionDate = url.searchParams.get("date") ?? "";
 
-  if (isNaN(season) || isNaN(round) || !sessionType) {
-    return err("season, round, type params required");
+  if (!/^\d{4}$/.test(seasonParam) || season < 1950 || season > new Date().getUTCFullYear() + 1 ||
+      !/^\d+$/.test(roundParam) || round < 1 || round > 30 ||
+      !sessionType || !["fp1", "fp2", "fp3", "qualifying", "sprint_qualifying", "sprint", "race"].includes(sessionType)) {
+    return err("Invalid season, round, or session type");
   }
 
   const runtime = locals.runtime as { env: Env };
   const db = runtime.env.DB;
+  const race = await getRaceFromDb(db, season, round);
+  if (!race) return err("Race schedule unavailable", 404);
+  const country = race.country;
+  const scheduleFields = sessionType === "sprint_qualifying" ? [race.sq_date, race.sq_time]
+    : sessionType === "race" ? [race.race_date, race.race_time]
+    : [race[`${sessionType}_date` as keyof typeof race], race[`${sessionType}_time` as keyof typeof race]];
+  const sessionDate = String(scheduleFields[0] ?? "");
+  const sessionTime = scheduleFields[1] == null ? null : String(scheduleFields[1]);
+  if (!sessionDate) return err("Session not scheduled", 404);
+  const over = isSessionOver({ date: sessionDate, time: sessionTime }, sessionType);
 
   const cached = await getSessionFromDb(db, season, round, sessionType);
 
   if (cached) {
-    if (cached.status === "complete") {
+    if (cached.status === "complete" && over) {
       let results = JSON.parse(cached.results_json!);
 
       if (country && sessionDate && sessionType === "qualifying" &&
@@ -293,7 +285,7 @@ export const GET: APIRoute = async ({ url, locals }) => {
     }
 
     if (cached.status === "live") {
-      if (!isSessionOver({ date: sessionDate, time: null }, sessionType)) {
+      if (!over) {
         return json({ status: "live", results: null });
       }
     }
@@ -361,7 +353,6 @@ export const GET: APIRoute = async ({ url, locals }) => {
       }
     }
 
-    const over = isSessionOver({ date: sessionDate, time: null }, sessionType);
     const status =
       results && results.length > 0
         ? over

@@ -9,21 +9,12 @@ import { formatLapTime } from "./formatters";
 
 // ─── Jolpica API (Race calendar & historical results) ────────────────────────────
 
-export async function getSeasonRaces(season?: number): Promise<any[]> {
+export async function getSeasonRaces(season: number): Promise<any[]> {
   try {
-    const year = season || new Date().getFullYear();
-    let res = await fetch(`${JOLPICA_BASE}/${year}.json`);
+    const res = await fetch(`${JOLPICA_BASE}/${season}.json`);
     if (!res.ok) throw new Error("API error");
-    let data = (await res.json()) as { MRData: { RaceTable: { Races: any[] } } };
-    let races = data?.MRData?.RaceTable?.Races ?? [];
-    if (races.length === 0) {
-      // Fallback to current season
-      res = await fetch(`${JOLPICA_BASE}/current.json`);
-      if (!res.ok) throw new Error("Fallback API error");
-      data = (await res.json()) as { MRData: { RaceTable: { Races: any[] } } };
-      races = data?.MRData?.RaceTable?.Races ?? [];
-    }
-    return races;
+    const data = (await res.json()) as { MRData: { RaceTable: { Races: any[] } } };
+    return data?.MRData?.RaceTable?.Races ?? [];
   } catch (e) {
     console.error("F1 fetch failed:", e);
     return [];

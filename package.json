@@ -12,16 +12,16 @@
     "db:query": "npx wrangler d1 execute mpalaourg-site-cache --local --command"
   },
   "dependencies": {
-    "@astrojs/cloudflare": "^12.6.12",
-    "@astrojs/mdx": "^4.3.13",
-    "@astrojs/sitemap": "^3.7.1",
-    "@tailwindcss/vite": "^4.1.18",
-    "astro": "^5.16.15",
-    "tailwindcss": "^4.1.18"
+    "@astrojs/cloudflare": "^12.6.13",
+    "@astrojs/mdx": "^4.3.14",
+    "@astrojs/sitemap": "^3.7.4",
+    "@tailwindcss/vite": "^4.3.3",
+    "astro": "^5.18.2",
+    "tailwindcss": "^4.3.3"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260307.1",
-    "@tailwindcss/typography": "^0.5.19",
-    "wrangler": "^4.71.0"
+    "@tailwindcss/typography": "^0.5.20",
+    "wrangler": "4.71.0"
   }
 }

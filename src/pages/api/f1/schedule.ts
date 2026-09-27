@@ -63,8 +63,9 @@ function transformRace(row: any) {
 }
 
 export const GET: APIRoute = async ({ url, locals }) => {
-  const season = parseInt(url.searchParams.get("season") ?? "");
-  if (isNaN(season)) return err("season param required");
+  const seasonParam = url.searchParams.get("season") ?? "";
+  const season = Number(seasonParam);
+  if (!/^\d{4}$/.test(seasonParam) || season < 1950 || season > new Date().getUTCFullYear() + 1) return err("Invalid season");
 
   const runtime = locals.runtime as { env: Env };
   const db = runtime.env.DB;

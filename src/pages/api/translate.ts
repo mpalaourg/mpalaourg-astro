@@ -1,5 +1,5 @@
 import type { APIRoute } from "astro";
-import { createCache } from "../../utils/cache";
+import { createCache, maybeCleanupExpired } from "../../utils/cache";
 
 interface DeepLResponse {
   translations: Array<{ detected_source_language: string; text: string }>;
@@ -41,6 +41,7 @@ export const GET: APIRoute = async ({ request, url, locals }) => {
   }
 
   try {
+    await maybeCleanupExpired(db);
     const cache = createCache(db);
     const cacheKey = `translation:en:el:${await sha256(text)}`;
     const cached = await cache?.get<{ text: string; sourceLang: string; success: true }>(cacheKey);

@@ -50,7 +50,7 @@ export const publicationVisuals: Record<string, PublicationVisual> = {
 };
 
 export function formatPublicationAuthors(post: PublicationEntry): string {
-  return post.data.authors.map((author, index) =>
+  return post.data.authors.map((author: string, index: number) =>
     isEqualContributionNote(post.data.author_notes?.[index]) ? `${author}*` : author
   ).join(', ');
 }

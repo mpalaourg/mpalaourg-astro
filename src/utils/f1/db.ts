@@ -53,6 +53,15 @@ export async function getScheduleFromDb(
   return result.results;
 }
 
+export async function getRaceFromDb(
+  db: D1Database,
+  season: number,
+  round: number
+): Promise<RaceRow | null> {
+  return db.prepare("SELECT * FROM races WHERE season = ? AND round = ?")
+    .bind(season, round).first<RaceRow>();
+}
+
 export async function upsertSchedule(
   db: D1Database,
   races: any[]

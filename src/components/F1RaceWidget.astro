@@ -813,13 +813,20 @@ const T = t[lang];
   // Teams that need white logos (logo color matches background)
   const WHITE_LOGO_TEAMS = ["mclaren", "alpine", "williams", "cadillac"];
 
+  // These feeds are external; escape every value before inserting it into HTML.
+  function escapeHtml(value: unknown): string {
+    return String(value ?? "").replace(/[&<>"']/g, (character) => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
+    })[character]!);
+  }
+
   // ─── Logo helpers ──────────────────────────────────────────────────────────
   function logoImg(constructorId: string, name: string): string {
-    const src = TEAM_LOGOS[constructorId];
-    const teamColor = TEAM_COLORS[constructorId] || "#94a3b8";
+    const src = Object.hasOwn(TEAM_LOGOS, constructorId) ? TEAM_LOGOS[constructorId] : undefined;
+    const teamColor = Object.hasOwn(TEAM_COLORS, constructorId) ? TEAM_COLORS[constructorId] : "#94a3b8";
     const whiteLogo = WHITE_LOGO_TEAMS.includes(constructorId);
     return src
-      ? `<span class="inline-flex items-center justify-center h-4 w-6 rounded shrink-0" style="background-color: ${teamColor};"><img src="${src}" alt="${name}" class="h-full w-full object-contain inline-block p-0.5${whiteLogo ? ' brightness-0 invert' : ''}"/></span>`
+      ? `<span class="inline-flex items-center justify-center h-4 w-6 rounded shrink-0" style="background-color: ${teamColor};"><img src="${src}" alt="${escapeHtml(name)}" class="h-full w-full object-contain inline-block p-0.5${whiteLogo ? ' brightness-0 invert' : ''}"/></span>`
       : `<span class="inline-block h-2.5 w-2.5 rounded-full bg-slate-400 shrink-0"></span>`;
   }
 
@@ -888,14 +895,14 @@ const T = t[lang];
       <div class="flex-1 min-w-0 rounded-xl border bg-gradient-to-b p-2.5 ${MEDAL_CARD[i]}">
         <div class="flex items-center gap-1 mb-1.5">
           <span class="text-base leading-none">${TROPHY[i]}</span>
-          <span class="text-xs font-bold ${MEDAL_NUM[i]} tabular-nums ml-auto">#${getNumber(r)}</span>
+          <span class="text-xs font-bold ${MEDAL_NUM[i]} tabular-nums ml-auto">#${escapeHtml(getNumber(r))}</span>
         </div>
-        <p class="text-xs font-bold leading-tight truncate text-gray-900 dark:text-white">${getName(r)}</p>
+        <p class="text-xs font-bold leading-tight truncate text-gray-900 dark:text-white">${escapeHtml(getName(r))}</p>
         <div class="flex items-center gap-1 mt-1">
           ${logoByTeamName(getTeam(r)) || logoImg(getTeamId(r), getTeam(r))}
-          <span class="text-[10px] text-gray-500 dark:text-slate-400 truncate">${getTeam(r)}</span>
+          <span class="text-[10px] text-gray-500 dark:text-slate-400 truncate">${escapeHtml(getTeam(r))}</span>
         </div>
-        <p class="text-[10px] font-mono text-gray-600 dark:text-slate-300 mt-1.5 tabular-nums">${getTime(r)}</p>
+        <p class="text-[10px] font-mono text-gray-600 dark:text-slate-300 mt-1.5 tabular-nums">${escapeHtml(getTime(r))}</p>
       </div>`
       )
       .join("")}</div>`;
@@ -1035,7 +1042,7 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
             if (r.noResult) {
               timeDisplay = `<span class='italic text-gray-400 dark:text-slate-500'>${LABELS.noTime}</span>`;
             } else if (time && time !== "—" && time !== "") {
-              timeDisplay = time;
+              timeDisplay = escapeHtml(time);
             } else {
               timeDisplay = `<span class='italic text-gray-400 dark:text-slate-500'>${LABELS.noTime}</span>`;
             }
@@ -1045,10 +1052,10 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
                       transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/50
                       ${isTop3 ? "bg-amber-50/60 dark:bg-amber-900/10" : ""}">
             <span class="text-xs font-mono text-gray-400 dark:text-slate-500 text-center">${r.noResult && !r.qualifyingPositionKnown ? "—" : r.displayPosition}</span>
-            <span class="text-[10px] font-bold bg-slate-200 dark:bg-slate-600 rounded px-1 py-0.5 tabular-nums text-center">${r.driverNumber}</span>
+            <span class="text-[10px] font-bold bg-slate-200 dark:bg-slate-600 rounded px-1 py-0.5 tabular-nums text-center">${escapeHtml(r.driverNumber)}</span>
             <span class="flex items-center gap-1.5 min-w-0">
               ${logoByTeamName(r.teamName)}
-              <span class="truncate text-xs font-medium">${r.name}</span>
+              <span class="truncate text-xs font-medium">${escapeHtml(r.name)}</span>
             </span>
             <span class="text-xs font-mono tabular-nums text-right text-gray-600 dark:text-slate-300">${timeDisplay}</span>
             <span class="text-[10px] font-mono tabular-nums text-right ${gap === "—" ? "text-gray-400 dark:text-slate-500" : "text-gray-500 dark:text-slate-400"}">${gap}</span>
@@ -1200,7 +1207,7 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
           } else if (r.noResult) {
             timeDisplay = `<span class='italic text-gray-400 dark:text-slate-500'>${LABELS.noTime}</span>`;
           } else if (time && time !== "") {
-            timeDisplay = time;
+            timeDisplay = escapeHtml(time);
           } else {
             // No time set - show in italics
             timeDisplay = `<span class='italic text-gray-400 dark:text-slate-500'>${LABELS.noTime}</span>`;
@@ -1211,10 +1218,10 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
                       transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/50
                       ${isTop3 ? "bg-amber-50/60 dark:bg-amber-900/10" : ""}">
             <span class="text-xs font-mono text-gray-400 dark:text-slate-500 text-center">${r.dsq ? "DSQ" : r.noResult && !r.qualifyingPositionKnown ? "—" : r.displayPosition}</span>
-            <span class="text-[10px] font-bold bg-slate-200 dark:bg-slate-600 rounded px-1 py-0.5 tabular-nums text-center">${getResultDriverNumber(r) || "—"}</span>
+            <span class="text-[10px] font-bold bg-slate-200 dark:bg-slate-600 rounded px-1 py-0.5 tabular-nums text-center">${escapeHtml(getResultDriverNumber(r) || "—")}</span>
             <span class="flex items-center gap-1.5 min-w-0">
               ${logoImg(r.Constructor?.constructorId ?? "", r.Constructor?.name ?? "")}
-              <span class="truncate text-xs font-medium">${r.Driver.givenName[0]}. ${r.Driver.familyName}</span>
+              <span class="truncate text-xs font-medium">${escapeHtml(r.Driver.givenName?.[0])}. ${escapeHtml(r.Driver.familyName)}</span>
             </span>
             <span class="text-xs font-mono tabular-nums text-right text-gray-600 dark:text-slate-300">${timeDisplay}</span>
             <span class="text-[10px] font-mono tabular-nums text-right ${gap === "—" ? "text-gray-400 dark:text-slate-500" : "text-gray-500 dark:text-slate-400"}">${gap}</span>
@@ -1393,14 +1400,14 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
         return `
         <div class="grid grid-cols-[1.75rem_1.5rem_1fr_3rem_5.5rem_4.5rem] gap-x-2 px-3 py-2 items-center
                     transition-colors hover:bg-red-50 dark:hover:bg-slate-700/50 ${rowBg}">
-          <span class="text-xs font-mono ${isDNF || isDNS || isDSQ ? "text-gray-300 dark:text-slate-600" : "text-gray-400 dark:text-slate-500"} text-center">${pos}</span>
-          <span class="text-[10px] font-bold bg-slate-200 dark:bg-slate-600 rounded px-1 py-0.5 tabular-nums text-center">${getResultDriverNumber(r)}</span>
+          <span class="text-xs font-mono ${isDNF || isDNS || isDSQ ? "text-gray-300 dark:text-slate-600" : "text-gray-400 dark:text-slate-500"} text-center">${escapeHtml(pos)}</span>
+          <span class="text-[10px] font-bold bg-slate-200 dark:bg-slate-600 rounded px-1 py-0.5 tabular-nums text-center">${escapeHtml(getResultDriverNumber(r))}</span>
           <span class="flex items-center gap-1.5 min-w-0">
             ${logoImg(cid, cname)}
-            <span class="truncate text-xs font-medium">${name}</span>
+            <span class="truncate text-xs font-medium">${escapeHtml(name)}</span>
           </span>
           <span class="text-xs tabular-nums text-center text-gray-500 dark:text-slate-400">${laps || "—"}</span>
-          <span class="text-xs font-mono tabular-nums text-right text-gray-600 dark:text-slate-300">${timeDisplay}</span>
+          <span class="text-xs font-mono tabular-nums text-right text-gray-600 dark:text-slate-300">${escapeHtml(timeDisplay)}</span>
           <span class="text-xs font-mono tabular-nums text-right">${statusDisplay}</span>
         </div>`;
       })
@@ -1454,14 +1461,14 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
         return `
         <div class="grid grid-cols-[2rem_2rem_1fr_3.5rem_2.5rem] gap-x-2 px-3 py-2 items-center
                     transition-colors hover:bg-red-50 dark:hover:bg-slate-700/40 ${rowBg}">
-          <span class="text-xs text-gray-400 dark:text-slate-500 font-mono text-center">${position}</span>
-          <span class="text-xs font-bold text-center bg-slate-200 dark:bg-slate-700 rounded px-1 py-0.5 tabular-nums">${driverNumber}</span>
+          <span class="text-xs text-gray-400 dark:text-slate-500 font-mono text-center">${escapeHtml(position)}</span>
+          <span class="text-xs font-bold text-center bg-slate-200 dark:bg-slate-700 rounded px-1 py-0.5 tabular-nums">${escapeHtml(driverNumber)}</span>
           <span class="flex items-center gap-2 min-w-0">
             <span class="flex items-center gap-0.5 shrink-0">${logoHtml}</span>
-            <span class="truncate text-sm font-medium">${d.Driver.givenName[0]}. ${d.Driver.familyName}</span>
+            <span class="truncate text-sm font-medium">${escapeHtml(d.Driver.givenName?.[0])}. ${escapeHtml(d.Driver.familyName)}</span>
           </span>
-          <span class="text-sm font-bold tabular-nums text-right">${d.points}</span>
-          <span class="text-xs text-gray-400 dark:text-slate-500 text-right tabular-nums">${d.wins}</span>
+          <span class="text-sm font-bold tabular-nums text-right">${escapeHtml(d.points)}</span>
+          <span class="text-xs text-gray-400 dark:text-slate-500 text-right tabular-nums">${escapeHtml(d.wins)}</span>
         </div>`;
       })
       .join("");
@@ -1508,11 +1515,11 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
     const rows = constructors
       .filter((c) => c.Constructor && c.Constructor.constructorId)
       .map((c, i) => {
-        const logo = TEAM_LOGOS[c.Constructor.constructorId];
-        const teamColor = TEAM_COLORS[c.Constructor.constructorId] || "#94a3b8";
+        const logo = Object.hasOwn(TEAM_LOGOS, c.Constructor.constructorId) ? TEAM_LOGOS[c.Constructor.constructorId] : undefined;
+        const teamColor = Object.hasOwn(TEAM_COLORS, c.Constructor.constructorId) ? TEAM_COLORS[c.Constructor.constructorId] : "#94a3b8";
         const whiteLogo = WHITE_LOGO_TEAMS.includes(c.Constructor.constructorId);
         const logoHtml = logo
-          ? `<span class="inline-flex items-center justify-center h-5 w-7 rounded shrink-0" style="background-color: ${teamColor};"><img src="${logo}" alt="${c.Constructor.name}" class="h-full w-full object-contain p-0.5${whiteLogo ? ' brightness-0 invert' : ''}"/></span>`
+          ? `<span class="inline-flex items-center justify-center h-5 w-7 rounded shrink-0" style="background-color: ${teamColor};"><img src="${logo}" alt="${escapeHtml(c.Constructor.name)}" class="h-full w-full object-contain p-0.5${whiteLogo ? ' brightness-0 invert' : ''}"/></span>`
           : `<span class="h-3 w-3 rounded-full shrink-0 bg-slate-400"></span>`;
         const rowBg =
           i % 2 === 0
@@ -1545,8 +1552,8 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
           .map(
             (drv) => `
           <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-slate-400">
-            <span class="flex-1 truncate">${drv.name}</span>
-            <span class="tabular-nums font-medium">${drv.points} ${LABELS.pts}</span>
+            <span class="flex-1 truncate">${escapeHtml(drv.name)}</span>
+            <span class="tabular-nums font-medium">${escapeHtml(drv.points)} ${LABELS.pts}</span>
             <div class="w-20 flex items-center gap-1">
               <div class="flex-1 h-1 rounded-full bg-slate-200 dark:bg-slate-600 overflow-hidden">
                 <div class="h-full rounded-full bg-red-400 dark:bg-red-500" style="width: ${drv.pct}%"></div>
@@ -1563,13 +1570,13 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
         <div class="${rowBg}">
           <div class="grid grid-cols-[2rem_1fr_3.5rem_2.5rem] gap-x-2 px-3 py-2 items-center
                       transition-colors hover:bg-red-50 dark:hover:bg-slate-700/40">
-            <span class="text-xs text-gray-400 dark:text-slate-500 font-mono text-center">${position}</span>
+            <span class="text-xs text-gray-400 dark:text-slate-500 font-mono text-center">${escapeHtml(position)}</span>
             <span class="flex items-center gap-2 min-w-0">
               ${logoHtml}
-              <span class="truncate text-sm font-semibold">${cleanTeamName(c.Constructor.name, c.Constructor.constructorId)}</span>
+              <span class="truncate text-sm font-semibold">${escapeHtml(cleanTeamName(c.Constructor.name, c.Constructor.constructorId))}</span>
             </span>
-            <span class="text-sm font-bold tabular-nums text-right">${c.points}</span>
-            <span class="text-xs text-gray-400 dark:text-slate-500 text-right tabular-nums">${c.wins}</span>
+            <span class="text-sm font-bold tabular-nums text-right">${escapeHtml(c.points)}</span>
+            <span class="text-xs text-gray-400 dark:text-slate-500 text-right tabular-nums">${escapeHtml(c.wins)}</span>
           </div>
           ${constructorDrivers.length ? `<div class="pb-1.5 px-3 ml-8 space-y-0.5">${driverRows}</div>` : ""}
         </div>`;
