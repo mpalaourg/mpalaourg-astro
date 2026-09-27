@@ -2,6 +2,7 @@
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { getCollection } from "astro:content";
 import { components } from "../../components/mdx/index";
+import { seasonImageAlt } from "../../utils/formula-images";
 
 export const prerender = true;
 export async function getStaticPaths() {
@@ -32,7 +33,7 @@ const { Content } = await season.render();
         {season.data.featuredImage && (
           <img
             src={season.data.featuredImage}
-            alt={season.data.title}
+            alt={seasonImageAlt[season.slug]?.en ?? season.data.title}
             class="mb-6 w-full rounded-xl"
           />
         )}

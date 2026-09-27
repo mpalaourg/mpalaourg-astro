@@ -5,8 +5,9 @@
   "scripts": {
     "dev": "astro dev",
     "dev:local": "npm run build && npx wrangler pages dev ./dist --compatibility-date=2026-03-03 --port=8789",
-    "build": "astro build && npm run verify:meta",
+    "build": "astro build && npm run verify:meta && npm run verify:images",
     "verify:meta": "node scripts/verify-meta.mjs",
+    "verify:images": "node scripts/verify-images.mjs",
     "preview": "astro preview",
     "astro": "astro",
     "db:migrate:local": "npx wrangler d1 migrations apply mpalaourg-site-cache --local",

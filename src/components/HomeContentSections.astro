@@ -1,6 +1,9 @@
 ---
 import { getCollection } from "astro:content";
 import SkillsetSection from "./SkillsetSection.astro";
+import { publicationVisuals } from "../utils/publications";
+import { projectVisuals } from "../utils/projects";
+import { seasonImageAlt } from "../utils/formula-images";
 
 interface Props {
   lang: "en" | "el";
@@ -59,7 +62,7 @@ const projectTags = ["workshop", "agents", "machine learning", "C", "MATLAB", "m
       <a href={`${prefix}/publications/${pub.slug}`} class="group flex h-full flex-col rounded-xl border border-gray-200 bg-white p-4 transition-colors hover:border-slate-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-500 dark:border-gray-700 dark:bg-slate-800 dark:hover:border-slate-500">
         {pub.data.featuredImage && (
           <div class="mb-3 flex aspect-video items-center justify-center overflow-hidden rounded-lg bg-slate-100 p-2 dark:bg-slate-900/60">
-            <img src={pub.data.featuredImage} alt="" width="640" height="360" loading="lazy" decoding="async" class="h-full w-full object-contain" />
+            <img src={pub.data.featuredImage} alt={publicationVisuals[pub.slug]?.alt[lang] ?? pub.data.title} width="640" height="360" loading="lazy" decoding="async" class="h-full w-full object-contain" />
           </div>
         )}
         <h3 class="mb-2 line-clamp-3 text-base font-semibold leading-tight">{pub.data.title}</h3>
@@ -98,7 +101,7 @@ const projectTags = ["workshop", "agents", "machine learning", "C", "MATLAB", "m
       <a href={`${prefix}/projects/${proj.slug}`} class="project-card block overflow-hidden rounded-lg border border-gray-200 transition-colors hover:border-slate-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-500 dark:border-gray-700 dark:hover:border-slate-500" data-title={proj.data.title.toLowerCase()} data-tags={JSON.stringify(proj.data.tags || [])}>
         {proj.data.featuredImage && (
           <div class="flex aspect-video items-center justify-center overflow-hidden bg-slate-100 p-2 dark:bg-slate-900/60">
-            <img src={proj.data.featuredImage} alt="" width="640" height="360" loading="lazy" decoding="async" class="h-full w-full object-contain" />
+            <img src={proj.data.featuredImage} alt={projectVisuals[proj.slug]?.alt[lang] ?? proj.data.title} width="640" height="360" loading="lazy" decoding="async" class="h-full w-full object-contain" />
           </div>
         )}
         <div class="p-4">
@@ -132,7 +135,7 @@ const projectTags = ["workshop", "agents", "machine learning", "C", "MATLAB", "m
       <a href={`${prefix}/formula/${season.slug}`} class="formula-card block overflow-hidden rounded-lg border border-gray-200 transition-colors hover:border-slate-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-500 dark:border-gray-700 dark:hover:border-slate-500" data-title={season.data.title.toLowerCase()} data-tags={JSON.stringify(season.data.tags || [])} data-rank={index}>
         {season.data.featuredImage && (
           <div class="flex aspect-video items-center justify-center overflow-hidden bg-slate-100 p-2 dark:bg-slate-900/60">
-            <img src={season.data.featuredImage} alt="" width="570" height="400" loading="lazy" decoding="async" class="h-full w-full object-contain" />
+            <img src={season.data.featuredImage} alt={seasonImageAlt[season.slug]?.[lang] ?? season.data.title} width="570" height="400" loading="lazy" decoding="async" class="h-full w-full object-contain" />
           </div>
         )}
         <div class="p-4">

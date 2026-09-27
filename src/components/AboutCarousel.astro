@@ -4,24 +4,24 @@ const { lang } = Astro.props;
 const isEl = lang === 'el';
 const slides = isEl
   ? [
-      { name: 'Καφές', text: 'Καφές δυνατός, κάθε μέρα.', image: '/media/images/coffee.webp' },
-      { name: 'Ταξίδια', text: 'Μια νέα πόλη τη γνωρίζω με τα πόδια.', image: '/media/images/travel.webp' },
-      { name: 'Σειρές', text: 'Πάντα υπάρχει χρόνος για μια καλή σειρά.', image: '/media/images/series.webp' },
-      { name: 'Formula 1', text: 'Στη Formula 1 με τραβά η στρατηγική.', image: '/media/images/f1.webp' },
-      { name: 'Μουσική', text: 'Τα ρεμπέτικα έχουν πάντα θέση.', image: '/media/images/music.webp' },
+      { name: 'Καφές', text: 'Καφές δυνατός, κάθε μέρα.', image: '/media/images/coffee.webp', alt: 'Κοντινή λήψη καβουρδισμένων κόκκων καφέ.' },
+      { name: 'Ταξίδια', text: 'Μια νέα πόλη τη γνωρίζω με τα πόδια.', image: '/media/images/travel.webp', alt: 'Πεζοπόρος αγναντεύει μια κοιλάδα με ποτάμια στο ηλιοβασίλεμα.' },
+      { name: 'Σειρές', text: 'Πάντα υπάρχει χρόνος για μια καλή σειρά.', image: '/media/images/series.webp', alt: 'Φανταστικός ήρωας με σπαθί ανεβαίνει μια σκοτεινή σκάλα.' },
+      { name: 'Formula 1', text: 'Στη Formula 1 με τραβά η στρατηγική.', image: '/media/images/f1.webp', alt: 'Μονοθέσιο της Red Bull στην πίστα της Formula 1.' },
+      { name: 'Μουσική', text: 'Τα ρεμπέτικα έχουν πάντα θέση.', image: '/media/images/music.webp', alt: 'Κοντινή λήψη των πλήκτρων ενός πιάνου.' },
     ]
   : [
-      { name: 'Coffee', text: 'Strong coffee, every day.', image: '/media/images/coffee.webp' },
-      { name: 'Travel', text: 'I get to know a new city on foot.', image: '/media/images/travel.webp' },
-      { name: 'Series', text: 'There’s always time for a good series.', image: '/media/images/series.webp' },
-      { name: 'Formula 1', text: 'F1 is as much about strategy as speed.', image: '/media/images/f1.webp' },
-      { name: 'Music', text: 'There’s always room for rembetika.', image: '/media/images/music.webp' },
+      { name: 'Coffee', text: 'Strong coffee, every day.', image: '/media/images/coffee.webp', alt: 'Close-up of roasted coffee beans.' },
+      { name: 'Travel', text: 'I get to know a new city on foot.', image: '/media/images/travel.webp', alt: 'Hiker overlooking a river valley at sunset.' },
+      { name: 'Series', text: 'There’s always time for a good series.', image: '/media/images/series.webp', alt: 'Fantasy character carrying a sword up a dark staircase.' },
+      { name: 'Formula 1', text: 'F1 is as much about strategy as speed.', image: '/media/images/f1.webp', alt: 'Red Bull Formula 1 car on track.' },
+      { name: 'Music', text: 'There’s always room for rembetika.', image: '/media/images/music.webp', alt: 'Close-up of piano keys.' },
     ];
 ---
 
 <div data-about-carousel data-slides={JSON.stringify(slides)}>
   <div class="relative overflow-hidden rounded-[1.75rem] border border-slate-700 bg-slate-900 shadow-lg">
-    <img class="about-slide-image absolute inset-0 h-full w-full object-cover opacity-55" src={slides[0].image} alt="" width="1400" height="500" loading="lazy" decoding="async" />
+    <img class="about-slide-image absolute inset-0 h-full w-full object-cover opacity-55" src={slides[0].image} alt={slides[0].alt} width="1400" height="500" loading="lazy" decoding="async" />
     <div class="absolute inset-0 bg-gradient-to-r from-slate-950/80 via-slate-950/35 to-transparent"></div>
     <div class="relative flex min-h-72 items-end p-7 sm:min-h-80 sm:p-10">
       <div>
@@ -50,7 +50,7 @@ const slides = isEl
 
 <script>
   document.querySelectorAll<HTMLElement>('[data-about-carousel]').forEach((carousel) => {
-    const slides = JSON.parse(carousel.dataset.slides ?? '[]') as Array<{ name: string; text: string; image: string }>;
+    const slides = JSON.parse(carousel.dataset.slides ?? '[]') as Array<{ name: string; text: string; image: string; alt: string }>;
     const image = carousel.querySelector<HTMLImageElement>('.about-slide-image');
     const name = carousel.querySelector<HTMLElement>('.about-slide-name');
     const text = carousel.querySelector<HTMLElement>('.about-slide-text');
@@ -65,7 +65,10 @@ const slides = isEl
 
     function show(index: number) {
       current = index;
-      if (image) image.src = slides[index].image;
+      if (image) {
+        image.alt = slides[index].alt;
+        image.src = slides[index].image;
+      }
       if (name) name.textContent = slides[index].name;
       if (text) text.textContent = slides[index].text;
       dots.forEach((dot, position) => {

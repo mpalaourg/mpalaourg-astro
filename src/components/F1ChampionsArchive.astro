@@ -271,7 +271,7 @@ const ordinalSuffix = (number: number) => {
                           <h3>{champion.name}</h3>
                           <p class="team-name">
                             <span class:list={["driver-team-logo", `driver-team-logo--${champion.teamKey}`]} aria-hidden="true">
-                              <img src={teamLogos[champion.teamKey]} alt="" width="32" height="32" loading="lazy" decoding="async" />
+                              <img src={teamLogos[champion.teamKey]} alt={champion.team} width="32" height="32" loading="lazy" decoding="async" />
                             </span>
                             {champion.team}
                           </p>
@@ -368,7 +368,7 @@ const ordinalSuffix = (number: number) => {
                         <div class:list={["constructor-logo", `constructor-logo--${champion.teamKey}`]} aria-hidden="true">
                           <img
                             src={teamLogos[champion.teamKey]}
-                            alt=""
+                            alt={stats.constructorName}
                             width="96"
                             height="96"
                             loading="lazy"

@@ -9,7 +9,7 @@ const isEl = lang === 'el';
 
 <article class="nasa-widget grid overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800/50 md:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)]" data-lang={lang}>
   <div class="relative min-h-56 overflow-hidden bg-slate-100 dark:bg-slate-800 md:min-h-80">
-    <img class="nasa-image absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-300" src="" alt="" width="960" height="640" loading="lazy" decoding="async" />
+    <img class="nasa-image absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-300" src="" alt={isEl ? 'Εικόνα της ημέρας από τη NASA' : 'NASA Astronomy Picture of the Day'} width="960" height="640" loading="lazy" decoding="async" />
     <div class="nasa-loading absolute inset-0 flex items-center justify-center text-sm text-slate-500 dark:text-slate-300" role="status">
       <span class="animate-pulse" aria-hidden="true">✦</span>
       <span class="ml-2">{isEl ? 'Φόρτωση εικόνας της ημέρας…' : 'Loading today’s image…'}</span>

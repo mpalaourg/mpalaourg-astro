@@ -55,7 +55,7 @@ const T = t[lang];
           <div class="flex items-center gap-3">
             <div class="relative shrink-0">
               <div class="music-cover-container w-16 h-16 rounded-xl overflow-hidden bg-gradient-to-br from-green-400 via-emerald-500 to-teal-600 flex items-center justify-center shadow-lg">
-                <img src="" alt="" class="music-cover-current w-full h-full object-cover hidden" />
+                <img src="" alt={lang === 'el' ? 'Εξώφυλλο μουσικής' : 'Music cover artwork'} class="music-cover-current w-full h-full object-cover hidden" />
                 <div class="music-cover-fallback w-full h-full flex items-center justify-center text-white">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" viewBox="0 0 20 20" fill="currentColor">
                     <path d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.369 4.369 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z" />
@@ -116,7 +116,7 @@ const T = t[lang];
         <div class="flex items-center gap-3">
           <div class="relative shrink-0">
             <div class="music-cover-container w-16 h-16 rounded-2xl overflow-hidden bg-gradient-to-br from-green-400 via-emerald-500 to-teal-600 flex items-center justify-center shadow-sm">
-              <img src="" alt="" class="music-cover-current w-full h-full object-cover hidden" />
+              <img src="" alt={lang === 'el' ? 'Εξώφυλλο μουσικής' : 'Music cover artwork'} class="music-cover-current w-full h-full object-cover hidden" />
               <div class="music-cover-fallback w-full h-full flex items-center justify-center text-white">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" viewBox="0 0 20 20" fill="currentColor">
                   <path d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.369 4.369 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z" />
@@ -240,8 +240,8 @@ const T = t[lang];
     const cover = safeHttpUrl(track.cover);
     if (cover && !failedImages.has(cover) && !isPlaceholderImage(cover)) {
       const image = document.createElement('img');
+      image.alt = `${lang === 'el' ? 'Εξώφυλλο για το' : 'Cover art for'} ${track.track} ${lang === 'el' ? 'από' : 'by'} ${track.artist}`;
       image.src = cover;
-      image.alt = '';
       image.className = 'w-8 h-8 rounded object-cover';
       const fallback = createMusicFallback();
       fallback.classList.add('hidden');
@@ -336,6 +336,7 @@ const T = t[lang];
         if (failedImages.has(currentCover)) {
           handleImageError(currentCoverEl, currentCoverFallback);
         } else {
+          currentCoverEl.alt = `${lang === 'el' ? 'Εξώφυλλο για το' : 'Cover art for'} ${currentTrack.track} ${lang === 'el' ? 'από' : 'by'} ${currentTrack.artist}`;
           currentCoverEl.src = currentCover;
           currentCoverEl.onerror = () => handleImageError(currentCoverEl, currentCoverFallback);
           currentCoverEl.onload = () => handleImageLoad(currentCoverEl, currentCoverFallback, currentCover);
