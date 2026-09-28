@@ -7,6 +7,7 @@ import F1RaceWidget from "../../components/F1RaceWidget.astro";
 import F1ChampionsPromo from "../../components/F1ChampionsPromo.astro";
 import F1RacecraftPromo from "../../components/F1RacecraftPromo.astro";
 import { seasonImageAlt } from "../../utils/formula-images";
+import { cardImage } from "../../utils/card-image";
 
 const allPosts = await getCollection("formula");
 
@@ -118,7 +119,7 @@ const filteredPosts = posts.filter((post) => {
           {post.data.featuredImage && (
             <a href={`/formula/${post.slug}/`} class="block self-start rounded-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-500">
                 <img
-                src={post.data.featuredImage}
+                src={cardImage(post.data.featuredImage)}
                 alt={seasonImageAlt[post.slug]?.en ?? post.data.title}
                 width="570"
                 height="400"

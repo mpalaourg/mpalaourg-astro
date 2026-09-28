@@ -6,8 +6,8 @@ const CURRENT_SEASON = new Date().getFullYear();
 const TEAM_LOGOS: Record<string, string> = {
   mercedes: `${BASE}/formula/team-logos/mercedes.svg`,
   ferrari: `${BASE}/formula/team-logos/ferrari.svg`,
-  red_bull: `${BASE}/formula/team-logos/red_bull.png`,
-  mclaren: `${BASE}/formula/team-logos/mclaren.png`,
+  red_bull: `${BASE}/formula/team-logos/red_bull.webp`,
+  mclaren: `${BASE}/formula/team-logos/mclaren.webp`,
   alpine: `${BASE}/formula/team-logos/alpine.svg`,
   aston_martin: `${BASE}/formula/team-logos/aston_martin.svg`,
   williams: `${BASE}/formula/team-logos/williams.svg`,
@@ -173,7 +173,7 @@ const T = t[lang];
     fastestLap: T.fastestLap,
     lap: T.lap,
   })}
-  class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-800 p-5 shadow-sm"
+  class="min-h-[50rem] rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-slate-800 md:min-h-[27rem]"
 >
   {/* Static embedded data — only what can't change at runtime */}
   <script
@@ -213,7 +213,7 @@ const T = t[lang];
             class="text-xs text-gray-500 dark:text-slate-400"
           />
         </div>
-        <h3 id="f1-race-name" class="text-xl font-bold" />
+        <h2 id="f1-race-name" class="text-xl font-bold" />
         <p
           id="f1-circuit-name"
           class="text-sm text-gray-500 dark:text-slate-400"
@@ -306,7 +306,7 @@ const T = t[lang];
       </button>
       <div
         id="f1-dots"
-        class="flex gap-1 flex-wrap justify-center flex-1"
+        class="flex flex-wrap justify-center flex-1"
       />
       <button
         id="f1-next"
@@ -360,12 +360,12 @@ const T = t[lang];
     </div>
 
     <div id="standings-drivers">
-      <div class="py-8 text-center text-sm text-gray-400 dark:text-slate-500 animate-pulse">
+      <div class="py-8 text-center text-sm text-gray-600 dark:text-slate-300 animate-pulse">
         {T.loading}
       </div>
     </div>
     <div id="standings-constructors" class="hidden">
-      <div class="py-8 text-center text-sm text-gray-400 dark:text-slate-500 animate-pulse">
+      <div class="py-8 text-center text-sm text-gray-600 dark:text-slate-300 animate-pulse">
         {T.loading}
       </div>
     </div>
@@ -886,7 +886,7 @@ const T = t[lang];
     getTime: (r: any) => string
   ): string {
     if (!top3.length)
-      return `<p class="text-xs text-gray-400 dark:text-slate-500 italic">${LABELS.noResults}</p>`;
+      return `<p class="text-xs text-gray-600 dark:text-slate-300 italic">${LABELS.noResults}</p>`;
 
     return `<div class="flex gap-2">${top3
       .slice(0, 3)
@@ -1040,25 +1040,25 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
             // Format time display
             let timeDisplay: string;
             if (r.noResult) {
-              timeDisplay = `<span class='italic text-gray-400 dark:text-slate-500'>${LABELS.noTime}</span>`;
+              timeDisplay = `<span class='italic text-gray-600 dark:text-slate-300'>${LABELS.noTime}</span>`;
             } else if (time && time !== "—" && time !== "") {
               timeDisplay = escapeHtml(time);
             } else {
-              timeDisplay = `<span class='italic text-gray-400 dark:text-slate-500'>${LABELS.noTime}</span>`;
+              timeDisplay = `<span class='italic text-gray-600 dark:text-slate-300'>${LABELS.noTime}</span>`;
             }
 
             return `
           <div class="grid grid-cols-[1.75rem_1.5rem_1fr_5.5rem_3.5rem] gap-x-2 px-3 py-2 items-center
                       transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/50
                       ${isTop3 ? "bg-amber-50/60 dark:bg-amber-900/10" : ""}">
-            <span class="text-xs font-mono text-gray-400 dark:text-slate-500 text-center">${r.noResult && !r.qualifyingPositionKnown ? "—" : r.displayPosition}</span>
+            <span class="text-xs font-mono text-gray-600 dark:text-slate-300 text-center">${r.noResult && !r.qualifyingPositionKnown ? "—" : r.displayPosition}</span>
             <span class="text-[10px] font-bold bg-slate-200 dark:bg-slate-600 rounded px-1 py-0.5 tabular-nums text-center">${escapeHtml(r.driverNumber)}</span>
             <span class="flex items-center gap-1.5 min-w-0">
               ${logoByTeamName(r.teamName)}
               <span class="truncate text-xs font-medium">${escapeHtml(r.name)}</span>
             </span>
             <span class="text-xs font-mono tabular-nums text-right text-gray-600 dark:text-slate-300">${timeDisplay}</span>
-            <span class="text-[10px] font-mono tabular-nums text-right ${gap === "—" ? "text-gray-400 dark:text-slate-500" : "text-gray-500 dark:text-slate-400"}">${gap}</span>
+            <span class="text-[10px] font-mono tabular-nums text-right ${gap === "—" ? "text-gray-600 dark:text-slate-300" : "text-gray-500 dark:text-slate-400"}">${gap}</span>
           </div>`;
           })
           .join("");
@@ -1072,11 +1072,11 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
             </div>
             <div class="rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
               <div class="grid grid-cols-[1.75rem_1.5rem_1fr_5.5rem_3.5rem] gap-x-2 px-3 py-1.5 bg-slate-100 dark:bg-slate-700/50 border-b border-gray-200 dark:border-gray-700">
-                <span class="text-[10px] font-semibold text-gray-400 dark:text-slate-500 text-center">#</span>
-                <span class="text-[10px] font-semibold text-gray-400 dark:text-slate-500 text-center">${LABELS.number}</span>
-                <span class="text-[10px] font-semibold text-gray-400 dark:text-slate-500">${LABELS.driver}</span>
-                <span class="text-[10px] font-semibold text-gray-400 dark:text-slate-500 text-right">${LABELS.time}</span>
-                <span class="text-[10px] font-semibold text-gray-400 dark:text-slate-500 text-right">${gapHeader}</span>
+                <span class="text-[10px] font-semibold text-gray-600 dark:text-slate-300 text-center">#</span>
+                <span class="text-[10px] font-semibold text-gray-600 dark:text-slate-300 text-center">${LABELS.number}</span>
+                <span class="text-[10px] font-semibold text-gray-600 dark:text-slate-300">${LABELS.driver}</span>
+                <span class="text-[10px] font-semibold text-gray-600 dark:text-slate-300 text-right">${LABELS.time}</span>
+                <span class="text-[10px] font-semibold text-gray-600 dark:text-slate-300 text-right">${gapHeader}</span>
               </div>
               <div class="divide-y divide-gray-100 dark:divide-slate-700/50">
                 ${rowsHtml}
@@ -1203,28 +1203,28 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
           // Format time display
           let timeDisplay: string;
           if (r.dsq) {
-            timeDisplay = `<span class='italic text-gray-400 dark:text-slate-500'>${LABELS.disqualified}</span>`;
+            timeDisplay = `<span class='italic text-gray-600 dark:text-slate-300'>${LABELS.disqualified}</span>`;
           } else if (r.noResult) {
-            timeDisplay = `<span class='italic text-gray-400 dark:text-slate-500'>${LABELS.noTime}</span>`;
+            timeDisplay = `<span class='italic text-gray-600 dark:text-slate-300'>${LABELS.noTime}</span>`;
           } else if (time && time !== "") {
             timeDisplay = escapeHtml(time);
           } else {
             // No time set - show in italics
-            timeDisplay = `<span class='italic text-gray-400 dark:text-slate-500'>${LABELS.noTime}</span>`;
+            timeDisplay = `<span class='italic text-gray-600 dark:text-slate-300'>${LABELS.noTime}</span>`;
           }
           
           return `
           <div class="grid grid-cols-[1.75rem_1.5rem_1fr_5.5rem_3.5rem] gap-x-2 px-3 py-2 items-center
                       transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/50
                       ${isTop3 ? "bg-amber-50/60 dark:bg-amber-900/10" : ""}">
-            <span class="text-xs font-mono text-gray-400 dark:text-slate-500 text-center">${r.dsq ? "DSQ" : r.noResult && !r.qualifyingPositionKnown ? "—" : r.displayPosition}</span>
+            <span class="text-xs font-mono text-gray-600 dark:text-slate-300 text-center">${r.dsq ? "DSQ" : r.noResult && !r.qualifyingPositionKnown ? "—" : r.displayPosition}</span>
             <span class="text-[10px] font-bold bg-slate-200 dark:bg-slate-600 rounded px-1 py-0.5 tabular-nums text-center">${escapeHtml(getResultDriverNumber(r) || "—")}</span>
             <span class="flex items-center gap-1.5 min-w-0">
               ${logoImg(r.Constructor?.constructorId ?? "", r.Constructor?.name ?? "")}
               <span class="truncate text-xs font-medium">${escapeHtml(r.Driver.givenName?.[0])}. ${escapeHtml(r.Driver.familyName)}</span>
             </span>
             <span class="text-xs font-mono tabular-nums text-right text-gray-600 dark:text-slate-300">${timeDisplay}</span>
-            <span class="text-[10px] font-mono tabular-nums text-right ${gap === "—" ? "text-gray-400 dark:text-slate-500" : "text-gray-500 dark:text-slate-400"}">${gap}</span>
+            <span class="text-[10px] font-mono tabular-nums text-right ${gap === "—" ? "text-gray-600 dark:text-slate-300" : "text-gray-500 dark:text-slate-400"}">${gap}</span>
           </div>`;
         })
         .join("");
@@ -1238,11 +1238,11 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
           </div>
           <div class="rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
             <div class="grid grid-cols-[1.75rem_1.5rem_1fr_5.5rem_3.5rem] gap-x-2 px-3 py-1.5 bg-slate-100 dark:bg-slate-700/50 border-b border-gray-200 dark:border-gray-700">
-              <span class="text-[10px] font-semibold text-gray-400 dark:text-slate-500 text-center">#</span>
-              <span class="text-[10px] font-semibold text-gray-400 dark:text-slate-500 text-center">${LABELS.number}</span>
-              <span class="text-[10px] font-semibold text-gray-400 dark:text-slate-500">${LABELS.driver}</span>
-              <span class="text-[10px] font-semibold text-gray-400 dark:text-slate-500 text-right">${LABELS.time}</span>
-              <span class="text-[10px] font-semibold text-gray-400 dark:text-slate-500 text-right">${gapHeader}</span>
+              <span class="text-[10px] font-semibold text-gray-600 dark:text-slate-300 text-center">#</span>
+              <span class="text-[10px] font-semibold text-gray-600 dark:text-slate-300 text-center">${LABELS.number}</span>
+              <span class="text-[10px] font-semibold text-gray-600 dark:text-slate-300">${LABELS.driver}</span>
+              <span class="text-[10px] font-semibold text-gray-600 dark:text-slate-300 text-right">${LABELS.time}</span>
+              <span class="text-[10px] font-semibold text-gray-600 dark:text-slate-300 text-right">${gapHeader}</span>
             </div>
             <div class="divide-y divide-gray-100 dark:divide-slate-700/50">
               ${rowsHtml}
@@ -1313,12 +1313,12 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
       <div class="grid grid-cols-[1.75rem_1.5rem_1fr_3rem_5.5rem_4.5rem] gap-x-2 px-3 py-1.5
                   bg-slate-100 dark:bg-slate-700/80 rounded-t-lg
                   border border-gray-200 dark:border-gray-700 border-b-0">
-        <span class="text-[10px] font-semibold text-gray-400 dark:text-slate-500 text-center">#</span>
-        <span class="text-[10px] font-semibold text-gray-400 dark:text-slate-500 text-center">${LABELS.number}</span>
-        <span class="text-[10px] font-semibold text-gray-400 dark:text-slate-500">${LABELS.driver}</span>
-        <span class="text-[10px] font-semibold text-gray-400 dark:text-slate-500 text-center">${LABELS.laps}</span>
-        <span class="text-[10px] font-semibold text-gray-400 dark:text-slate-500 text-right">${LABELS.time}</span>
-        <span class="text-[10px] font-semibold text-gray-400 dark:text-slate-500 text-right">${LABELS.status}</span>
+        <span class="text-[10px] font-semibold text-gray-600 dark:text-slate-300 text-center">#</span>
+        <span class="text-[10px] font-semibold text-gray-600 dark:text-slate-300 text-center">${LABELS.number}</span>
+        <span class="text-[10px] font-semibold text-gray-600 dark:text-slate-300">${LABELS.driver}</span>
+        <span class="text-[10px] font-semibold text-gray-600 dark:text-slate-300 text-center">${LABELS.laps}</span>
+        <span class="text-[10px] font-semibold text-gray-600 dark:text-slate-300 text-right">${LABELS.time}</span>
+        <span class="text-[10px] font-semibold text-gray-600 dark:text-slate-300 text-right">${LABELS.status}</span>
       </div>`;
 
     const rows = sorted
@@ -1366,7 +1366,7 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
         const posNum = parseInt(pos);
         
         if (isDNS) {
-          statusParts.push("<span class=\"text-gray-400 dark:text-slate-500\">DNS</span>");
+          statusParts.push("<span class=\"text-gray-600 dark:text-slate-300\">DNS</span>");
         } else if (isDSQ) {
           statusParts.push("<span class=\"text-red-600 dark:text-red-500 font-semibold\">DSQ</span>");
         } else if (isDNF) {
@@ -1400,7 +1400,7 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
         return `
         <div class="grid grid-cols-[1.75rem_1.5rem_1fr_3rem_5.5rem_4.5rem] gap-x-2 px-3 py-2 items-center
                     transition-colors hover:bg-red-50 dark:hover:bg-slate-700/50 ${rowBg}">
-          <span class="text-xs font-mono ${isDNF || isDNS || isDSQ ? "text-gray-300 dark:text-slate-600" : "text-gray-400 dark:text-slate-500"} text-center">${escapeHtml(pos)}</span>
+          <span class="text-xs font-mono ${isDNF || isDNS || isDSQ ? "text-gray-600 dark:text-slate-300" : "text-gray-600 dark:text-slate-300"} text-center">${escapeHtml(pos)}</span>
           <span class="text-[10px] font-bold bg-slate-200 dark:bg-slate-600 rounded px-1 py-0.5 tabular-nums text-center">${escapeHtml(getResultDriverNumber(r))}</span>
           <span class="flex items-center gap-1.5 min-w-0">
             ${logoImg(cid, cname)}
@@ -1419,7 +1419,7 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
         <div class="rounded-b-lg border border-gray-200 dark:border-gray-700 border-t-0 overflow-hidden divide-y divide-gray-100 dark:divide-slate-700/50">
           ${rows}
         </div>
-        <p class="text-[10px] text-gray-400 dark:text-slate-500 mt-2 text-right">⚡ = ${LABELS.fastestLap}</p>
+        <p class="text-[10px] text-gray-600 dark:text-slate-300 mt-2 text-right">⚡ = ${LABELS.fastestLap}</p>
       </div>`;
   }
 
@@ -1432,7 +1432,7 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
         <div class="flex flex-col items-center justify-center py-8 text-center gap-2">
           <span class="text-2xl">🏎️</span>
           <p class="text-sm font-medium text-gray-500 dark:text-slate-400">${LABELS.seasonNotStarted}</p>
-          <p class="text-xs text-gray-400 dark:text-slate-500">${LABELS.driverStandingsEmpty}</p>
+          <p class="text-xs text-gray-600 dark:text-slate-300">${LABELS.driverStandingsEmpty}</p>
         </div>`;
       return;
     }
@@ -1440,11 +1440,11 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
     const header = `
       <div class="grid grid-cols-[2rem_2rem_1fr_3.5rem_2.5rem] gap-x-2 px-3 py-1.5
                   bg-slate-100 dark:bg-slate-700/80 border-b border-gray-200 dark:border-gray-700">
-        <span class="text-xs font-semibold text-gray-400 dark:text-slate-500 text-center">#</span>
-        <span class="text-xs font-semibold text-gray-400 dark:text-slate-500 text-center">${LABELS.number}</span>
-        <span class="text-xs font-semibold text-gray-400 dark:text-slate-500">${LABELS.driver}</span>
-        <span class="text-xs font-semibold text-gray-400 dark:text-slate-500 text-right">${LABELS.points}</span>
-        <span class="text-xs font-semibold text-gray-400 dark:text-slate-500 text-right">${LABELS.wins}</span>
+        <span class="text-xs font-semibold text-gray-600 dark:text-slate-300 text-center">#</span>
+        <span class="text-xs font-semibold text-gray-600 dark:text-slate-300 text-center">${LABELS.number}</span>
+        <span class="text-xs font-semibold text-gray-600 dark:text-slate-300">${LABELS.driver}</span>
+        <span class="text-xs font-semibold text-gray-600 dark:text-slate-300 text-right">${LABELS.points}</span>
+        <span class="text-xs font-semibold text-gray-600 dark:text-slate-300 text-right">${LABELS.wins}</span>
       </div>`;
 
     const rows = standings
@@ -1461,14 +1461,14 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
         return `
         <div class="grid grid-cols-[2rem_2rem_1fr_3.5rem_2.5rem] gap-x-2 px-3 py-2 items-center
                     transition-colors hover:bg-red-50 dark:hover:bg-slate-700/40 ${rowBg}">
-          <span class="text-xs text-gray-400 dark:text-slate-500 font-mono text-center">${escapeHtml(position)}</span>
+          <span class="text-xs text-gray-600 dark:text-slate-300 font-mono text-center">${escapeHtml(position)}</span>
           <span class="text-xs font-bold text-center bg-slate-200 dark:bg-slate-700 rounded px-1 py-0.5 tabular-nums">${escapeHtml(driverNumber)}</span>
           <span class="flex items-center gap-2 min-w-0">
             <span class="flex items-center gap-0.5 shrink-0">${logoHtml}</span>
             <span class="truncate text-sm font-medium">${escapeHtml(d.Driver.givenName?.[0])}. ${escapeHtml(d.Driver.familyName)}</span>
           </span>
           <span class="text-sm font-bold tabular-nums text-right">${escapeHtml(d.points)}</span>
-          <span class="text-xs text-gray-400 dark:text-slate-500 text-right tabular-nums">${escapeHtml(d.wins)}</span>
+          <span class="text-xs text-gray-600 dark:text-slate-300 text-right tabular-nums">${escapeHtml(d.wins)}</span>
         </div>`;
       })
       .join("");
@@ -1493,7 +1493,7 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
         <div class="flex flex-col items-center justify-center py-8 text-center gap-2">
           <span class="text-2xl">🏗️</span>
           <p class="text-sm font-medium text-gray-500 dark:text-slate-400">${LABELS.seasonNotStarted}</p>
-          <p class="text-xs text-gray-400 dark:text-slate-500">${LABELS.constructorStandingsEmpty}</p>
+          <p class="text-xs text-gray-600 dark:text-slate-300">${LABELS.constructorStandingsEmpty}</p>
         </div>`;
       return;
     }
@@ -1506,10 +1506,10 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
     const header = `
       <div class="grid grid-cols-[2rem_1fr_3.5rem_2.5rem] gap-x-2 px-3 py-1.5
                   bg-slate-100 dark:bg-slate-700/80 border-b border-gray-200 dark:border-gray-700">
-        <span class="text-xs font-semibold text-gray-400 dark:text-slate-500 text-center">#</span>
-        <span class="text-xs font-semibold text-gray-400 dark:text-slate-500">${LABELS.constructor}</span>
-        <span class="text-xs font-semibold text-gray-400 dark:text-slate-500 text-right">${LABELS.points}</span>
-        <span class="text-xs font-semibold text-gray-400 dark:text-slate-500 text-right">${LABELS.wins}</span>
+        <span class="text-xs font-semibold text-gray-600 dark:text-slate-300 text-center">#</span>
+        <span class="text-xs font-semibold text-gray-600 dark:text-slate-300">${LABELS.constructor}</span>
+        <span class="text-xs font-semibold text-gray-600 dark:text-slate-300 text-right">${LABELS.points}</span>
+        <span class="text-xs font-semibold text-gray-600 dark:text-slate-300 text-right">${LABELS.wins}</span>
       </div>`;
 
     const rows = constructors
@@ -1558,7 +1558,7 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
               <div class="flex-1 h-1 rounded-full bg-slate-200 dark:bg-slate-600 overflow-hidden">
                 <div class="h-full rounded-full bg-red-400 dark:bg-red-500" style="width: ${drv.pct}%"></div>
               </div>
-              <span class="w-7 text-right tabular-nums text-gray-400 dark:text-slate-500">${drv.pct}%</span>
+              <span class="w-7 text-right tabular-nums text-gray-600 dark:text-slate-300">${drv.pct}%</span>
             </div>
           </div>`
           )
@@ -1570,13 +1570,13 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
         <div class="${rowBg}">
           <div class="grid grid-cols-[2rem_1fr_3.5rem_2.5rem] gap-x-2 px-3 py-2 items-center
                       transition-colors hover:bg-red-50 dark:hover:bg-slate-700/40">
-            <span class="text-xs text-gray-400 dark:text-slate-500 font-mono text-center">${escapeHtml(position)}</span>
+            <span class="text-xs text-gray-600 dark:text-slate-300 font-mono text-center">${escapeHtml(position)}</span>
             <span class="flex items-center gap-2 min-w-0">
               ${logoHtml}
               <span class="truncate text-sm font-semibold">${escapeHtml(cleanTeamName(c.Constructor.name, c.Constructor.constructorId))}</span>
             </span>
             <span class="text-sm font-bold tabular-nums text-right">${escapeHtml(c.points)}</span>
-            <span class="text-xs text-gray-400 dark:text-slate-500 text-right tabular-nums">${escapeHtml(c.wins)}</span>
+            <span class="text-xs text-gray-600 dark:text-slate-300 text-right tabular-nums">${escapeHtml(c.wins)}</span>
           </div>
           ${constructorDrivers.length ? `<div class="pb-1.5 px-3 ml-8 space-y-0.5">${driverRows}</div>` : ""}
         </div>`;
@@ -1598,7 +1598,7 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
     race: any
   ): Promise<void> {
     const panel = document.getElementById("f1-results-panel")!;
-    panel.innerHTML = `<p class="text-xs text-gray-400 dark:text-slate-500 italic animate-pulse">${LABELS.loadingResults}</p>`;
+    panel.innerHTML = `<p class="text-xs text-gray-600 dark:text-slate-300 italic animate-pulse">${LABELS.loadingResults}</p>`;
     panel.classList.remove("hidden");
 
     const country = race.Circuit?.Location?.country ?? "";
@@ -1617,7 +1617,7 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
     }
 
     if (!results?.length) {
-      panel.innerHTML = `<p class="text-xs text-gray-400 dark:text-slate-500 italic">${LABELS.resultsUnavailable}</p>`;
+      panel.innerHTML = `<p class="text-xs text-gray-600 dark:text-slate-300 italic">${LABELS.resultsUnavailable}</p>`;
       return;
     }
 
@@ -1799,14 +1799,15 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
       const dot = document.createElement("button");
       dot.setAttribute("aria-label", `${LABELS.round} ${i + 1}: ${r.raceName}`);
       dot.className = [
-        "w-2 h-2 rounded-full transition-all duration-200 focus:outline-none",
+        "flex h-6 w-6 items-center justify-center rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500",
         i === currentRaceIndex
-          ? "bg-red-500 scale-125"
+          ? "before:bg-red-500 before:scale-125"
           : i === nextRaceIndex
-            ? "bg-orange-400"
+            ? "before:bg-orange-400"
             : ms < now
-              ? "bg-slate-400 dark:bg-slate-500"
-              : "bg-slate-300 dark:bg-slate-600",
+              ? "before:bg-slate-400 dark:before:bg-slate-500"
+              : "before:bg-slate-300 dark:before:bg-slate-600",
+        "before:block before:h-2 before:w-2 before:rounded-full before:transition-transform",
       ].join(" ");
       dot.addEventListener("click", () => {
         currentRaceIndex = i;

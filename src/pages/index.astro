@@ -117,8 +117,10 @@ const experiences = [
       <div class="flex flex-col md:flex-row gap-8 items-center md:items-start">
         <div class="shrink-0 flex justify-center">
           <img
-            src="/media/avatar.jpg"
+            src="/media/avatar-small.webp"
             alt="Georgios Balaouras"
+            width="320"
+            height="320"
             class="w-40 h-40 rounded-full object-cover border-4 border-slate-200 dark:border-slate-700"
           />
         </div>
@@ -200,7 +202,7 @@ const experiences = [
                       </span>
                     )}
                   </div>
-                  <p class="text-sm text-gray-500 dark:text-slate-500 mb-3">{exp.location}</p>
+                  <p class="text-sm text-gray-500 dark:text-slate-400 mb-3">{exp.location}</p>
                   
                   {exp.positions.map((pos, posIdx) => (
                     <div id={exp.prominent && posIdx === 0 ? "current-position" : undefined} class={posIdx > 0 ? 'mt-4 pt-4 border-t border-gray-100 dark:border-gray-700' : ''}>

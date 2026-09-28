@@ -4,6 +4,7 @@ import PublicationResources from './PublicationResources.astro';
 import { formatPublicationAuthors, hasEqualContribution, publicationVisuals } from '../../utils/publications';
 import { scholarProfileUrl } from '../../utils/seo';
 import type { PublicationEntry, PublicationLanguage } from '../../utils/publications';
+import { cardImage } from '../../utils/card-image';
 
 interface Props {
   posts: PublicationEntry[];
@@ -104,7 +105,7 @@ const labels = isEl
                 <a href={detailUrl} aria-label={`${labels.imageLink}: ${post.data.title}`} class="block rounded-2xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-500">
                   <div class="flex aspect-[4/3] items-center justify-center overflow-hidden rounded-2xl bg-slate-100 p-3 dark:bg-slate-700/60">
                     <img
-                      src={post.data.featuredImage}
+                      src={cardImage(post.data.featuredImage)}
                       alt={visual?.alt[lang] ?? post.data.title}
                       width={visual?.width ?? 1200}
                       height={visual?.height ?? 800}

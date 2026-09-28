@@ -53,7 +53,7 @@ const T = t[lang];
           <p class="quote-context text-xs text-gray-500 dark:text-slate-500 mt-2 italic">
             --
           </p>
-          <a class="quote-source mt-2 hidden text-xs font-medium text-red-700 underline-offset-2 hover:underline dark:text-red-400" target="_blank" rel="noopener noreferrer">{T.source} ↗</a>
+          <span class="quote-source mt-2 hidden text-xs font-medium text-red-700 underline-offset-2 hover:underline dark:text-red-400" data-label={T.source}></span>
         </div>
       </div>
     </>
@@ -76,7 +76,7 @@ const T = t[lang];
         <p class="quote-context mt-2 text-xs text-gray-500 dark:text-slate-500 italic">
           --
         </p>
-        <a class="quote-source mt-3 hidden text-xs font-medium text-red-700 underline-offset-2 hover:underline dark:text-red-400" target="_blank" rel="noopener noreferrer">{T.source} ↗</a>
+        <span class="quote-source mt-3 hidden text-xs font-medium text-red-700 underline-offset-2 hover:underline dark:text-red-400" data-label={T.source}></span>
       </div>
     </div>
   )}
@@ -123,10 +123,15 @@ const T = t[lang];
       }
       if (sourceEl) {
         if (data.source) {
-          sourceEl.href = data.source;
+          const link = document.createElement('a');
+          link.href = data.source;
+          link.target = '_blank';
+          link.rel = 'noopener noreferrer';
+          link.textContent = `${sourceEl.dataset.label} ↗`;
+          sourceEl.replaceChildren(link);
           sourceEl.classList.remove('hidden');
         } else {
-          sourceEl.removeAttribute('href');
+          sourceEl.replaceChildren();
           sourceEl.classList.add('hidden');
         }
       }

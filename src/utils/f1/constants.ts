@@ -51,8 +51,8 @@ export const COUNTRY_FLAGS: Record<string, string> = {
 export const TEAM_LOGO_PATHS: Record<string, string> = {
   mercedes: "formula/team-logos/mercedes.svg",
   ferrari: "formula/team-logos/ferrari.svg",
-  red_bull: "formula/team-logos/red_bull.png",
-  mclaren: "formula/team-logos/mclaren.png",
+  red_bull: "formula/team-logos/red_bull.webp",
+  mclaren: "formula/team-logos/mclaren.webp",
   alpine: "formula/team-logos/alpine.svg",
   aston_martin: "formula/team-logos/aston_martin.svg",
   williams: "formula/team-logos/williams.svg",
