@@ -398,6 +398,13 @@ export const f1Quotes: F1Quote[] = [
     source: "https://www.formula1.com/en/latest/article/what-the-teams-said-qualifying-in-italy-2026.5lH9hjhYdtN3xqlAu25I2D"
   },
   {
+    quote: "Mate, I have less power than a Fiat Punto!",
+    author: "Max Verstappen",
+    context: "On the radio during final practice at the Italian Grand Prix in Monza",
+    year: "2026",
+    source: "https://www.gpblog.com/en/news/verstappen-flags-red-bull-concern-i-have-less-power-than-a-fiat-punto"
+  },
+  {
     quote: "Are you using me as a guinea pig?",
     author: "Lewis Hamilton",
     context: "Questioning Ferrari's strategy under a Virtual Safety Car in the Netherlands",
