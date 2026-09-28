@@ -52,7 +52,7 @@ The Greek edition uses the same content paths under `/el/`. Its pages contain Gr
 
 ## Contact and downloads
 
-- [Email](mailto:gbalaouras@gmail.com)
+- [Email](mailto:contact@mpalaourg.dev)
 - [GitHub](https://github.com/mpalaourg)
 - [LinkedIn](https://linkedin.com/in/georgebalaouras)
 - [English résumé (PDF)](https://mpalaourg.dev/media/files/resume_en.pdf)

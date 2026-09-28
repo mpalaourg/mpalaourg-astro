@@ -9,6 +9,7 @@ export const personStructuredData = {
   familyName: 'Balaouras',
   alternateName: ['Γιώργος Μπαλαούρας', 'Γεώργιος Μπαλαούρας', 'George Balaouras'],
   url: 'https://mpalaourg.dev/about/',
+  email: 'mailto:contact@mpalaourg.dev',
   image: 'https://mpalaourg.dev/media/avatar.jpg',
   description: 'Senior Machine Learning Engineer building production ML, LLM, and agentic AI systems.',
   jobTitle: 'Senior Machine Learning Engineer',
