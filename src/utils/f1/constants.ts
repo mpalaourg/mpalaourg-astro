@@ -66,6 +66,7 @@ export const TEAM_LOGO_PATHS: Record<string, string> = {
 export const CIRCUIT_IMAGE_PATHS: Record<string, string> = {
   albert_park: "formula/circuit-images/albert_park.svg",
   bahrain: "formula/circuit-images/bahrain.svg",
+  sepang: "formula/circuit-images/sepang.svg",
   jeddah: "formula/circuit-images/jeddah.svg",
   suzuka: "formula/circuit-images/suzuka.svg",
   shanghai: "formula/circuit-images/shanghai.svg",
