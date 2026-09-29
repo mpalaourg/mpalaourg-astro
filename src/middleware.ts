@@ -1,7 +1,9 @@
 import { defineMiddleware } from "astro:middleware";
 
 export const onRequest = defineMiddleware(async (_context, next) => {
-  const response = await next();
+  // Cache API responses have immutable headers, so copy before adding site headers.
+  const original = await next();
+  const response = new Response(original.body, original);
   response.headers.set("X-Content-Type-Options", "nosniff");
   response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
   response.headers.set("X-Frame-Options", "DENY");
