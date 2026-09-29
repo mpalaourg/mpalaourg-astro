@@ -1,16 +1,19 @@
 import type { APIRoute } from "astro";
 import { getScheduleFromDb, upsertSchedule } from "../../../utils/f1/db";
 import { getSeasonRaces } from "../../../utils/f1/api";
+import { getEdgeResponse, putEdgeResponse, type EdgeCacheRuntime } from "../../../utils/f1/edge-cache";
 
 const SCHEDULE_TTL_MS = 24 * 60 * 60 * 1000;
 
-function json(data: unknown, status = 200): Response {
+function json(data: unknown, status = 200, browserTtl = 300, edgeTtl = 900): Response {
   return new Response(JSON.stringify(data), {
     status,
     headers: {
       "Content-Type": "application/json",
       "Access-Control-Allow-Origin": "*",
-      "Cache-Control": "public, max-age=0, must-revalidate",
+      "Cache-Control": status === 200
+        ? `public, max-age=${browserTtl}, s-maxage=${edgeTtl}`
+        : "no-store",
     },
   });
 }
@@ -67,7 +70,15 @@ export const GET: APIRoute = async ({ url, locals }) => {
   const season = Number(seasonParam);
   if (!/^\d{4}$/.test(seasonParam) || season < 1950 || season > new Date().getUTCFullYear() + 1) return err("Invalid season");
 
-  const runtime = locals.runtime as { env: Env };
+  const runtime = locals.runtime as { env: Env } & EdgeCacheRuntime;
+  const cacheKey = new URL(`/api/f1/schedule?season=${season}`, url.origin);
+  const edgeHit = await getEdgeResponse(runtime, cacheKey);
+  if (edgeHit) return edgeHit;
+  const respond = (data: unknown, browserTtl = 300, edgeTtl = 900) => {
+    const response = json(data, 200, browserTtl, edgeTtl);
+    putEdgeResponse(runtime, cacheKey, response);
+    return response;
+  };
   const db = runtime.env.DB;
 
   // 1. Try D1
@@ -76,7 +87,7 @@ export const GET: APIRoute = async ({ url, locals }) => {
     const fetchedAt = new Date(cached[0].fetched_at).getTime();
     const age = Date.now() - fetchedAt;
     if (age < SCHEDULE_TTL_MS) {
-      return json({ source: "cache", races: cached.map(transformRace) });
+      return respond({ source: "cache", races: cached.map(transformRace) });
     }
   }
 
@@ -84,14 +95,14 @@ export const GET: APIRoute = async ({ url, locals }) => {
   try {
     const races = await getSeasonRaces(season);
     if (!races.length) {
-      if (cached.length > 0) return json({ source: "stale_cache", races: cached.map(transformRace) });
-      return json({ source: "upstream", races: [] });
+      if (cached.length > 0) return respond({ source: "stale_cache", races: cached.map(transformRace) }, 15, 30);
+      return respond({ source: "upstream", races: [] }, 15, 30);
     }
     await upsertSchedule(db, races);
     const fresh = await getScheduleFromDb(db, season);
-    return json({ source: "upstream", races: fresh.map(transformRace) });
+    return respond({ source: "upstream", races: fresh.map(transformRace) });
   } catch (e) {
-    if (cached.length > 0) return json({ source: "stale_cache", races: cached.map(transformRace) });
+    if (cached.length > 0) return respond({ source: "stale_cache", races: cached.map(transformRace) }, 15, 30);
     return err("Failed to fetch schedule", 502);
   }
 };

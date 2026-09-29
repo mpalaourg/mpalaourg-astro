@@ -1,0 +1,25 @@
+---
+export const prerender = true;
+import BaseLayout from "../../../../../layouts/BaseLayout.astro";
+import F1ChampionsArchive from "../../../../../components/F1ChampionsArchive.astro";
+import { driverChampions, constructorChampions } from "../../../../../data/f1Champions";
+
+export function getStaticPaths() {
+  const latestDecade = Math.floor(driverChampions[0].year / 10) * 10;
+  return ([
+    ["drivers", driverChampions],
+    ["constructors", constructorChampions],
+  ] as const).flatMap(([view, champions]) =>
+    [...new Set(champions.map(({ year }) => Math.floor(year / 10) * 10))]
+      .filter((decade) => view !== "drivers" || decade !== latestDecade)
+      .map((decade) => ({ params: { view, decade: String(decade) }, props: { view, decade } })),
+  );
+}
+
+const { view, decade } = Astro.props;
+const range = `${decade}s`;
+---
+
+<BaseLayout title={`Πρωταθλητές Formula 1 της δεκαετίας ${range} | Γιώργος Μπαλαούρας`} description={`Δείτε τους πρωταθλητές ${view === "drivers" ? "Οδηγών" : "Κατασκευαστών"} της Formula 1 της δεκαετίας ${range}, τις ομάδες και τα στατιστικά τους.`}>
+  <F1ChampionsArchive lang="el" view={view} decade={decade} />
+</BaseLayout>

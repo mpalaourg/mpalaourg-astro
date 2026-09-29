@@ -12,17 +12,19 @@ import { constructorSeasonStats, driverSeasonStats } from "../data/f1ChampionSta
 
 interface Props {
   lang?: "en" | "el";
+  view?: "drivers" | "constructors";
+  decade?: number;
 }
 
-const { lang = "en" } = Astro.props;
+const { lang = "en", view = "drivers" } = Astro.props;
 const isEl = lang === "el";
 
 const copy = isEl
   ? {
-      eyebrow: "FORMULA 1 · ΑΡΧΕΙΟ 1950—2025",
+      eyebrow: "FORMULA 1 · ΑΡΧΕΙΟ",
       titleLead: "Η ΑΙΘΟΥΣΑ ΤΩΝ",
       titleAccent: "ΠΡΩΤΑΘΛΗΤΩΝ",
-      intro: "Κάθε στέμμα. Κάθε εποχή. Όλοι οι Παγκόσμιοι Πρωταθλητές της Formula 1, σε μία χρονογραμμή.",
+      intro: "Κάθε στέμμα. Κάθε εποχή. Εξερευνήστε τους Παγκόσμιους Πρωταθλητές της Formula 1, δεκαετία προς δεκαετία.",
       drivers: "Οδηγοί",
       constructors: "Κατασκευαστές",
       driverTab: "Πρωταθλητές Οδηγών",
@@ -44,7 +46,7 @@ const copy = isEl
       driverLeaders: "Οι πολυνίκες οδηγοί",
       constructorLeaders: "Οι πολυνίκες κατασκευαστές",
       titles: "τίτλοι",
-      latest: "ΤΕΛΕΥΤΑΙΟΣ ΠΡΩΤΑΘΛΗΤΗΣ",
+      decade: "ΔΕΚΑΕΤΙΑ",
       source: "Πηγές δεδομένων",
       seasonStats: "Στατιστικά σεζόν",
       driver: "Οδηγός",
@@ -56,13 +58,14 @@ const copy = isEl
       constructorPoints: "Βαθμοί κατασκευαστή",
       total: "Σύνολο",
       flipHint: "Στατιστικά",
+      flipFront: "Μπροστά",
       back: "Πίσω στη Formula",
     }
   : {
-      eyebrow: "FORMULA 1 · ARCHIVE 1950—2025",
+      eyebrow: "FORMULA 1 · ARCHIVE",
       titleLead: "THE HALL OF",
       titleAccent: "CHAMPIONS",
-      intro: "Every crown. Every era. Every Formula 1 World Champion, arranged on one continuous timeline.",
+      intro: "Every crown. Every era. Explore Formula 1 World Champions, decade by decade.",
       drivers: "Drivers",
       constructors: "Constructors",
       driverTab: "World Drivers’ Champions",
@@ -84,7 +87,7 @@ const copy = isEl
       driverLeaders: "The most decorated drivers",
       constructorLeaders: "The most decorated constructors",
       titles: "titles",
-      latest: "LATEST CHAMPION",
+      decade: "DECADE",
       source: "Data sources",
       seasonStats: "Season stats",
       driver: "Driver",
@@ -96,6 +99,7 @@ const copy = isEl
       constructorPoints: "Constructor points",
       total: "Total",
       flipHint: "Stats",
+      flipFront: "Front",
       back: "Back to Formula",
     };
 
@@ -119,6 +123,21 @@ const groupByDecade = <T extends { year: number }>(entries: T[]) => {
 
 const driverDecades = groupByDecade(driverChampions);
 const constructorDecades = groupByDecade(constructorChampions);
+const latestDecade = driverDecades[0][0];
+const decade = Astro.props.decade ?? latestDecade;
+const availableDecades = view === "drivers" ? driverDecades : constructorDecades;
+const selectedDecade = availableDecades.find(([year]) => year === decade);
+if (!selectedDecade) throw new Error(`No ${view} champions for the ${decade}s`);
+const selectedDriverDecade = driverDecades.find(([year]) => year === decade);
+const selectedConstructorDecade = constructorDecades.find(([year]) => year === decade);
+const decadeRange = (start: number, entries: Array<{ year: number }>) =>
+  `${start}—${Math.max(...entries.map((entry) => entry.year))}`;
+const selectedRange = decadeRange(decade, selectedDecade[1]);
+const archiveBase = `${isEl ? "/el" : ""}/formula/champions/`;
+const archivePath = (championship: "drivers" | "constructors", year: number) =>
+  championship === "drivers" && year === latestDecade
+    ? archiveBase
+    : `${archiveBase}${championship}/${year}/`;
 const driverLeaders = [...new Set(driverChampions.map((entry) => entry.name))]
   .map((name) => {
     const seasons = driverChampions.filter((entry) => entry.name === name);
@@ -152,15 +171,15 @@ const teamLogos: Record<string, string> = {
   williams: "/formula/team-logos/williams.svg",
   renault: "/formula/team-logos/champions/renault.svg",
   brawn: "/formula/team-logos/champions/brawn.svg",
-  benetton: "/formula/team-logos/champions/benetton.png",
-  brabham: "/formula/team-logos/champions/brabham.png",
-  lotus: "/formula/team-logos/champions/lotus.jpg",
+  benetton: "/formula/team-logos/champions/benetton.webp",
+  brabham: "/formula/team-logos/champions/brabham.webp",
+  lotus: "/formula/team-logos/champions/lotus.webp",
   tyrrell: "/formula/team-logos/champions/tyrrell.svg",
   matra: "/formula/team-logos/champions/matra.svg",
-  brm: "/formula/team-logos/champions/brm.png",
-  cooper: "/formula/team-logos/champions/cooper.png",
-  vanwall: "/formula/team-logos/champions/vanwall.png",
-  "alfa-romeo": "/formula/team-logos/champions/alfa-romeo.png",
+  brm: "/formula/team-logos/champions/brm.webp",
+  cooper: "/formula/team-logos/champions/cooper.webp",
+  vanwall: "/formula/team-logos/champions/vanwall.webp",
+  "alfa-romeo": "/formula/team-logos/champions/alfa-romeo.webp",
   maserati: "/formula/team-logos/champions/maserati.svg",
 };
 const articlePath = (year: number) => `${isEl ? "/el" : ""}/formula/${year}-season/`;
@@ -180,7 +199,7 @@ const ordinalSuffix = (number: number) => {
 
   <header class="champions-hero">
     <a class="back-link" href={isEl ? "/el/formula/" : "/formula/"}>← {copy.back}</a>
-    <p class="eyebrow">{copy.eyebrow}</p>
+    <p class="eyebrow">{copy.eyebrow} 1950—{driverChampions[0].year}</p>
     <div class="hero-layout">
       <h1>
         <span>{copy.titleLead}</span>
@@ -191,23 +210,23 @@ const ordinalSuffix = (number: number) => {
   </header>
 
   <div class="archive-shell">
-    <div class="championship-switch" role="tablist" aria-label={isEl ? "Επιλογή πρωταθλήματος" : "Choose championship"}>
-      <button class="switch-button is-active" type="button" role="tab" aria-selected="true" aria-controls="drivers-panel" id="drivers-tab" data-view="drivers">
+    <nav class="championship-switch" aria-label={isEl ? "Επιλογή πρωταθλήματος" : "Choose championship"}>
+      <a class:list={["switch-button", { "is-active": view === "drivers" }]} href={archivePath("drivers", decade)} aria-current={view === "drivers" ? "page" : undefined}>
         <span class="switch-index">01</span>
         <span>{copy.drivers}</span>
-        <small>1950—2025</small>
-      </button>
-      <button class="switch-button" type="button" role="tab" aria-selected="false" aria-controls="constructors-panel" id="constructors-tab" data-view="constructors" tabindex="-1">
+        <small>1950—{driverChampions[0].year}</small>
+      </a>
+      <a class:list={["switch-button", { "is-active": view === "constructors" }]} href={archivePath("constructors", decade)} aria-current={view === "constructors" ? "page" : undefined}>
         <span class="switch-index">02</span>
         <span>{copy.constructors}</span>
-        <small>1958—2025</small>
-      </button>
-    </div>
+        <small>1958—{constructorChampions[0].year}</small>
+      </a>
+    </nav>
 
-    <section class="archive-panel" id="drivers-panel" role="tabpanel" aria-labelledby="drivers-tab" data-panel="drivers">
+    {view === "drivers" && (<section class="archive-panel" id="drivers-panel">
       <div class="panel-heading">
         <div>
-          <p class="panel-kicker">{copy.latest} · 2025</p>
+          <p class="panel-kicker">{copy.decade} · {selectedRange}</p>
           <h2>{copy.driverTab}</h2>
         </div>
         <div class="panel-stats">
@@ -240,8 +259,19 @@ const ordinalSuffix = (number: number) => {
         </div>
       </section>
 
+      <nav class="decade-nav" aria-label={isEl ? "Επιλογή δεκαετίας" : "Choose decade"}>
+        <span class="decade-nav-label">{isEl ? "ΔΕΚΑΕΤΙΑ" : "DECADE"}</span>
+        <div class="decade-links">
+          {driverDecades.map(([year, entries]) => (
+            <a class:list={["decade-link", { "is-active": year === decade }]} href={archivePath("drivers", year)} aria-current={year === decade ? "page" : undefined}>
+              {decadeRange(year, entries)}
+            </a>
+          ))}
+        </div>
+      </nav>
+
       <div class="timeline">
-        {driverDecades.map(([decade, entries]) => (
+        {selectedDriverDecade && [selectedDriverDecade].map(([decade, entries]) => (
           <section class="decade-block" aria-labelledby={`drivers-${decade}`}>
             <div class="decade-label">
               <span id={`drivers-${decade}`}>{decade}s</span>
@@ -252,18 +282,14 @@ const ordinalSuffix = (number: number) => {
                 const titleNumber = titleAtSeason(driverChampions, champion, "name");
                 const stats = driverSeasonStats[champion.year];
                 const hasArticle = articleYears.has(champion.year);
-                const CardTag = hasArticle ? "a" : "article";
                 return (
-                  <CardTag
+                  <article
                     class:list={["champion-card", { "is-linked": hasArticle }]}
                     style={`--team:${teamColours[champion.teamKey]}`}
-                    href={hasArticle ? articlePath(champion.year) : undefined}
-                    tabindex={hasArticle ? undefined : "0"}
-                    aria-label={`${champion.name}, ${champion.year}${hasArticle ? `. ${copy.readArticle}` : ""}`}
                   >
                     <div class="card-flipper">
                       <div class="card-face card-front">
-                        <div class="card-year">{champion.year}{hasArticle && <span aria-hidden="true">↗</span>}</div>
+                        <div class="card-year">{champion.year}</div>
                         <div class="racing-number" aria-label={`${copy.carNumber}: ${champion.number === "—" ? copy.varied : champion.number}`}>
                           {champion.number}
                         </div>
@@ -277,7 +303,6 @@ const ordinalSuffix = (number: number) => {
                           </p>
                           <p class="car-model"><small>{copy.car}</small>{championCarModels[champion.year]}</p>
                         </div>
-                        <div class="flip-hint" aria-hidden="true">↻ {copy.flipHint}</div>
                         <div class="title-count">
                           <span class="ordinal-number">{titleNumber}<sup>{ordinalSuffix(titleNumber)}</sup></span>
                           <span class="title-word">{copy.title}</span>
@@ -296,19 +321,31 @@ const ordinalSuffix = (number: number) => {
                         </div>
                       </div>
                     </div>
-                  </CardTag>
+                    <button
+                      class="card-flip-button"
+                      type="button"
+                      aria-pressed="false"
+                      aria-label={`${copy.flipHint}: ${champion.name}, ${champion.year}`}
+                      data-flip-button
+                      data-front-label={copy.flipHint}
+                      data-back-label={copy.flipFront}
+                      data-front-aria={`${copy.flipHint}: ${champion.name}, ${champion.year}`}
+                      data-back-aria={`${copy.flipFront}: ${champion.name}, ${champion.year}`}
+                    ><span class="flip-hint" aria-hidden="true">↻ <span data-flip-label>{copy.flipHint}</span></span></button>
+                    {hasArticle && <a class="card-article-link" href={articlePath(champion.year)} aria-label={`${copy.readArticle}: ${champion.name}, ${champion.year}`} title={copy.readArticle}><span aria-hidden="true">↗</span></a>}
+                  </article>
                 );
               })}
             </div>
           </section>
         ))}
       </div>
-    </section>
+    </section>)}
 
-    <section class="archive-panel" id="constructors-panel" role="tabpanel" aria-labelledby="constructors-tab" data-panel="constructors" hidden>
+    {view === "constructors" && (<section class="archive-panel" id="constructors-panel">
       <div class="panel-heading">
         <div>
-          <p class="panel-kicker">{copy.latest} · 2025</p>
+          <p class="panel-kicker">{copy.decade} · {selectedRange}</p>
           <h2>{copy.constructorTab}</h2>
         </div>
         <div class="panel-stats">
@@ -341,8 +378,19 @@ const ordinalSuffix = (number: number) => {
         </div>
       </section>
 
+      <nav class="decade-nav" aria-label={isEl ? "Επιλογή δεκαετίας" : "Choose decade"}>
+        <span class="decade-nav-label">{isEl ? "ΔΕΚΑΕΤΙΑ" : "DECADE"}</span>
+        <div class="decade-links">
+          {constructorDecades.map(([year, entries]) => (
+            <a class:list={["decade-link", { "is-active": year === decade }]} href={archivePath("constructors", year)} aria-current={year === decade ? "page" : undefined}>
+              {decadeRange(year, entries)}
+            </a>
+          ))}
+        </div>
+      </nav>
+
       <div class="timeline constructor-timeline">
-        {constructorDecades.map(([decade, entries]) => (
+        {selectedConstructorDecade && [selectedConstructorDecade].map(([decade, entries]) => (
           <section class="decade-block" aria-labelledby={`constructors-${decade}`}>
             <div class="decade-label">
               <span id={`constructors-${decade}`}>{decade}s</span>
@@ -353,18 +401,14 @@ const ordinalSuffix = (number: number) => {
                 const titleNumber = titleAtSeason(constructorChampions, champion, "team");
                 const stats = constructorSeasonStats[champion.year];
                 const hasArticle = articleYears.has(champion.year);
-                const CardTag = hasArticle ? "a" : "article";
                 return (
-                  <CardTag
+                  <article
                     class:list={["champion-card", "constructor-card", { "is-linked": hasArticle }]}
                     style={`--team:${teamColours[champion.teamKey]}`}
-                    href={hasArticle ? articlePath(champion.year) : undefined}
-                    tabindex={hasArticle ? undefined : "0"}
-                    aria-label={`${stats.constructorName}, ${champion.year}${hasArticle ? `. ${copy.readArticle}` : ""}`}
                   >
                     <div class="card-flipper">
                       <div class="card-face card-front">
-                        <div class="card-year">{champion.year}{hasArticle && <span aria-hidden="true">↗</span>}</div>
+                        <div class="card-year">{champion.year}</div>
                         <div class:list={["constructor-logo", `constructor-logo--${champion.teamKey}`]} aria-hidden="true">
                           <img
                             src={teamLogos[champion.teamKey]}
@@ -379,7 +423,6 @@ const ordinalSuffix = (number: number) => {
                           <h3 class:list={{ "is-long-name": stats.constructorName.length > 16, "is-extra-long-name": stats.constructorName.length > 21 }}>{stats.constructorName}</h3>
                           <p class="car-model"><small>{copy.car}</small>{constructorCarModels[champion.year]}</p>
                         </div>
-                        <div class="flip-hint" aria-hidden="true">↻ {copy.flipHint}</div>
                         <div class="title-count">
                           <span class="ordinal-number">{titleNumber}<sup>{ordinalSuffix(titleNumber)}</sup></span>
                           <span class="title-word">{copy.title}</span>
@@ -422,14 +465,26 @@ const ordinalSuffix = (number: number) => {
                         <div class="stat-legend"><span>W {copy.wins}</span><span>PD {copy.podiums}</span><span>P {copy.poles}</span><span>D {copy.dnfs}</span><span title={copy.constructorPoints}>WCC</span></div>
                       </div>
                     </div>
-                  </CardTag>
+                    <button
+                      class="card-flip-button"
+                      type="button"
+                      aria-pressed="false"
+                      aria-label={`${copy.flipHint}: ${stats.constructorName}, ${champion.year}`}
+                      data-flip-button
+                      data-front-label={copy.flipHint}
+                      data-back-label={copy.flipFront}
+                      data-front-aria={`${copy.flipHint}: ${stats.constructorName}, ${champion.year}`}
+                      data-back-aria={`${copy.flipFront}: ${stats.constructorName}, ${champion.year}`}
+                    ><span class="flip-hint" aria-hidden="true">↻ <span data-flip-label>{copy.flipHint}</span></span></button>
+                    {hasArticle && <a class="card-article-link" href={articlePath(champion.year)} aria-label={`${copy.readArticle}: ${stats.constructorName}, ${champion.year}`} title={copy.readArticle}><span aria-hidden="true">↗</span></a>}
+                  </article>
                 );
               })}
             </div>
           </section>
         ))}
       </div>
-    </section>
+    </section>)}
   </div>
 
   <footer class="sources">
@@ -438,39 +493,104 @@ const ordinalSuffix = (number: number) => {
 </div>
 
 <script>
-  const buttons = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-view]"));
-  const panels = Array.from(document.querySelectorAll<HTMLElement>("[data-panel]"));
+  const archive = document.querySelector<HTMLElement>(".champions-page");
+  const archiveBase = `${document.documentElement.lang === "el" ? "/el" : ""}/formula/champions/`;
+  const pageCache = new Map<string, string>([[location.pathname, document.documentElement.outerHTML]]);
+  let navigationId = 0;
+  let activeRequest: AbortController | null = null;
 
-  const activate = (view: string, updateUrl = true) => {
-    buttons.forEach((button) => {
-      const active = button.dataset.view === view;
-      button.classList.toggle("is-active", active);
-      button.setAttribute("aria-selected", String(active));
-      button.tabIndex = active ? 0 : -1;
+  function updateArchiveHead(nextPage: Document) {
+    document.title = nextPage.title;
+    const selectors = [
+      'meta[name="description"]',
+      'link[rel="canonical"]',
+      'link[rel="alternate"][hreflang="en"]',
+      'link[rel="alternate"][hreflang="el"]',
+      'link[rel="alternate"][hreflang="x-default"]',
+      'meta[property="og:title"]',
+      'meta[property="og:description"]',
+      'meta[property="og:url"]',
+      'meta[name="twitter:title"]',
+      'meta[name="twitter:description"]',
+    ];
+    selectors.forEach((selector) => {
+      const current = document.head.querySelector(selector);
+      const replacement = nextPage.head.querySelector(selector);
+      if (current && replacement) current.replaceWith(replacement.cloneNode(true));
     });
-    panels.forEach((panel) => panel.hidden = panel.dataset.panel !== view);
 
-    if (updateUrl) {
-      const url = new URL(window.location.href);
-      if (view === "constructors") url.searchParams.set("view", view);
-      else url.searchParams.delete("view");
-      history.replaceState({}, "", url);
+    // The language menu lives outside the swapped archive content.
+    document.querySelectorAll<HTMLAnchorElement>('a[href^="/el/formula/champions/"], a[href^="/formula/champions/"]')
+      .forEach((link) => {
+        if (!link.closest("header")) return;
+        const language = link.getAttribute("href")?.startsWith("/el/") ? "el" : "en";
+        const next = nextPage.head.querySelector<HTMLLinkElement>(`link[rel="alternate"][hreflang="${language}"]`);
+        if (next) link.href = new URL(next.href).pathname;
+      });
+  }
+
+  async function showArchivePage(url: URL, push: boolean, focusSelector?: string) {
+    const shell = archive?.querySelector<HTMLElement>(".archive-shell");
+    if (!shell) return;
+    const requestId = ++navigationId;
+    activeRequest?.abort();
+    activeRequest = new AbortController();
+    shell.setAttribute("aria-busy", "true");
+
+    try {
+      let html = pageCache.get(url.pathname);
+      if (!html) {
+        const response = await fetch(url.pathname, { signal: activeRequest.signal });
+        if (!response.ok) throw new Error(`Archive page returned ${response.status}`);
+        html = await response.text();
+        pageCache.set(url.pathname, html);
+      }
+      if (requestId !== navigationId) return;
+
+      const nextPage = new DOMParser().parseFromString(html, "text/html");
+      const nextShell = nextPage.querySelector<HTMLElement>(".champions-page .archive-shell");
+      if (!nextShell || nextPage.documentElement.lang !== document.documentElement.lang) {
+        throw new Error("Archive page content is unavailable");
+      }
+
+      shell.replaceChildren(...Array.from(nextShell.childNodes));
+      updateArchiveHead(nextPage);
+      if (push) history.pushState({ archive: true }, "", url.pathname);
+      archive?.querySelector<HTMLElement>(focusSelector ?? ".archive-panel h2")?.focus({ preventScroll: true });
+    } catch (error) {
+      if (requestId !== navigationId || (error instanceof DOMException && error.name === "AbortError")) return;
+      if (push) location.assign(url.href);
+      else location.reload();
+    } finally {
+      if (requestId === navigationId) shell.removeAttribute("aria-busy");
     }
-  };
+  }
 
-  buttons.forEach((button, index) => {
-    button.addEventListener("click", () => activate(button.dataset.view ?? "drivers"));
-    button.addEventListener("keydown", (event) => {
-      if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
-      event.preventDefault();
-      const next = event.key === "ArrowRight" ? (index + 1) % buttons.length : (index - 1 + buttons.length) % buttons.length;
-      buttons[next].focus();
-      activate(buttons[next].dataset.view ?? "drivers");
-    });
+  document.addEventListener("click", (event) => {
+    if (!(event.target instanceof Element)) return;
+    const flipButton = event.target.closest<HTMLButtonElement>(".champions-page [data-flip-button]");
+    if (flipButton) {
+      const flipped = flipButton.closest(".champion-card")?.classList.toggle("is-flipped") ?? false;
+      flipButton.setAttribute("aria-pressed", String(flipped));
+      flipButton.setAttribute("aria-label", flipped ? flipButton.dataset.backAria ?? "" : flipButton.dataset.frontAria ?? "");
+      const label = flipButton.querySelector<HTMLElement>("[data-flip-label]");
+      if (label) label.textContent = flipped ? flipButton.dataset.backLabel ?? "" : flipButton.dataset.frontLabel ?? "";
+      return;
+    }
+    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    const link = event.target.closest<HTMLAnchorElement>(".champions-page .championship-switch a, .champions-page .decade-nav a");
+    if (!link || link.target && link.target !== "_self") return;
+    const url = new URL(link.href);
+    if (url.origin !== location.origin || !url.pathname.startsWith(archiveBase)) return;
+    event.preventDefault();
+    if (url.pathname === location.pathname) return;
+    const focusSelector = link.closest(".decade-nav") ? ".decade-nav a[aria-current='page']" : ".championship-switch a[aria-current='page']";
+    void showArchivePage(url, true, focusSelector);
   });
 
-  const initialView = new URLSearchParams(window.location.search).get("view");
-  if (initialView === "constructors") activate(initialView, false);
+  window.addEventListener("popstate", () => {
+    if (location.pathname.startsWith(archiveBase)) void showArchivePage(new URL(location.href), false);
+  });
 </script>
 
 <style>
@@ -546,13 +666,20 @@ const ordinalSuffix = (number: number) => {
 
   .archive-shell { padding-bottom: 5rem; }
   .championship-switch { position: sticky; z-index: 20; top: 1rem; display: grid; grid-template-columns: 1fr 1fr; max-width: 46rem; margin-bottom: 4.5rem; border: 1px solid var(--line); background: var(--switch-bg); box-shadow: 0 1.25rem 3rem var(--shadow); backdrop-filter: blur(16px); }
-  .switch-button { display: grid; grid-template-columns: auto 1fr auto; gap: .9rem; align-items: center; padding: 1rem 1.15rem; border: 0; color: var(--muted); background: transparent; cursor: pointer; text-align: left; transition: color .2s, background .2s; }
+  .switch-button { display: grid; grid-template-columns: auto 1fr auto; gap: .9rem; align-items: center; padding: 1rem 1.15rem; border: 0; color: var(--muted); background: transparent; cursor: pointer; text-align: left; text-decoration: none; transition: color .2s, background .2s; }
   .switch-button + .switch-button { border-left: 1px solid var(--line); }
   .switch-button:hover { color: var(--ink); }
   .switch-button.is-active { color: var(--on-accent); background: #e10600; }
   .switch-index, .switch-button small { font-size: .62rem; font-weight: 800; letter-spacing: .1em; }
   .switch-button > span:nth-child(2) { font-size: .9rem; font-weight: 800; text-transform: uppercase; }
   .switch-button small { opacity: .65; }
+  .switch-button:focus-visible, .decade-link:focus-visible { outline: 2px solid #e10600; outline-offset: 3px; }
+  .decade-nav { display: flex; flex-wrap: wrap; gap: .75rem 1.5rem; align-items: center; margin-bottom: 4rem; }
+  .decade-nav-label { color: var(--soft); font-size: .62rem; font-weight: 900; letter-spacing: .18em; }
+  .decade-links { display: flex; flex-wrap: wrap; gap: .4rem; }
+  .decade-link { display: inline-flex; align-items: center; min-height: 2.25rem; padding: .4rem .7rem; border: 1px solid var(--line); color: var(--muted); font-size: .7rem; font-weight: 800; letter-spacing: .04em; text-decoration: none; transition: color .2s, border-color .2s, background .2s; }
+  .decade-link:hover { border-color: #e10600; color: var(--ink); }
+  .decade-link.is-active { border-color: #e10600; color: #fff; background: #e10600; }
 
   .panel-heading { display: grid; grid-template-columns: 1fr auto; gap: 2rem; align-items: end; margin-bottom: 2rem; }
   .panel-kicker { margin: 0 0 .65rem; color: #ff2a20; font-size: .66rem; font-weight: 900; letter-spacing: .19em; }
@@ -564,7 +691,7 @@ const ordinalSuffix = (number: number) => {
   .history-note { display: flex; gap: .8rem; max-width: 52rem; margin: 0 0 2.5rem; padding: .9rem 1rem; border-left: 3px solid #e10600; color: var(--muted); background: var(--wash); font-size: .78rem; line-height: 1.55; }
   .history-note span { color: #ff2a20; font-weight: 900; }
 
-  .leaderboard { position: relative; margin: 0 0 5.5rem; padding: 1.5rem; overflow: hidden; border: 1px solid var(--line); background: linear-gradient(135deg, var(--wash), transparent); }
+  .leaderboard { position: relative; margin: 0 0 1.5rem; padding: 1.5rem; overflow: hidden; border: 1px solid var(--line); background: linear-gradient(135deg, var(--wash), transparent); }
   .leaderboard::before { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .35; background: repeating-linear-gradient(135deg, transparent 0 1.2rem, var(--wash) 1.2rem calc(1.2rem + 1px)); }
   .leaderboard-heading { position: relative; display: flex; justify-content: space-between; gap: 1rem; align-items: end; margin-bottom: 1.5rem; }
   .leaderboard-heading p { margin: 0; color: #ff2a20; font-size: .6rem; font-weight: 900; letter-spacing: .2em; }
@@ -587,19 +714,23 @@ const ordinalSuffix = (number: number) => {
   .decade-label span { position: sticky; top: 7rem; color: var(--soft); font-family: "Arial Narrow", "Avenir Next Condensed", sans-serif; font-size: 1.3rem; font-style: italic; font-weight: 900; }
   .decade-label i { position: absolute; top: 2.2rem; right: .45rem; bottom: -5rem; width: 1px; background: var(--line); }
   .champion-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); gap: .75rem; }
-  .champion-card { position: relative; display: block; aspect-ratio: 1; min-width: 0; color: inherit; text-decoration: none; perspective: 70rem; outline: none; }
+  .champion-card { position: relative; display: block; aspect-ratio: 1; min-width: 0; perspective: 70rem; }
   .card-flipper { position: absolute; inset: 0; transform-style: preserve-3d; transition: transform 1.15s cubic-bezier(.22,.7,.18,1); }
-  .champion-card:hover .card-flipper, .champion-card:focus-visible .card-flipper { transform: rotateY(180deg); }
-  .champion-card:focus-visible { outline: 2px solid var(--team-readable); outline-offset: 3px; }
+  .champion-card.is-flipped .card-flipper { transform: rotateY(180deg); }
+  @media (hover: hover) and (pointer: fine) {
+    .champion-card:not(:focus-within):hover .card-flipper { transform: rotateY(180deg); }
+  }
   .card-face { position: absolute; inset: 0; min-width: 0; overflow: hidden; border: 1px solid var(--line); background: var(--surface); box-shadow: var(--card-shadow); backface-visibility: hidden; -webkit-backface-visibility: hidden; transition: border-color .2s, box-shadow .2s; }
   .card-face::before { content: ""; position: absolute; z-index: 2; inset: 0 auto 0 0; width: .28rem; background: var(--team-readable); }
   .card-front { display: grid; grid-template-columns: 4.5rem minmax(0, 1fr); }
   .card-back { display: flex; flex-direction: column; padding: 1rem 1rem .9rem 1.15rem; background: linear-gradient(145deg, color-mix(in srgb, var(--team) 12%, var(--surface)), var(--surface) 58%); transform: rotateY(180deg); }
-  .champion-card:hover .card-face, .champion-card:focus-visible .card-face { border-color: color-mix(in srgb, var(--team-readable) 65%, var(--ink)); box-shadow: 0 .65rem 1.5rem var(--shadow); }
+  .champion-card:hover .card-face, .champion-card:focus-within .card-face, .champion-card.is-flipped .card-face { border-color: color-mix(in srgb, var(--team-readable) 65%, var(--ink)); box-shadow: 0 .65rem 1.5rem var(--shadow); }
   .card-year { position: absolute; top: .75rem; right: .9rem; display: flex; gap: .45rem; align-items: center; color: var(--soft); font-size: .63rem; font-weight: 800; letter-spacing: .12em; }
-  .card-year span { color: var(--team-readable); font-size: .9rem; transition: transform .2s ease; }
-  .is-linked { cursor: pointer; }
-  .is-linked:hover .card-year span { transform: translate(.15rem, -.15rem); }
+  .is-linked .card-year { right: 3.8rem; }
+  .card-flip-button { position: absolute; z-index: 3; inset: 0; width: 100%; padding: 0; border: 0; background: transparent; cursor: pointer; }
+  .card-flip-button:focus-visible, .card-article-link:focus-visible { outline: 2px solid var(--team-readable); outline-offset: 3px; }
+  .card-article-link { position: absolute; z-index: 4; top: .35rem; right: .35rem; display: grid; width: 2.75rem; height: 2.75rem; place-items: center; border: 1px solid color-mix(in srgb, var(--team-readable) 55%, var(--line)); color: var(--team-readable); background: var(--surface); font-size: 1.1rem; font-weight: 900; text-decoration: none; box-shadow: 0 .15rem .45rem var(--shadow); transition: color .2s, background .2s, transform .2s; }
+  .card-article-link:hover { color: var(--surface); background: var(--team-readable); transform: translate(.1rem, -.1rem); }
   .racing-number { display: grid; place-items: center; min-width: 0; padding-left: .25rem; color: var(--team-readable); font-family: "Arial Narrow", "Avenir Next Condensed", sans-serif; font-size: 3.7rem; font-style: italic; font-weight: 900; letter-spacing: -.08em; line-height: 1; opacity: .98; }
   .card-copy { align-self: center; min-width: 0; padding: 2.4rem .9rem 3.4rem .55rem; }
   .card-copy h3 { margin: 0; font-family: "Arial Narrow", "Avenir Next Condensed", sans-serif; font-size: clamp(1.2rem, 2.2vw, 1.7rem); font-style: italic; font-weight: 900; letter-spacing: -.035em; line-height: 1; text-transform: uppercase; }
@@ -623,6 +754,7 @@ const ordinalSuffix = (number: number) => {
   .ordinal-number sup { position: relative; top: -.16em; margin-left: .04em; font-size: .54em; font-style: normal; letter-spacing: 0; }
   .title-word { font-size: .82rem; letter-spacing: .025em; }
   .flip-hint { position: absolute; bottom: 1rem; left: 1.15rem; color: color-mix(in srgb, var(--team) 78%, var(--ink)); font-size: .5rem; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; }
+  .is-flipped .flip-hint { top: 3.7rem; right: .9rem; bottom: auto; left: auto; padding: .35rem .45rem; border: 1px solid var(--team-readable); background: var(--surface); }
 
   .stats-kicker { margin: .15rem 0 .55rem; color: var(--team-readable); font-size: .52rem; font-weight: 900; letter-spacing: .16em; text-transform: uppercase; }
   .card-back h3 { max-width: calc(100% - 1.5rem); margin: 0; font-family: "Arial Narrow", "Avenir Next Condensed", sans-serif; font-size: clamp(1.15rem, 2vw, 1.55rem); font-style: italic; font-weight: 900; letter-spacing: -.035em; line-height: 1; text-transform: uppercase; }
@@ -679,6 +811,7 @@ const ordinalSuffix = (number: number) => {
     .champions-hero { padding-top: 1.5rem; }
     .eyebrow { margin-top: 4rem; }
     .championship-switch { top: .5rem; margin-bottom: 3rem; }
+    .decade-nav { margin-bottom: 3rem; }
     .switch-button { grid-template-columns: auto 1fr; gap: .55rem; padding: .9rem .75rem; }
     .switch-button small { display: none; }
     .panel-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: .75rem; }

@@ -2,8 +2,15 @@
 export const prerender = true;
 import BaseLayout from "../../../../layouts/BaseLayout.astro";
 import F1ChampionsArchive from "../../../../components/F1ChampionsArchive.astro";
+import { constructorChampions } from "../../../../data/f1Champions";
+const latestDecade = Math.floor(constructorChampions[0].year / 10) * 10;
 ---
 
-<BaseLayout title="Παγκόσμιοι Πρωταθλητές Formula 1 | Γιώργος Μπαλαούρας" description="Εξερευνήστε τους παγκόσμιους πρωταθλητές Formula 1, τις ομάδες τους και τις σεζόν σε ένα διαδραστικό αρχείο.">
+<BaseLayout title="Παγκόσμιοι Πρωταθλητές Formula 1 | Γιώργος Μπαλαούρας" description="Εξερευνήστε τους πρωταθλητές Οδηγών και Κατασκευαστών της Formula 1 ανά δεκαετία, με ομάδες και στατιστικά σεζόν.">
+  <script slot="head" is:inline define:vars={{ latestDecade }}>
+    if (new URLSearchParams(location.search).get("view") === "constructors") {
+      location.replace(`${location.pathname}constructors/${latestDecade}/`);
+    }
+  </script>
   <F1ChampionsArchive lang="el" />
 </BaseLayout>
