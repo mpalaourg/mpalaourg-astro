@@ -28,6 +28,18 @@ const brokenDb = {
     throw new Error("D1 temporarily unavailable");
   },
 };
+let edgeAccesses = 0;
+const edgeCache = {
+  default: {
+    async match() {
+      edgeAccesses++;
+      return Response.json({ races: [], standings: [] });
+    },
+    async put() {
+      edgeAccesses++;
+    },
+  },
+};
 const season = new Date().getUTCFullYear();
 const race = {
   season: String(season),
@@ -44,13 +56,15 @@ const race = {
 
 test("schedule serves upstream races when D1 reads and writes fail", async (t) => {
   t.mock.method(console, "error", () => {});
+  edgeAccesses = 0;
   globalThis.fetch = async () => Response.json({ MRData: { RaceTable: { Races: [race] } } });
   const response = await getSchedule({
     url: new URL(`https://example.test/api/f1/schedule?season=${season}`),
-    locals: { runtime: { env: { DB: brokenDb } } },
+    locals: { runtime: { env: { DB: brokenDb }, caches: edgeCache } },
   });
   assert.equal(response.status, 200);
   assert.deepEqual((await response.json()).races, [race]);
+  assert.equal(edgeAccesses, 0);
 });
 
 test("schedule does not cache an empty current-season calendar", async (t) => {
@@ -66,6 +80,7 @@ test("schedule does not cache an empty current-season calendar", async (t) => {
 
 test("standings serve upstream data when D1 reads and writes fail", async (t) => {
   t.mock.method(console, "error", () => {});
+  edgeAccesses = 0;
   const driver = {
     position: "1",
     points: "25",
@@ -78,8 +93,9 @@ test("standings serve upstream data when D1 reads and writes fail", async (t) =>
   });
   const response = await getStandings({
     url: new URL(`https://example.test/api/f1/standings?season=${season}&type=drivers`),
-    locals: { runtime: { env: { DB: brokenDb } } },
+    locals: { runtime: { env: { DB: brokenDb }, caches: edgeCache } },
   });
   assert.equal(response.status, 200);
   assert.deepEqual((await response.json()).standings, [driver]);
+  assert.equal(edgeAccesses, 0);
 });

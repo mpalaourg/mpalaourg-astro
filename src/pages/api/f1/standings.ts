@@ -5,7 +5,6 @@ import {
   upsertStandings,
 } from "../../../utils/f1/db";
 import { getChampionshipStandings } from "../../../utils/f1/api";
-import { getEdgeResponse, putEdgeResponse, type EdgeCacheRuntime } from "../../../utils/f1/edge-cache";
 
 const STANDINGS_TTL_MS = 15 * 60 * 1000;
 
@@ -14,14 +13,14 @@ function cacheAgeMs(fetchedAt: string): number {
   return Number.isFinite(time) ? Date.now() - time : Number.POSITIVE_INFINITY;
 }
 
-function json(data: unknown, status = 200, browserTtl = 15, edgeTtl = 30): Response {
+function json(data: unknown, status = 200, browserTtl = 15): Response {
   return new Response(JSON.stringify(data), {
     status,
     headers: {
       "Content-Type": "application/json",
       "Access-Control-Allow-Origin": "*",
       "Cache-Control": status === 200
-        ? `public, max-age=${browserTtl}, s-maxage=${edgeTtl}`
+        ? `public, max-age=${browserTtl}`
         : "no-store",
     },
   });
@@ -44,15 +43,8 @@ export const GET: APIRoute = async ({ url, locals }) => {
     return err("type must be drivers or constructors");
   }
 
-  const runtime = locals.runtime as { env: Env } & EdgeCacheRuntime;
-  const cacheKey = new URL(`/api/f1/standings?season=${season}&type=${type}`, url.origin);
-  const edgeHit = await getEdgeResponse(runtime, cacheKey);
-  if (edgeHit) return edgeHit;
-  const respond = (data: unknown, browserTtl = 15, edgeTtl = 30) => {
-    const response = json(data, 200, browserTtl, edgeTtl);
-    putEdgeResponse(runtime, cacheKey, response);
-    return response;
-  };
+  const runtime = locals.runtime as { env: Env };
+  const respond = (data: unknown, browserTtl = 15) => json(data, 200, browserTtl);
   const db = runtime.env.DB;
 
   let latestComplete = 0;
@@ -90,7 +82,7 @@ export const GET: APIRoute = async ({ url, locals }) => {
     return respond({ source: "upstream", standings: snapshot.standings });
   } catch {
     if (cached) {
-      return respond({ source: "stale_cache", standings: JSON.parse(cached.standings_json) }, 5, 10);
+      return respond({ source: "stale_cache", standings: JSON.parse(cached.standings_json) }, 5);
     }
     return err("Failed to fetch standings", 502);
   }
