@@ -35,6 +35,7 @@ const t = {
     driverStandingsEmpty: "Driver standings will appear after Round 1",
     constructorStandingsEmpty:
       "Constructor standings will appear after Round 1",
+    standingsUnavailable: "Standings are temporarily unavailable. Please try again shortly.",
     days: "days",
     hrs: "hrs",
     min: "min",
@@ -86,6 +87,7 @@ const t = {
     driverStandingsEmpty: "Η κατάταξη οδηγών θα εμφανιστεί μετά τον 1ο γύρο",
     constructorStandingsEmpty:
       "Η κατάταξη κατασκευαστών θα εμφανιστεί μετά τον 1ο γύρο",
+    standingsUnavailable: "Η βαθμολογία δεν είναι προσωρινά διαθέσιμη. Δοκιμάστε ξανά σύντομα.",
     days: "μέρες",
     hrs: "ώρες",
     min: "λεπτά",
@@ -147,6 +149,7 @@ const T = t[lang];
     seasonNotStarted: T.seasonNotStarted,
     driverStandingsEmpty: T.driverStandingsEmpty,
     constructorStandingsEmpty: T.constructorStandingsEmpty,
+    standingsUnavailable: T.standingsUnavailable,
     noRaceData: T.noRaceData,
     loadingResults: T.loadingResults,
     noResults: T.noResults,
@@ -514,30 +517,30 @@ const T = t[lang];
   let countdownInterval: ReturnType<typeof setInterval> | null = null;
 
   // ─── API fetch helpers ─────────────────────────────────────────────────────
-  async function fetchSchedule(): Promise<any[]> {
+  async function fetchData(path: string): Promise<any | null> {
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 8000);
     try {
-      const res = await fetch(`/api/f1/schedule?season=${SEASON}`);
-      if (!res.ok) return [];
-      const data = await res.json();
-      return data.races ?? [];
+      const res = await fetch(path, { signal: controller.signal });
+      if (!res.ok) return null;
+      return await res.json();
     } catch {
-      return [];
+      return null;
+    } finally {
+      window.clearTimeout(timeout);
     }
+  }
+
+  async function fetchSchedule(): Promise<any[]> {
+    const data = await fetchData(`/api/f1/schedule?season=${SEASON}`);
+    return Array.isArray(data?.races) ? data.races : [];
   }
 
   async function fetchStandings(
     type: "drivers" | "constructors"
-  ): Promise<any[]> {
-    try {
-      const res = await fetch(
-        `/api/f1/standings?season=${SEASON}&type=${type}`
-      );
-      if (!res.ok) return [];
-      const data = await res.json();
-      return data.standings ?? [];
-    } catch {
-      return [];
-    }
+  ): Promise<any[] | null> {
+    const data = await fetchData(`/api/f1/standings?season=${SEASON}&type=${type}`);
+    return Array.isArray(data?.standings) ? data.standings : null;
   }
 
   async function fetchSessionResults(
@@ -1425,8 +1428,13 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
   }
 
   // ─── Standings renderers (now client-side) ─────────────────────────────────
-  function renderDriverStandings(standings: any[]): void {
+  function renderDriverStandings(standings: any[] | null): void {
     const container = document.getElementById("standings-drivers")!;
+
+    if (standings === null) {
+      container.innerHTML = `<p class="py-8 text-center text-sm text-gray-500 dark:text-slate-400">${LABELS.standingsUnavailable}</p>`;
+      return;
+    }
 
     if (!standings.length) {
       container.innerHTML = `
@@ -1484,10 +1492,15 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
   }
 
   function renderConstructorStandings(
-    constructors: any[],
+    constructors: any[] | null,
     drivers: any[]
   ): void {
     const container = document.getElementById("standings-constructors")!;
+
+    if (constructors === null) {
+      container.innerHTML = `<p class="py-8 text-center text-sm text-gray-500 dark:text-slate-400">${LABELS.standingsUnavailable}</p>`;
+      return;
+    }
 
     if (!constructors.length) {
       container.innerHTML = `
@@ -1929,41 +1942,35 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
 
   // ─── Init ───────────────────────────────────────────────────────────────────
   async function init(): Promise<void> {
-    // Fetch schedule + both standings in parallel
-    const [races, driverStandings, constructorStandings] = await Promise.all([
-      fetchSchedule(),
+    const scheduleTask = fetchSchedule().then((races) => {
+      document.getElementById("f1-loading")!.classList.add("hidden");
+      if (!races.length) {
+        document.getElementById("f1-error")!.classList.remove("hidden");
+        return;
+      }
+
+      allRaces = races;
+      const now = Date.now();
+      const idx = allRaces.findIndex(
+        (r) => new Date(`${r.date}T${r.time ?? "00:00:00"}`).getTime() > now
+      );
+      nextRaceIndex = idx >= 0 ? idx : allRaces.length - 1;
+      currentRaceIndex = nextRaceIndex;
+      document.getElementById("f1-content")!.classList.remove("hidden");
+      renderRace();
+    });
+
+    const standingsTask = Promise.all([
       fetchStandings("drivers"),
       fetchStandings("constructors"),
-    ]);
+    ]).then(([driverStandings, constructorStandings]) => {
+      seasonDriverRoster = buildSeasonDriverRoster(driverStandings ?? []);
+      renderDriverStandings(driverStandings);
+      renderConstructorStandings(constructorStandings, driverStandings ?? []);
+      document.getElementById("f1-standings-section")!.classList.remove("hidden");
+    });
 
-    // Hide skeleton
-    document.getElementById("f1-loading")!.classList.add("hidden");
-
-    if (!races.length) {
-      document.getElementById("f1-error")!.classList.remove("hidden");
-      return;
-    }
-
-    // Set global races + find next race
-    allRaces = races;
-    const now = Date.now();
-    const idx = allRaces.findIndex(
-      (r) => new Date(`${r.date}T${r.time ?? "00:00:00"}`).getTime() > now
-    );
-    nextRaceIndex = idx >= 0 ? idx : allRaces.length - 1;
-    currentRaceIndex = nextRaceIndex;
-
-    // Show main content
-    document.getElementById("f1-content")!.classList.remove("hidden");
-    document
-      .getElementById("f1-standings-section")!
-      .classList.remove("hidden");
-
-    // Render
-    seasonDriverRoster = buildSeasonDriverRoster(driverStandings);
-    renderRace();
-    renderDriverStandings(driverStandings);
-    renderConstructorStandings(constructorStandings, driverStandings);
+    await Promise.all([scheduleTask, standingsTask]);
   }
 
   init();

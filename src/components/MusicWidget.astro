@@ -234,7 +234,7 @@ const T = t[lang];
     return fallback;
   }
 
-  function createRecentTrackRow(track, index, count) {
+  function createRecentTrackRow(track, index, count, lang) {
     const row = document.createElement('div');
     row.className = `flex items-center gap-2 py-1.5 ${index < count - 1 ? 'border-b border-gray-100 dark:border-gray-700' : ''}`;
     const cover = safeHttpUrl(track.cover);
@@ -289,7 +289,6 @@ const T = t[lang];
   async function fetchMusic(widget) {
     const username = widget.dataset.username;
     const lang = widget.dataset.lang;
-    const variant = widget.dataset.variant || 'compact';
 
     try {
       const res = await fetch(`/api/music?username=${username}`);
@@ -309,7 +308,7 @@ const T = t[lang];
         if (statusEl) statusEl.textContent = lang === 'el' ? 'Κανένα κομμάτι' : 'No tracks';
         return;
       }
-      const recentTracks = tracks.slice(1, variant === 'contained' ? 6 : 6);
+      const recentTracks = tracks.slice(1, 6);
 
       const statusEl = widget.querySelector('.music-status');
       if (statusEl) {
@@ -358,7 +357,7 @@ const T = t[lang];
 
       const recentListEl = widget.querySelector('.music-recent-list');
       if (recentListEl) {
-        recentListEl.replaceChildren(...recentTracks.map((track, index) => createRecentTrackRow(track, index, recentTracks.length)));
+        recentListEl.replaceChildren(...recentTracks.map((track, index) => createRecentTrackRow(track, index, recentTracks.length, lang)));
       }
 
       const updatedEl = widget.querySelector('.music-updated');

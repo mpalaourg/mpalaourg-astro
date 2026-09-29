@@ -55,9 +55,14 @@ export const GET: APIRoute = async ({ url, locals }) => {
   };
   const db = runtime.env.DB;
 
-  const latestComplete = await getLatestCompleteRound(db, season);
-
-  const cached = await getStandingsFromDb(db, season, type);
+  let latestComplete = 0;
+  let cached: Awaited<ReturnType<typeof getStandingsFromDb>> = null;
+  try {
+    latestComplete = await getLatestCompleteRound(db, season);
+    cached = await getStandingsFromDb(db, season, type);
+  } catch (error) {
+    console.error("F1 standings cache read failed:", error);
+  }
   if (cached && cached.after_round >= latestComplete &&
     cacheAgeMs(cached.fetched_at) < STANDINGS_TTL_MS) {
     return respond({
@@ -70,10 +75,18 @@ export const GET: APIRoute = async ({ url, locals }) => {
     const snapshot = await getChampionshipStandings(season, type);
     if (cached && snapshot.round < cached.after_round) {
       const standings = JSON.parse(cached.standings_json);
-      await upsertStandings(db, season, type, cached.after_round, standings);
+      try {
+        await upsertStandings(db, season, type, cached.after_round, standings);
+      } catch (error) {
+        console.error("F1 standings cache write failed:", error);
+      }
       return respond({ source: "cache", standings });
     }
-    await upsertStandings(db, season, type, snapshot.round, snapshot.standings);
+    try {
+      await upsertStandings(db, season, type, snapshot.round, snapshot.standings);
+    } catch (error) {
+      console.error("F1 standings cache write failed:", error);
+    }
     return respond({ source: "upstream", standings: snapshot.standings });
   } catch {
     if (cached) {

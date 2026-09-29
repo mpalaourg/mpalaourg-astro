@@ -10,15 +10,10 @@ import { formatLapTime } from "./formatters";
 // ─── Jolpica API (Race calendar & historical results) ────────────────────────────
 
 export async function getSeasonRaces(season: number): Promise<any[]> {
-  try {
-    const res = await fetch(`${JOLPICA_BASE}/${season}.json`);
-    if (!res.ok) throw new Error("API error");
-    const data = (await res.json()) as { MRData: { RaceTable: { Races: any[] } } };
-    return data?.MRData?.RaceTable?.Races ?? [];
-  } catch (e) {
-    console.error("F1 fetch failed:", e);
-    return [];
-  }
+  const res = await fetch(`${JOLPICA_BASE}/${season}.json`);
+  if (!res.ok) throw new Error(`Jolpica schedule returned ${res.status}`);
+  const data = (await res.json()) as { MRData: { RaceTable: { Races: any[] } } };
+  return data?.MRData?.RaceTable?.Races ?? [];
 }
 
 export async function getChampionshipStandings(

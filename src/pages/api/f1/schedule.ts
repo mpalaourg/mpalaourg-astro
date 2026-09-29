@@ -82,7 +82,12 @@ export const GET: APIRoute = async ({ url, locals }) => {
   const db = runtime.env.DB;
 
   // 1. Try D1
-  const cached = await getScheduleFromDb(db, season);
+  let cached: Awaited<ReturnType<typeof getScheduleFromDb>> = [];
+  try {
+    cached = await getScheduleFromDb(db, season);
+  } catch (error) {
+    console.error("F1 schedule cache read failed:", error);
+  }
   if (cached.length > 0) {
     const fetchedAt = new Date(cached[0].fetched_at).getTime();
     const age = Date.now() - fetchedAt;
@@ -96,11 +101,15 @@ export const GET: APIRoute = async ({ url, locals }) => {
     const races = await getSeasonRaces(season);
     if (!races.length) {
       if (cached.length > 0) return respond({ source: "stale_cache", races: cached.map(transformRace) }, 15, 30);
+      if (season <= new Date().getUTCFullYear()) return err("Schedule unavailable", 502);
       return respond({ source: "upstream", races: [] }, 15, 30);
     }
-    await upsertSchedule(db, races);
-    const fresh = await getScheduleFromDb(db, season);
-    return respond({ source: "upstream", races: fresh.map(transformRace) });
+    try {
+      await upsertSchedule(db, races);
+    } catch (error) {
+      console.error("F1 schedule cache write failed:", error);
+    }
+    return respond({ source: "upstream", races });
   } catch (e) {
     if (cached.length > 0) return respond({ source: "stale_cache", races: cached.map(transformRace) }, 15, 30);
     return err("Failed to fetch schedule", 502);
