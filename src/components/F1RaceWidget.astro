@@ -517,9 +517,9 @@ const T = t[lang];
   let countdownInterval: ReturnType<typeof setInterval> | null = null;
 
   // ─── API fetch helpers ─────────────────────────────────────────────────────
-  async function fetchData(path: string): Promise<any | null> {
+  async function fetchData(path: string, timeoutMs = 8000): Promise<any | null> {
     const controller = new AbortController();
-    const timeout = window.setTimeout(() => controller.abort(), 8000);
+    const timeout = window.setTimeout(() => controller.abort(), timeoutMs);
     try {
       const res = await fetch(path, { signal: controller.signal });
       if (!res.ok) return null;
@@ -532,8 +532,10 @@ const T = t[lang];
   }
 
   async function fetchSchedule(): Promise<any[]> {
-    const data = await fetchData(`/api/f1/schedule?season=${SEASON}`);
-    return Array.isArray(data?.races) ? data.races : [];
+    const data = await fetchData(`/api/f1/schedule?season=${SEASON}`, 5000);
+    if (Array.isArray(data?.races) && data.races.length) return data.races;
+    const fallback = await fetchData(`/data/f1/${SEASON}-schedule.json`, 5000);
+    return Array.isArray(fallback?.races) ? fallback.races : [];
   }
 
   async function fetchStandings(
