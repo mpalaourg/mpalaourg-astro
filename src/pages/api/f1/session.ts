@@ -3,6 +3,7 @@ import {
   getSessionFromDb,
   getRaceFromDb,
   upsertSession,
+  setPendingSessionFallback,
   type SessionResultRow,
 } from "../../../utils/f1/db";
 import {
@@ -10,6 +11,7 @@ import {
   getJolpicaQualifying,
   getJolpicaRaceResults,
   getJolpicaSprintResults,
+  getOpenF1ClassificationFallback,
 } from "../../../utils/f1/api";
 import { PRACTICE_SESSION_NAMES } from "../../../utils/f1/constants";
 import { getTeamIdFromName } from "../../../utils/f1/formatters";
@@ -39,8 +41,26 @@ function isRetryReady(row: SessionResultRow): boolean {
     5 * 60 * 1000 * Math.pow(2, row.retry_count),
     60 * 60 * 1000
   );
-  const lastAttempt = new Date(row.last_attempted_at).getTime();
-  return Date.now() - lastAttempt >= backoffMs;
+  // D1 datetime('now') omits the timezone; parse it as UTC in local previews too.
+  const timestamp = row.last_attempted_at.replace(" ", "T");
+  const lastAttempt = Date.parse(/Z$|[+-]\d{2}:\d{2}$/i.test(timestamp) ? timestamp : `${timestamp}Z`);
+  return !Number.isFinite(lastAttempt) || Date.now() - lastAttempt >= backoffMs;
+}
+
+async function getClassificationFallback(
+  db: D1Database, season: number, round: number, country: string,
+  sessionDate: string, sessionType: "qualifying" | "race",
+): Promise<any[] | null> {
+  const results = await getOpenF1ClassificationFallback(
+    season, country, sessionType === "race" ? "Race" : "Qualifying", sessionDate,
+  );
+  if (!results?.length || sessionType === "race") return results;
+  try {
+    return (await rankNoTimeQualifiers(db, season, round, country, sessionDate, results, false)).results;
+  } catch (error) {
+    console.error("F1 fallback practice ranking failed:", error);
+    return results;
+  }
 }
 
 async function getQualifyingPracticeOrder(
@@ -178,7 +198,8 @@ async function rankNoTimeQualifiers(
     );
   }
   const positionKnown = Boolean(practiceOrder) || noTime.length === 1 || noTime.every((row) =>
-    !row.rosterOnly && !row.noResult && row.positionReported !== false && Number.isFinite(Number(row.position))
+    row.qualifyingPositionKnown ||
+    (!row.rosterOnly && !row.noResult && row.positionReported !== false && Number.isFinite(Number(row.position)))
   );
   return {
     results: [
@@ -292,11 +313,23 @@ export const GET: APIRoute = async ({ url, locals }) => {
 
     if (cached.status === "pending") {
       if (!isRetryReady(cached)) {
+        const cachedResults = cached.results_json ? JSON.parse(cached.results_json) : null;
+        if (!cachedResults?.length && cached.source === "jolpica" && over && country &&
+          (sessionType === "qualifying" || sessionType === "race")) {
+          const fallback = await getClassificationFallback(
+            db, season, round, country, sessionDate, sessionType,
+          );
+          // Record unsuccessful fallback attempts too, so backoff still limits requests.
+          try {
+            await setPendingSessionFallback(db, season, round, sessionType, fallback);
+          } catch (error) {
+            console.error("F1 fallback cache write failed:", error);
+          }
+          return json({ status: "pending", results: fallback });
+        }
         return json({
           status: "pending",
-          results: cached.results_json
-            ? JSON.parse(cached.results_json)
-            : null,
+          results: cachedResults,
         });
       }
     }
@@ -336,7 +369,11 @@ export const GET: APIRoute = async ({ url, locals }) => {
     } else {
       if (sessionType === "qualifying") {
         results = await getJolpicaQualifying(String(season), String(round));
-        if (results?.length && country && sessionDate) {
+        if (!results?.length && over && country && sessionDate) {
+          results = await getClassificationFallback(db, season, round, country, sessionDate, "qualifying");
+          source = results?.length ? "openf1-fallback" : "jolpica+openf1-pending";
+        }
+        if (source === "jolpica" && results?.length && country && sessionDate) {
           const session = await getOpenF1SessionResults(season, country, "Qualifying", sessionDate, true);
           if (session.drivers.length) {
             const completed = await addMissingQualifyingDrivers(
@@ -350,26 +387,33 @@ export const GET: APIRoute = async ({ url, locals }) => {
         results = await getJolpicaSprintResults(String(season), String(round));
       } else if (sessionType === "race") {
         results = await getJolpicaRaceResults(String(season), String(round));
+        if (!results?.length && over && country && sessionDate) {
+          results = await getClassificationFallback(db, season, round, country, sessionDate, "race");
+          source = results?.length ? "openf1-fallback" : "jolpica+openf1-pending";
+        }
       }
     }
 
+    // A failed refresh must not erase an already usable provisional classification.
+    if (!results?.length && cached?.source === "openf1-fallback" && cached.results_json) {
+      results = JSON.parse(cached.results_json);
+      source = "openf1-fallback";
+    }
+
     const status =
-      results && results.length > 0
+      results && results.length > 0 && source !== "openf1-fallback"
         ? over
           ? "complete"
           : "pending"
         : "pending";
 
-    await upsertSession(
-      db,
-      season,
-      round,
-      sessionType,
-      source,
-      status,
-      results,
-      openf1SessionKey
-    );
+    try {
+      await upsertSession(
+        db, season, round, sessionType, source, status, results, openf1SessionKey,
+      );
+    } catch (error) {
+      console.error("F1 session cache write failed:", error);
+    }
 
     return json({ status, results });
 

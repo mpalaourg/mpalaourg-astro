@@ -3,9 +3,9 @@ const JOLPICA_BASE = "https://api.jolpi.ca/ergast/f1";
 const OPENF1_BASE = "https://api.openf1.org/v1";
 
 // Import types and constants
-import type { DriverStanding, ConstructorStanding, OpenF1Driver, OpenF1SessionResult, OpenF1ResultRow } from "./types";
+import type { DriverStanding, ConstructorStanding, OpenF1Driver, OpenF1SessionResult, OpenF1ResultRow, ClassificationFallbackRow } from "./types";
 import { JOLPICA_TO_OPENF1_COUNTRY } from "./constants";
-import { formatLapTime } from "./formatters";
+import { formatLapTime, getTeamIdFromName } from "./formatters";
 
 // ─── Jolpica API (Race calendar & historical results) ────────────────────────────
 
@@ -87,10 +87,14 @@ async function getDriverConstructorPoints(
 export async function getJolpicaQualifying(season: string, round: string): Promise<any[] | null> {
   try {
     const res = await fetch(`${JOLPICA_BASE}/${season}/${round}/qualifying.json`);
-    if (!res.ok) return null;
+    if (!res.ok) {
+      console.warn("Jolpica qualifying request failed", { season, round, status: res.status });
+      return null;
+    }
     const json = (await res.json()) as { MRData: { RaceTable: { Races: any[] } } };
     return json.MRData?.RaceTable?.Races?.[0]?.QualifyingResults ?? null;
-  } catch {
+  } catch (error) {
+    console.warn("Jolpica qualifying request failed", { season, round, error: String(error) });
     return null;
   }
 }
@@ -99,11 +103,15 @@ export async function getJolpicaRaceResults(season: string, round: string): Prom
   try {
     // Fetch race results
     const res = await fetch(`${JOLPICA_BASE}/${season}/${round}/results.json`);
-    if (!res.ok) return null;
+    if (!res.ok) {
+      console.warn("Jolpica race request failed", { season, round, status: res.status });
+      return null;
+    }
     const json = (await res.json()) as { MRData: { RaceTable: { Races: any[] } } };
     const results = json.MRData?.RaceTable?.Races?.[0]?.Results ?? null;
     
-    if (!results) return null;
+    if (!results?.length) return null;
+    if (results.some((row: any) => String(row.FastestLap?.rank) === "1")) return results;
     
     // Fetch fastest lap separately
     try {
@@ -122,7 +130,7 @@ export async function getJolpicaRaceResults(season: string, round: string): Prom
         if (fastestDriverId) {
           results.forEach((r: any) => {
             if (r.Driver?.driverId === fastestDriverId) {
-              r.FastestLap = { rank: "1", lap: null, Time: { time: "" } };
+              r.FastestLap = { ...r.FastestLap, rank: "1" };
             }
           });
         }
@@ -132,7 +140,8 @@ export async function getJolpicaRaceResults(season: string, round: string): Prom
     }
     
     return results;
-  } catch {
+  } catch (error) {
+    console.warn("Jolpica race request failed", { season, round, error: String(error) });
     return null;
   }
 }
@@ -165,7 +174,7 @@ async function getOpenF1SessionKey(
     const res = await fetch(url.toString());
     if (!res.ok) return null;
     const sessions: any[] = await res.json();
-    if (!sessions.length) return null;
+    if (!Array.isArray(sessions) || !sessions.length) return null;
 
     // A country can host more than one round, and cancelled sessions can
     // remain listed. Never substitute a session from another race weekend.
@@ -189,7 +198,8 @@ async function getOpenF1Results(sessionKey: number): Promise<OpenF1SessionResult
   try {
     const res = await fetch(`${OPENF1_BASE}/session_result?session_key=${sessionKey}`);
     if (!res.ok) return [];
-    return await res.json();
+    const rows = await res.json();
+    return Array.isArray(rows) ? rows : [];
   } catch {
     return [];
   }
@@ -199,10 +209,107 @@ async function getOpenF1Drivers(sessionKey: number): Promise<OpenF1Driver[]> {
   try {
     const res = await fetch(`${OPENF1_BASE}/drivers?session_key=${sessionKey}`);
     if (!res.ok) return [];
-    return await res.json();
+    const rows = await res.json();
+    return Array.isArray(rows) ? rows : [];
   } catch {
     return [];
   }
+}
+
+function formatRaceDuration(seconds: number): string {
+  const millis = Math.round(seconds * 1000);
+  const hours = Math.floor(millis / 3600000);
+  const minutes = Math.floor((millis % 3600000) / 60000);
+  const remainder = ((millis % 60000) / 1000).toFixed(3).padStart(6, "0");
+  return `${hours}:${String(minutes).padStart(2, "0")}:${remainder}`;
+}
+
+/** Supply the widget's Jolpica-shaped rows while Jolpica has no classification. */
+export async function getOpenF1ClassificationFallback(
+  year: number,
+  country: string,
+  sessionName: "Qualifying" | "Race",
+  expectedDateISO: string,
+): Promise<ClassificationFallbackRow[] | null> {
+  // OpenF1 has no historical data before 2023.
+  if (year < 2023) return null;
+  const openF1Country = JOLPICA_TO_OPENF1_COUNTRY[country] ?? country;
+  const sessionKey = await getOpenF1SessionKey(year, openF1Country, sessionName, expectedDateISO);
+  if (!sessionKey) return null;
+
+  const [results, drivers] = await Promise.all([
+    getOpenF1Results(sessionKey),
+    getOpenF1Drivers(sessionKey),
+  ]);
+  if (!results.length || !drivers.length) return null;
+
+  const driverByNumber = new Map(uniqueSessionDrivers(drivers).map((driver) => [driver.driver_number, driver]));
+  const uniqueResults = [...new Map(results.map((result) => [result.driver_number, result])).values()];
+  // An incomplete roster or podium would make the full-results and medal UI misleading.
+  if (uniqueResults.length !== driverByNumber.size ||
+    uniqueResults.some((result) => !driverByNumber.has(result.driver_number)) ||
+    [1, 2, 3].some((position) => !uniqueResults.some((result) =>
+      result.position === position && !result.dsq &&
+      (sessionName === "Qualifying"
+        ? Array.isArray(result.duration) && result.duration.some((time) => time != null && time > 0)
+        : !result.dns && !result.dnf && result.number_of_laps > 0)
+    ))) return null;
+
+  const sorted = getSortedOpenF1Results(uniqueResults).sort((a, b) => {
+    if (Boolean(a.dsq) !== Boolean(b.dsq)) return a.dsq ? 1 : -1;
+    if (sessionName === "Race" && a.position == null && b.position == null) {
+      return b.number_of_laps - a.number_of_laps;
+    }
+    return 0;
+  });
+  const winnerLaps = sorted.find((result) => result.position === 1)!.number_of_laps;
+  let nextUnknownPosition = Math.max(...sorted.map((result) => result.position ?? 0)) + 1;
+
+  return sorted.map((result) => {
+    const driver = driverByNumber.get(result.driver_number);
+    const names = (driver?.full_name ?? "").trim().split(/\s+/);
+    const teamName = driver?.team_name ?? "";
+    const row: ClassificationFallbackRow = {
+      number: String(result.driver_number),
+      position: String(result.position ?? nextUnknownPosition++),
+      positionReported: result.position != null,
+      Driver: {
+        permanentNumber: String(result.driver_number),
+        code: driver?.name_acronym ?? "",
+        givenName: driver?.first_name ?? names[0] ?? "",
+        familyName: driver?.last_name ?? names.slice(1).join(" "),
+      },
+      Constructor: { constructorId: getTeamIdFromName(teamName), name: teamName },
+    };
+
+    if (sessionName === "Qualifying") {
+      const durations = Array.isArray(result.duration) ? result.duration : [];
+      row.Q1 = formatLapTime(durations[0]);
+      row.Q2 = formatLapTime(durations[1]);
+      row.Q3 = formatLapTime(durations[2]);
+      if (!durations.some((duration) => typeof duration === "number" && duration > 0)) {
+        row.noResult = true;
+        row.qualifyingPositionKnown = result.position != null;
+      }
+      if (result.dsq) row.dsq = true;
+    } else {
+      const lapsDown = winnerLaps - result.number_of_laps;
+      row.positionText = result.dsq ? "D" : result.dns ? "W" : result.dnf ? "R"
+        : result.position == null ? "—" : row.position;
+      row.laps = String(result.number_of_laps);
+      if (result.points != null) row.points = String(result.points);
+      row.status = result.dsq ? "Disqualified" : result.dns ? "Did not start"
+        : result.dnf ? "Retired" : lapsDown > 0 ? `+${lapsDown} Lap${lapsDown === 1 ? "" : "s"}` : "Finished";
+      if (!result.dnf && !result.dns && !result.dsq && typeof result.duration === "number") {
+        const time = result.position === 1
+          ? formatRaceDuration(result.duration)
+          : typeof result.gap_to_leader === "number"
+            ? `+${result.gap_to_leader.toFixed(3)}` : null;
+        if (time) row.Time = { time };
+      }
+    }
+    return row;
+  });
 }
 
 function uniqueSessionDrivers(drivers: OpenF1Driver[]): OpenF1Driver[] {

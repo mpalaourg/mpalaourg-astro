@@ -68,6 +68,7 @@ const t = {
     fullResults: "Full Results",
     sessionLive: "Session in progress — check back shortly",
     resultsUnavailable: "Results not yet available.",
+    provisionalResults: "Provisional results — awaiting final classification.",
     disqualified: "Disqualified",
     lapped: "Lapped",
     podium: "Podium",
@@ -120,6 +121,7 @@ const t = {
     fullResults: "Πλήρη αποτελέσματα",
     sessionLive: "Η περίοδος είναι σε εξέλιξη — δοκιμάστε ξανά σύντομα",
     resultsUnavailable: "Τα αποτελέσματα δεν είναι ακόμη διαθέσιμα.",
+    provisionalResults: "Προσωρινά αποτελέσματα — αναμονή για την τελική κατάταξη.",
     disqualified: "Αποκλείστηκε",
     lapped: "Με γύρο διαφορά",
     podium: "Βάθρο",
@@ -169,6 +171,7 @@ const T = t[lang];
     fullResults: T.fullResults,
     sessionLive: T.sessionLive,
     resultsUnavailable: T.resultsUnavailable,
+    provisionalResults: T.provisionalResults,
     disqualified: T.disqualified,
     lapped: T.lapped,
     podium: T.podium,
@@ -1639,6 +1642,9 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
 
     const type = session.type;
     const patchedResults = patchResultDriverMetadata(results);
+    const provisionalNotice = status === "pending"
+      ? `<p class="mb-2 text-xs text-gray-600 dark:text-slate-300 italic">${LABELS.provisionalResults}</p>`
+      : "";
     let html = "";
 
     if (type === "fp1" || type === "fp2" || type === "fp3") {
@@ -1661,7 +1667,7 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
         fullGridBtn(`${LABELS.fullResults} — ${LABELS.race}`, "race");
     }
 
-    panel.innerHTML = html;
+    panel.innerHTML = provisionalNotice + html;
 
     // Wire up the "full grid" modal button if present
     const btn = panel.querySelector<HTMLButtonElement>("button[data-modal]");
@@ -1684,7 +1690,7 @@ function buildQualiModal(data: any[], isOpenF1 = false): string {
           ? buildQualiModal(patchedResults, isOpenF1Quali)
           : buildRaceModal(patchedResults);
 
-        openModal(title, body);
+        openModal(title, provisionalNotice + body);
       });
     }
   }

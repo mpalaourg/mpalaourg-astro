@@ -29,9 +29,10 @@ export interface ConstructorStanding {
 export interface OpenF1SessionResult {
   position: number | null;
   driver_number: number;
-  duration: number | number[] | null;
-  gap_to_leader: number | number[] | null;
+  duration: number | Array<number | null> | null;
+  gap_to_leader: number | Array<number | null> | null;
   number_of_laps: number;
+  points?: number;
   dnf: boolean;
   dns: boolean;
   dsq: boolean;
@@ -56,6 +57,26 @@ export interface OpenF1Session {
   country_name: string;
   date_start: string;
   date_end: string;
+}
+
+/** OpenF1 classification adapted to the existing Jolpica result renderers. */
+export interface ClassificationFallbackRow {
+  number: string;
+  position: string;
+  positionReported: boolean;
+  Driver: { permanentNumber: string; code: string; givenName: string; familyName: string };
+  Constructor: { constructorId: string; name: string };
+  Q1?: string;
+  Q2?: string;
+  Q3?: string;
+  noResult?: boolean;
+  qualifyingPositionKnown?: boolean;
+  dsq?: boolean;
+  positionText?: string;
+  laps?: string;
+  points?: string;
+  status?: string;
+  Time?: { time: string };
 }
 
 // Normalised result row for UI

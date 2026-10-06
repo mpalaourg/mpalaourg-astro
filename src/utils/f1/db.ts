@@ -138,6 +138,25 @@ export async function getSessionFromDb(
   return result ?? null;
 }
 
+/** Record a fallback attempt without postponing the scheduled Jolpica retry. */
+export async function setPendingSessionFallback(
+  db: D1Database,
+  season: number,
+  round: number,
+  sessionType: string,
+  results: any[] | null,
+): Promise<void> {
+  await db.prepare(`
+    UPDATE session_results SET source = ?, results_json = ?
+    WHERE season = ? AND round = ? AND session_type = ? AND status = 'pending'
+      AND (results_json IS NULL OR results_json = '[]')
+  `).bind(
+    results?.length ? "openf1-fallback" : "jolpica+openf1-pending",
+    results?.length ? JSON.stringify(results) : null,
+    season, round, sessionType,
+  ).run();
+}
+
 export async function upsertSession(
   db: D1Database,
   season: number,
@@ -162,6 +181,7 @@ export async function upsertSession(
         completed_at        = CASE WHEN excluded.status = 'complete' THEN datetime('now') ELSE completed_at END,
         last_attempted_at   = datetime('now'),
         retry_count         = CASE WHEN excluded.status = 'pending' THEN retry_count + 1 ELSE retry_count END
+      WHERE session_results.status <> 'complete' OR excluded.status = 'complete'
     `)
     .bind(
       season,
