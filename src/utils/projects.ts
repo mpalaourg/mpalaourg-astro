@@ -11,6 +11,18 @@ type ProjectVisual = {
 };
 
 export const projectVisuals: Record<string, ProjectVisual> = {
+  'site-assistant': {
+    width: 1200,
+    height: 600,
+    alt: {
+      en: 'Application stack showing Astro, TypeScript, Tailwind CSS, Cloudflare Pages Functions, D1, Pinecone, OpenRouter, LangSmith, with a labeled best-effort tracing connection.',
+      el: 'Τεχνολογική στοίβα με Astro, TypeScript, Tailwind CSS, Cloudflare Pages Functions, D1, Pinecone, OpenRouter, LangSmith με επισημασμένη σύνδεση best-effort tracing.',
+    },
+    caption: {
+      en: 'The application stack, from the chat UI to retrieval and observability.',
+      el: 'Η τεχνολογική στοίβα, από το chat UI έως την αναζήτηση και την παρακολούθηση.',
+    },
+  },
   'from-workflows-to-agents': {
     width: 1200,
     height: 675,

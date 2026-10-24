@@ -1,0 +1,57 @@
+---
+interface Props { lang?: 'en' | 'el' }
+const { lang = 'en' } = Astro.props;
+const t = (en: string, el: string) => lang === 'el' ? el : en;
+const stages = [
+  { number: '01', title: t('Check the request', 'Έλεγχος αιτήματος'), body: t('Cookie consent, ownership, Turnstile and rate limits.', 'Συγκατάθεση για cookies, πρόσβαση στη συνομιλία, Turnstile και rate limits.') },
+  { number: '02', title: t('Check the question cache', 'Έλεγχος cache'), body: t('Reuse a stored answer when one is available.', 'Χρήση αποθηκευμένης απάντησης, όταν υπάρχει.') },
+  { number: '03', title: t('Decide the route', 'Πώς θα απαντήσει'), body: t('Factual question, courtesy, clarification or refusal.', 'Απάντηση με πηγές, χαιρετισμός, διευκρίνιση ή άρνηση.') },
+];
+---
+<figure class="chat-architecture not-prose" aria-labelledby="chat-architecture-caption">
+  <figcaption id="chat-architecture-caption">{t('From question to saved answer', 'Από την ερώτηση στην αποθηκευμένη απάντηση')}</figcaption>
+  <ol class="chat-architecture__entry">
+    {stages.map(stage => <li><span class="chat-architecture__number">{stage.number}</span><strong>{stage.title}</strong><p>{stage.body}</p></li>)}
+  </ol>
+  <div class="chat-architecture__branches">
+    <section aria-labelledby="chat-factual-path">
+      <h3 id="chat-factual-path">{t('Factual question', 'Απάντηση με πηγές')}</h3>
+      <ol>
+        <li><strong>{t('Plan the evidence', 'Επιλογή πηγών')}</strong><span>{t('Focused queries, validated source URLs and any @ sources.', 'Στοχευμένες αναζητήσεις και έλεγχος των πηγών, μαζί με όσες επιλέχθηκαν με @.')}</span></li>
+        <li><strong>{t('Retrieve and rank', 'Ανάκτηση και κατάταξη')}</strong><span>{t('Pinecone semantic + BM25 → RRF → optional reranker.', 'Pinecone semantic + BM25 → RRF → προαιρετικός reranker.')}</span></li>
+        <li><strong>{t('Resolve trusted text', 'Κείμενο από την D1')}</strong><span>{t('Match result IDs to the canonical D1 corpus.', 'Τα IDs των αποτελεσμάτων οδηγούν στο αποθηκευμένο κείμενο των πηγών.')}</span></li>
+        <li><strong>{t('Write from evidence', 'Σύνθεση απάντησης')}</strong><span>{t('Apply the selected language and persona.', 'Με βάση τις πηγές, στην επιλεγμένη γλώσσα και persona.')}</span></li>
+      </ol>
+    </section>
+    <section aria-labelledby="chat-conversational-path">
+      <h3 id="chat-conversational-path">{t('Conversational route', 'Χωρίς αναζήτηση πηγών')}</h3>
+      <p>{t('Write a greeting, ask for clarification or decline the request naturally.', 'Ο βοηθός χαιρετά, ζητά διευκρίνιση ή εξηγεί γιατί δεν μπορεί να απαντήσει.')}</p>
+      <p>{t('No factual evidence retrieval on this path.', 'Δεν χρειάζεται ανάκτηση κειμένου για αυτή την απάντηση.')}</p>
+      <aside><strong>{t('If retrieval fails', 'Αν αποτύχει η αναζήτηση')}</strong><p>{t('D1 keyword search supplies the evidence. If only reranking fails, keep the fused Pinecone results.', 'Αν αποτύχει η Pinecone, γίνεται keyword search στην D1. Αν αποτύχει μόνο το reranking, παραμένει η σειρά του RRF.')}</p></aside>
+    </section>
+  </div>
+  <div class="chat-architecture__finish"><strong>{t('Validate → save → complete the reply', 'Έλεγχος → αποθήκευση → ολοκλήρωση απάντησης')}</strong><p>{t('SSE previews while answering. Citations and the actual model accompany the completed reply.', 'Το κείμενο εμφανίζεται σταδιακά μέσω SSE. Η τελική απάντηση συνοδεύεται από παραπομπές και το μοντέλο που τη συνέθεσε.')}</p></div>
+  <p class="chat-architecture__background">{t('Alongside the answer: independent title generation and best-effort LangSmith tracing. A question cache can reuse stored answers. Cache hits join the same validation and persistence flow.', 'Ο τίτλος δημιουργείται ανεξάρτητα και το tracing στο LangSmith γίνεται σε best-effort βάση. Οι απαντήσεις από την cache περνούν από τους ίδιους ελέγχους και την ίδια διαδικασία αποθήκευσης.')}</p>
+</figure>
+<style>
+  .chat-architecture{margin:2rem 0;border:1px solid #cbd5e1;border-radius:1.25rem;overflow:hidden;text-align:left;background:#f8fafc;color:#0f172a;font-size:.95rem;line-height:1.65}
+  figcaption{padding:1.1rem 1.4rem;background:#0f172a;color:#f8fafc;font-weight:650;letter-spacing:.02em}
+  .chat-architecture__entry{list-style:none;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin:0;padding:0;border-bottom:1px solid #cbd5e1}
+  .chat-architecture__entry li{padding:1.3rem;min-width:0}
+  .chat-architecture__entry li+li{border-left:1px solid #cbd5e1}
+  .chat-architecture__number{display:block;color:#c2410c;font-size:.8rem;font-weight:700;letter-spacing:.12em;margin-bottom:.5rem}
+  strong{display:block;font-weight:650}p{margin:.4rem 0 0}
+  .chat-architecture__branches{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:1.5rem;padding:1.4rem}
+  h3{font-size:.78rem;text-transform:uppercase;letter-spacing:.12em;color:#c2410c;margin:0 0 1rem;font-weight:700}
+  .chat-architecture__branches ol{list-style:none;margin:0;padding:0 0 0 1rem;border-left:2px solid #ea580c}
+  .chat-architecture__branches li+li{margin-top:1rem}li span:not(.chat-architecture__number){display:block;color:#475569}
+  aside{margin-top:1.5rem;padding:1rem;border:1px dashed #94a3b8;border-radius:.75rem}
+  .chat-architecture__finish{padding:1.2rem 1.4rem;background:#fff7ed;border-top:1px solid #fed7aa}
+  .chat-architecture__background{padding:1rem 1.4rem;margin:0;border-top:1px solid #cbd5e1;font-size:.85rem;color:#475569}
+  :global(.dark) .chat-architecture{background:#162131;color:#e2e8f0;border-color:#475569}
+  :global(.dark) .chat-architecture__entry,:global(.dark) .chat-architecture__entry li+li,:global(.dark) .chat-architecture__background{border-color:#475569}
+  :global(.dark) .chat-architecture__number,:global(.dark) h3{color:#fb923c}
+  :global(.dark) li span:not(.chat-architecture__number),:global(.dark) .chat-architecture__background{color:#cbd5e1}
+  :global(.dark) .chat-architecture__finish{background:#2b241f;border-color:#9a3412}
+  @media(max-width:640px){.chat-architecture__entry,.chat-architecture__branches{grid-template-columns:1fr}.chat-architecture__entry li+li{border-left:0;border-top:1px solid #cbd5e1}.chat-architecture__entry li{padding:1rem 1.2rem}.chat-architecture__branches{padding:1.2rem}.chat-architecture__number{display:inline-block;margin:0 .7rem 0 0}.chat-architecture__entry strong{display:inline}}
+</style>

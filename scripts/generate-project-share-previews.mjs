@@ -7,6 +7,7 @@ import { join, resolve } from 'node:path';
 const root = resolve(import.meta.dirname, '..');
 const chrome = process.env.CHROME_BINARY ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 const projects = [
+  { slug: 'site-assistant', year: '2026', title: 'The AI assistant behind this site', summary: 'Decision routing, hybrid retrieval and cited answers in English and Greek.', image: 'featured.webp' },
   { slug: 'from-workflows-to-agents', year: '2026', title: 'From Workflows to Agents: Building LLM Systems in Practice', summary: 'LLM systems with workflows, agents, tools, and evaluations.', image: 'featured.webp' },
   { slug: 'thesis', year: '2020', title: 'Mobile Battery Drain Prediction', summary: 'An Android app and machine learning pipeline for studying phone energy use.', image: 'featured.png' },
   { slug: 'JPEG', year: '2020', title: 'JPEG Image Compression', summary: 'Baseline JPEG encoding and decoding, from DCT to Huffman coding.', image: 'featured.png' },

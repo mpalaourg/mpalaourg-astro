@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="545" viewBox="0 0 1200 545" role="img" aria-labelledby="title description">
+<title id="title">One message trace, separate units of work</title><desc id="description">A message trace contains an answer-pipeline span with decision, planning, retrieval, writing and persistence stages, plus an independent title task. Saved-answer latency ends at persistence. Export to LangSmith is a separate best-effort background operation.</desc>
+<defs><marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M1 1L7 4L1 7" fill="none" stroke="#c2410c" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></marker><marker id="gray-arrow" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M1 1L7 4L1 7" fill="none" stroke="#475569" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+<rect width="1200" height="545" rx="16" fill="#ffffff"/>
+<g font-family="DejaVu Sans, sans-serif" stroke-linecap="round" stroke-linejoin="round">
+<text x="40" y="47" font-size="27" fill="#0f172a" font-weight="650" text-anchor="start">One message trace, separate units of work</text>
+<rect x="420" y="86" width="360" height="80" rx="12" fill="#fff7ed" stroke="#fb923c" stroke-width="1.5"/><text x="440" y="121" font-size="24" fill="#0f172a" font-weight="650" text-anchor="start">Message trace</text>
+<path d="M600 166V195H365V225" fill="none" stroke="#94a3b8" stroke-width="1.5" />
+<path d="M600 195H965V225" fill="none" stroke="#94a3b8" stroke-width="1.5" />
+<rect x="40" y="225" width="650" height="205" rx="12" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/><text x="60" y="260" font-size="24" fill="#0f172a" font-weight="650" text-anchor="start">Answer pipeline</text>
+<rect x="65" y="292" width="180" height="43" rx="8" fill="#ffffff" stroke="#cbd5e1"/><text x="155" y="320" font-size="20" fill="#0f172a" font-weight="400" text-anchor="middle">Decision</text>
+<rect x="265" y="292" width="180" height="43" rx="8" fill="#ffffff" stroke="#cbd5e1"/><text x="355" y="320" font-size="20" fill="#0f172a" font-weight="400" text-anchor="middle">Plan</text>
+<rect x="465" y="292" width="200" height="43" rx="8" fill="#ffffff" stroke="#cbd5e1"/><text x="565" y="320" font-size="20" fill="#0f172a" font-weight="400" text-anchor="middle">Retrieve</text>
+<rect x="65" y="357" width="280" height="43" rx="8" fill="#ffffff" stroke="#cbd5e1"/><text x="205" y="385" font-size="20" fill="#0f172a" font-weight="400" text-anchor="middle">Write</text>
+<rect x="365" y="357" width="300" height="43" rx="8" fill="#ffffff" stroke="#cbd5e1"/><text x="515" y="385" font-size="20" fill="#0f172a" font-weight="400" text-anchor="middle">Persist</text>
+<rect x="820" y="225" width="340" height="105" rx="12" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/><text x="840" y="260" font-size="24" fill="#0f172a" font-weight="650" text-anchor="start">Independent title task</text><text x="840" y="291" font-size="19" fill="#475569" font-weight="400" text-anchor="start">Tracked separately</text>
+<path d="M690 390H808" fill="none" stroke="#c2410c" stroke-width="2" stroke-dasharray="6 6" marker-end="url(#arrow)"/>
+<rect x="820" y="355" width="340" height="95" rx="12" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/><text x="840" y="390" font-size="24" fill="#0f172a" font-weight="650" text-anchor="start">LangSmith export</text><text x="840" y="421" font-size="19" fill="#475569" font-weight="400" text-anchor="start">Best-effort background work</text>
+<text x="750" y="374" font-size="17" fill="#c2410c" font-weight="400" text-anchor="middle">Best-effort</text>
+<path d="M40 481H1160" fill="none" stroke="#94a3b8" stroke-width="1.5" />
+<text x="40" y="517" font-size="20" fill="#475569" font-weight="400" text-anchor="start">Reply latency ends at persistence. An export failure does not fail the answer.</text>
+</g></svg>

@@ -1,0 +1,25 @@
+---
+interface Props { lang?: 'en' | 'el' }
+const { lang = 'en' } = Astro.props;
+const el = lang === 'el';
+---
+<aside class="assistant-cta not-prose" aria-label={el ? 'Δοκίμασε τον βοηθό' : 'Try the assistant'}>
+  <div>
+    <h2>{el ? 'Δοκίμασέ το στην πράξη' : 'Try it yourself'}</h2>
+    <p>{el ? 'Ρώτησε για τη δουλειά μου, την έρευνα ή κάποιο άρθρο του site.' : 'Ask about my work, research or an article on this site.'}</p>
+  </div>
+  <a href={el ? '/el/chat/' : '/chat/'}>
+    {el ? 'Ξεκίνα μια συνομιλία' : 'Start a conversation'}
+    <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" /></svg>
+  </a>
+</aside>
+<style>
+  .assistant-cta{display:flex;align-items:center;justify-content:space-between;gap:1.5rem;margin-top:3rem;padding:1.5rem;border:1px solid #fed7aa;border-radius:1rem;background:#fff7ed;text-align:left}
+  h2{margin:0 0 .5rem;font-size:1.25rem;font-weight:650;color:#0f172a;line-height:1.4}
+  p{margin:0;color:#475569;font-size:.95rem;line-height:1.7}
+  a{display:inline-flex;align-items:center;justify-content:center;gap:.65rem;flex-shrink:0;padding:.8rem 1.1rem;border-radius:.6rem;background:#c2410c;color:#fff;font-size:.9rem;font-weight:600;text-decoration:none;line-height:1.5}
+  a:hover{background:#9a3412}a:focus-visible{outline:2px solid #c2410c;outline-offset:4px}svg{flex-shrink:0}
+  :global(.dark) .assistant-cta{border-color:#7c3c1c;background:#211d1c}
+  :global(.dark) h2{color:#f1f5f9}:global(.dark) p{color:#cbd5e1}
+  @media(max-width:700px){.assistant-cta{align-items:flex-start;flex-direction:column}a{width:100%}}
+</style>

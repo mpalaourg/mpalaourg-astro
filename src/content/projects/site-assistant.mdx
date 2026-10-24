@@ -1,0 +1,176 @@
+---
+title: "The AI assistant behind this site"
+summary: "A bilingual (English and Greek) assistant that combines decision models, hybrid retrieval and cited answers to explore my work, research and articles on topics such as Formula 1."
+date: 2026-10-23
+chatIndex: approved
+featuredImage: "/projects/site-assistant/featured.webp"
+tags:
+  - llm
+  - rag
+  - retrieval
+  - cloudflare
+  - observability
+url_code: "https://github.com/mpalaourg/mpalaourg-astro/tree/main/src/lib/chat"
+weight: -1
+---
+
+import ChatbotArchitecture from '../../components/projects/ChatbotArchitecture.astro';
+import ProjectSectionNav from '../../components/projects/ProjectSectionNav.astro';
+import ChatbotPersonas from '../../components/projects/ChatbotPersonas.astro';
+import ChatbotCallToAction from '../../components/projects/ChatbotCallToAction.astro';
+
+The site assistant is a **bilingual retrieval-augmented generation (RAG) application** built into this website. It answers questions about my work, research and articles by combining the site's pages with PDF documents and presentation slides.
+
+The architecture separates **request classification, evidence acquisition and answer generation**. Decision models select the conversational route, a planner identifies the required sources, and a writer produces the response from retrieved evidence. Cloudflare handles the application and persistence, Pinecone provides hybrid retrieval, and OpenRouter serves the model calls.
+
+The system follows a bounded workflow. Models can request evidence through a defined contract, but cannot execute code, issue database queries or browse arbitrary URLs.
+
+<ProjectSectionNav />
+
+## Architecture
+
+<ChatbotArchitecture />
+
+A **Cloudflare Pages Function** accepts the request after cookie-consent, ownership, Turnstile and rate-limit checks. Database reservations are atomic, and stable conversation and message identifiers make accepted submissions idempotent. A repeated submission resolves to the existing request rather than starting a second exchange.
+
+A **question cache** can supply a stored answer without repeating generation. Cache hits use the same validation and persistence flow as generated responses. An unavailable cache returns control to the live workflow.
+
+The decision stage classifies the request as factual, courtesy, clarification or refusal. It returns a choice and a probability distribution. The server validates the distribution and checks the winning option's confidence and margin. Uncertainty escalates through the decision cascade; unresolved ambiguity produces clarification, while a complete decision-service outage prevents answer generation.
+
+For a factual request, the planner receives a **source catalog** containing titles, URLs and document metadata. Its output specifies search phrases and source selections. The server validates that plan before retrieving text. Catalog metadata guides source selection but is not supplied as factual evidence.
+
+The writer receives the resulting excerpts, citation identifiers, response language and persona. Conversation history resolves references in follow-up questions; it does not replace source evidence. The output contract distinguishes substantive answers from courtesies, clarifications and refusals, with source references required for factual answers.
+
+## Technology Stack
+
+| Layer | Implementation |
+| --- | --- |
+| Frontend | **Astro, TypeScript and Tailwind CSS**, with one client for the dedicated chat page and floating panel. |
+| Application backend | **Cloudflare Pages Functions**, HTTP request handling and server-sent events (SSE). |
+| Persistence | **Cloudflare D1** for canonical source text, conversation state, ownership, cached answers and usage counters. **FTS5** provides fallback keyword retrieval. |
+| Hybrid retrieval | **Pinecone Documents API**, integrated `multilingual-e5-large` embeddings and **BM25** full-text search. |
+| Ranking | **Reciprocal rank fusion (RRF)** and optional `bge-reranker-v2-m3` reranking. |
+| Model inference | **OpenRouter**, with independent decision and chat-model cascades. |
+| Content ingestion | **Python and Docling** for PDFs, with build-time HTML and PPTX extraction. |
+| Response rendering | **CommonMark**, a restricted DOM renderer, **KaTeX** and lazy-loaded **fflate** for document archives. |
+| Verification and tracing | **Cloudflare Turnstile** and **LangSmith**. |
+
+## Models and Fallbacks
+
+Decision routing and chat generation have separate model sequences. Each chain runs from primary to final fallback:
+
+- **Decisions:** `Baseten Mammoth 1` → `Baseten Elephant 1` → `Inception Mercury Decide` → `TypeSafe Jev 1.14`.
+- **Planning and answers:** `NVIDIA Nemotron 3 Ultra 550B A55B` → `Google Gemma 4 31B IT` → `OpenRouter router` → `GLM 5.3 Flash`.
+- **Conversation titles:** `NVIDIA Nemotron 3 Ultra 550B A55B`, in an independent background task.
+
+Timeouts, transport failures and invalid output advance through the configured fallbacks within a shared request deadline. Each attempt retains the same evidence and output requirements. A valid refusal is terminal rather than a reason to try another model.
+
+The application records the **actual model returned by the provider**, including the model selected behind the `OpenRouter router`. Decision and title calls have separate attribution from the answer.
+
+Title persistence is independent of reply persistence. A failed title call retains the initial question as the title, and a concurrent manual rename takes precedence over a generated title.
+
+## Content Ingestion and Metadata
+
+The corpus includes English and Greek pages, CVs, research and project PDFs, thesis material and PPTX presentations. It covers the workshop, Formula season articles, guides and championship pages. Source code, ZIP archives, credentials and visitor conversations are excluded from ingestion.
+
+HTML extraction retains editorial content and published links while removing scripts, navigation and controls. **Docling** converts PDFs into page-aware text, tables and detected formulas. PPTX extraction follows visible slide text in presentation order. These operations run before deployment; request handling searches prepared content rather than parsing original files.
+
+The ingestion pipeline produces **parent chunks and smaller embedding passages**. Passages provide bounded embedding inputs, while parent chunks preserve enough surrounding text for answer generation. Table rows include their column labels so that retrieved values retain their meaning outside the original page layout. Image-only document figures are not interpreted.
+
+<figure class="my-10 text-center">
+  <div class="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-slate-700">
+    <img src="/projects/site-assistant/ingestion.svg" alt="Source ingestion separates canonical parent text in D1 from smaller embedding and BM25 passages in Pinecone, connected by parent IDs and shared metadata." width="1200" height="570" loading="lazy" decoding="async" class="mx-auto h-auto w-full" />
+  </div>
+  <figcaption class="mt-3 text-sm text-gray-500 dark:text-slate-400">Content preparation and the relationship between parent chunks, search passages and source metadata.</figcaption>
+</figure>
+
+Each passage carries canonical source and document identity, language, source type, format, topics, section headings and page or slide position where available. Checksums, extraction provenance and corpus versions associate search records with their originating text. Shared document identity connects a publication page, its primary PDF and its presentation without treating them as equivalent evidence.
+
+This metadata supports source selection and context assembly. A technical paper question can target the primary PDF, while a general overview can use its publication page. General retrieval reduces duplicate translated sources without excluding an English primary paper from a Greek answer.
+
+A declarative index manifest and synchronization scripts manage provisioning and uploads. Content versions use separate namespaces, and the matching D1 corpus is activated after upload and readiness checks. Stable record identifiers make repeated uploads idempotent; a normal site build prepares artifacts without mutating remote indexes.
+
+## Hybrid Search
+
+Pinecone executes **dense semantic retrieval and BM25 retrieval** in parallel under the same source filters. Multilingual embeddings handle semantic similarity, including cross-language queries. BM25 matches terms in document titles and text.
+
+The branches produce scores on different scales. **RRF combines their rank positions**, avoiding a direct sum of embedding and BM25 scores. Passage results are grouped by parent chunk before candidate selection. The optional reranker then evaluates those candidates against the query using `bge-reranker-v2-m3`.
+
+<figure class="my-10 text-center">
+  <div class="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-slate-700">
+    <img src="/projects/site-assistant/retrieval.svg" alt="Parallel semantic and BM25 searches feed RRF, canonical D1 text resolution, optional reranking and context assembly. Skipping reranking keeps fused order; a Pinecone failure uses D1 keyword search." width="1200" height="600" loading="lazy" decoding="async" class="mx-auto h-auto w-full" />
+  </div>
+  <figcaption class="mt-3 text-sm text-gray-500 dark:text-slate-400">Parallel retrieval, rank fusion and optional reranking before evidence is assembled.</figcaption>
+</figure>
+
+Retrieval IDs are resolved against the **canonical D1 corpus**. The answer receives that text and its validated source metadata, rather than accepting remote text or URLs as independent evidence. Context assembly applies configurable candidate and context bounds, source diversity and the scope of any explicit attachments.
+
+The fallback behavior distinguishes search failure from ranking failure. If model reranking is skipped or unavailable, the application keeps the RRF ordering. A Pinecone failure switches retrieval to **D1 FTS5 keyword search**. A successful empty Pinecone result stays empty and does not trigger a second search.
+
+## Source Constraints and Response Styles
+
+**`@` references** select existing indexed pages or files. The picker searches titles, filenames and content; the resulting source identifiers are validated by the server. Attached sources become constraints on retrieval and context assembly, not additional instructions to the model. They are persisted with the question so its evidence boundary remains explicit in conversation history.
+
+Language and persona are separate inputs to generation. English and Greek guidance controls phrasing and terminology, while the selected persona controls register and response length:
+
+<ChatbotPersonas />
+
+All five styles share the same scope, source requirements and output validation. The selection persists per conversation, while each saved reply retains its own style. Retrieval language and response language can differ, allowing Greek answers from English papers and English answers from Greek pages.
+
+## The Chat Interface
+
+The dedicated page and floating panel share a **TypeScript client and rendering pipeline**. Cookie consent gates `sessionStorage` for drafts, selected sources, panel dimensions and the active conversation. The floating panel supports pointer and keyboard resizing, and its state is restored across same-tab navigation.
+
+A **POST-based SSE connection** carries structured response events. The client extracts answer-text previews rather than exposing provider JSON or reasoning. Failed attempts clear their preview before fallback generation. A completed reply is emitted after final validation and persistence, with its citations and actual model attribution.
+
+**Generation state belongs to the conversation, not the selected view.** Stream callbacks update their originating thread, and late responses cannot overwrite another conversation. Accepted server work can continue across view changes. Independent title tasks and idempotent message identifiers keep concurrent requests associated with the correct saved records.
+
+<figure class="my-10 text-center">
+  <div class="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-slate-700">
+    <img src="/projects/site-assistant/streaming.svg" alt="Sequence of the browser, API, model and D1: stream answer previews, validate the completed response, persist it, then send the final reply." width="1200" height="620" loading="lazy" decoding="async" class="mx-auto h-auto w-full" />
+  </div>
+  <figcaption class="mt-3 text-sm text-gray-500 dark:text-slate-400">Streaming previews and the persistence boundary for a completed answer. Spacing does not represent elapsed time.</figcaption>
+</figure>
+
+Response text is parsed into a **CommonMark syntax tree** and rendered through a restricted DOM builder. Streamed and saved answers use the same path for emphasis, lists, headings, quotations, inline code and fenced blocks. KaTeX handles inline and display mathematics, retaining literal text for expressions that cannot be rendered.
+
+Citations resolve to pages, PDFs and slides. Markdown and plain URLs pass destination validation, with external navigation gated by an acknowledgement. Images are limited to published assets associated with cited sources. Copy supports Markdown and plain-text representations; document downloads use validated references, with **fflate loaded on demand** for multi-file ZIP creation.
+
+Conversation management supports creation, renaming, archiving, restoration and deletion under browser ownership. The client also provides a replayable feature tour, keyboard navigation, focus states and reduced-motion behavior. Optional follow-up questions and contact references are validated as part of the response rather than appended independently by the interface.
+
+## Validation and Privacy
+
+Validation occurs at the **decision, planning, retrieval and response boundaries**. Model outputs must satisfy the expected structure before advancing. Source selections, citation identifiers, links and images are checked against server-controlled evidence. Prompts distinguish application instructions from untrusted questions, history, attachments and source text.
+
+The backend enforces browser ownership, bound SQL, atomic usage reservations, deadlines and rate limits. Provider requests are assembled server-side, with credentials and private configuration excluded from browser payloads. Raw model HTML is not inserted into the page, and KaTeX runs without trusted HTML or URL commands.
+
+History is associated with an anonymous browser session using hashed ownership tokens in D1. Cookie consent precedes chat storage and provider requests; withdrawal disables chat access and synchronizes the preference across tabs. History expires automatically and can be deleted by the visitor. Deleting application history does not remove records already processed by external providers or separately retained diagnostics.
+
+These are application controls rather than a guarantee of factual entailment or complete prompt-injection resistance. A valid citation identifies retrieved evidence; it does not establish that every generated claim follows from it.
+
+## Observability
+
+**LangSmith** uses separate development and production projects. A message is a root trace, grouped by conversation ID, with child spans for routing, planning, retrieval, rank fusion, reranking, generation, persistence and title creation. Available model usage, attribution, timing and categorized failures are recorded at the corresponding stage.
+
+<figure class="my-10 text-center">
+  <div class="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-slate-700">
+    <img src="/projects/site-assistant/tracing.svg" alt="A message trace groups the answer pipeline and independent title work, with a separate best-effort export to LangSmith." width="1200" height="545" loading="lazy" decoding="async" class="mx-auto h-auto w-full" />
+  </div>
+  <figcaption class="mt-3 text-sm text-gray-500 dark:text-slate-400">Trace structure separates answer work, background titles and best-effort export.</figcaption>
+</figure>
+
+Timing separates the **first answer-text event, saved-answer completion and background completion**. Title generation and trace export do not extend the saved-answer measurement, allowing response latency to be distinguished from unrelated background work.
+
+LangSmith is a **light, best-effort dependency**. The SDK loads only when tracing is enabled. Bounded exports run in the background and are dropped on failure; serialization, scheduling or transport failures do not interrupt answering. Content capture and sampling are configurable, with redaction and exclusions for raw prompts, source bodies, credentials, ownership tokens and private server context.
+
+## Evaluation
+
+Evaluation separates **routing behavior, retrieval relevance, answer grounding and application correctness**. Automated regression tests cover response contracts, source restrictions, consent, ownership, atomic limits, idempotency, concurrent requests, streaming and dependency failures. Live model checks exercise behavior that mocked provider responses cannot establish.
+
+For routing, **`Jev` correctly classified 28 English and Greek cases** covering factual requests, courtesies, follow-ups, ambiguity and scope violations. That result applies to the tested cases and model; the other decision routes were unavailable during the session and were not assessed for accuracy.
+
+Retrieval checks compared semantic, BM25 and reranked results with expected sources for workshop, career, research and Formula questions in both languages. Broad championship-points queries exposed a remaining ambiguity: season reviews could rank above the rules guide. Finding the relevant subject therefore remains distinct from retrieving the best evidence for the requested detail.
+
+End-to-end checks covered evidence use, contextual follow-ups, explicit attachments, bilingual generation and persona consistency. Operational tests separately verify persistence, model fallbacks and continued answering when optional tracing fails.
+
+<ChatbotCallToAction lang="en" />

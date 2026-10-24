@@ -5,6 +5,7 @@ interface Props {
   title: string;
   description: string;
   noindex?: boolean;
+  hasTranslation?: boolean;
   ogImage?: string;
   ogImageAlt?: string;
   ogType?: string;
@@ -14,6 +15,7 @@ const {
   title,
   description,
   noindex = false,
+  hasTranslation = true,
   ogImage,
   ogImageAlt,
   ogType = "website",
@@ -41,8 +43,8 @@ const shareImageUrl = new URL(ogImage ?? "/media/share-preview.png", siteUrl).hr
     <meta name="description" content={description} />
     {noindex && <meta name="robots" content="noindex, follow" />}
     <link rel="canonical" href={canonicalUrl} />
-    <link rel="alternate" hreflang="en" href={enUrl} />
-    <link rel="alternate" hreflang="el" href={elUrl} />
+    {(!isEl || hasTranslation) && <link rel="alternate" hreflang="en" href={enUrl} />}
+    {(isEl || hasTranslation) && <link rel="alternate" hreflang="el" href={elUrl} />}
     <link rel="alternate" hreflang="x-default" href={enUrl} />
     <slot name="head" />
 
@@ -148,7 +150,7 @@ const shareImageUrl = new URL(ogImage ?? "/media/share-preview.png", siteUrl).hr
                      group-hover:block group-focus-within:block"
             >
               <a
-                href={enPath}
+                href={hasTranslation || !isEl ? enPath : "/projects/"}
                 class="flex items-center gap-2 px-3 py-2 text-sm
                        hover:bg-gray-100 dark:hover:bg-slate-800"
               >
@@ -157,7 +159,7 @@ const shareImageUrl = new URL(ogImage ?? "/media/share-preview.png", siteUrl).hr
               </a>
 
               <a
-                href={elPath}
+                href={hasTranslation || isEl ? elPath : "/el/projects/"}
                 class="flex items-center gap-2 px-3 py-2 text-sm
                        hover:bg-gray-100 dark:hover:bg-slate-800"
               >

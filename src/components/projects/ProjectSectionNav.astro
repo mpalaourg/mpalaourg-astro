@@ -1,0 +1,99 @@
+---
+interface Props { lang?: 'en' | 'el' }
+const { lang = 'en' } = Astro.props;
+const labels = ['Αρχιτεκτονική', 'Μοντέλα', 'Αναζήτηση', 'Chat', 'Αξιολόγηση'];
+const sections = [
+  { id: 'architecture', label: 'Architecture', icon: 'M12 3v5m-7 8v-5h14v5M3 16h4v5H3zm7 0h4v5h-4zm7 0h4v5h-4zM10 3h4v5h-4z' },
+  { id: 'models-and-fallbacks', label: 'Models', icon: 'M9 3v3m6-3v3M9 18v3m6-3v3M3 9h3m-3 6h3m12-6h3m-3 6h3M6 6h12v12H6zm4 4h4v4h-4z' },
+  { id: 'hybrid-search', label: 'Retrieval', icon: 'm16 16 5 5M18 10a7 7 0 1 1-14 0 7 7 0 0 1 14 0ZM8 8h4m-4 4h3' },
+  { id: 'the-chat-interface', label: 'Chat features', icon: 'M4 4h16v12H9l-5 4V4Zm4 4h8m-8 4h5' },
+  { id: 'evaluation', label: 'Evaluation', icon: 'M9 4H5v17h14V4h-4M9 3h6v4H9zm0 11 2 2 4-5' },
+];
+---
+<project-section-nav class="not-prose">
+  <nav aria-label={lang === 'el' ? 'Ενότητες του project' : 'Project walkthrough sections'} class="section-nav">
+    <div class="section-nav__intro">
+      <span class="section-nav__eyebrow">{lang === 'el' ? 'Σε αυτό το project' : 'In this project'}</span>
+      <span class="section-nav__position" aria-hidden="true"><span data-section-position>01</span><span class="section-nav__separator">/</span>05</span>
+    </div>
+    <div class="section-nav__links">
+      {sections.map((section, index) => (
+        <a href={`#${section.id}`} aria-current={index === 0 ? 'location' : undefined}>
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d={section.icon} /></svg>
+          <span>{lang === 'el' ? labels[index] : section.label}</span>
+        </a>
+      ))}
+    </div>
+  </nav>
+</project-section-nav>
+<script>
+  class ProjectSectionNav extends HTMLElement {
+    private stop?: AbortController;
+    private frame = 0;
+    connectedCallback() {
+      if (this.stop) return;
+      this.stop = new AbortController();
+      const links = [...this.querySelectorAll<HTMLAnchorElement>('a[href^="#"]')];
+      const targets = links.map(link => document.getElementById(link.hash.slice(1)));
+      let active = -1;
+      const update = () => {
+        this.frame = 0;
+        const anchorOffset = targets[0] ? parseFloat(getComputedStyle(targets[0]).scrollMarginTop) || 0 : 0;
+        const boundary = Math.max(this.getBoundingClientRect().bottom + 24, anchorOffset + 16);
+        let next = 0;
+        targets.forEach((target, index) => { if (target && target.getBoundingClientRect().top <= boundary) next = index; });
+        if (next === active) return;
+        active = next;
+        links.forEach((link, index) => {
+          if (index === next) link.setAttribute('aria-current', 'location');
+          else link.removeAttribute('aria-current');
+        });
+        const position = this.querySelector('[data-section-position]');
+        if (position) position.textContent = String(next + 1).padStart(2, '0');
+        // Keep the active item visible inside the mobile strip without moving
+        // the article or stealing keyboard focus.
+        const link = links[next], strip = link?.parentElement;
+        if (link && strip) {
+          const item = link.getBoundingClientRect(), container = strip.getBoundingClientRect();
+          if (item.left < container.left) strip.scrollLeft -= container.left - item.left + 8;
+          else if (item.right > container.right) strip.scrollLeft += item.right - container.right + 8;
+        }
+      };
+      const schedule = () => { if (!this.frame) this.frame = requestAnimationFrame(update); };
+      window.addEventListener('scroll', schedule, { passive: true, signal: this.stop.signal });
+      window.addEventListener('resize', schedule, { passive: true, signal: this.stop.signal });
+      update();
+    }
+    disconnectedCallback() {
+      this.stop?.abort(); this.stop = undefined;
+      cancelAnimationFrame(this.frame); this.frame = 0;
+    }
+  }
+  if (!customElements.get('project-section-nav')) customElements.define('project-section-nav', ProjectSectionNav);
+</script>
+<style>
+  project-section-nav{display:block;position:sticky;top:.75rem;z-index:20;margin:2.5rem 0;isolation:isolate;text-align:left}
+  .section-nav{border:1px solid #e2e8f0;border-radius:1rem;padding:.9rem;background:rgb(255 255 255 / .96);box-shadow:0 4px 8px -6px rgb(15 23 42 / .15),0 16px 32px -24px rgb(15 23 42 / .24);backdrop-filter:blur(14px)}
+  .section-nav__intro{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.1rem .55rem .7rem}
+  .section-nav__eyebrow{font-size:.65rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#64748b}
+  .section-nav__position{font-size:.7rem;font-variant-numeric:tabular-nums;font-weight:600;color:#64748b;letter-spacing:.04em}
+  [data-section-position]{color:#c2410c}.section-nav__separator{padding:0 .45rem;color:#cbd5e1}
+  .section-nav__links{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:.4rem;overflow-x:auto;scrollbar-width:thin;scrollbar-color:#cbd5e1 transparent;scroll-padding:.25rem}
+  .section-nav__links a{display:flex;align-items:center;justify-content:center;gap:.6rem;min-height:2.9rem;padding:.6rem .75rem;border:1px solid transparent;border-radius:.7rem;text-decoration:none;white-space:nowrap;color:#475569;font-size:.85rem;font-weight:600;transition:background-color .16s,color .16s,border-color .16s}
+  .section-nav__links svg{flex-shrink:0;color:#64748b}
+  .section-nav__links a:hover{color:#0f172a;background:#f1f5f9}
+  .section-nav__links a[aria-current]{color:#9a3412;background:#fff7ed;border-color:#fed7aa}
+  .section-nav__links a[aria-current] svg{color:#c2410c}
+  .section-nav__links a:focus-visible{outline:2px solid #ea580c;outline-offset:-3px}
+  :global(article:has(project-section-nav) h2[id]){scroll-margin-top:9rem}
+  :global(.dark) .section-nav{background:rgb(15 23 42 / .96);border-color:#334155;box-shadow:0 12px 28px -18px rgb(0 0 0 / .7)}
+  :global(.dark) .section-nav__eyebrow,:global(.dark) .section-nav__position,:global(.dark) .section-nav__links svg{color:#94a3b8}
+  :global(.dark) [data-section-position]{color:#fb923c}
+  :global(.dark) .section-nav__separator{color:#475569}
+  :global(.dark) .section-nav__links a{color:#cbd5e1}
+  :global(.dark) .section-nav__links a:hover{color:#f8fafc;background:#1e293b}
+  :global(.dark) .section-nav__links a[aria-current]{color:#fdba74;background:#2c241f;border-color:#9a4b24}
+  :global(.dark) .section-nav__links a[aria-current] svg{color:#fb923c}
+  @media(max-width:760px){project-section-nav{top:.5rem;margin:2rem 0}.section-nav{padding:.65rem}.section-nav__intro{padding:.1rem .45rem .5rem}.section-nav__links{display:flex;padding-bottom:.25rem}.section-nav__links a{flex:0 0 auto;padding:.6rem .85rem}.section-nav__links svg{width:18px;height:18px}}
+  @media(prefers-reduced-motion:reduce){.section-nav__links a{transition:none}}
+</style>

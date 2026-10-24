@@ -96,6 +96,7 @@ const projects = defineCollection({
     url_slides: z.string().optional(),
     url_video: z.string().optional(),
     weight: z.number().optional(),
+    chatIndex: z.enum(["pending", "approved"]).optional(),
   }),
 });
 
@@ -112,6 +113,7 @@ const projectsEl = defineCollection({
     url_slides: z.string().optional(),
     url_video: z.string().optional(),
     weight: z.number().optional(),
+    chatIndex: z.enum(["pending", "approved"]).optional(),
   }),
 });
 

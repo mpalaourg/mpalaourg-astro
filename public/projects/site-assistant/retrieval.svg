@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="600" viewBox="0 0 1200 600" role="img" aria-labelledby="title description">
+<title id="title">Hybrid retrieval and context assembly</title><desc id="description">The same filtered query runs through dense semantic and BM25 searches. RRF combines rankings, result IDs resolve to canonical D1 text, and an optional reranker reorders those candidates before context assembly. Skipped reranking retains fusion order; search failure uses D1 keyword retrieval.</desc>
+<defs><marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M1 1L7 4L1 7" fill="none" stroke="#c2410c" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></marker><marker id="gray-arrow" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M1 1L7 4L1 7" fill="none" stroke="#475569" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+<rect width="1200" height="600" rx="16" fill="#ffffff"/>
+<g font-family="DejaVu Sans, sans-serif" stroke-linecap="round" stroke-linejoin="round">
+<text x="40" y="47" font-size="27" fill="#0f172a" font-weight="650" text-anchor="start">Hybrid retrieval and context assembly</text>
+<rect x="40" y="222" width="160" height="100" rx="12" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/><text x="60" y="257" font-size="24" fill="#0f172a" font-weight="650" text-anchor="start">Query</text><text x="60" y="288" font-size="19" fill="#475569" font-weight="400" text-anchor="start">Scope</text>
+<rect x="255" y="110" width="225" height="112" rx="12" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/><text x="275" y="145" font-size="24" fill="#0f172a" font-weight="650" text-anchor="start">Semantic</text><text x="275" y="176" font-size="19" fill="#475569" font-weight="400" text-anchor="start">Related meaning</text><text x="275" y="203" font-size="19" fill="#475569" font-weight="400" text-anchor="start">Cross-language</text>
+<rect x="255" y="332" width="225" height="112" rx="12" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/><text x="275" y="367" font-size="24" fill="#0f172a" font-weight="650" text-anchor="start">BM25 search</text><text x="275" y="398" font-size="19" fill="#475569" font-weight="400" text-anchor="start">Title and body</text><text x="275" y="425" font-size="19" fill="#475569" font-weight="400" text-anchor="start">Term relevance</text>
+<path d="M220 166V388" fill="none" stroke="#94a3b8" stroke-width="1.5" />
+<path d="M200 272H220V166H243" fill="none" stroke="#c2410c" stroke-width="2"  marker-end="url(#arrow)"/>
+<path d="M220 388H243" fill="none" stroke="#c2410c" stroke-width="2"  marker-end="url(#arrow)"/>
+<path d="M480 166H510V388H480" fill="none" stroke="#c2410c" stroke-width="2"/>
+<path d="M510 272H535" fill="none" stroke="#c2410c" stroke-width="2"  marker-end="url(#arrow)"/>
+<rect x="547" y="222" width="145" height="100" rx="12" fill="#fff7ed" stroke="#fb923c" stroke-width="1.5"/><text x="567" y="257" font-size="24" fill="#0f172a" font-weight="650" text-anchor="start">RRF</text><text x="567" y="288" font-size="19" fill="#475569" font-weight="400" text-anchor="start">Rank fusion</text>
+<path d="M692 272H723" fill="none" stroke="#c2410c" stroke-width="2"  marker-end="url(#arrow)"/>
+<rect x="735" y="222" width="180" height="100" rx="12" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/><text x="755" y="257" font-size="24" fill="#0f172a" font-weight="650" text-anchor="start">D1 text</text><text x="755" y="288" font-size="19" fill="#475569" font-weight="400" text-anchor="start">Canonical rows</text>
+<path d="M915 272H948" fill="none" stroke="#c2410c" stroke-width="2"  marker-end="url(#arrow)"/>
+<rect x="960" y="222" width="200" height="100" rx="12" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/><text x="980" y="257" font-size="24" fill="#0f172a" font-weight="650" text-anchor="start">Reranker</text><text x="980" y="288" font-size="19" fill="#475569" font-weight="400" text-anchor="start">Optional</text>
+<path d="M1060 322V368" fill="none" stroke="#c2410c" stroke-width="2"  marker-end="url(#arrow)"/>
+<rect x="960" y="380" width="200" height="100" rx="12" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/><text x="980" y="415" font-size="24" fill="#0f172a" font-weight="650" text-anchor="start">Context</text><text x="980" y="446" font-size="19" fill="#475569" font-weight="400" text-anchor="start">Selected evidence</text>
+<path d="M825 322V430H948" fill="none" stroke="#c2410c" stroke-width="2" stroke-dasharray="6 6" marker-end="url(#arrow)"/>
+<text x="790" y="509" font-size="18" fill="#c2410c" font-weight="400" text-anchor="middle">Reranker skipped: keep RRF order</text>
+<path d="M40 546H1160" fill="none" stroke="#94a3b8" stroke-width="1.5" />
+<text x="40" y="579" font-size="20" fill="#475569" font-weight="400" text-anchor="start">Pinecone search failure → D1 keyword-only retrieval. Empty results remain empty.</text>
+</g></svg>

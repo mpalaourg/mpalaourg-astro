@@ -1,0 +1,43 @@
+---
+import { PERSONA_LABELS } from '../../lib/persona-labels';
+interface Props { lang?: 'en' | 'el' }
+const { lang = 'en' } = Astro.props;
+const greek: Record<string, string> = {
+  baseline: 'Απλές, άμεσες εξηγήσεις, σαν κανονική συζήτηση.',
+  fun: 'Χιούμορ και πιο παιχνιδιάρικη διατύπωση, πάντα σχετικά με το θέμα.',
+  'race-engineer': 'Κοφτές φράσεις σαν επικοινωνία στον ασύρματο, με ξεκάθαρες προτεραιότητες και όσα χρειάζονται προσοχή.',
+  formal: 'Επαγγελματικός τόνος, με σαφή διατύπωση και ακριβή ορολογία.',
+  concise: 'Σύντομη απάντηση που κρατά την ουσία.',
+};
+const descriptions: Record<string, string> = {
+  baseline: 'Direct, conversational explanations.',
+  fun: 'Dry humour and playful phrasing, tied to the subject.',
+  'race-engineer': 'Short radio-style updates, clear priorities and relevant watch points.',
+  formal: 'Measured professional language and precise terminology.',
+  concise: 'A short answer focused on the essential point.',
+};
+---
+<ul class="persona-overview not-prose" aria-label={lang === 'el' ? 'Ύφη απάντησης' : 'Response styles'}>
+  {PERSONA_LABELS.map(persona => (
+    <li>
+      <div class="persona-overview__icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d={persona.icon} /></svg>
+      </div>
+      <div><h3>{persona.name[lang]}</h3><p>{(lang === 'el' ? greek : descriptions)[persona.id]}</p></div>
+    </li>
+  ))}
+</ul>
+<style>
+  .persona-overview{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:1rem;padding:0;margin:1.5rem 0 2rem;list-style:none;text-align:left}
+  .persona-overview li{grid-column:span 2;display:flex;align-items:flex-start;gap:1rem;padding:1.3rem;border:1px solid #e2e8f0;border-radius:1rem;background:#f8fafc}
+  .persona-overview li:nth-child(n+4){grid-column:span 3}
+  .persona-overview__icon{display:grid;place-items:center;flex:0 0 2.6rem;height:2.6rem;border:1px solid #fed7aa;border-radius:.75rem;background:#fff7ed;color:#c2410c}
+  h3{margin:0 0 .45rem;font-size:1rem;font-weight:650;color:#0f172a;line-height:1.5}
+  p{margin:0;font-size:.92rem;line-height:1.7;color:#475569}
+  :global(.dark) .persona-overview li{border-color:#334155;background:#162131}
+  :global(.dark) .persona-overview__icon{border-color:#9a4b24;background:#2c241f;color:#fb923c}
+  :global(.dark) h3{color:#f1f5f9}
+  :global(.dark) p{color:#cbd5e1}
+  @media(max-width:850px){.persona-overview{grid-template-columns:repeat(2,minmax(0,1fr))}.persona-overview li,.persona-overview li:nth-child(n+4){grid-column:span 1}.persona-overview li:last-child{grid-column:span 2}}
+  @media(max-width:540px){.persona-overview{grid-template-columns:1fr;gap:.75rem}.persona-overview li,.persona-overview li:last-child{grid-column:span 1;padding:1.1rem}}
+</style>
