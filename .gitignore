@@ -14,8 +14,8 @@ pnpm-debug.log*
 
 
 # environment variables
-.env
-.env.production
+.env*
+!.env.example
 
 # macOS-specific files
 .DS_Store
@@ -23,7 +23,13 @@ pnpm-debug.log*
 # jetbrains setting folder
 .idea/
 
-# wrangler local state and temp files
-.wrangler/state/
-.wrangler/tmp/
-.wrangler/logs/
+# Wrangler state, logs, generated deployment metadata and local worker bundles
+.wrangler/
+
+# Chat index and local secrets
+.chat/
+scripts/data/chat-pdf/*.json.tmp
+__pycache__/
+.dev.vars
+.dev.vars.*
+!.dev.vars.example

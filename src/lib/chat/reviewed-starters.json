@@ -1,0 +1,436 @@
+{
+  "schema": 2,
+  "reviewedAt": "2026-10-25T14:05:54.471Z",
+  "policyHashes": {
+    "en:baseline": "978c2b98448fdcd0cf3eb538cb5154561af07c68dbfd984d67869931b1dd41a7",
+    "en:fun": "38c7e65e7c33f1e52bb2e9669739e1b2cf2ab065aae6e7eda0c53ba64b47237d",
+    "en:race-engineer": "0bf421f8cdc320beaed2b625d01a699a52bae7310a6201913f518c16d00bf761",
+    "en:formal": "7d72c2a420fca4eb4bacbef8c360f728b69149bd9bd77b86e589b56cb93bd4de",
+    "en:concise": "a0659a840c0a7d3fb11638360f7594c5367b6d8f4e42e0ad0d9b1c53d37b19d1",
+    "el:baseline": "7066478f1f5f646d5069b5316f038bd8f625ee80174369f9d0ba02b4dd430e6b",
+    "el:fun": "c15ef9ea6318bf4c119c077d616db9cb28b7b67a7de6fc96095cf8c52a3cd770",
+    "el:race-engineer": "df41a607a1ebbe92555fc0a2361b6ab9163aad117d71c91e02b0947f3fd4e976",
+    "el:formal": "7220f79a04ce28288a960778d87b4915e1ecef4edb24382ef0aeff6bae1d6a05",
+    "el:concise": "75cb8dcca3925a71a0bf66029184bbb4894a3eecc49aaf3c642cf65feac93d32"
+  },
+  "topics": [
+    {
+      "index": 0,
+      "answers": {
+        "en": {
+          "baseline": "Georgios works across **production ML and LLM systems**, agentic AI, data engineering and evaluation. He is currently a **Senior Machine Learning Engineer at Kaizen Gaming**.\n\nIn his earlier ML Engineer role at the same company, he worked on a multi-agent system that analyzed millions of survey responses and chat transcripts to identify trends and summarize customer experiences. That role also covered Azure Databricks pipelines, FastAPI/NoSQL backend services, and automated testing and evaluation for agentic and LLM systems.\n\nAt **EY**, his Senior Data Scientist work included core components of a Business Continuity Platform for an energy company, PySpark pipelines on Azure Databricks, and FastAPI REST APIs. His preceding Data Scientist role included OpenAI/AutoGen assistants for travel, presentation-to-speech and financial analysis, plus RAG pipelines for enterprise LLM applications.\n\nHis **CERTH-ITI research** focused on video summarization with encoder-decoder models, attention and transformers. His published projects also include the Workflows to Agents workshop, JPEG image compression, a Unix shell in C, and a Raspberry Pi messenger.\n\nWould you like to explore the customer-feedback system or his video summarization research?",
+          "fun": "Georgios works on **ML and LLM systems that have to survive contact with production**. He is currently a **Senior Machine Learning Engineer at Kaizen Gaming**.\n\nIn his earlier ML Engineer role there, he worked on multi-agent analysis of millions of customer survey responses and chat transcripts. The job also involved Databricks pipelines, FastAPI/NoSQL services, and automated testing and evaluation. The less glamorous part of AI, where “it worked once” stops being a useful metric.\n\nAt **EY**, his Senior Data Scientist work covered an enterprise Business Continuity Platform, PySpark/Databricks pipelines and FastAPI APIs. In the preceding Data Scientist role, he built OpenAI/AutoGen assistants for travel, presentation-to-speech and financial analysis, alongside RAG pipelines for enterprise applications.\n\nBefore that, his **CERTH-ITI research** explored video summarization using attention, transformers and encoder-decoder models. His projects range from a workflows-versus-agents workshop to JPEG compression, a Unix shell in C and Raspberry Pi messaging. The recurring theme is making complicated systems do something useful, preferably before they acquire another framework.\n\nWant to unpack the multi-agent system or the video summarization research?",
+          "race-engineer": "Copy. **Production ML and LLM systems are the main program.** Georgios is currently a **Senior Machine Learning Engineer at Kaizen Gaming**.\n\nPrevious stint at the same company, as ML Engineer: multi-agent analysis of millions of survey responses and chat transcripts, turning customer feedback into trends and summaries. Supporting work: Azure Databricks pipelines, FastAPI/NoSQL services, and automated testing and evaluation for agents and LLMs.\n\n**EY debrief:** as Senior Data Scientist, core components of a Business Continuity Platform for an energy company, PySpark/Databricks pipelines and FastAPI REST APIs. In the earlier Data Scientist role, OpenAI/AutoGen assistants handled travel, presentation-to-speech and financial-analysis use cases; RAG pipelines supported enterprise LLM applications.\n\n**Research program:** video summarization at CERTH-ITI, using encoder-decoder models, attention and transformers. **Other runs:** the Workflows to Agents workshop, JPEG compression, a Unix shell in C and a Raspberry Pi messenger.\n\nThe through-line is the full system: models, data flow and evaluation.\n\nWhich program shall we debrief next: customer-feedback agents or video summarization?",
+          "formal": "Georgios’s work covers **production machine learning and LLM systems**, agentic AI applications, data infrastructure and evaluation. He currently holds the position of **Senior Machine Learning Engineer at Kaizen Gaming**.\n\nDuring his preceding ML Engineer role at the same company, he worked on a multi-agent system for analyzing millions of survey responses and chat transcripts, identifying trends and summarizing customer experiences. His responsibilities in that role also included Azure Databricks pipelines, FastAPI/NoSQL backend services, and automated testing and evaluation for agentic and LLM-based systems.\n\nAt **EY**, his Senior Data Scientist work included core components of an enterprise Business Continuity Platform for an energy company, scalable PySpark pipelines on Azure Databricks, and FastAPI REST APIs. His earlier Data Scientist role included OpenAI/AutoGen assistants for travel assistance, presentation-to-speech generation and financial analysis, together with RAG pipelines for enterprise LLM applications.\n\nHis research at **CERTH-ITI** examined video summarization using encoder-decoder architectures, attention mechanisms and transformers. The projects presented on his site include the Workflows to Agents workshop, JPEG compression, a Unix shell implemented in C, and Raspberry Pi messaging.\n\nWould you prefer further detail on his engineering experience or video summarization research?",
+          "concise": "Georgios works on **production ML and LLM systems** and is a Senior Machine Learning Engineer at Kaizen Gaming. His earlier role there covered customer-feedback agents, data pipelines and evaluation; his background also includes enterprise AI at EY and video summarization research. Which area would you like to explore?"
+        },
+        "el": {
+          "baseline": "Η δουλειά του Γιώργου συνδυάζει **ML και LLM σε παραγωγική χρήση**, εφαρμογές agentic AI, υποδομές δεδομένων και αξιολόγηση. Σήμερα είναι **Senior Machine Learning Engineer στην Kaizen Gaming**.\n\nΣτον προηγούμενο ρόλο του ως ML Engineer στην ίδια εταιρεία, ασχολήθηκε με σύστημα πολλαπλών agents για την ανάλυση εκατομμυρίων απαντήσεων σε ερωτηματολόγια και συνομιλίες πελατών. Στόχος ήταν ο εντοπισμός τάσεων και η αυτόματη σύνοψη της εμπειρίας τους. Ο ρόλος περιλάμβανε επίσης pipelines στο Azure Databricks, υπηρεσίες FastAPI/NoSQL και αυτοματοποιημένες δοκιμές και αξιολόγηση για agents και LLM.\n\nΣτην **EY**, ως Senior Data Scientist, δούλεψε σε βασικά τμήματα πλατφόρμας επιχειρησιακής συνέχειας για εταιρεία ενέργειας, pipelines PySpark/Databricks και REST APIs με FastAPI. Στον προηγούμενο ρόλο του ως Data Scientist, ανέπτυξε βοηθούς με OpenAI/AutoGen για ταξιδιωτική υποστήριξη, μετατροπή παρουσιάσεων σε ομιλία και οικονομική ανάλυση, καθώς και RAG pipelines.\n\nΗ έρευνά του στο **CERTH-ITI** αφορά περίληψη βίντεο με encoder-decoder μοντέλα, προσοχή και transformers. Στα έργα του υπάρχουν ακόμη το workshop για workflows και agents, συμπίεση JPEG, Unix shell σε C και εφαρμογή μηνυμάτων σε Raspberry Pi.\n\nΘέλετε να δούμε το σύστημα ανάλυσης σχολίων πελατών ή την έρευνα στην περίληψη βίντεο;",
+          "fun": "Ο Γιώργος δουλεύει με **ML και LLM που πρέπει να λειτουργούν στην πράξη**, εκεί όπου τελειώνει το ωραίο demo και αρχίζουν οι πραγματικές απαιτήσεις. Σήμερα είναι **Senior Machine Learning Engineer στην Kaizen Gaming**.\n\nΣτον προηγούμενο ρόλο του εκεί ως ML Engineer, ασχολήθηκε με πολλαπλούς agents που αναλύουν εκατομμύρια απαντήσεις σε ερωτηματολόγια και συνομιλίες πελατών. Μαζί έρχονταν pipelines στο Databricks, υπηρεσίες FastAPI/NoSQL και αυτοματοποιημένες δοκιμές και αξιολόγηση. Το κομμάτι της AI όπου το «μία φορά δούλεψε» παύει να είναι επαρκής μετρική.\n\nΣτην **EY**, ως Senior Data Scientist, δούλεψε σε πλατφόρμα επιχειρησιακής συνέχειας, pipelines PySpark/Databricks και FastAPI APIs. Στον προηγούμενο ρόλο του ως Data Scientist, ανέπτυξε βοηθούς με OpenAI/AutoGen για ταξίδια, μετατροπή παρουσιάσεων σε ομιλία και οικονομική ανάλυση, μαζί με RAG pipelines.\n\nΠριν από αυτά, έκανε έρευνα στο **CERTH-ITI** για περίληψη βίντεο με προσοχή, transformers και encoder-decoder μοντέλα. Στα έργα του θα βρείτε workshop για workflows και agents, συμπίεση JPEG, Unix shell σε C και μηνύματα σε Raspberry Pi. Κοινός παρονομαστής: η πολυπλοκότητα να βγάζει κάπου. Κάθε framework πρέπει να δικαιολογεί την παρουσία του.\n\nΝα πιάσουμε τους agents για σχόλια πελατών ή την περίληψη βίντεο;",
+          "race-engineer": "Ελήφθη. **Κύριο πρόγραμμα: ML και LLM σε παραγωγική χρήση.** Ο Γιώργος είναι σήμερα **Senior Machine Learning Engineer στην Kaizen Gaming**.\n\nΠροηγούμενος ρόλος στην ίδια εταιρεία, ως ML Engineer: πολλαπλοί agents για ανάλυση εκατομμυρίων απαντήσεων σε ερωτηματολόγια και συνομιλιών πελατών, με εντοπισμό τάσεων και αυτόματες συνόψεις. Υποδομή υποστήριξης: Azure Databricks, FastAPI/NoSQL και αυτοματοποιημένες δοκιμές και αξιολόγηση για agents και LLM.\n\n**Ανάλυση από την EY:** ως Senior Data Scientist, βασικά τμήματα πλατφόρμας επιχειρησιακής συνέχειας για εταιρεία ενέργειας, pipelines PySpark/Databricks και FastAPI REST APIs. Στον προηγούμενο ρόλο του ως Data Scientist, βοηθοί OpenAI/AutoGen για ταξιδιωτική υποστήριξη, μετατροπή παρουσιάσεων σε ομιλία και οικονομική ανάλυση, καθώς και RAG pipelines.\n\n**Ερευνητικό πρόγραμμα:** περίληψη βίντεο στο CERTH-ITI με encoder-decoder μοντέλα, προσοχή και transformers. **Άλλες διαδρομές:** workshop για workflows και agents, συμπίεση JPEG, Unix shell σε C και εφαρμογή μηνυμάτων σε Raspberry Pi.\n\nΗ συνολική εικόνα αφορά το σύστημα: μοντέλα, ροή δεδομένων και αξιολόγηση.\n\nΠού συνεχίζουμε την ανάλυση: agents για σχόλια πελατών ή περίληψη βίντεο;",
+          "formal": "Η επαγγελματική δραστηριότητα του Γιώργου καλύπτει **συστήματα ML και LLM για παραγωγική χρήση**, εφαρμογές agentic AI, υποδομές δεδομένων και αξιολόγηση. Σήμερα κατέχει τη θέση του **Senior Machine Learning Engineer στην Kaizen Gaming**.\n\nΣτον προηγούμενο ρόλο του ως ML Engineer στην ίδια εταιρεία, ασχολήθηκε με σύστημα πολλαπλών agents για ανάλυση εκατομμυρίων απαντήσεων σε ερωτηματολόγια και συνομιλιών πελατών, με στόχο τον εντοπισμό τάσεων και την αυτόματη σύνοψη της εμπειρίας τους. Στις αρμοδιότητες εκείνου του ρόλου περιλαμβάνονταν επίσης pipelines στο Azure Databricks, υπηρεσίες FastAPI/NoSQL και αυτοματοποιημένες δοκιμές και αξιολόγηση.\n\nΣτην **EY**, ως Senior Data Scientist, εργάστηκε σε βασικά τμήματα πλατφόρμας επιχειρησιακής συνέχειας για εταιρεία ενέργειας, pipelines PySpark/Databricks και REST APIs με FastAPI. Ως Data Scientist προηγουμένως, ανέπτυξε βοηθούς OpenAI/AutoGen για ταξιδιωτική υποστήριξη, μετατροπή παρουσιάσεων σε ομιλία και οικονομική ανάλυση, καθώς και RAG pipelines για επιχειρησιακές εφαρμογές LLM.\n\nΗ ερευνητική του εμπειρία στο **CERTH-ITI** αφορά περίληψη βίντεο με encoder-decoder αρχιτεκτονικές, μηχανισμούς προσοχής και transformers. Στον ιστότοπο παρουσιάζονται επίσης workshop για workflows και agents, συμπίεση JPEG, Unix shell σε C και εφαρμογή μηνυμάτων σε Raspberry Pi.\n\nΘα θέλατε περισσότερες πληροφορίες για την επαγγελματική εμπειρία ή την έρευνά του;",
+          "concise": "Ο Γιώργος δουλεύει με **ML και LLM σε παραγωγική χρήση** και είναι Senior Machine Learning Engineer στην Kaizen Gaming. Ο προηγούμενος ρόλος του εκεί περιλάμβανε agents για σχόλια πελατών, pipelines και αξιολόγηση, ενώ έχει εμπειρία στην EY και έρευνα στην περίληψη βίντεο. Ποιο κομμάτι θέλετε να δούμε;"
+        }
+      },
+      "evidence": {
+        "en": [
+          {
+            "url": "/",
+            "quotes": [
+              "Senior Machine Learning Engineer",
+              "Kaizen Gaming",
+              "customer feedback"
+            ]
+          },
+          {
+            "url": "/media/files/resume_en.pdf",
+            "quotes": [
+              "Kaizen",
+              "Azure Databricks",
+              "FastAPI",
+              "AutoGen",
+              "RAG"
+            ]
+          },
+          {
+            "url": "/projects/",
+            "quotes": [
+              "JPEG",
+              "Unix shell in C",
+              "Raspberry Pi"
+            ]
+          }
+        ],
+        "el": [
+          {
+            "url": "/el/",
+            "quotes": [
+              "Senior Machine Learning Engineer",
+              "Kaizen Gaming",
+              "customer feedback"
+            ]
+          },
+          {
+            "url": "/el/media/files/resume_gr.pdf",
+            "quotes": [
+              "Kaizen",
+              "Azure Databricks",
+              "FastAPI",
+              "AutoGen",
+              "RAG"
+            ]
+          },
+          {
+            "url": "/el/projects/",
+            "quotes": [
+              "JPEG",
+              "Unix shell σε C",
+              "Raspberry Pi"
+            ]
+          }
+        ]
+      },
+      "generation": {
+        "en": {
+          "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+          "requestedModel": "nvidia/nemotron-3-ultra-550b-a55b:free",
+          "generatedAt": "2026-10-23T18:49:43.031Z",
+          "answerHash": "7b26b6eb3a24e0a72c733b971a113b40c9a950c7922bc7de58a509ddb97ac06c"
+        },
+        "el": {
+          "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+          "requestedModel": "nvidia/nemotron-3-ultra-550b-a55b:free",
+          "generatedAt": "2026-10-23T18:50:24.892Z",
+          "answerHash": "8122d1eec71c711709094fcd05ec4e0be804764034093a2b0f73f2f8c57bc5a6"
+        }
+      },
+      "illustrations": {
+        "en": null,
+        "el": null
+      },
+      "editorialReview": {
+        "en": {
+          "reviewedAt": "2026-10-25T13:17:22Z",
+          "generatedAnswerHash": "7b26b6eb3a24e0a72c733b971a113b40c9a950c7922bc7de58a509ddb97ac06c",
+          "answerHash": "ca06fac9e7c85416dd63c95b363fe20668e3e82ece68360f6b70bf3909c589df",
+          "note": "Editorial wording changes: direct statements in place of rhetorical contrasts. Facts, citations and generation attribution retained."
+        },
+        "el": {
+          "reviewedAt": "2026-10-25T13:17:22Z",
+          "generatedAnswerHash": "8122d1eec71c711709094fcd05ec4e0be804764034093a2b0f73f2f8c57bc5a6",
+          "answerHash": "95f5dab09cb2436b72f2c8ef77359b1e9012c47d5c9758f44be65f883bea8275",
+          "note": "Editorial wording changes: direct statements in place of rhetorical contrasts. Facts, citations and generation attribution retained."
+        }
+      }
+    },
+    {
+      "index": 1,
+      "answers": {
+        "en": {
+          "baseline": "**From Workflows to Agents** was a hands-on workshop at TechSaloniki X in May 2026. A support-ticket assistant provided the running example: a plain LLM call grew into structured outputs, tool calls, a fixed workflow and a bounded agent loop. Evaluation ran through the demo, using golden datasets and an optional LLM-as-a-judge step. The point was choosing the autonomy the application needs. The slides are linked below.\n\n![Workshop overview: workflows, agents and evaluation](/projects/from-workflows-to-agents/featured.webp)\n\nWould you like to explore how the workflow and agent differ?",
+          "fun": "**From Workflows to Agents** takes a support-ticket assistant beyond a single prompt, without declaring every extra loop a technological revolution. The TechSaloniki X workshop adds structured outputs, tools, a fixed workflow and a bounded agent, then checks what actually helped. Golden datasets and an optional LLM judge keep the demo accountable. Autonomy has to earn its place. The agent brings an impressive CV; the tests still handle recruitment. The slides are below.\n\n![Workshop overview: workflows, agents and evaluation](/projects/from-workflows-to-agents/featured.webp)\n\nWant to compare the workflow with the agent?",
+          "race-engineer": "Copy. **Support-ticket assistant, controlled build-up.** First run: one LLM call. Then structured outputs, tool calls, a fixed workflow and a bounded agent loop. Evaluation checks run throughout, with golden datasets and an optional LLM judge. The call from this TechSaloniki X workshop: use only the autonomy the task needs. Watch point: flexibility also adds variability, cost and latency. Slides are below.\n\n![Workshop overview: workflows, agents and evaluation](/projects/from-workflows-to-agents/featured.webp)\n\nShall we debrief the workflow-versus-agent decision?",
+          "formal": "**From Workflows to Agents: Building LLM Systems in Practice** was a practical workshop at TechSaloniki X in May 2026. Using a support-ticket assistant, it compared a basic LLM call, structured outputs, tool use, deterministic workflows and bounded agent execution. Evaluation included golden-dataset checks and an optional LLM-as-a-judge stage. Its central distinction was between predictable execution paths and tasks whose next step depends on intermediate findings. Presentation slides are available below.\n\n![Workshop overview: workflows, agents and evaluation](/projects/from-workflows-to-agents/featured.webp)\n\nWould you like a closer comparison of workflows and agents?",
+          "concise": "**From Workflows to Agents** uses a support-ticket assistant to compare LLM calls, tools, fixed workflows and bounded agents. Golden-dataset checks help evaluate whether each addition improves the system; the slides are linked below. Would you like to compare workflows and agents?"
+        },
+        "el": {
+          "baseline": "Το **From Workflows to Agents** ήταν ένα πρακτικό workshop στο TechSaloniki X τον Μάιο του 2026. Με παράδειγμα έναν βοηθό διαχείρισης αιτημάτων υποστήριξης, περνά από μια απλή κλήση LLM σε δομημένες απαντήσεις, εργαλεία, προκαθορισμένη ροή και agent με περιορισμένα βήματα. Η αξιολόγηση συνοδεύει όλη τη διαδικασία, με παραδείγματα αναφοράς και προαιρετικό LLM ως κριτή. Στόχος είναι η αυτονομία που χρειάζεται η εφαρμογή. Οι διαφάνειες είναι διαθέσιμες παρακάτω.\n\n![Επισκόπηση workshop: ροές εργασίας, agents και αξιολόγηση](/projects/from-workflows-to-agents/featured.webp)\n\nΘέλετε να δούμε πότε ταιριάζει μια ροή και πότε ένας agent;",
+          "fun": "Το **From Workflows to Agents** ξεκινά με έναν βοηθό αιτημάτων υποστήριξης και προσθέτει εργαλεία, δομημένες απαντήσεις, προκαθορισμένη ροή και agent με όριο στα βήματα. Κάθε επιπλέον loop περνάει από έλεγχο, μαζί με τις μεγάλες υποσχέσεις του. Το workshop στο TechSaloniki X ελέγχει τι βοηθά πραγματικά, με παραδείγματα αναφοράς και προαιρετικό LLM ως κριτή. Η αυτονομία πρέπει να δικαιολογεί την παρουσία της. Οι διαφάνειες είναι παρακάτω.\n\n![Επισκόπηση workshop: ροές εργασίας, agents και αξιολόγηση](/projects/from-workflows-to-agents/featured.webp)\n\nΝα δούμε πότε ο agent έχει λόγο ύπαρξης;",
+          "race-engineer": "Ελήφθη. **Βοηθός υποστήριξης, σταδιακή εξέλιξη.** Αρχικά μία κλήση LLM. Μετά δομημένες απαντήσεις, εργαλεία, προκαθορισμένη ροή και agent με περιορισμένα βήματα. Έλεγχοι αξιολόγησης σε κάθε στάδιο, με παραδείγματα αναφοράς και προαιρετικό LLM ως κριτή. Η επιλογή του workshop στο TechSaloniki X: μόνο όση αυτονομία απαιτεί η εφαρμογή. Σημείο προσοχής: η ευελιξία αυξάνει μεταβλητότητα, κόστος και χρόνο απόκρισης. Οι διαφάνειες είναι παρακάτω.\n\n![Επισκόπηση workshop: ροές εργασίας, agents και αξιολόγηση](/projects/from-workflows-to-agents/featured.webp)\n\nΝα αναλύσουμε την επιλογή ροής ή agent;",
+          "formal": "Το **From Workflows to Agents: Building LLM Systems in Practice** παρουσιάστηκε στο TechSaloniki X τον Μάιο του 2026. Με παράδειγμα έναν βοηθό διαχείρισης αιτημάτων υποστήριξης, εξετάζει απλές κλήσεις LLM, δομημένες απαντήσεις, χρήση εργαλείων, προκαθορισμένες ροές και agents με περιορισμένα βήματα. Περιλαμβάνει αξιολόγηση με παραδείγματα αναφοράς και προαιρετικό LLM ως κριτή. Βασικό ζητούμενο είναι η επιλογή του κατάλληλου βαθμού αυτονομίας. Οι διαφάνειες παρατίθενται στις πηγές.\n\n![Επισκόπηση workshop: ροές εργασίας, agents και αξιολόγηση](/projects/from-workflows-to-agents/featured.webp)\n\nΘα θέλατε μια αναλυτικότερη σύγκριση ροών και agents;",
+          "concise": "Το **From Workflows to Agents** συγκρίνει απλές κλήσεις LLM, εργαλεία, προκαθορισμένες ροές και agents με όριο βημάτων, μέσα από έναν βοηθό υποστήριξης. Οι έλεγχοι αξιολόγησης δείχνουν τι προσφέρει κάθε προσθήκη, ενώ οι διαφάνειες είναι παρακάτω. Να δούμε πότε χρειάζεται agent;"
+        }
+      },
+      "evidence": {
+        "en": [
+          {
+            "url": "/projects/from-workflows-to-agents/",
+            "quotes": [
+              "support-ticket assistant",
+              "Golden dataset checks"
+            ]
+          },
+          {
+            "url": "/media/slides/from_workflows_to_agents_workshop.pptx",
+            "quotes": [
+              "Workflows"
+            ]
+          }
+        ],
+        "el": [
+          {
+            "url": "/el/projects/from-workflows-to-agents/",
+            "quotes": [
+              "αιτημάτων υποστήριξης",
+              "παραδειγμάτων αναφοράς"
+            ]
+          },
+          {
+            "url": "/media/slides/from_workflows_to_agents_workshop.pptx",
+            "quotes": [
+              "Workflows"
+            ]
+          }
+        ]
+      },
+      "generation": {
+        "en": {
+          "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+          "requestedModel": "nvidia/nemotron-3-ultra-550b-a55b:free",
+          "generatedAt": "2026-10-23T18:50:45.417Z",
+          "answerHash": "e54818e5a3f1067a7ee1ad3364bc1513c1569a21f3e893813afb09235b751e3e"
+        },
+        "el": {
+          "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+          "requestedModel": "nvidia/nemotron-3-ultra-550b-a55b:free",
+          "generatedAt": "2026-10-23T18:51:13.078Z",
+          "answerHash": "0b2dd554ee0701909ae4fd765104fa779dfb9731c259fb4f40fe15f94dc1f3e8"
+        }
+      },
+      "illustrations": {
+        "en": null,
+        "el": null
+      },
+      "editorialReview": {
+        "en": {
+          "reviewedAt": "2026-10-25T13:17:22Z",
+          "generatedAnswerHash": "e54818e5a3f1067a7ee1ad3364bc1513c1569a21f3e893813afb09235b751e3e",
+          "answerHash": "e4f45dd113812a7acff3c5ffcc73ada7528473c85fec7526b3142f95cc833266",
+          "note": "Editorial wording changes: direct statements in place of rhetorical contrasts. Facts, citations and generation attribution retained."
+        },
+        "el": {
+          "reviewedAt": "2026-10-25T13:17:22Z",
+          "generatedAnswerHash": "0b2dd554ee0701909ae4fd765104fa779dfb9731c259fb4f40fe15f94dc1f3e8",
+          "answerHash": "2c7e30134c92ede60c5e9195d7d0b62a695c002a6e3ad726f65474df5ede3710",
+          "note": "Editorial wording changes: direct statements in place of rhetorical contrasts. Facts, citations and generation attribution retained."
+        }
+      }
+    },
+    {
+      "index": 2,
+      "answers": {
+        "en": {
+          "baseline": "The site presents **three coauthored papers on video summarization**: global and local attention with positional encoding for supervised summarization (ISM 2021); concentrated attention with frame uniqueness and diversity for unsupervised summarization (ICMR 2022); and attention-based explanations of which video fragments influence a summary (ISM 2022). Together, they address both selecting useful video content and understanding the model’s choices. The primary PDFs are linked below.\n\nWhich would you like to explore: the summarization methods or their explanations?",
+          "fun": "The site features **three coauthored papers about getting to the useful parts of a video**, then asking the model to explain its choices. ISM 2021 combines global/local attention and frame position. ICMR 2022 uses concentrated attention plus frame uniqueness and diversity without supervision. ISM 2022 examines which fragments influence the summary. A research program for anyone who has ever thought, “Surely this video could have been shorter.” The PDFs are below.\n\nMethods first, or what the model paid attention to?",
+          "race-engineer": "Debrief: **three coauthored video-summarization papers**. ISM 2021: supervised summarization with global/local attention and positional encoding. ICMR 2022: unsupervised summarization using concentrated attention, uniqueness and diversity. ISM 2022: explanations of which fragments influence the summary. Different runs: build the summary, then inspect the decision. Primary PDFs are below.\n\nWhich run shall we examine: summarization or explanation?",
+          "formal": "The website presents **three coauthored publications on video summarization**. The ISM 2021 paper combines global and local attention with positional encoding for supervised summarization. The ICMR 2022 paper investigates concentrated attention, frame uniqueness and diversity in an unsupervised setting. The ISM 2022 paper examines attention-based explanations of the fragments influencing a summary. The primary papers are available in PDF form below.\n\nWould you prefer further detail on the summarization approaches or the explanation method?",
+          "concise": "The site features **three coauthored video-summarization papers**: global/local attention and positional encoding (ISM 2021), concentrated attention with frame uniqueness/diversity (ICMR 2022), and attention-based explanations (ISM 2022). Their PDFs are linked below. Which method would you like to explore?"
+        },
+        "el": {
+          "baseline": "Ο ιστότοπος παρουσιάζει **τρεις εργασίες στις οποίες συμμετείχε ο Γιώργος για την περίληψη βίντεο**: συνδυασμός καθολικής και τοπικής προσοχής με κωδικοποίηση θέσης για εποπτευόμενη περίληψη (ISM 2021), συγκεντρωμένη προσοχή με μοναδικότητα και ποικιλομορφία καρέ χωρίς επίβλεψη (ICMR 2022), και επεξήγηση των τμημάτων που επηρεάζουν μια περίληψη μέσω της προσοχής (ISM 2022). Τα PDF των εργασιών είναι παρακάτω.\n\nΘέλετε να δούμε τις μεθόδους περίληψης ή πώς εξηγούνται οι επιλογές τους;",
+          "fun": "Οι **τρεις δημοσιευμένες εργασίες που παρουσιάζονται εδώ** ασχολούνται με την περίληψη βίντεο: πώς κρατάς την ουσία και πώς καταλαβαίνεις τι διάλεξε το μοντέλο. Η ISM 2021 συνδυάζει καθολική και τοπική προσοχή με τη θέση των καρέ. Η ICMR 2022 αξιοποιεί συγκεντρωμένη προσοχή, μοναδικότητα και ποικιλομορφία χωρίς επίβλεψη. Η ISM 2022 εξετάζει ποια τμήματα επηρεάζουν την περίληψη. Γιατί το «δες όλο το βίντεο και πες μου» δεν είναι πάντα ερευνητικό σχέδιο. Τα PDF είναι παρακάτω.\n\nΝα ξεκινήσουμε από την περίληψη ή την επεξήγηση;",
+          "race-engineer": "Ανάλυση: **τρεις εργασίες για περίληψη βίντεο**. ISM 2021: εποπτευόμενη περίληψη με καθολική και τοπική προσοχή και κωδικοποίηση θέσης. ICMR 2022: χωρίς επίβλεψη, με συγκεντρωμένη προσοχή, μοναδικότητα και ποικιλομορφία καρέ. ISM 2022: επεξήγηση των τμημάτων που επηρεάζουν την περίληψη. Δύο διαφορετικά ζητούμενα: επιλογή περιεχομένου και κατανόηση της επιλογής. Τα πρωτότυπα PDF είναι παρακάτω.\n\nΣε ποιο σκέλος συνεχίζουμε: περίληψη ή επεξήγηση;",
+          "formal": "Στον ιστότοπο παρουσιάζονται **τρεις ερευνητικές εργασίες με τη συμμετοχή του Γιώργου για την περίληψη βίντεο**. Η ISM 2021 συνδυάζει καθολική και τοπική προσοχή με κωδικοποίηση θέσης για εποπτευόμενη περίληψη. Η ICMR 2022 εξετάζει συγκεντρωμένη προσοχή, μοναδικότητα και ποικιλομορφία καρέ χωρίς επίβλεψη. Η ISM 2022 αφορά την επεξήγηση των τμημάτων που επηρεάζουν την περίληψη. Τα πρωτότυπα PDF παρατίθενται στις πηγές.\n\nΘα θέλατε περισσότερες πληροφορίες για τις μεθόδους περίληψης ή την επεξήγηση;",
+          "concise": "Εδώ παρουσιάζονται **τρεις εργασίες για περίληψη βίντεο**: καθολική/τοπική προσοχή και κωδικοποίηση θέσης (ISM 2021), συγκεντρωμένη προσοχή με μοναδικότητα και ποικιλομορφία καρέ (ICMR 2022), και επεξήγηση μέσω της προσοχής (ISM 2022). Τα PDF είναι παρακάτω. Ποια μέθοδο θέλετε να δούμε;"
+        }
+      },
+      "evidence": {
+        "en": [
+          {
+            "url": "/publications/",
+            "quotes": [
+              "Three papers",
+              "supervised",
+              "unsupervised"
+            ]
+          },
+          {
+            "url": "/media/files/ism2021_preprint.pdf",
+            "quotes": [
+              "attention"
+            ]
+          },
+          {
+            "url": "/media/files/icmr2022_preprint.pdf",
+            "quotes": [
+              "attention"
+            ]
+          },
+          {
+            "url": "/media/files/ism2022_preprint.pdf",
+            "quotes": [
+              "attention"
+            ]
+          }
+        ],
+        "el": [
+          {
+            "url": "/el/publications/",
+            "quotes": [
+              "Τρεις εργασίες",
+              "εποπτευόμενη",
+              "χωρίς επίβλεψη"
+            ]
+          },
+          {
+            "url": "/media/files/ism2021_preprint.pdf",
+            "quotes": [
+              "attention"
+            ]
+          },
+          {
+            "url": "/media/files/icmr2022_preprint.pdf",
+            "quotes": [
+              "attention"
+            ]
+          },
+          {
+            "url": "/media/files/ism2022_preprint.pdf",
+            "quotes": [
+              "attention"
+            ]
+          }
+        ]
+      },
+      "generation": {
+        "en": {
+          "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+          "requestedModel": "nvidia/nemotron-3-ultra-550b-a55b:free",
+          "generatedAt": "2026-10-23T18:51:20.735Z",
+          "answerHash": "f394f3cc1dfa84efcee5b1fa21ef71e6d5ecf8e338dc0f55d9b94863451621dc"
+        },
+        "el": {
+          "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+          "requestedModel": "nvidia/nemotron-3-ultra-550b-a55b:free",
+          "generatedAt": "2026-10-23T18:52:07.671Z",
+          "answerHash": "e8c0465b33a0e2fcb01fdfdbeeb272aeffd4e089fe517c9bfca8200a59233253"
+        }
+      },
+      "illustrations": {
+        "en": {
+          "url": "/publications/ism2022/card.webp",
+          "alt": "Attention-based video summarization and explanation architecture"
+        },
+        "el": {
+          "url": "/publications/ism2022/card.webp",
+          "alt": "Αρχιτεκτονική περίληψης και επεξήγησης βίντεο με μηχανισμό προσοχής"
+        }
+      },
+      "editorialReview": {
+        "en": null,
+        "el": null
+      }
+    },
+    {
+      "index": 3,
+      "answers": {
+        "en": {
+          "baseline": "The **Formula 1 section** combines season reviews and charts with a practical [race guide](/formula/racecraft/). The guide explains how weekends, tyres, flags and strategy fit together, while the [champions archive](/formula/champions/) lets you explore drivers’ and constructors’ titles. The season articles provide historical context.\n\nWould you like to explore race strategy or the championship archive?",
+          "fun": "The **Formula 1 section** has season reviews, charts and a [race guide](/formula/racecraft/) for the moments when twenty cars are circulating and the important action seems to be someone staring at a tyre chart. There is also a [champions archive](/formula/champions/) for drivers and constructors. You can explore the racing, the decisions behind it and the history, without turning every pit stop into a conspiracy.\n\nRace strategy first, or the champions archive?",
+          "race-engineer": "Copy. **Three routes through Formula 1**: season reviews and charts for the debrief; the [race guide](/formula/racecraft/) for weekends, tyres, flags and strategy; the [champions archive](/formula/champions/) for drivers’ and constructors’ titles. Watch point: season reviews cover the races and championship of the season in question.\n\nWhich route: strategy or championship history?",
+          "formal": "The **Formula 1 section** contains season reviews and supporting charts, a practical [guide to understanding races](/formula/racecraft/), and an [archive of drivers’ and constructors’ champions](/formula/champions/). The guide covers race weekends, tyres, flags and strategy, while the articles provide historical analysis of individual seasons.\n\nWould you prefer to explore race strategy or championship history?",
+          "concise": "Explore **season reviews and charts**, the [race guide](/formula/racecraft/) covering tyres, flags and strategy, or the [drivers’ and constructors’ champions archive](/formula/champions/). Would you like to start with strategy or history?"
+        },
+        "el": {
+          "baseline": "Στην ενότητα **Formula 1** θα βρείτε ανασκοπήσεις σεζόν και γραφήματα, μαζί με έναν πρακτικό [οδηγό αγώνα](/el/formula/racecraft/). Ο οδηγός εξηγεί το αγωνιστικό τριήμερο, τα ελαστικά, τις σημαίες και τη στρατηγική. Το [αρχείο πρωταθλητών](/el/formula/champions/) καλύπτει τους τίτλους οδηγών και κατασκευαστών. Οι ανασκοπήσεις δίνουν ιστορικό πλαίσιο.\n\nΘέλετε να ξεκινήσουμε από τη στρατηγική ή την ιστορία των πρωταθλημάτων;",
+          "fun": "Η ενότητα **Formula 1** έχει ανασκοπήσεις σεζόν, γραφήματα και έναν [οδηγό αγώνα](/el/formula/racecraft/) για τις στιγμές που είκοσι μονοθέσια τρέχουν και το ενδιαφέρον κρύβεται σε μια συζήτηση για ελαστικά. Υπάρχει και [αρχείο πρωταθλητών](/el/formula/champions/), για οδηγούς και κατασκευαστές. Αγώνες, αποφάσεις και ιστορία, χωρίς να χρειάζεται κάθε pit stop να γίνει θεωρία συνωμοσίας.\n\nΝα πιάσουμε τη στρατηγική ή τους πρωταθλητές;",
+          "race-engineer": "Ελήφθη. **Τρεις διαδρομές στη Formula 1**: ανασκοπήσεις σεζόν και γραφήματα για την ανάλυση, [οδηγός αγώνα](/el/formula/racecraft/) για τριήμερο, ελαστικά, σημαίες και στρατηγική, και [αρχείο πρωταθλητών](/el/formula/champions/) για τίτλους οδηγών και κατασκευαστών. Σημείο προσοχής: οι ανασκοπήσεις αναλύουν προηγούμενες σεζόν, δεν προβλέπουν τον επόμενο αγώνα.\n\nΠού συνεχίζουμε: στρατηγική ή ιστορία πρωταθλημάτων;",
+          "formal": "Η ενότητα **Formula 1** περιλαμβάνει ανασκοπήσεις σεζόν με γραφήματα, πρακτικό [οδηγό κατανόησης αγώνων](/el/formula/racecraft/) και [αρχείο πρωταθλητών οδηγών και κατασκευαστών](/el/formula/champions/). Ο οδηγός καλύπτει το αγωνιστικό τριήμερο, τα ελαστικά, τις σημαίες και τη στρατηγική. Τα άρθρα προσφέρουν ιστορική ανάλυση επιμέρους σεζόν.\n\nΘα προτιμούσατε να εξετάσουμε τη στρατηγική ή την ιστορία των πρωταθλημάτων;",
+          "concise": "Θα βρείτε **ανασκοπήσεις σεζόν και γραφήματα**, [οδηγό αγώνα](/el/formula/racecraft/) για ελαστικά, σημαίες και στρατηγική, καθώς και [αρχείο πρωταθλητών οδηγών και κατασκευαστών](/el/formula/champions/). Από πού θέλετε να ξεκινήσουμε: στρατηγική ή ιστορία;"
+        }
+      },
+      "evidence": {
+        "en": [
+          {
+            "url": "/formula/",
+            "quotes": [
+              "/formula/champions/"
+            ]
+          },
+          {
+            "url": "/formula/racecraft/",
+            "quotes": [
+              "tyres"
+            ]
+          },
+          {
+            "url": "/formula/champions/",
+            "quotes": [
+              "Constructors"
+            ]
+          }
+        ],
+        "el": [
+          {
+            "url": "/el/formula/",
+            "quotes": [
+              "/el/formula/champions/"
+            ]
+          },
+          {
+            "url": "/el/formula/racecraft/",
+            "quotes": [
+              "ελαστικά"
+            ]
+          },
+          {
+            "url": "/el/formula/champions/",
+            "quotes": [
+              "κατασκευαστές"
+            ]
+          }
+        ]
+      },
+      "generation": {
+        "en": {
+          "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+          "requestedModel": "nvidia/nemotron-3-ultra-550b-a55b:free",
+          "generatedAt": "2026-10-23T18:51:46.806Z",
+          "answerHash": "750d35ac7109a024b5c8b5d0d52b4c57c47009cfe76a6e56ad6afb0daafc19ec"
+        },
+        "el": {
+          "model": "nvidia/nemotron-3-ultra-550b-a55b:free",
+          "requestedModel": "nvidia/nemotron-3-ultra-550b-a55b:free",
+          "generatedAt": "2026-10-23T18:52:26.608Z",
+          "answerHash": "5a160a6d13816efe84242b007588c4b74fb0ee0abc1050109a034661217bf2bd"
+        }
+      },
+      "illustrations": {
+        "en": {
+          "url": "/formula/2023-season/card.webp",
+          "alt": "Max Verstappen celebrates the 2023 Formula 1 title"
+        },
+        "el": {
+          "url": "/formula/2023-season/card.webp",
+          "alt": "Ο Max Verstappen πανηγυρίζει τον τίτλο της Formula 1 του 2023"
+        }
+      },
+      "editorialReview": {
+        "en": {
+          "reviewedAt": "2026-10-25T13:17:22Z",
+          "generatedAnswerHash": "750d35ac7109a024b5c8b5d0d52b4c57c47009cfe76a6e56ad6afb0daafc19ec",
+          "answerHash": "0964e3c63e9f3325c691e817a17e2da3c29668a76001373b0a85c8262d18fbb3",
+          "note": "Editorial wording changes: direct statements in place of rhetorical contrasts. Facts, citations and generation attribution retained."
+        },
+        "el": {
+          "reviewedAt": "2026-10-25T13:17:22Z",
+          "generatedAnswerHash": "5a160a6d13816efe84242b007588c4b74fb0ee0abc1050109a034661217bf2bd",
+          "answerHash": "9e75f6ff5fca73de2ec38296b0ba8a412e08a665c49abe5d10319bdbff048d42",
+          "note": "Editorial wording changes: direct statements in place of rhetorical contrasts. Facts, citations and generation attribution retained."
+        }
+      }
+    }
+  ],
+  "sourceHashes": {
+    "/": "3193f87d02911d34352b259599a6b08e7bc4a1ddb88b880bc53a774a991c2929",
+    "/media/files/resume_en.pdf": "8ea707fec4f72d3a3d149704d6ad448a8cbbe9368c7b671efc66369435109dc5",
+    "/el/": "ac19253e0a86978d0cf551fd79eb78fa36bcd0e1c16bfd9658ce4cd46dc0334c",
+    "/el/media/files/resume_gr.pdf": "55fbf2ba18464b4d2f1ff45019ecb653e250d1e09a8f757f417ca9ecaa459ffa",
+    "/projects/from-workflows-to-agents/": "b5e54ec05f3290f0c129981b04757da0ea20faf30308c92ac3241f8eea166fd6",
+    "/media/slides/from_workflows_to_agents_workshop.pptx": "b8193d495cb83f788c2ad46afd7e4c43816388e7e0b7eed877d1df52f1283f87",
+    "/el/projects/from-workflows-to-agents/": "57d046a537a5c09f2be543e9e4f419842ebda4e84c3ded748bb3d14459c08a28",
+    "/publications/": "356a0cf704ed41184aa57e829d4e3feb3ac241245963848a883da1fdcbe64805",
+    "/media/files/ism2021_preprint.pdf": "d63f144a6978f0290a8c73115ee6139da8080ec73b115b28444cc9bff4069122",
+    "/media/files/icmr2022_preprint.pdf": "de419e7625fe818b29a21d3ffb98f4e817b7262801735ba90dd0befc17923e78",
+    "/media/files/ism2022_preprint.pdf": "b8793e674dc25fe75317755453db5625a088000a6fdc934e6ab0ed87db66c253",
+    "/el/publications/": "d098d8dae1f7688d67cb59ff6e94eb08df5c56e39e7c46f2ac66ca44c3a5421e",
+    "/formula/": "13c199ed535421d187bb3be2e7b668d7812fae2b7bb596d909b8656f1c77ae45",
+    "/formula/racecraft/": "f7faf55a31d9002efc6269bc77d97eea987dfe2dda9f7e6dbf4791fc49c5c0ef",
+    "/formula/champions/": "c2c9c5006998ac8bcd46d45851e1df5bff673e0ff5d2a8e337c37c2c1c9f4108",
+    "/el/formula/": "af3ae0c2bda6fde5691219d18762236d474308460c5b3ec013a6ad55da3ae6c6",
+    "/el/formula/racecraft/": "f599be358a1df1f7c372e09c44c7a887276a8081ed8fbfd6c767cb721d3ff9d7",
+    "/el/formula/champions/": "a9633f9097cc1f1da59205161b15d4c111d155f5f55d29d9200398c8292e31eb",
+    "/projects/": "431c4f5da9d23179455f787392fd49754129bbf32b02a0a0cf4ace111aadf69a",
+    "/el/projects/": "231e0118b15138eeacc3612162babd4999fd7261b160266b543e980932ab2ab3"
+  }
+}

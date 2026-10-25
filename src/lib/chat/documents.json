@@ -1,0 +1,153 @@
+[
+  {
+    "url": "/media/files/resume_en.pdf",
+    "title": "Georgios Balaouras — CV / Resume (English)",
+    "category": "CV resume biography career experience education",
+    "source_type": "cv",
+    "document_id": "career",
+    "topics": [
+      "biography",
+      "career",
+      "education"
+    ],
+    "language": "en",
+    "related_page": "/",
+    "canonical_url": "/media/files/resume_en.pdf"
+  },
+  {
+    "url": "/el/media/files/resume_gr.pdf",
+    "title": "Γιώργος Μπαλαούρας — Βιογραφικό",
+    "category": "CV resume βιογραφικό εμπειρία σπουδές",
+    "source_type": "cv",
+    "document_id": "career",
+    "topics": [
+      "biography",
+      "career",
+      "education"
+    ],
+    "language": "el",
+    "related_page": "/el/",
+    "canonical_url": "/media/files/resume_en.pdf"
+  },
+  {
+    "url": "/media/files/ism2021_preprint.pdf",
+    "title": "Combining Global and Local Attention with Positional Encoding for Video Summarization — Research paper",
+    "category": "Publications research papers ISM 2021 δημοσιεύσεις",
+    "source_type": "paper",
+    "document_id": "ism2021",
+    "topics": [
+      "research",
+      "video-summarization",
+      "attention"
+    ],
+    "language": "en",
+    "related_page": "/publications/ism2021/"
+  },
+  {
+    "url": "/media/files/ism2022_preprint.pdf",
+    "title": "Explaining video summarization based on the focus of attention — Research paper",
+    "category": "Publications research papers ISM 2022 δημοσιεύσεις",
+    "source_type": "paper",
+    "document_id": "ism2022",
+    "topics": [
+      "research",
+      "video-summarization",
+      "explainability"
+    ],
+    "language": "en",
+    "related_page": "/publications/ism2022/"
+  },
+  {
+    "url": "/media/files/icmr2022_preprint.pdf",
+    "title": "Summarizing Videos using Concentrated Attention and Considering the Uniqueness and Diversity of the Video Frames — Research paper",
+    "category": "Publications research papers ICMR 2022 δημοσιεύσεις",
+    "source_type": "paper",
+    "document_id": "icmr2022",
+    "topics": [
+      "research",
+      "video-summarization",
+      "concentrated-attention"
+    ],
+    "language": "en",
+    "related_page": "/publications/icmr2022/"
+  },
+  {
+    "url": "/el/media/files/jpeg.pdf",
+    "title": "JPEG Image Compression — Project report (Greek)",
+    "category": "Projects JPEG compression συμπίεση εικόνας",
+    "source_type": "report",
+    "document_id": "jpeg",
+    "topics": [
+      "projects",
+      "image-compression"
+    ],
+    "language": "el"
+  },
+  {
+    "url": "/el/media/files/thesis.pdf",
+    "title": "Mobile Battery Drain Prediction — Diploma thesis (Greek)",
+    "category": "Projects thesis diploma διπλωματική εργασία",
+    "source_type": "thesis",
+    "document_id": "thesis",
+    "topics": [
+      "research",
+      "battery-prediction"
+    ],
+    "language": "el"
+  },
+  {
+    "url": "/media/slides/ism2021_slides.pptx",
+    "title": "Combining Global and Local Attention with Positional Encoding for Video Summarization — Presentation slides",
+    "category": "Publications research presentation slides ISM 2021",
+    "source_type": "slides",
+    "document_id": "ism2021",
+    "topics": [
+      "research",
+      "video-summarization",
+      "attention"
+    ],
+    "language": "en",
+    "related_page": "/publications/ism2021/"
+  },
+  {
+    "url": "/media/slides/icmr2022_slides.pptx",
+    "title": "Summarizing Videos using Concentrated Attention and Considering the Uniqueness and Diversity of the Video Frames — Presentation slides",
+    "category": "Publications research presentation slides ICMR 2022",
+    "source_type": "slides",
+    "document_id": "icmr2022",
+    "topics": [
+      "research",
+      "video-summarization",
+      "concentrated-attention"
+    ],
+    "language": "en",
+    "related_page": "/publications/icmr2022/"
+  },
+  {
+    "url": "/media/slides/from_workflows_to_agents_workshop.pptx",
+    "title": "From Workflows to Agents: Building LLM Systems in Practice — Workshop slides",
+    "category": "Projects workshop TechSaloniki workflows agents LLM systems presentation slides εργαστήριο διαφάνειες",
+    "source_type": "workshop-slides",
+    "document_id": "from-workflows-to-agents",
+    "topics": [
+      "workshop",
+      "llm",
+      "agents",
+      "workflows"
+    ],
+    "language": "en",
+    "related_page": "/projects/from-workflows-to-agents/"
+  },
+  {
+    "url": "/el/media/slides/thesis.pptx",
+    "title": "Mobile Battery Drain Prediction — Presentation slides (Greek)",
+    "category": "Projects thesis diploma presentation slides διπλωματική παρουσίαση",
+    "source_type": "slides",
+    "document_id": "thesis",
+    "topics": [
+      "research",
+      "battery-prediction"
+    ],
+    "language": "el"
+  }
+]

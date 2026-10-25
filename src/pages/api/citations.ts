@@ -16,6 +16,12 @@ interface SemanticScholarPaper {
 
 export const GET: APIRoute = async ({ url, locals }) => {
   const doi = url.searchParams.get("doi");
+  const runtime = locals.runtime as { env: { DB?: D1Database } };
+  return citationResponse(doi, runtime.env.DB);
+};
+
+// Shared with chat so displayed counts and assistant answers use one cache.
+export async function citationResponse(doi: string | null, db?: D1Database) {
   
   if (!doi) {
     return new Response(
@@ -25,8 +31,7 @@ export const GET: APIRoute = async ({ url, locals }) => {
   }
   
   // Create cache instance (24 hours = 86400 seconds)
-  const runtime = locals.runtime as { env: { DB?: D1Database } };
-  const cache = createCache(runtime.env.DB);
+  const cache = createCache(db);
   const cacheKey = `citations:${doi}`;
   
   // Check cache first
@@ -41,6 +46,7 @@ export const GET: APIRoute = async ({ url, locals }) => {
         source: cachedData.source,
         year: cachedData.year,
         cached: true,
+        checkedAt: cachedData.cachedAt,
       });
     }
     staleData = await cache.getStale<CitationCache>(cacheKey);
@@ -51,6 +57,7 @@ export const GET: APIRoute = async ({ url, locals }) => {
     const apiUrl = `https://api.semanticscholar.org/graph/v1/paper/DOI:${encodeURIComponent(doi)}?fields=citationCount,influentialCitationCount,referenceCount,year`;
     
     const res = await fetch(apiUrl, {
+      signal: AbortSignal.timeout(6000),
       headers: {
         'Accept': 'application/json',
       },
@@ -72,19 +79,21 @@ export const GET: APIRoute = async ({ url, locals }) => {
     }
     
     const data = await res.json() as SemanticScholarPaper;
-    const citationCount = data.citationCount || 0;
+    const citationCount = data.citationCount;
+    if (!Number.isSafeInteger(citationCount) || citationCount! < 0) throw new Error('Invalid citation count');
     
     const result = {
       citationCount: citationCount,
       source: 'Semantic Scholar',
       year: data.year,
+      checkedAt: new Date().toISOString(),
     };
     
     // Cache the result for 24 hours
     if (cache) {
       await cache.set(cacheKey, {
         ...result,
-        cachedAt: new Date().toISOString(),
+        cachedAt: result.checkedAt,
       }, 86400);
     }
     
@@ -103,6 +112,7 @@ export const GET: APIRoute = async ({ url, locals }) => {
         year: staleData.year,
         cached: true,
         stale: true,
+        checkedAt: staleData.cachedAt,
       });
     }
     return new Response(
@@ -113,4 +123,4 @@ export const GET: APIRoute = async ({ url, locals }) => {
       { status: 200, headers: { "Content-Type": "application/json" } }
     );
   }
-};
+}

@@ -18,7 +18,7 @@ weight: 0
 
 This workshop used a support-ticket assistant to show how an LLM application grows beyond a single prompt.
 
-We started with a plain LLM call, then added structured outputs, tools, a fixed workflow, a bounded agent loop, and evaluation checks. Each step had a reason to exist in the example rather than treating more autonomy as the goal.
+We started with a plain LLM call, then added structured outputs, tools, a fixed workflow, a bounded agent loop, and evaluation checks. Each step introduced the autonomy needed by the example.
 
 ## Workflow or agent?
 

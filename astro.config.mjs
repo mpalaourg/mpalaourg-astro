@@ -11,7 +11,7 @@ export default defineConfig({
   integrations: [
     mdx(),
     sitemap({
-      filter: (page) => !page.includes('api/'),
+      filter: (page) => !page.includes('api/') && !/\/(?:el\/)?chat\/?$/.test(new URL(page).pathname),
       i18n: {
         defaultLocale: 'en',
         locales: {

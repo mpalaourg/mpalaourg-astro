@@ -38,4 +38,4 @@ The diagram above shows the flow from data collection to clustering and predicti
 - **Connectivity:** Whether Wi-Fi, mobile data, Bluetooth, hotspot, and GPS are enabled. GPS location is not recorded.
 - **Sample context:** Sampling time, sampling frequency, device model, and Android version.
 
-Samples are associated with a unique user ID rather than a name. The [repository](https://github.com/mpalaourg/Thesis#raw-data-variables) documents the recorded variables in more detail.
+Each sample is associated with a unique, pseudonymous user ID. The [repository](https://github.com/mpalaourg/Thesis#raw-data-variables) documents the recorded variables in more detail.

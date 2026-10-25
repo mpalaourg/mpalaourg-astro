@@ -1,0 +1,8 @@
+---
+export const prerender = true;
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SiteChat from '../../components/SiteChat.astro';
+---
+<BaseLayout title="AI Assistant | Georgios Balaouras" description="Ask about Georgios Balaouras’s experience, projects, research, and writing with an AI guide grounded in this site." noindex chatPage>
+  <SiteChat full />
+</BaseLayout>

@@ -4,7 +4,7 @@
 <rect width="1200" height="545" rx="16" fill="#ffffff"/>
 <g font-family="DejaVu Sans, sans-serif" stroke-linecap="round" stroke-linejoin="round">
 <text x="40" y="47" font-size="27" fill="#0f172a" font-weight="650" text-anchor="start">One message trace, separate units of work</text>
-<rect x="420" y="86" width="360" height="80" rx="12" fill="#fff7ed" stroke="#fb923c" stroke-width="1.5"/><text x="440" y="121" font-size="24" fill="#0f172a" font-weight="650" text-anchor="start">Message trace</text>
+<rect x="420" y="86" width="360" height="80" rx="12" fill="#fff7ed" stroke="#fb923c" stroke-width="1.5"/><text x="600" y="126" font-size="24" fill="#0f172a" font-weight="650" text-anchor="middle" dominant-baseline="middle">Message trace</text>
 <path d="M600 166V195H365V225" fill="none" stroke="#94a3b8" stroke-width="1.5" />
 <path d="M600 195H965V225" fill="none" stroke="#94a3b8" stroke-width="1.5" />
 <rect x="40" y="225" width="650" height="205" rx="12" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/><text x="60" y="260" font-size="24" fill="#0f172a" font-weight="650" text-anchor="start">Answer pipeline</text>

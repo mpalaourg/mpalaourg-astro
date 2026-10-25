@@ -1,11 +1,14 @@
 ---
 import "../styles/global.css";
+import SiteChat from "../components/SiteChat.astro";
+import CookiePopup from "../components/CookiePopup.astro";
 
 interface Props {
   title: string;
   description: string;
   noindex?: boolean;
   hasTranslation?: boolean;
+  chatPage?: boolean;
   ogImage?: string;
   ogImageAlt?: string;
   ogType?: string;
@@ -16,6 +19,7 @@ const {
   description,
   noindex = false,
   hasTranslation = true,
+  chatPage = false,
   ogImage,
   ogImageAlt,
   ogType = "website",
@@ -81,6 +85,7 @@ const shareImageUrl = new URL(ogImage ?? "/media/share-preview.png", siteUrl).hr
   </head>
 
   <body
+    data-chat-page={chatPage || undefined}
     class="bg-white text-gray-900
            dark:bg-slate-900 dark:text-slate-100 transition-colors"
   >
@@ -188,6 +193,10 @@ const shareImageUrl = new URL(ogImage ?? "/media/share-preview.png", siteUrl).hr
     <main>
       <slot />
     </main>
+
+    <CookiePopup lang={isEl ? "el" : "en"} />
+
+    {!/^\/(?:el\/)?chat(?:\/|$)/.test(pathname) && <SiteChat lang={isEl ? "el" : "en"} />}
 
     <script>
       const toggle = document.getElementById("theme-toggle");

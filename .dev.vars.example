@@ -1,0 +1,50 @@
+# Reference settings for your existing ignored .env; preserve its existing secrets.
+# .dev.vars is an optional alternative. Use one local secrets file, not both.
+CHAT_ENVIRONMENT=development
+CHAT_ENABLED=true
+# Optional owner-approved background: configure from ignored local JSON with
+# npm run chat:background:configure. Never commit the values or their encoding.
+# CHAT_OWNER_BACKGROUND_B64=<private-server-configuration>
+PINECONE_ENABLED=true
+PINECONE_TOP_K=40
+PINECONE_RERANK_CANDIDATES=24
+CHAT_CONTEXT_TOP_K=8
+PINECONE_RERANK_ENABLED=false
+# Add the project key as a Cloudflare Pages production secret as well.
+# PINECONE_API_KEY=your-pinecone-project-key
+# PINECONE_INDEX_HOST=your-development-index.svc.region.pinecone.io
+# Each deployment has one host; production uses its separate index.
+# Reranking is explicitly disabled locally; enable deliberately when testing it.
+# Index schema/name/region live in infra/pinecone/chat-index.json.
+CHAT_DECISION_MODEL=baseten/mammoth-1:free
+CHAT_DECISION_SECONDARY_MODEL=baseten/elephant-1:free
+CHAT_DECISION_TERTIARY_MODEL=inception/mercury-decide:free
+CHAT_DECISION_FALLBACK_MODEL=typesafe/jev-1.14
+CHAT_MODEL=nvidia/nemotron-3-ultra-550b-a55b:free
+CHAT_SECONDARY_MODEL=google/gemma-4-31b-it:free
+CHAT_TERTIARY_MODEL=openrouter/free
+CHAT_TITLE_MODEL=nvidia/nemotron-3-ultra-550b-a55b:free
+CHAT_FALLBACK_MODEL=z-ai/glm-5.3-flash
+OPENROUTER_API_KEY=replace-with-a-dedicated-spend-capped-key
+# Generate with: openssl rand -hex 32
+CHAT_IP_SECRET=replace-with-at-least-32-random-characters
+CHAT_REQUIRE_TURNSTILE=true
+# Public Cloudflare dummy keys for LOCALHOST ONLY.
+# Cloudflare Pages production must use your real widget keys.
+TURNSTILE_SITE_KEY=1x00000000000000000000AA
+TURNSTILE_SECRET_KEY=1x0000000000000000000000000000000AA
+# Shared successful answers for the visible starter prompts, per language/style.
+CHAT_STARTER_CACHE_ENABLED=true
+
+# LangSmith: use the development tracing-only key locally, production key in Pages secrets.
+# Keys are separate even though the setting name is the same.
+# LANGSMITH_API_KEY=your-development-tracing-only-key
+LANGSMITH_TRACING=true
+LANGSMITH_ENDPOINT=https://api.smith.langchain.com
+LANGSMITH_PROJECT=mpalaourg-chat-development
+# Current question and final answer only, with basic credential/email redaction.
+# Set false to send timings and metadata without question/answer text.
+LANGSMITH_CAPTURE_CONTENT=true
+LANGSMITH_SAMPLE_RATE=1
+# Only needed if the API key has no default workspace.
+# LANGSMITH_WORKSPACE_ID=your-workspace-id

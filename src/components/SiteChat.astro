@@ -1,0 +1,107 @@
+---
+import '../styles/chat.css';
+import 'katex/dist/katex.min.css';
+import { LIMITS } from '../lib/chat/policy';
+import { PERSONAS } from '../lib/chat/personas';
+import { contactPath } from '../lib/chat/contact';
+interface Props { full?: boolean; lang?: 'en' | 'el' }
+const { full = false, lang = 'en' } = Astro.props;
+const el = lang === 'el';
+const panelId = full ? 'site-chat-page' : 'site-chat-panel';
+---
+<site-chat data-mode={full ? 'page' : 'bubble'} data-lang={lang}>
+  {!full && <button class="chat-launcher" aria-label={el ? 'Άνοιγμα συνομιλίας' : 'Open AI assistant'} aria-expanded="false" aria-controls={panelId}><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M5 4.5h14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-8l-5 3v-3H5a2 2 0 0 1-2-2v-9a2 2 0 0 1 2-2Z"/><path d="M7 9h10M7 13h6"/></svg> {el ? 'Ρωτήστε για μένα' : 'Ask about me'}</button>}
+  <section id={panelId} hidden={!full} class:list={['chat-shell', { 'chat-page': full }]} aria-label={el ? 'Βοηθός AI' : 'AI Assistant'}>
+    <div class="chat-topbar">
+      <div class="chat-header-start">
+        <button data-action="history" aria-label={el ? 'Ιστορικό συνομιλιών' : 'Toggle conversation history'} aria-expanded={full ? 'true' : 'false'}><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M9 3v18"/></svg></button>
+        <button type="button" class="chat-header-new" data-action="new" aria-label={el ? 'Νέα συνομιλία' : 'New chat'} title={el ? 'Νέα συνομιλία' : 'New chat'}><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4H6a3 3 0 0 0-3 3v11a3 3 0 0 0 3 3h11a3 3 0 0 0 3-3v-6"/><path d="m15.5 3.5 5 5M10 14l1-4L18 3a2.1 2.1 0 0 1 3 3l-7 7-4 1Z"/></svg></button>
+        <div class="chat-brand"><div>{full ? <h1>{el ? 'Βοηθός AI' : 'AI Assistant'}</h1> : <strong>{el ? 'Βοηθός AI' : 'AI Assistant'}</strong>}<span>{el ? 'Για τη δουλειά και τα ενδιαφέροντά μου' : 'A little more about Georgios Balaouras'}</span></div></div>
+      </div>
+      <div class="chat-top-actions">{!full && <><a href={el ? '/el/chat/' : '/chat/'} aria-label={el ? 'Άνοιγμα της συνομιλίας σε πλήρη σελίδα' : 'Open full chat page'}>↗</a><button data-action="minimize" aria-label={el ? 'Ελαχιστοποίηση συνομιλίας' : 'Minimize chat'} title={el ? 'Ελαχιστοποίηση' : 'Minimize'}><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M5 16h14"/></svg></button></>}</div>
+    </div>
+    <div class="chat-workspace">
+      <aside class="chat-sidebar" aria-label={el ? 'Συνομιλίες' : 'Conversations'}>
+        <button type="button" class="chat-new" data-action="new"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4H6a3 3 0 0 0-3 3v11a3 3 0 0 0 3 3h11a3 3 0 0 0 3-3v-6"/><path d="m15.5 3.5 5 5M10 14l1-4L18 3a2.1 2.1 0 0 1 3 3l-7 7-4 1Z"/></svg><span>{el ? 'Νέα συνομιλία' : 'New chat'}</span></button>
+        <div class="chat-tabs" role="group" aria-label={el ? 'Εμφάνιση συνομιλιών' : 'Filter conversations'}><button data-action="active" aria-pressed="true">{el ? 'Πρόσφατες' : 'Recent'}</button><button data-action="archived" aria-pressed="false">{el ? 'Αρχείο' : 'Archived'}</button></div>
+        <div class="chat-thread-list"></div>
+        <button class="chat-clear" data-action="clear">{el ? 'Διαγραφή όλου του ιστορικού' : 'Delete all history'}</button>
+        <p class="chat-storage-note">{el ? 'Το ιστορικό σας είναι διαθέσιμο μόνο εδώ και λήγει μετά από 30 ημέρες χωρίς δραστηριότητα.' : 'Private to this browser. History expires after 30 days of inactivity.'}</p>
+      </aside>
+      <div class="chat-consent-gate" hidden>
+        <h2>{el ? 'Πριν ξεκινήσουμε' : 'Before we chat'}</h2>
+        <p>{el ? 'Για να χρησιμοποιήσετε τον βοηθό, χρειάζεται να αποδεχτείτε τα cookies της συνομιλίας. Μπορείτε να συνεχίσετε την περιήγησή σας χωρίς αυτά.' : 'Accept chat cookies to use the assistant. You can keep browsing the site without them.'}</p>
+        <button type="button" data-action="cookie-settings">{el ? 'Ρυθμίσεις cookies' : 'Cookie settings'}</button>
+      </div>
+      <section class="chat-conversation" aria-label={el ? 'Τρέχουσα συνομιλία' : 'Current conversation'}>
+        <div class="chat-messages" role="log" aria-live="polite" aria-relevant="additions" aria-busy="false"></div>
+        <div class="chat-notice" role="status"></div>
+        <div class="chat-continue" hidden>
+          <p class="chat-continue-title">{el ? 'Η κουβέντα συνεχίζεται' : 'Keep the conversation going'}</p>
+          <p class="chat-continue-description">{el ? 'Αυτή η συνομιλία ολοκληρώθηκε. Συνεχίστε με μια νέα ή μιλήστε απευθείας με τον Γιώργο.' : 'This chat is complete. Start a fresh one, or take the conversation to Georgios.'}</p>
+          <div class="chat-continue-actions">
+            <button type="button" data-action="new">{el ? 'Νέα συνομιλία' : 'New chat'}<span aria-hidden="true"> ↗</span></button>
+            <a href={contactPath(lang)}>{el ? 'Επικοινωνία με τον Γιώργο' : 'Get in touch with Georgios'}<span aria-hidden="true"> ↗</span></a>
+          </div>
+        </div>
+        <div class="chat-challenge" role="group" aria-label={el ? 'Έλεγχος ασφαλείας' : 'Security verification'} hidden></div>
+        <form class="chat-compose"><label class="sr-only" for={full ? 'chat-question-page' : 'chat-question-bubble'}>{el ? 'Η ερώτησή σας' : 'Your question'}</label><textarea id={full ? 'chat-question-page' : 'chat-question-bubble'} name="question" rows="1" maxlength={LIMITS.question} required placeholder={el ? 'Τι θα θέλατε να μάθετε;' : 'What would you like to know?'}></textarea><button type="submit" aria-label={el ? 'Αποστολή ερώτησης' : 'Send question'} disabled>↑</button>
+        <div class="chat-selected-sources" aria-label={el ? 'Επιλεγμένες πηγές' : 'Attached sources'} hidden></div>
+        <div class="chat-mention-menu" id={`${panelId}-sources`} role="listbox" aria-label={el ? 'Σελίδες και αρχεία' : 'Pages and files'} hidden></div>
+        <span class="chat-source-status sr-only" role="status"></span>
+        <div class="chat-compose-tools">
+          <details class="chat-persona-picker">
+            <summary class="chat-tool-tooltip" data-tooltip={el ? 'Επιλέξτε ύφος απάντησης' : 'Choose an answer style'} aria-label={el ? 'Ύφος απάντησης: Απλό' : 'Answer style: Baseline'} aria-controls={`${panelId}-personas`}>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 7h16M4 17h16M9 4v6M15 14v6"/></svg>
+              <span class="chat-persona-caption">{el ? 'Ύφος' : 'Style'}</span>
+              <span aria-hidden="true" class="chat-settings-separator">·</span><span class="chat-persona-current">{el ? 'Απλό' : 'Baseline'}</span>
+              <svg class="chat-persona-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m6 15 6-6 6 6"/></svg>
+            </summary>
+            <fieldset id={`${panelId}-personas`} class="chat-persona-options" aria-describedby={`${panelId}-persona-help`}>
+              <legend class="sr-only">{el ? 'Επιλέξτε ύφος απάντησης' : 'Choose an answer style'}</legend>
+              <span id={`${panelId}-persona-help`} class="sr-only">{el ? 'Μετακινηθείτε με τα βελάκια και πατήστε Enter για επιλογή. Κλείστε με Escape.' : 'Browse with arrow keys, press Enter to choose, or Escape to close.'}</span>
+              <p class="chat-persona-heading">{el ? 'Πώς να τα πούμε;' : 'Pick the delivery.'}</p>
+              {PERSONAS.map(persona => <label class="chat-persona-option">
+                <input class="sr-only" type="radio" name={`${panelId}-persona`} value={persona.id} checked={persona.id === 'baseline'} aria-label={`${persona.name[lang]}. ${persona.description[lang]}`} />
+                <svg class="chat-persona-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d={persona.icon}/></svg>
+                <span><strong>{persona.name[lang]}</strong><small>{persona.description[lang]}</small></span>
+                <svg class="chat-persona-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg>
+              </label>)}
+            </fieldset>
+          </details>
+          <button type="button" class="chat-tool chat-tool-tooltip" data-action="mention" aria-label={el ? 'Προσθήκη πηγής' : 'Attach a source'} data-tooltip={el ? 'Προσθήκη σελίδας ή αρχείου με @' : 'Attach a page or file with @'}><span class="chat-tool-at" aria-hidden="true">@</span><span>{el ? 'Πηγές' : 'Sources'}</span></button>
+          <button type="button" class="chat-tool chat-tour-trigger chat-tool-tooltip" data-action="tour" aria-label={el ? 'Μια γρήγορη ξενάγηση' : 'A quick tour'} data-tooltip={el ? 'Μια γρήγορη ξενάγηση' : 'A quick tour'}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 4.3 1.7c-1.3 1-1.8 1.3-1.8 3M12 16.5v1"/></svg><span>{el ? 'Ξενάγηση' : 'Tour'}</span></button>
+        </div>
+        <div class="chat-compose-meta"><div class="chat-allowances"><span class="chat-session-remaining" hidden></span><span class="chat-quota">{el ? 'Φόρτωση…' : 'Connecting…'}</span></div><span class="chat-length">0 / {LIMITS.question}</span></div></form>
+        <footer class="chat-footer">{el ? 'Ο βοηθός AI μπορεί να κάνει λάθη. Ελέγξτε τις πηγές των απαντήσεων.' : 'AI Assistant can make mistakes. Please check cited answers.'}</footer>
+      </section>
+    </div>
+    {!full && <div class="chat-resize-handles" aria-label={el ? 'Αλλαγή μεγέθους συνομιλίας' : 'Resize chat'}>
+      {['n', 'e', 's', 'w', 'nw', 'ne', 'sw', 'se'].map(edge => <div class={`chat-resize chat-resize-${edge}`} data-resize={edge} aria-hidden="true" />)}
+      <button type="button" class="chat-resize-keyboard" aria-label={el ? 'Αλλαγή μεγέθους: χρησιμοποιήστε τα πλήκτρα με τα βέλη' : 'Resize chat: use arrow keys'} title={el ? 'Σύρετε για να αλλάξετε το μέγεθος ή χρησιμοποιήστε τα πλήκτρα με τα βέλη' : 'Drag to resize, or focus and use arrow keys'} data-resize="nw"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" aria-hidden="true"><path d="M3 11V3h8M3 3l10 10"/></svg></button>
+    </div>}
+    <dialog class="chat-confirm" aria-labelledby={full ? 'chat-confirm-title-page' : 'chat-confirm-title-bubble'} aria-describedby={full ? 'chat-confirm-description-page' : 'chat-confirm-description-bubble'}>
+      <div class="chat-confirm-icon" aria-hidden="true"></div>
+      <h2 id={full ? 'chat-confirm-title-page' : 'chat-confirm-title-bubble'} class="chat-confirm-title"></h2>
+      <p id={full ? 'chat-confirm-description-page' : 'chat-confirm-description-bubble'} class="chat-confirm-description"></p>
+      <p class="chat-confirm-url" hidden></p>
+      <div class="chat-confirm-buttons">
+        <a data-confirm-download hidden></a>
+        <button type="button" data-confirm="cancel" autofocus>{el ? 'Ακύρωση' : 'Cancel'}</button>
+        <button type="button" data-confirm="accept"></button>
+        <a data-confirm-link rel="noopener noreferrer" hidden></a>
+      </div>
+    </dialog>
+    <dialog class="chat-tour" aria-labelledby={`${panelId}-tour-title`} aria-describedby={`${panelId}-tour-description`}>
+      <div class="chat-tour-visual" aria-hidden="true"></div>
+      <p class="chat-tour-step"></p>
+      <h2 id={`${panelId}-tour-title`}></h2>
+      <p id={`${panelId}-tour-description`} class="chat-tour-description"></p>
+      <div class="chat-tour-dots" aria-hidden="true"></div>
+      <div class="chat-tour-actions"><button type="button" data-tour="dismiss">{el ? 'Παράλειψη' : 'Dismiss'}</button><button type="button" data-tour="back">{el ? 'Πίσω' : 'Back'}</button><button type="button" data-tour="next">{el ? 'Επόμενο' : 'Next'}</button></div>
+    </dialog>
+  </section>
+</site-chat>
+<script>
+  import '../scripts/site-chat';
+</script>

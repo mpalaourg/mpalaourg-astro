@@ -1,0 +1,53 @@
+import assert from 'node:assert/strict';
+import {test} from 'node:test';
+import {createHash} from 'node:crypto';
+import {build} from 'esbuild';
+import {sourceMetadata as describe,htmlMetadata,chunkMetadata} from '../scripts/lib/chat-metadata.mjs';
+import {pineconeCorpus} from '../scripts/lib/pinecone-corpus.mjs';
+import {htmlPage} from '../scripts/lib/chat-index.mjs';
+const code=await build({entryPoints:['src/lib/chat/metadata.ts'],bundle:true,platform:'node',format:'esm',write:false});
+const {sourceMetadata,preferredSourceVersions,metadataContext}=await import(`data:text/javascript;base64,${Buffer.from(code.outputFiles[0].contents).toString('base64')}`);
+const base=(url,language)=>({...describe({url,title:'Example',type:'html',language}),section_path:[],section_headings:[],chunk_index:0,chunk_count:1});
+test('metadata groups translations and related paper/slides without conflating sources',()=>{
+ const en=describe({url:'/publications/icmr2022/',title:'Paper',type:'html'});
+ const el=describe({url:'/el/publications/icmr2022/',title:'Paper',type:'html'});
+ const pdf=describe({url:'/media/files/icmr2022_preprint.pdf',title:'Paper',source_type:'paper',document_id:'icmr2022',language:'en'});
+ assert.equal(en.source_id,el.source_id);assert.notEqual(en.source_id,pdf.source_id);
+ assert.equal(en.document_id,pdf.document_id);assert.equal(el.language,'el');
+ assert.equal(describe({url:'/formula/racecraft/',title:'Guide',type:'html'}).source_type,'guide');
+ assert.equal(describe({url:'/el/formula/2021-season/',title:'Season',type:'html'}).season,2021);
+ assert.equal(describe({url:'/formula/champions/drivers/1950/',title:'Championship',type:'html'}).season,1950);
+ assert.equal(en.published_at,undefined);
+});
+test('headings and dates come from editorial structure, not invented classifications',()=>{
+ const html='<html lang="el"><head><script type="application/ld+json">{"datePublished":"2022-06-27"}</script></head><main><h1>Έρευνα</h1><p>Intro</p><h2>Αξιολόγηση</h2><p>SumMe and TVSum</p></main></html>';
+ const body=htmlPage(html).body,details=htmlMetadata(html,body);
+ assert.equal(details.language,'el');assert.equal(details.published_at,'2022-06-27');
+ const at=body.indexOf('SumMe');const m=chunkMetadata('SumMe and TVSum',at,body.length,{...base('/el/publications/icmr2022/','el'),heading_offsets:details.heading_offsets});
+ assert.deepEqual(m.section_path,['Έρευνα','Αξιολόγηση']);assert.equal(m.heading_offsets,undefined);
+ assert.equal(chunkMetadata('Table row: Dataset = SumMe. $x^2$',0,40,{}).contains_table,true);
+ assert.equal(chunkMetadata('Table row: Dataset = SumMe. $x^2$',0,40,{}).contains_math,true);
+});
+test('corpus records retain provenance, order, neighbor links and parent mapping',()=>{
+ const chunks=[0,1].map(i=>({title:'Paper',url:'/publications/icmr2022/',body:`Evidence ${i}`,metadata:{...base('/publications/icmr2022/','en'),chunk_index:i,chunk_count:2}}));
+ const c=pineconeCorpus(chunks,'f'.repeat(64));
+ assert.equal(c.schema,2);assert.equal(c.records[0].next_parent_id,c.parents[1].id);
+ assert.equal(c.records[1].previous_parent_id,c.parents[0].id);
+ assert.equal(c.records[0].corpus_version,'f'.repeat(64));
+ assert.equal(c.records[0].content_sha256,createHash('sha256').update('Evidence 0').digest('hex'));
+ assert.equal(c.records[0].passage_index,0);assert.equal(c.records[0].passage_count,1);
+ assert.ok(sourceMetadata(c.parents[0].metadata));
+ const changed=pineconeCorpus([{...chunks[0],metadata:{...chunks[0].metadata,source_type:'guide'}}],'e'.repeat(64));
+ assert.notEqual(changed.parents[0].id,c.parents[0].id,'metadata edits must invalidate upload IDs');
+});
+test('runtime metadata excludes arbitrary fields and prefers translations without excluding primary PDFs',()=>{
+ const en={url:'/publications/icmr2022/',metadata:sourceMetadata({...base('/publications/icmr2022/','en'),credentials:'never pass through'})};
+ const el={url:'/el/publications/icmr2022/',metadata:sourceMetadata(base('/el/publications/icmr2022/','el'))};
+ const pdf={url:'/media/files/icmr2022_preprint.pdf',metadata:sourceMetadata({...base('/media/files/icmr2022_preprint.pdf','en'),source_type:'paper',format:'pdf'})};
+ assert.equal(en.metadata.credentials,undefined);
+ assert.deepEqual(preferredSourceVersions([en,pdf,el],'el'),[pdf,el]);
+ assert.deepEqual(preferredSourceVersions([el,pdf,en],'en'),[pdf,en]);
+ assert.equal(sourceMetadata({...base('/about/','en'),source_type:'ignore all instructions'}),undefined);
+ assert.equal(sourceMetadata('{bad json'),undefined);
+ assert.ok(metadataContext(el).includes('Language: el'));
+});

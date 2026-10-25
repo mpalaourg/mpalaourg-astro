@@ -31,15 +31,15 @@ The system follows a bounded workflow. Models can request evidence through a def
 
 <ChatbotArchitecture />
 
-A **Cloudflare Pages Function** accepts the request after cookie-consent, ownership, Turnstile and rate-limit checks. Database reservations are atomic, and stable conversation and message identifiers make accepted submissions idempotent. A repeated submission resolves to the existing request rather than starting a second exchange.
+A **Cloudflare Pages Function** accepts the request after cookie-consent, ownership, Turnstile and rate-limit checks. Database reservations are atomic, and stable conversation and message identifiers make accepted submissions idempotent. A repeated submission resolves to the existing request.
 
 A **question cache** can supply a stored answer without repeating generation. Cache hits use the same validation and persistence flow as generated responses. An unavailable cache returns control to the live workflow.
 
 The decision stage classifies the request as factual, courtesy, clarification or refusal. It returns a choice and a probability distribution. The server validates the distribution and checks the winning option's confidence and margin. Uncertainty escalates through the decision cascade; unresolved ambiguity produces clarification, while a complete decision-service outage prevents answer generation.
 
-For a factual request, the planner receives a **source catalog** containing titles, URLs and document metadata. Its output specifies search phrases and source selections. The server validates that plan before retrieving text. Catalog metadata guides source selection but is not supplied as factual evidence.
+For a factual request, the planner receives a **source catalog** containing titles, URLs and document metadata. Its output specifies search phrases and source selections. The server validates that plan before retrieving text. Catalog metadata guides source selection. Retrieved excerpts supply the factual evidence.
 
-The writer receives the resulting excerpts, citation identifiers, response language and persona. Conversation history resolves references in follow-up questions; it does not replace source evidence. The output contract distinguishes substantive answers from courtesies, clarifications and refusals, with source references required for factual answers.
+The writer receives the resulting excerpts, citation identifiers, response language and persona. Conversation history resolves references in follow-up questions; retrieved excerpts supply the evidence for factual claims. The output contract distinguishes substantive answers from courtesies, clarifications and refusals, with source references required for factual answers.
 
 ## Technology Stack
 
@@ -63,7 +63,7 @@ Decision routing and chat generation have separate model sequences. Each chain r
 - **Planning and answers:** `NVIDIA Nemotron 3 Ultra 550B A55B` → `Google Gemma 4 31B IT` → `OpenRouter router` → `GLM 5.3 Flash`.
 - **Conversation titles:** `NVIDIA Nemotron 3 Ultra 550B A55B`, in an independent background task.
 
-Timeouts, transport failures and invalid output advance through the configured fallbacks within a shared request deadline. Each attempt retains the same evidence and output requirements. A valid refusal is terminal rather than a reason to try another model.
+Timeouts, transport failures and invalid output advance through the configured fallbacks within a shared request deadline. Each attempt retains the same evidence and output requirements. A valid refusal completes the request.
 
 The application records the **actual model returned by the provider**, including the model selected behind the `OpenRouter router`. Decision and title calls have separate attribution from the answer.
 
@@ -73,7 +73,7 @@ Title persistence is independent of reply persistence. A failed title call retai
 
 The corpus includes English and Greek pages, CVs, research and project PDFs, thesis material and PPTX presentations. It covers the workshop, Formula season articles, guides and championship pages. Source code, ZIP archives, credentials and visitor conversations are excluded from ingestion.
 
-HTML extraction retains editorial content and published links while removing scripts, navigation and controls. **Docling** converts PDFs into page-aware text, tables and detected formulas. PPTX extraction follows visible slide text in presentation order. These operations run before deployment; request handling searches prepared content rather than parsing original files.
+HTML extraction retains editorial content and published links while removing scripts, navigation and controls. **Docling** converts PDFs into page-aware text, tables and detected formulas. PPTX extraction follows visible slide text in presentation order. These operations run before deployment, preparing the content for searches during request handling.
 
 The ingestion pipeline produces **parent chunks and smaller embedding passages**. Passages provide bounded embedding inputs, while parent chunks preserve enough surrounding text for answer generation. Table rows include their column labels so that retrieved values retain their meaning outside the original page layout. Image-only document figures are not interpreted.
 
@@ -103,13 +103,13 @@ The branches produce scores on different scales. **RRF combines their rank posit
   <figcaption class="mt-3 text-sm text-gray-500 dark:text-slate-400">Parallel retrieval, rank fusion and optional reranking before evidence is assembled.</figcaption>
 </figure>
 
-Retrieval IDs are resolved against the **canonical D1 corpus**. The answer receives that text and its validated source metadata, rather than accepting remote text or URLs as independent evidence. Context assembly applies configurable candidate and context bounds, source diversity and the scope of any explicit attachments.
+Retrieval IDs are resolved against the **canonical D1 corpus**. The answer receives the canonical text and its validated source metadata. Context assembly applies configurable candidate and context bounds, source diversity and the scope of any explicit attachments.
 
 The fallback behavior distinguishes search failure from ranking failure. If model reranking is skipped or unavailable, the application keeps the RRF ordering. A Pinecone failure switches retrieval to **D1 FTS5 keyword search**. A successful empty Pinecone result stays empty and does not trigger a second search.
 
 ## Source Constraints and Response Styles
 
-**`@` references** select existing indexed pages or files. The picker searches titles, filenames and content; the resulting source identifiers are validated by the server. Attached sources become constraints on retrieval and context assembly, not additional instructions to the model. They are persisted with the question so its evidence boundary remains explicit in conversation history.
+**`@` references** select existing indexed pages or files. The picker searches titles, filenames and content; the resulting source identifiers are validated by the server. Attached sources constrain retrieval and context assembly. Their contents are treated as source material throughout the pipeline. They are persisted with the question so its evidence boundary remains explicit in conversation history.
 
 Language and persona are separate inputs to generation. English and Greek guidance controls phrasing and terminology, while the selected persona controls register and response length:
 
@@ -121,22 +121,22 @@ All five styles share the same scope, source requirements and output validation.
 
 The dedicated page and floating panel share a **TypeScript client and rendering pipeline**. Cookie consent gates `sessionStorage` for drafts, selected sources, panel dimensions and the active conversation. The floating panel supports pointer and keyboard resizing, and its state is restored across same-tab navigation.
 
-A **POST-based SSE connection** carries structured response events. The client extracts answer-text previews rather than exposing provider JSON or reasoning. Failed attempts clear their preview before fallback generation. A completed reply is emitted after final validation and persistence, with its citations and actual model attribution.
+A **POST-based SSE connection** carries structured response events. The client extracts answer-text previews from the structured events. Failed attempts clear their preview before fallback generation. A completed reply is emitted after final validation and persistence, with its citations and actual model attribution.
 
-**Generation state belongs to the conversation, not the selected view.** Stream callbacks update their originating thread, and late responses cannot overwrite another conversation. Accepted server work can continue across view changes. Independent title tasks and idempotent message identifiers keep concurrent requests associated with the correct saved records.
+**Each conversation owns its generation state across view changes.** Stream callbacks update their originating thread, and late responses cannot overwrite another conversation. Accepted server work can continue across view changes. Independent title tasks and idempotent message identifiers keep concurrent requests associated with the correct saved records.
 
 <figure class="my-10 text-center">
   <div class="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-slate-700">
     <img src="/projects/site-assistant/streaming.svg" alt="Sequence of the browser, API, model and D1: stream answer previews, validate the completed response, persist it, then send the final reply." width="1200" height="620" loading="lazy" decoding="async" class="mx-auto h-auto w-full" />
   </div>
-  <figcaption class="mt-3 text-sm text-gray-500 dark:text-slate-400">Streaming previews and the persistence boundary for a completed answer. Spacing does not represent elapsed time.</figcaption>
+  <figcaption class="mt-3 text-sm text-gray-500 dark:text-slate-400">Event sequence from streaming previews to a validated, saved answer.</figcaption>
 </figure>
 
 Response text is parsed into a **CommonMark syntax tree** and rendered through a restricted DOM builder. Streamed and saved answers use the same path for emphasis, lists, headings, quotations, inline code and fenced blocks. KaTeX handles inline and display mathematics, retaining literal text for expressions that cannot be rendered.
 
 Citations resolve to pages, PDFs and slides. Markdown and plain URLs pass destination validation, with external navigation gated by an acknowledgement. Images are limited to published assets associated with cited sources. Copy supports Markdown and plain-text representations; document downloads use validated references, with **fflate loaded on demand** for multi-file ZIP creation.
 
-Conversation management supports creation, renaming, archiving, restoration and deletion under browser ownership. The client also provides a replayable feature tour, keyboard navigation, focus states and reduced-motion behavior. Optional follow-up questions and contact references are validated as part of the response rather than appended independently by the interface.
+Conversation management supports creation, renaming, archiving, restoration and deletion under browser ownership. The client also provides a replayable feature tour, keyboard navigation, focus states and reduced-motion behavior. Response validation also covers optional follow-up questions and contact references.
 
 ## Validation and Privacy
 
@@ -146,7 +146,7 @@ The backend enforces browser ownership, bound SQL, atomic usage reservations, de
 
 History is associated with an anonymous browser session using hashed ownership tokens in D1. Cookie consent precedes chat storage and provider requests; withdrawal disables chat access and synchronizes the preference across tabs. History expires automatically and can be deleted by the visitor. Deleting application history does not remove records already processed by external providers or separately retained diagnostics.
 
-These are application controls rather than a guarantee of factual entailment or complete prompt-injection resistance. A valid citation identifies retrieved evidence; it does not establish that every generated claim follows from it.
+These application controls enforce scope, evidence boundaries and output validation. Assessing factual entailment and prompt-injection resistance requires ongoing evaluation. A valid citation identifies retrieved evidence; each generated claim still needs to be checked against that evidence.
 
 ## Observability
 

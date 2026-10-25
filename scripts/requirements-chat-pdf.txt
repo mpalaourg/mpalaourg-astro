@@ -1,0 +1,2 @@
+# Maintainer-only extraction. Not installed by npm or Cloudflare builds.
+docling==2.141.0

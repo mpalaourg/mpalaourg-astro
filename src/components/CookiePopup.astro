@@ -1,0 +1,41 @@
+---
+// Restored from the banner removed in d4e06a2; copy now describes chat storage.
+interface Props { lang?: 'en' | 'el' }
+const { lang = 'en' } = Astro.props;
+const el = lang === 'el';
+---
+<section data-lang={lang} id="cookie-popup" class="cookie-notice" aria-labelledby="cookie-notice-title" hidden>
+  <div class="cookie-notice-heading"><span aria-hidden="true">🍪</span><h2 id="cookie-notice-title">{el ? 'Cookies και προτιμήσεις' : 'Cookies & preferences'}</h2><button type="button" data-cookie-dismiss aria-label={el ? 'Κλείσιμο' : 'Close notice'}>×</button></div>
+  <p>{el ? 'Ο βοηθός χρησιμοποιεί cookies και αποθηκεύει τις συνομιλίες και τις προτιμήσεις σας. Για να συνομιλήσετε, χρειάζεται να τα αποδεχτείτε.' : 'The assistant uses cookies and stores your chats and preferences. Accept them to use the chat.'}</p>
+  <details><summary>{el ? 'Λίγα περισσότερα' : 'A little more'}</summary><div>
+    <p>{el ? 'Μπορείτε να διαγράψετε τις συνομιλίες σας όποτε θέλετε. Το ιστορικό λήγει μετά από 30 ημέρες χωρίς δραστηριότητα.' : 'Delete your chats whenever you like. History expires after 30 days of inactivity.'}</p>
+    <p>{el ? 'Οι ερωτήσεις και το σχετικό ιστορικό στέλνονται στο OpenRouter και στους παρόχους AI του. Τα ερωτήματα αναζήτησης στέλνονται στο Pinecone. Οι ερωτήσεις και οι απαντήσεις καταγράφονται επίσης στο LangSmith για τη βελτίωση του βοηθού. Μην μοιράζεστε ευαίσθητες πληροφορίες.' : 'Questions and relevant history go to OpenRouter and its AI providers. Search queries go to Pinecone. Questions and replies are also logged in LangSmith to improve the assistant. Keep sensitive details out of the chat.'}</p>
+    <p>{el ? 'Μπορείτε να αλλάξετε την επιλογή σας όποτε θέλετε. Αν δεν αποδεχτείτε τα cookies, μπορείτε να περιηγηθείτε κανονικά στον ιστότοπο.' : 'You can change your choice anytime. If you decline, you can still browse the site.'}</p>
+  </div></details>
+  <p class="cookie-choice-status" role="status"></p>
+  <div class="cookie-choice-actions"><button type="button" class="cookie-choice-button" data-cookie-choice="accepted">{el ? 'Αποδοχή' : 'Accept cookies'}</button><button type="button" class="cookie-choice-button" data-cookie-choice="declined">{el ? 'Όχι, ευχαριστώ' : 'No thanks'}</button></div>
+</section>
+<button type="button" id="cookie-notice-reopen" class="cookie-notice-reopen" aria-controls="cookie-popup" hidden>{el ? 'Ρυθμίσεις cookies' : 'Cookie settings'}</button>
+<script>
+  import '../scripts/cookie-consent';
+</script>
+<style>
+  .cookie-notice{position:fixed;z-index:80;left:20px;bottom:20px;width:min(390px,calc(100vw - 40px));padding:20px;border:1px solid #e7d5c3;border-radius:16px;background:#fffdf9;color:#26303a;box-shadow:0 12px 45px #02061722;font-size:12px;line-height:1.7}
+  .cookie-notice[hidden],.cookie-notice-reopen[hidden]{display:none}
+  .cookie-notice-heading{display:flex;gap:10px;align-items:center;margin-bottom:10px}
+  .cookie-notice-heading>span{font-size:23px}
+  .cookie-notice-heading h2{font-size:14px;font-weight:650;flex:1}
+  .cookie-notice-heading button{font-size:22px;width:30px;height:30px;border-radius:50%;cursor:pointer}
+  .cookie-notice details{margin-top:12px}
+  .cookie-notice summary{cursor:pointer;color:#a74622;font-weight:550}
+  .cookie-notice details>div{max-height:230px;overflow:auto;padding-right:6px}
+  .cookie-notice details p{margin-top:10px}
+  .cookie-choice-actions{display:flex;gap:8px;margin-top:16px}.cookie-choice-button{flex:1;border:1px solid #c9ced2;border-radius:7px;padding:9px 12px;font-weight:600;cursor:pointer}.cookie-choice-button:hover{background:#f1eee8}.cookie-choice-button:disabled{opacity:.5;cursor:wait}.cookie-choice-status:not(:empty){margin-top:10px;color:#a74622}
+  .cookie-notice-reopen{position:fixed;left:16px;bottom:12px;z-index:55;padding:5px 8px;border-radius:6px;font-size:10px;background:#ffffffeb;color:#5c6570;cursor:pointer}
+  .cookie-notice :is(button,summary):focus-visible,.cookie-notice-reopen:focus-visible{outline:2px solid #c36536;outline-offset:3px}
+  :global(.dark) .cookie-notice{background:#1b2938;color:#edf0ec;border-color:#47515b}
+  :global(.dark) .cookie-notice summary{color:#f3a27d}
+  :global(.dark) .cookie-choice-button{border-color:#647183}:global(.dark) .cookie-choice-button:hover{background:#26394d}:global(.dark) .cookie-choice-status{color:#f3a27d}
+  :global(.dark) .cookie-notice-reopen{background:#0f172aeb;color:#aeb8c4}
+  @media(max-width:600px){.cookie-notice{left:12px;bottom:80px;width:calc(100vw - 24px);padding:16px}.cookie-notice-reopen{left:8px;bottom:8px;font-size:9px}}
+</style>

@@ -1,0 +1,39 @@
+{
+  "name": "mpalaourg-chat",
+  "deployment": {
+    "deployment_type": "managed",
+    "cloud": "aws",
+    "region": "us-east-1"
+  },
+  "schema": {
+    "fields": {
+      "title": {
+        "type": "string",
+        "full_text_search": {}
+      },
+      "body": {
+        "type": "string",
+        "full_text_search": {},
+        "embed": {
+          "model": "multilingual-e5-large",
+          "dimension": 1024,
+          "metric": "cosine",
+          "write_parameters": {
+            "truncate": "NONE"
+          },
+          "read_parameters": {
+            "truncate": "NONE"
+          }
+        }
+      }
+    }
+  },
+  "environments": {
+    "development": {
+      "name": "mpalaourg-chat-development"
+    },
+    "production": {
+      "name": "mpalaourg-chat"
+    }
+  }
+}

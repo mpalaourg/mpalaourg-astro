@@ -5,14 +5,28 @@
   "scripts": {
     "dev": "astro dev",
     "dev:local": "npm run build && npx wrangler pages dev ./dist --compatibility-date=2026-03-03 --port=8789",
-    "build": "astro build && npm run verify:meta && npm run verify:images",
+    "build": "astro build && npm run verify:meta && npm run verify:images && node scripts/index-chat.mjs",
     "test": "node --test tests/*.test.mjs",
+    "audit:secrets": "node scripts/audit-secrets.mjs",
+    "chat:background:configure": "node --env-file=.env scripts/configure-chat-background.mjs",
     "verify:meta": "node scripts/verify-meta.mjs",
     "verify:images": "node scripts/verify-images.mjs",
     "preview": "astro preview",
     "astro": "astro",
     "db:migrate:local": "npx wrangler d1 migrations apply mpalaourg-site-cache --local",
-    "db:query": "npx wrangler d1 execute mpalaourg-site-cache --local --command"
+    "db:query": "npx wrangler d1 execute mpalaourg-site-cache --local --command",
+    "chat:index:local": "npx wrangler d1 execute mpalaourg-site-cache --local --file=.chat/index.sql",
+    "chat:index:remote": "npx wrangler d1 execute mpalaourg-site-cache --remote --file=.chat/index.sql --env production",
+    "chat:pinecone:plan": "node --env-file=.env scripts/pinecone-chat.mjs plan",
+    "chat:pinecone:apply": "node --env-file=.env scripts/pinecone-chat.mjs apply",
+    "chat:pinecone:configure": "node --env-file=.env scripts/configure-pinecone-pages.mjs",
+    "chat:pinecone:sync": "node --env-file=.env scripts/pinecone-chat.mjs sync",
+    "chat:pinecone:check": "node --env-file=.env scripts/pinecone-chat.mjs check",
+    "chat:smoke": "node --env-file=.env scripts/smoke-chat.mjs",
+    "chat:tracing:check": "node --env-file=.env scripts/check-chat-tracing.mjs",
+    "chat:tracing:setup": "node --env-file=.env scripts/check-chat-tracing.mjs --projects",
+    "db:migrate:production": "npx wrangler d1 migrations apply mpalaourg-site-cache --remote --env production",
+    "chat:pages:configure": "node scripts/configure-chat-pages.mjs"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^12.6.13",
@@ -20,11 +34,21 @@
     "@astrojs/sitemap": "^3.7.4",
     "@tailwindcss/vite": "^4.3.3",
     "astro": "^5.18.2",
+    "fflate": "^0.8.3",
+    "katex": "^0.19.0",
+    "langsmith": "^0.11.1",
+    "mdast-util-from-markdown": "^2.1.0",
+    "mdast-util-math": "^3.0.0",
+    "micromark-extension-math": "^3.1.0",
+    "parse5": "^8.0.1",
     "tailwindcss": "^4.3.3"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260307.1",
     "@tailwindcss/typography": "^0.5.20",
+    "@types/katex": "^0.16.8",
+    "esbuild": "^0.25.12",
+    "fast-xml-parser": "^5.11.2",
     "wrangler": "4.71.0"
   }
 }

@@ -6,6 +6,32 @@
     "global_fetch_strictly_public"
   ],
   "pages_build_output_dir": "./dist",
+  "vars": {
+    "CHAT_ENVIRONMENT": "development",
+    "CHAT_ENABLED": "true",
+    "LANGSMITH_TRACING": "true",
+    "LANGSMITH_ENDPOINT": "https://api.smith.langchain.com",
+    "LANGSMITH_PROJECT": "mpalaourg-chat-development",
+    "LANGSMITH_CAPTURE_CONTENT": "true",
+    "CHAT_STARTER_CACHE_ENABLED": "true",
+    "PINECONE_ENABLED": "true",
+    "PINECONE_TOP_K": "40",
+    "PINECONE_RERANK_CANDIDATES": "24",
+    "CHAT_CONTEXT_TOP_K": "8",
+    "PINECONE_RERANK_ENABLED": "false",
+    "CHAT_REQUIRE_TURNSTILE": "true",
+    "CHAT_DECISION_MODEL": "baseten/mammoth-1:free",
+    "CHAT_DECISION_SECONDARY_MODEL": "baseten/elephant-1:free",
+    "CHAT_DECISION_TERTIARY_MODEL": "inception/mercury-decide:free",
+    "CHAT_DECISION_FALLBACK_MODEL": "typesafe/jev-1.14",
+    "CHAT_MODEL": "nvidia/nemotron-3-ultra-550b-a55b:free",
+    "CHAT_SECONDARY_MODEL": "google/gemma-4-31b-it:free",
+    "CHAT_TERTIARY_MODEL": "openrouter/free",
+    "CHAT_TITLE_MODEL": "nvidia/nemotron-3-ultra-550b-a55b:free",
+    "CHAT_FALLBACK_MODEL": "z-ai/glm-5.3-flash",
+    "PINECONE_INDEX_HOST": "mpalaourg-chat-development-12paum6.svc.aped-4627-b74a.pinecone.io",
+    "LANGSMITH_SAMPLE_RATE": "1"
+  },
   "observability": {
     "enabled": true
   },
@@ -15,5 +41,71 @@
       "database_name": "mpalaourg-site-cache",
       "database_id": "15f7759b-c6d7-439c-be45-906142945129"
     }
-  ]
+  ],
+  "env": {
+    "production": {
+      "vars": {
+        "CHAT_ENVIRONMENT": "production",
+        "CHAT_ENABLED": "true",
+        "LANGSMITH_TRACING": "true",
+        "LANGSMITH_ENDPOINT": "https://api.smith.langchain.com",
+        "LANGSMITH_PROJECT": "mpalaourg-chat-production",
+        "LANGSMITH_CAPTURE_CONTENT": "true",
+        "CHAT_STARTER_CACHE_ENABLED": "true",
+        "PINECONE_ENABLED": "true",
+        "PINECONE_TOP_K": "40",
+        "PINECONE_RERANK_CANDIDATES": "24",
+        "CHAT_CONTEXT_TOP_K": "8",
+        "PINECONE_RERANK_ENABLED": "true",
+        "CHAT_REQUIRE_TURNSTILE": "true",
+        "CHAT_DECISION_MODEL": "baseten/mammoth-1:free",
+        "CHAT_DECISION_SECONDARY_MODEL": "baseten/elephant-1:free",
+        "CHAT_DECISION_TERTIARY_MODEL": "inception/mercury-decide:free",
+        "CHAT_DECISION_FALLBACK_MODEL": "typesafe/jev-1.14",
+        "CHAT_MODEL": "nvidia/nemotron-3-ultra-550b-a55b:free",
+        "CHAT_SECONDARY_MODEL": "google/gemma-4-31b-it:free",
+        "CHAT_TERTIARY_MODEL": "openrouter/free",
+        "CHAT_TITLE_MODEL": "nvidia/nemotron-3-ultra-550b-a55b:free",
+        "CHAT_FALLBACK_MODEL": "z-ai/glm-5.3-flash",
+        "PINECONE_INDEX_HOST": "mpalaourg-chat-12paum6.svc.aped-4627-b74a.pinecone.io",
+        "LANGSMITH_SAMPLE_RATE": "1"
+      },
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "mpalaourg-site-cache",
+          "database_id": "15f7759b-c6d7-439c-be45-906142945129"
+        }
+      ]
+    },
+    "preview": {
+      "vars": {
+        "CHAT_ENVIRONMENT": "development",
+        "CHAT_ENABLED": "false",
+        "LANGSMITH_TRACING": "true",
+        "LANGSMITH_ENDPOINT": "https://api.smith.langchain.com",
+        "LANGSMITH_PROJECT": "mpalaourg-chat-development",
+        "LANGSMITH_CAPTURE_CONTENT": "true",
+        "CHAT_STARTER_CACHE_ENABLED": "true",
+        "PINECONE_ENABLED": "true",
+        "PINECONE_TOP_K": "40",
+        "PINECONE_RERANK_CANDIDATES": "24",
+        "CHAT_CONTEXT_TOP_K": "8",
+        "PINECONE_RERANK_ENABLED": "false",
+        "CHAT_REQUIRE_TURNSTILE": "true",
+        "CHAT_DECISION_MODEL": "baseten/mammoth-1:free",
+        "CHAT_DECISION_SECONDARY_MODEL": "baseten/elephant-1:free",
+        "CHAT_DECISION_TERTIARY_MODEL": "inception/mercury-decide:free",
+        "CHAT_DECISION_FALLBACK_MODEL": "typesafe/jev-1.14",
+        "CHAT_MODEL": "nvidia/nemotron-3-ultra-550b-a55b:free",
+        "CHAT_SECONDARY_MODEL": "google/gemma-4-31b-it:free",
+        "CHAT_TERTIARY_MODEL": "openrouter/free",
+        "CHAT_TITLE_MODEL": "nvidia/nemotron-3-ultra-550b-a55b:free",
+        "CHAT_FALLBACK_MODEL": "z-ai/glm-5.3-flash",
+        "PINECONE_INDEX_HOST": "mpalaourg-chat-development-12paum6.svc.aped-4627-b74a.pinecone.io",
+        "LANGSMITH_SAMPLE_RATE": "1"
+      },
+      "d1_databases": []
+    }
+  }
 }
