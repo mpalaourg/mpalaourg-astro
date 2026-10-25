@@ -114,6 +114,7 @@ class SiteChat extends HTMLElement {
   private challengeKey = '';
   private challengeId?: string;
   private challengeLoading = false;
+  private noticeSource: 'general' | 'challenge' = 'general';
   private t(en: string, el: string) { return this.el ? el : en; }
   private q<T extends HTMLElement = HTMLElement>(selector: string) { return this.querySelector<T>(selector)!; }
   private get panel() { return this.q<HTMLElement>('.chat-shell'); }
@@ -471,7 +472,8 @@ class SiteChat extends HTMLElement {
     if (!response.ok) throw new ChatRequestError(data.error || this.t('The guide is unavailable.', 'Ο βοηθός δεν είναι διαθέσιμος αυτή τη στιγμή.'), data.recorded);
     return data;
   }
-  private notice(message: string) { this.q('.chat-notice').textContent = message; }
+  private notice(message: string, source: 'general' | 'challenge' = 'general') { this.noticeSource = source; this.q('.chat-notice').textContent = message; }
+  private clearChallengeNotice() { if (this.noticeSource === 'challenge') this.notice(''); }
   private renderLiveAnswer(message: ChatMessage) {
     if (!message.answer || message.status === 'done') { this.renderMessages(false); return; }
     const area = this.q('.chat-messages');
@@ -1053,14 +1055,15 @@ class SiteChat extends HTMLElement {
         script.addEventListener('error', () => reject(new ChatRequestError(this.t('The bot check could not load. Please refresh.', 'Δεν φορτώθηκε ο έλεγχος ασφαλείας. Ανανεώστε τη σελίδα.'))), { once: true });
       });
       if (!hasChatConsent()) return;
-      this.challengeId = window.turnstile!.render(container, { sitekey: key, action: 'site-chat', theme: document.documentElement.classList.contains('dark') ? 'dark' : 'light', size: container.clientWidth < 300 ? 'compact' : 'normal', appearance: 'interaction-only', language: this.el ? 'el' : 'en',
-        callback: (token: string) => { delete container.dataset.interactive; this.challengeToken = token; this.updateControls(); },
-        'before-interactive-callback': () => { container.dataset.interactive = 'true'; },
-        'after-interactive-callback': () => { delete container.dataset.interactive; },
-        'expired-callback': () => { this.challengeToken = ''; this.updateControls(); },
-        'error-callback': () => { this.challengeToken = ''; this.notice(this.t('The bot check failed. Refresh to try again.', 'Ο έλεγχος ασφαλείας απέτυχε. Ανανεώστε τη σελίδα και δοκιμάστε ξανά.')); this.updateControls(); },
+      this.challengeId = window.turnstile!.render(container, { sitekey: key, action: 'site-chat', theme: document.documentElement.classList.contains('dark') ? 'dark' : 'light', size: container.clientWidth < 300 ? 'compact' : 'normal', appearance: 'interaction-only', retry: 'auto', language: this.el ? 'el' : 'en',
+        callback: (token: string) => { delete container.dataset.interactive; this.challengeToken = token; container.hidden = true; this.clearChallengeNotice(); this.updateControls(); },
+        'before-interactive-callback': () => { container.hidden = false; container.dataset.interactive = 'true'; this.clearChallengeNotice(); },
+        'after-interactive-callback': () => { delete container.dataset.interactive; container.hidden = !!this.challengeToken; },
+        'expired-callback': () => { this.challengeToken = ''; container.hidden = false; this.updateControls(); },
+        'timeout-callback': () => { this.challengeToken = ''; container.hidden = false; this.updateControls(); },
+        'error-callback': () => { this.challengeToken = ''; container.hidden = false; this.notice(this.t('The security check was interrupted. Please try the check below.', 'Ο έλεγχος ασφαλείας διακόπηκε. Δοκιμάστε ξανά παρακάτω.'), 'challenge'); this.updateControls(); },
       });
-    } catch (error) { this.notice(this.errorText(error)); }
+    } catch (error) { this.notice(this.errorText(error), 'challenge'); }
     finally { this.challengeLoading = false; this.updateControls(); }
   }
   private async send() {
@@ -1069,7 +1072,7 @@ class SiteChat extends HTMLElement {
     if (!hasChatConsent() || !question || this.busy || this.answering || this.input.disabled || (this.challengeKey && !this.challengeToken)) return;
     const threadId = this.active || crypto.randomUUID(), persona = this.persona, challengeToken = this.challengeToken;
     this.detailRequest++;
-    this.challengeToken = ''; if (this.challengeId) window.turnstile?.reset(this.challengeId);
+    this.challengeToken = ''; if (this.challengeId) { this.q('.chat-challenge').hidden = false; window.turnstile?.reset(this.challengeId); }
     if (!this.active) {
       this.setActive(threadId); this.unconfirmedThreads.add(threadId);
       this.threads.unshift({ id: threadId, title: 'New conversation', archived: 0, questions: 0, updated_at: Date.now(), persona });
