@@ -1,3 +1,4 @@
+import {runSignal,checkRun} from './cancellation';
 import {traceStep} from './tracing';
 import type { ChatEnv } from './server';
 
@@ -9,7 +10,7 @@ export async function generateChatTitle(env: ChatEnv, question: string, lang: 'e
   let actualModel=env.CHAT_TITLE_MODEL||DEFAULT_TITLE_MODEL,usage:unknown,status:number|undefined,generated=false;
   try {
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST', signal: AbortSignal.timeout(30000),
+      method: 'POST', signal: runSignal(env,30000),
       headers: { Authorization: `Bearer ${env.OPENROUTER_API_KEY}`, 'Content-Type': 'application/json', 'HTTP-Referer': 'https://mpalaourg.dev', 'X-OpenRouter-Title': 'Georgios - Chat titles' },
       body: JSON.stringify({ model: env.CHAT_TITLE_MODEL || DEFAULT_TITLE_MODEL, max_tokens: 512, temperature: 0,
         messages: [

@@ -1,6 +1,11 @@
 // Shared UI/API copy keeps errors and saved failure messages in the active language.
 const greek: Record<string, string> = {
   'Choose up to five pages or files from the source menu.': 'Επιλέξτε έως πέντε σελίδες ή αρχεία από το μενού πηγών.',
+  'Response stopped.': 'Η απάντηση σταμάτησε.',
+  'Message not found.': 'Το μήνυμα δεν βρέθηκε.',
+  'Invalid message replacement.': 'Δεν ήταν δυνατή η αντικατάσταση του μηνύματος.',
+  'Only the latest stopped or completed message can be edited.': 'Μπορείτε να επεξεργαστείτε μόνο το τελευταίο μήνυμα, αφού σταματήσει η απάντηση.',
+  'The latest message changed. Reopen the conversation and try again.': 'Το τελευταίο μήνυμα άλλαξε. Ανοίξτε ξανά τη συνομιλία και δοκιμάστε ξανά.',
   'That source is no longer available. Please choose it again.': 'Αυτή η πηγή δεν είναι πια διαθέσιμη. Επιλέξτε την ξανά.',
   'Choose an available answer style.': 'Επιλέξτε ένα από τα διαθέσιμα ύφη απάντησης.',
   'Accept cookies to use the chat.': 'Για να χρησιμοποιήσετε τη συνομιλία, χρειάζεται να αποδεχτείτε τα cookies.',

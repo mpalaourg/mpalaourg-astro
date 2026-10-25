@@ -1,3 +1,4 @@
+import type {ChatCitation} from './f1-results-data';
 // Both upstream model events and our browser response use SSE over fetch.
 export async function* eventData(body: ReadableStream<Uint8Array>) {
   const reader = body.getReader();
@@ -22,8 +23,9 @@ export async function* eventData(body: ReadableStream<Uint8Array>) {
 }
 
 export type ChatStreamEvent =
+  | { type: 'cancelled' }
   | { type: 'title'; id: string; title: string }
   | { type: 'status'; phase: 'searching' | 'thinking' }
   | { type: 'answer'; answer: string }
-  | { type: 'done'; answer: string; sources: { title: string; url: string }[]; model: string | null }
+  | { type: 'done'; answer: string; sources: ChatCitation[]; model: string | null }
   | { type: 'error'; error: string; recorded: boolean };

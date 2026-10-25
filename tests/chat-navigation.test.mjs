@@ -76,3 +76,31 @@ test('a stale chat load cannot clear a newer loading state, and failures never s
  c.api=async()=>{throw new Error('offline')};await c.action('select','C');
  assert.equal(c.threadLoadFailed,true);assert.equal(c.loadingConversation,false);
 });
+
+test('Stop targets its admitted run and aborts the local stream after server acknowledgement',async()=>{
+ const c=chat();c.loadMessages=async()=>{};let askStarted,stopped=false,streamSignal;
+ const ready=new Promise(resolve=>{askStarted=resolve});
+ c.api=async(body,_id,onEvent,signal)=>{
+  if(body.action==='create')return{id:body.id};
+  if(body.action==='cancel'){assert.equal(signal,undefined);stopped=true;return{status:'cancelled'}}
+  streamSignal=signal;onEvent({type:'status',phase:'thinking'});askStarted();
+  return new Promise((_,reject)=>signal.addEventListener('abort',()=>{assert.equal(stopped,true);reject(signal.reason)},{once:true}));
+ };
+ const work=c.send();await ready;await c.cancelRun();await work;
+ assert.equal(streamSignal.aborted,true);assert.equal(c.running.size,0);assert.equal(c.messages[0].status,'cancelled');assert.equal(c.retries.size,0);
+});
+test('editing the last answer excludes its previous turn and sends a replacement identifier',async()=>{
+ const c=chat(),old={id:crypto.randomUUID(),question:'Old question',answer:'Old answer',sources:[],status:'done',persona:'baseline',context_sources:[{title:'Workshop',url:'/projects/from-workflows-to-agents/'}]};
+ c.active=crypto.randomUUID();c.messages=[{...old,id:crypto.randomUUID(),question:'First question'},old];c.turns=2;c.input.disabled=true;c.loadMessages=async()=>{};
+ const calls=[];
+ c.api=async(body)=>{calls.push(body);return{}};
+ await c.send(old,'Revised question');
+ const ask=calls.find(call=>call.action==='ask');assert.equal(ask.replaceMessageId,old.id);assert.equal(ask.question,'Revised question');assert.deepEqual(ask.sourceUrls,['/projects/from-workflows-to-agents/']);
+ assert.equal(c.messages.length,2);assert.equal(c.messages[1].question,'Revised question');assert.equal(c.turns,2);
+});
+test('editing preserves the editor when replacement admission fails',async()=>{
+ const c=chat(),old={id:crypto.randomUUID(),question:'Old question',answer:'Old answer',sources:[],status:'done'};
+ c.active=crypto.randomUUID();c.messages=[old];c.turns=1;c.loadMessages=async()=>{c.messages=[old]};c.api=async()=>{throw Error('Quota exhausted')};
+ await c.send(old,'Revised question');
+ assert.equal(c.messageEditId,old.id);assert.equal(c.messageEditText,'Revised question');assert.equal(c.messages[0].question,'Old question');
+});

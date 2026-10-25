@@ -55,7 +55,7 @@ test('500 rerank reservations cannot overrun the free budget and do not reset wh
 test('Pinecone performs both retrieval branches, reranks free, and never mixes in D1 keyword matches',async()=>{
  const {sql,DB,queries}=setup();const requests=[];try{
   globalThis.fetch=async(url,init)=>{
-   const body=JSON.parse(init.body);requests.push({url,body});assert.equal(init.redirect,'error');assert.equal(init.headers['X-Pinecone-Api-Version'],'2026-07');
+   const body=JSON.parse(init.body);requests.push({url,body});assert.equal(init.redirect,'manual');assert.equal(init.headers['X-Pinecone-Api-Version'],'2026-07');
    if(url==='https://api.pinecone.io/rerank'){
     assert.equal(body.model,'bge-reranker-v2-m3');assert.equal(body.documents.length,2);
     return Response.json({data:[{index:1,score:.9},{index:0,score:.2}]});
@@ -161,4 +161,10 @@ test('retrieval uses only the deployment host and falls back to D1 if it is miss
   await retrieveChatSources(DB,'machine learning',[],[],'en',undefined,{...development,PINECONE_INDEX_HOST:undefined});
   assert.equal(requests.length,0);assert.ok(queries.some(query=>query.includes(' MATCH ')));
  }finally{sql.close()}
+});
+
+test('Pinecone redirects use Workers-compatible manual handling and retain the D1 fallback',async()=>{
+ const {sql,DB,queries}=setup(),calls=[];
+ globalThis.fetch=async(url,init)=>{calls.push({url:String(url),redirect:init.redirect});return new Response('',{status:307,headers:{Location:'https://untrusted.example/collect'}})};
+ try{const rows=await retrieveChatSources(DB,'machine learning',[],[],'en',undefined,env);assert.ok(rows.length);assert.equal(calls.length,2);assert.ok(calls.every(c=>c.redirect==='manual'&&c.url.startsWith(`https://${env.PINECONE_INDEX_HOST}/`)));assert.ok(queries.some(query=>query.includes(' MATCH ')));}finally{sql.close()}
 });

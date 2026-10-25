@@ -30,7 +30,7 @@ The checked-in configuration has `CHAT_ENABLED=true` and `CHAT_REQUIRE_TURNSTILE
 1. Create a Turnstile widget with the production hostname and configure its public `TURNSTILE_SITE_KEY` and secret `TURNSTILE_SECRET_KEY` in Cloudflare Pages.
 2. Set `OPENROUTER_API_KEY` and `CHAT_IP_SECRET` as **secrets**, and `CHAT_MODEL`, `CHAT_SECONDARY_MODEL`, `CHAT_TERTIARY_MODEL`, `CHAT_FALLBACK_MODEL`, and `CHAT_TITLE_MODEL` as server variables. The independent decision cascade uses `CHAT_DECISION_MODEL`, `CHAT_DECISION_SECONDARY_MODEL`, `CHAT_DECISION_TERTIARY_MODEL` and `CHAT_DECISION_FALLBACK_MODEL` (defaults: `baseten/mammoth-1:free`, `baseten/elephant-1:free`, `inception/mercury-decide:free`, `typesafe/jev-1.14`). The primary model is `nvidia/nemotron-3-ultra-550b-a55b:free`, followed by `google/gemma-4-31b-it:free`, `openrouter/free`, then `z-ai/glm-5.3-flash` on errors; verify availability with your key and the required JSON and provider settings before enabling. The API never accepts a client-selected model or provider URL.
 3. Set a small hard spending limit on the dedicated OpenRouter key. The app caps accepted questions and completion tokens, not currency costs or OpenRouter's internal provider-routing attempts.
-4. Run `npx wrangler d1 migrations apply mpalaourg-site-cache --remote` before releasing the routes, including `0004_chat.sql` and the additive Pinecone mapping/rerank-budget migration `0005_chat_pinecone.sql`. Build the site and run `npm run chat:index:remote` against the intended database. These commands mutate production; run them deliberately in your release pipeline. This implementation does not run remote commands automatically.
+4. Run `npx wrangler d1 migrations apply mpalaourg-site-cache --remote` before releasing the routes, including `0004_chat.sql` and the additive Pinecone mapping/rerank-budget migration `0005_chat_pinecone.sql` and `0006_chat_runs.sql`. Build the site and run `npm run chat:index:remote` against the intended database. These commands mutate production; run them deliberately in your release pipeline. This implementation does not run remote commands automatically.
 5. Run the live model evaluation below and manually review factual accuracy, refusals, citations, English, and Greek. Check at least one real production Turnstile validation, including the expected hostname and `site-chat` action.
 6. Configure a Cloudflare rate-limiting/WAF rule for `/api/chat/*` to bound abusive GETs and management operations (for example, 60 requests per IP per minute, tuned for your traffic). The model budget does not protect unmetered history/database operations. Turnstile is verified before new question reservations. Managed widgets use `interaction-only` appearance: background verification leaves no reserved blank row, and an interactive challenge appears in a centered, bounded container above the composer. Narrow layouts use the compact size. The widget uses the current site theme and chat language; its iframe is not restyled or hidden by custom CSS.
 7. `CHAT_ENABLED=true` is already set in `wrangler.jsonc`; keep this file as the authoritative production variable source. Wrangler variables may override dashboard variables; keep one authoritative source. Redeploy and smoke-test both locales and the bubble.
@@ -75,9 +75,9 @@ On 22 October, temporary live checks used the existing key without storing chats
 
 ## Quotas and history
 
-- 200 accepted questions shared per UTC day; 10 per IP per local calendar day; 4 per conversation, including refusals and provider failures. Invalid input, failed bot checks, and rejected limits do not consume a question.
-- Three accepted questions per IP per minute limits bursts. The 4-turn limit persists across days for the same thread.
-- Reservations use SQLite triggers inside the same atomic D1 batch as message insertion. Concurrent writers cannot exceed the budgets. A unique request ID makes retries idempotent. Only one pending question per thread is accepted. Interrupted pending messages become failed after 150 seconds on the next API request. Quotas are not refunded because the provider may already have billed the request.
+- 200 accepted questions shared per UTC day; 10 per IP per local calendar day; 4 per conversation, including completed refusals. Pending runs reserve a slot; failures and cancellations release it. Invalid input, failed bot checks, and rejected limits do not consume a question.
+- Three attempts per IP per minute limits bursts, including failed and cancelled attempts. The 4-turn limit persists across days for the same thread.
+- Reservations use SQLite triggers inside the same atomic D1 batch as message insertion. Concurrent writers cannot exceed the budgets. A unique request ID makes retries idempotent. Only one pending question per thread is accepted. Interrupted pending messages become failed after 150 seconds on the next API request. Status transitions atomically refund failed and cancelled runs. A completed answer remains charged when it is replaced by an edit.
 - Daily usage is independent of messages/threads and survives their deletion. The IP is HMACed with the local calendar date using a server secret. A separate keyed IP identifier pins the validated browser IANA timezone (Cloudflare timezone, then UTC as fallbacks) while that IP remains active, so changing the browser timezone or clearing cookies cannot replenish its allowance. The timezone profile expires after 48 hours of inactivity. Both the local-day key and next-midnight timestamp use server time and account for DST. People sharing an IP share the pinned timezone and allowance; a timezone change takes effect after the profile expires. The shared budget still uses UTC, and the UI distinguishes the two reset times. Only Cloudflare's `CF-Connecting-IP` is trusted; raw IPs are not stored in D1. The production endpoint fails closed without a platform IP. IPs are shared behind NAT and change with VPNs/mobile networks; these are abuse controls, not identity verification. Cookie deletion cannot reset an unchanged IP's budget. IP rotation can evade it. Usage rows retain the current UTC day and two preceding days so a local day can cross UTC boundaries; do not rotate the HMAC secret mid-day without accepting a quota reset.
 - Random 256-bit anonymous cookies identify a browser. Production uses an HttpOnly, Secure, SameSite=Strict, host-only `__Host-site_chat` cookie. D1 stores its SHA-256 hash; every history read/mutation checks ownership. Mutations require matching Origin and JSON. There is no login or cross-device sync. Someone sharing a browser profile can read that profile's chat history.
 - Titles are generated by a separate `CHAT_TITLE_MODEL` (default `nvidia/nemotron-3-ultra-550b-a55b:free`) once on the first accepted question, in parallel with answering. This adds at most one 30-second, 512-token model call per new chat, outside the question allowance, with no paid retry. Titles use the first question plus bounded excerpts from explicitly attached pages, without running an additional keyword search, preserve specific project names, and are prompted to avoid generic labels such as “Site conversation”; code validates only their format and size. Short titles use the chat language; if generation fails or returns an invalid title, the first question (up to 64 characters) is used instead. The first-question fallback is saved atomically with the first accepted message, so an interrupted title job cannot leave “New chat” permanently. Generated titles persist independently as soon as they arrive; they do not wait for the answer, and answer completion does not wait for them. A title event updates its own sidebar row while the stream is open; after answer completion, bounded metadata-only polling discovers late titles. Later questions no longer cancel title saving by changing updated_at. A different manual title wins through a compare-and-set on the fallback value. Sidebar rows are reconciled in place, preserving the current conversation, draft, scroll position and rename input. Users can rename to 80 characters. Archive is reversible; delete is permanent and cascades to messages. Deleting all history leaves daily usage intact.
@@ -103,7 +103,7 @@ The Greek feature copy covers controls, consent, limits, confirmations, refusal 
 
 For a single public-content live check, run `npm run chat:smoke`. Node loads
 credentials from `.env` for authentication; the script prints only safe test
-summaries. It applies migrations `0004` and `0005` in memory, imports the prepared
+summaries. It applies migrations `0004`, `0005` and `0006` in memory, imports the prepared
 corpus, uses the development settings from Wrangler and explicitly bypasses the
 starter cache. Configured Pinecone retrieval and model fallbacks run normally.
 The test leaves real conversations and visitor allowances untouched. A configured
@@ -451,3 +451,74 @@ their type, size, URL allowlist and attachment-boundary checks.
 Model-attempt warnings include the `stage` and classified `validation` reason,
 such as `unexpected_retrieval`, alongside provider status and timing. They exclude
 questions, prompts, provider bodies and credentials.
+
+### Stop and edit
+
+The Stop action posts an ownership-checked cancellation for a message ID. D1
+transitions only a pending message to cancelled. The running worker observes
+that state through immediate same-isolate signalling and bounded polling across
+workers, then aborts decision, retrieval, reranking, answer, title and cache-reveal
+work through a shared AbortSignal. Navigation leaves runs active. Abort signals
+stop further client-side/provider I/O; remote providers may already have processed
+part of a request. Cancellation racing a completed save preserves the completed
+answer and its charge.
+
+Only the latest visible question can be edited. Its inline editor has Cancel and
+Send controls, retains attachments, and reuses the normal validation and bot-check
+flow. Replacement and new reservation are atomic. The old turn is superseded and
+excluded from visible history and future model context. Completed old runs keep
+their daily usage, while cancelled or failed old runs have no daily charge. A
+failed reservation rolls back the replacement. A unique replacement index prevents
+two writers from replacing the same turn. The conversation limit counts active
+completed and pending turns, so replacing the fourth turn is possible.
+
+Apply migration `0006_chat_runs.sql` locally before testing and in production
+before releasing these code changes. It preserves histories and successful usage,
+releases existing failed-message reservations, and retains recent attempt records
+for burst limits.
+
+### Worker transport verification
+
+Server-side tracing and Pinecone requests use `redirect: 'manual'` and reject
+redirect responses. Cloudflare Workers rejects `redirect: 'error'` before network
+I/O, so Node-only transport checks are insufficient. Rejected redirects never
+receive credentials at their destination. Telemetry export failures remain
+best-effort and cannot interrupt a reply.
+
+Run `npm run test:workers` alongside `npm test` before release. These tests use
+the Workerd runtime installed with the pinned Wrangler and a local outbound
+service stub. They validate native fetch behavior, SDK bundling, accepted trace
+batches and redirect rejection without credentials or external network access.
+
+### Current Formula 1 results tool
+
+The evidence planner can select up to three `f1Results` kinds: `race`,
+`qualifying`, `sprint`, `sprint_qualifying`, `fp1`, `fp2`, `fp3`, `drivers` and
+`constructors`, plus `calendar` for current/next-season event and weekend schedules. The server uses the Formula modal’s schedule, session and
+standings handlers directly, including their D1 caches and provider adapters.
+The planner supplies enum selectors; URLs and provider parameters stay under
+server control.
+
+Session lookups resolve the latest elapsed session in the current calendar, with
+the previous season checked before the first event. Results carry the event,
+season, round, date and classification status. Standings carry their observed
+round and cache timestamp. Provisional, stale and unavailable responses remain
+explicit evidence states. The assistant cites the response-language Formula
+page. Explicit source attachments restrict access to that page.
+
+The tool has an eight-second response budget, responds to run cancellation and
+appears as a LangSmith tool span. An unavailable lookup supplies a missing-data
+record so the answer workflow can finish without inventing a classification.
+An already running shared cache refresh may finish after the chat stops waiting.
+No schema migration or vector-index upload is required for this tool. Changes to
+its prompts require review of starter-answer policy fingerprints.
+
+F1 result snapshots travel with the Formula citation in the existing saved
+`sources` JSON. The answer keeps its normal model text, citation, copy and history
+flow. A compact card aligns with the answer text and spans its available width. It previews the first three entries with session-specific lap times, Q/SQ phase labels, gaps or points; its classification button
+opens an accessible native dialog with all returned rows, timings, points, date
+and status. English/Greek labels and light/dark themes use the chat design tokens.
+The client validates the bounded snapshot schema and renders provider text with
+DOM text nodes. Reopening a saved message preserves its original snapshot.
+Historical snapshots are stripped from model history to keep follow-up prompts
+bounded. No additional schema migration is needed.

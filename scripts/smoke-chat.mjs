@@ -11,7 +11,7 @@ const runtime=resolve('.chat/smoke-chat-runtime.mjs');
 await build({stdin:{contents:"export {answerQuestion} from './src/lib/chat/server'; export {createChatTrace} from './src/lib/chat/tracing';",resolveDir:process.cwd()},bundle:true,platform:'node',format:'esm',packages:'external',outfile:runtime});
 const {answerQuestion,createChatTrace}=await import(pathToFileURL(runtime));
 const db = new DatabaseSync(':memory:');
-for(const migration of ['0004_chat','0005_chat_pinecone'])db.exec(await readFile(`migrations/${migration}.sql`,'utf8'));
+for(const migration of ['0004_chat','0005_chat_pinecone','0006_chat_runs'])db.exec(await readFile(`migrations/${migration}.sql`,'utf8'));
 db.exec(await readFile('.chat/index.sql', 'utf8'));
 console.log(JSON.stringify({ preparedIndex: db.prepare('SELECT COUNT(*) AS chunks,COUNT(DISTINCT url) AS pages FROM chat_knowledge').get() }));
 const DB = { prepare(query) { let args = []; return { bind(...values) { args = values; return this; }, async all() { return { results: db.prepare(query).all(...args) }; }, async first(){return db.prepare(query).get(...args)||null},async run(){return {meta:{changes:db.prepare(query).run(...args).changes}}} }; } };

@@ -1,9 +1,10 @@
+import {runSignal,checkRun,type CancellableEnv} from './cancellation';
 import {traceStep,type TracingEnv} from './tracing';
 import {sourceMetadata,metadataContext} from './metadata';
 import type {Source} from './policy';
 import {isIndexedSource} from './sources';
 
-export interface PineconeEnv extends TracingEnv {
+export interface PineconeEnv extends TracingEnv,CancellableEnv {
   PINECONE_API_KEY?:string;
   PINECONE_INDEX_HOST?:string;
   PINECONE_ENABLED?:string;
@@ -69,7 +70,9 @@ class PineconeFailure extends Error {
   constructor(readonly reason:string){super(reason)}
 }
 async function requestJSON(url:string,key:string,body:unknown,signal:AbortSignal):Promise<any>{
-  const response=await fetch(url,{method:'POST',redirect:'error',signal,
+  // Workers supports manual redirects. Reject non-2xx responses below so an
+  // API key can never follow a redirect to another origin.
+  const response=await fetch(url,{method:'POST',redirect:'manual',signal,
     headers:{'Api-Key':key,'Content-Type':'application/json','X-Pinecone-Api-Version':PINECONE_VERSION},body:JSON.stringify(body)});
   if(!response.ok){await response.body?.cancel();throw new PineconeFailure(`http_${response.status}`)}
   const reader=response.body?.getReader();if(!reader)throw new PineconeFailure('invalid_response');
@@ -100,7 +103,7 @@ async function rerank(db:D1Database,env:PineconeEnv,query:string,sources:Source[
       model:'bge-reranker-v2-m3',query,top_n:sources.length,return_documents:false,
       documents:sources.map((source,i)=>({id:String(i),text:`${source.title}\n${metadataContext(source)}\n${source.body}`})),
       parameters:{truncate:'END'},
-    },AbortSignal.timeout(Math.max(1,Math.min(4000,deadline-Date.now()))));
+    },runSignal(env,Math.max(1,Math.min(4000,deadline-Date.now()))));
     if(!Array.isArray(data?.data)||data.data.length!==sources.length)throw new PineconeFailure('invalid_response');
     const indices=data.data.map((row:any)=>row.index);
     if(new Set(indices).size!==sources.length || indices.some((i:unknown)=>!Number.isInteger(i)||Number(i)<0||Number(i)>=sources.length) ||
@@ -109,6 +112,7 @@ async function rerank(db:D1Database,env:PineconeEnv,query:string,sources:Source[
     span?.end({rerank:true,source_count:sources.length});
     return indices.map((i:number)=>sources[i]);
   }catch(error){
+    checkRun(env);
     // Any 429 conservatively disables reranking for this UTC month. Do not
     // refund: failed/aborted requests might have been billed by the provider.
     if(error instanceof PineconeFailure&&error.reason==='http_429'){
@@ -131,7 +135,7 @@ export async function retrievePineconeSources(db:D1Database,env:PineconeEnv|unde
     if(!meta||!/^[a-f0-9]{64}$/.test(meta.version))throw new PineconeFailure('index_not_ready');
     const namespace=`site-${meta.version.slice(0,24)}`;
     const endpoint=`${origin}/namespaces/${namespace}/documents/search`;
-    const signal=AbortSignal.timeout(Math.max(1,Math.min(8000,deadline-Date.now())));
+    const signal=runSignal(env,Math.max(1,Math.min(8000,deadline-Date.now())));
     const common={top_k:settings.topK,include_fields:[],...(selected.length?{filter:{source_url:{$in:selected}}}:{})};
     // Plain text scoring, never Lucene/query_string interpolation. Metadata
     // filters are server-selected URLs, with a second local scope check below.
@@ -159,6 +163,7 @@ export async function retrievePineconeSources(db:D1Database,env:PineconeEnv|unde
     span?.output({sources:result.map(source=>({title:source.title,url:source.url})),source_count:result.length});span?.end({dense_hits:dense.length,keyword_hits:keyword.length,source_count:result.length});
     return {ok:true,sources:result};
   }catch(error){
+    checkRun(env);
     span?.end({failure:error instanceof PineconeFailure?error.reason:'unavailable'},'pinecone_unavailable',undefined,error);
     console.warn('chat_pinecone_fallback',{reason:error instanceof PineconeFailure?error.reason:'unavailable'});
     return {ok:false};

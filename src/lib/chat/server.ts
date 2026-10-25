@@ -1,3 +1,4 @@
+import {runSignal,checkRun,runPause} from './cancellation';
 import {traceStep,type TracingEnv} from './tracing';
 import {withSourceImages} from './images';
 import {openStarterCache,replayStarterAnswer,starterCacheIneligibility,type StarterCacheEnv} from './starter-cache';
@@ -9,6 +10,8 @@ import { personaPrompt, type Persona } from './personas';
 import { ChatStorageError } from './storage';
 import { retrieveChatSources, chatCatalog, type ChatHistory } from './retrieval';
 import { continuationPrompt } from './contact';
+import {f1Snapshots,type ChatCitation} from './f1-results-data';
+import { f1ResultSources, F1_TOOL_KINDS } from './f1-results';
 import { citationCountSources } from './citation-counts';
 import { EVIDENCE_PROMPT, evidencePlan } from './evidence-plan';
 import { citationPapers } from './citation-counts';
@@ -43,6 +46,7 @@ export async function readBody(request: Request) {
   return JSON.parse(new TextDecoder().decode(bytes));
 }
 export async function answerQuestion(env: ChatEnv, question: string, history: ChatHistory[], lang: 'en' | 'el', emit?: (event: ChatStreamEvent) => void, persona: Persona = 'baseline', attached: string[] = [], remainingTurns = Math.max(0, 3 - history.length)) {
+  checkRun(env);
   const refusal = { answer: REFUSAL[lang], sources: [], model: null as string | null };
   if (invalidQuestionStructure(question)) return refusal;
   const voice = answerLanguagePrompt(lang) + personaPrompt(persona, lang);
@@ -53,7 +57,7 @@ export async function answerQuestion(env: ChatEnv, question: string, history: Ch
   const cache=await openStarterCache(env,question,lang,persona,history.length,attached,remainingTurns,cacheSystem);
   cacheSpan?.output({hit:!!cache?.hit,cache_key:cache?.key||null,model:cache?.hit?.model||null,reason:cache?.reason||cacheIneligibility||'index_or_policy_unavailable'});
   cacheSpan?.end({cache_hit:!!cache?.hit});env.CHAT_TRACE?.annotate({cache_hit:!!cache?.hit});
-  if(cache?.hit){const replay=traceStep(env,'Cache · reveal reply','chain',{delay_ms:750});replay?.input({model:cache.hit.model,characters:cache.hit.answer.length});let chunks=0;const started=Date.now();const result=await replayStarterAnswer(cache.hit,emit?event=>{if(event.type==='answer')chunks++;emit(event)}:undefined);replay?.output({messages:[{role:'assistant',content:result.answer}],model:result.model,sources:result.sources,chunks,delay_ms:emit?750:0,duration_ms:Date.now()-started});replay?.end({chunks,delay_ms:emit?750:0});return result;}
+  if(cache?.hit){const replay=traceStep(env,'Cache · reveal reply','chain',{delay_ms:750});replay?.input({model:cache.hit.model,characters:cache.hit.answer.length});let chunks=0;const started=Date.now();const result=await replayStarterAnswer(cache.hit,emit?event=>{if(event.type==='answer')chunks++;emit(event)}:undefined,ms=>runPause(ms,env.CHAT_ABORT_SIGNAL));replay?.output({messages:[{role:'assistant',content:result.answer}],model:result.model,sources:result.sources,chunks,delay_ms:emit?750:0,duration_ms:Date.now()-started});replay?.end({chunks,delay_ms:emit?750:0});return result;}
   const deadline = Date.now() + 125000;
   let sources: Source[] = [], catalog: {title:string;url:string}[];
   try { catalog = await chatCatalog(env.DB!); }
@@ -79,7 +83,7 @@ export async function answerQuestion(env: ChatEnv, question: string, history: Ch
     try {
       if (Date.now() >= deadline) throw new DOMException('Request budget exceeded','TimeoutError');
       const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-        method: 'POST', signal: AbortSignal.timeout(Math.max(1,Math.min(CHAT_TIMING.model,deadline-Date.now()))),
+        method: 'POST', signal: runSignal(env,Math.max(1,Math.min(CHAT_TIMING.model,deadline-Date.now()))),
         headers: { Authorization: `Bearer ${env.OPENROUTER_API_KEY}`, 'Content-Type': 'application/json', 'HTTP-Referer': 'https://mpalaourg.dev', 'X-OpenRouter-Title': 'Georgios - Site guide' },
         body: JSON.stringify({ model, temperature: persona === 'fun' ? 0.5 : persona === 'race-engineer' ? 0.2 : 0, max_tokens: 4096, ...(emit ? { stream: true } : {}),
           // This NVIDIA endpoint rejects JSON mode. Request JSON in the prompt
@@ -87,7 +91,7 @@ export async function answerQuestion(env: ChatEnv, question: string, history: Ch
           ...(model === 'nvidia/nemotron-3-ultra-550b-a55b:free' ? {} : { response_format: { type: 'json_object' } }),
           provider: { require_parameters: true },
           messages: [{ role: 'system', content: system },
-          { role: 'user', content: JSON.stringify({ language: lang, stage: retrieved ? 'answer' : 'plan', retrievalAvailable: !retrieved, catalog, reviewedPapers: citationPapers.map(({title,slug,file})=>({title,slug,url:file})), selectedSourceUrls: attached, sources: sources.map((s, i) => ({ id: i + 1, ...s,metadata:evidenceMetadata(s.metadata) })), history, question }) }],
+          { role: 'user', content: JSON.stringify({ language: lang, stage: retrieved ? 'answer' : 'plan', retrievalAvailable: !retrieved, availableEvidenceTools: !retrieved && (!attached.length || attached.includes(lang==='el'?'/el/formula/':'/formula/')) ? { f1Results: { selectors: F1_TOOL_KINDS, purpose: 'Formula page data: latest session results, standings, and current/next-season calendars. Use calendar for the next race, the event after a named race, or weekend dates/times. Request in retrieve.f1Results. Current F1 data requires this tool.' } } : {}, catalog, reviewedPapers: citationPapers.map(({title,slug,file})=>({title,slug,url:file})), selectedSourceUrls: attached, sources: sources.map((s, i) => ({ id: i + 1, ...s,metadata:evidenceMetadata(s.metadata) })), history, question }) }],
         }),
       });
       status = response.status;
@@ -126,17 +130,18 @@ export async function answerQuestion(env: ChatEnv, question: string, history: Ch
       const plan = !retrieved ? evidencePlan(raw,catalog,attached) : null;
       if (plan) {
         if(decision.kind!=='factual')throw new Error('unexpected_retrieval');
-        modelSpan?.output({messages:[{role:'assistant',content:JSON.stringify({queries:plan.queries,source_urls:plan.sourceUrls,citation_papers:plan.citationPapers})}]});
+        modelSpan?.output({messages:[{role:'assistant',content:JSON.stringify({queries:plan.queries,source_urls:plan.sourceUrls,citation_papers:plan.citationPapers,f1_results:plan.f1Results})}]});
         modelSpan?.end({model:resolvedModel,ls_model_name:resolvedModel,kind:'retrieval_plan',http_status:status},undefined,usage);
         emit?.({type:'status',phase:'searching'});
         const retrievalSpan=traceStep(env,'retrieve-evidence','retriever');
         const citationSpan=retrievalSpan?.start('Citations · live counts','tool');citationSpan?.input({citation_papers:plan.citationPapers});
         try {
-          const [rows,counts]=await Promise.all([
+          const [rows,counts,results]=await Promise.all([
             retrieveChatSources(env.DB!,question,history,attached,lang,plan,{...env,CHAT_TRACE_PARENT:retrievalSpan},Math.min(deadline,Date.now()+12000)),
-            citationCountSources(env.DB,plan.citationPapers,attached,lang).then(rows=>{citationSpan?.output({source_count:rows.length});citationSpan?.end();return rows}).catch(error=>{citationSpan?.end({},'citation_lookup_failed',undefined,error);throw error}),
+            citationCountSources(env.DB,plan.citationPapers,attached,lang,env.CHAT_ABORT_SIGNAL).then(rows=>{citationSpan?.output({source_count:rows.length});citationSpan?.end();return rows}).catch(error=>{citationSpan?.end({},'citation_lookup_failed',undefined,error);throw error}),
+            f1ResultSources({...env,CHAT_TRACE_PARENT:retrievalSpan},plan.f1Results,attached,lang),
           ]);
-          sources=[...counts,...await withSourceImages(env.DB!,rows,{...env,CHAT_TRACE_PARENT:retrievalSpan})];
+          sources=[...results,...counts,...await withSourceImages(env.DB!,rows,{...env,CHAT_TRACE_PARENT:retrievalSpan})];
           retrievalSpan?.output({source_count:sources.length,sources:sources.filter(source=>!source.kind).map(source=>({title:source.title,url:source.url}))});
           retrievalSpan?.end({source_count:sources.length,source_urls:sources.map(source=>source.url)});
         } catch(error) { retrievalSpan?.end({},'retrieval_failed',undefined,error);throw new ChatStorageError('retrieve_sources',error); }
@@ -149,9 +154,12 @@ export async function answerQuestion(env: ChatEnv, question: string, history: Ch
       if (!result) throw new Error('invalid_answer');
       modelSpan?.output({messages:[{role:'assistant',content:result.answer}],model:resolvedModel,sources:result.sources});
       modelSpan?.end({model:resolvedModel,ls_model_name:resolvedModel,kind:raw.kind,http_status:status},undefined,usage);
-      const answer={...result,model:resolvedModel};
+      const snapshots=f1Snapshots(sources.filter(source=>source.kind==='f1-results').map(source=>{try{return JSON.parse(source.body)}catch{return null}}));
+      const citations:ChatCitation[]=result.sources.map(source=>snapshots.length&&source.url===(lang==='el'?'/el/formula/':'/formula/')?{...source,f1Results:snapshots}:source);
+      const answer={...result,sources:citations,model:resolvedModel};
       return answer;
     } catch (error) {
+      checkRun(env);
       lastFailure=error;
       if (error instanceof ChatStorageError){modelSpan?.end({failure:'storage_failure'},'storage_failure',usage,error);throw error;}
       emit?.({ type: 'answer', answer: '' });

@@ -21,7 +21,7 @@ export const GET: APIRoute = async ({ url, locals }) => {
 };
 
 // Shared with chat so displayed counts and assistant answers use one cache.
-export async function citationResponse(doi: string | null, db?: D1Database) {
+export async function citationResponse(doi: string | null, db?: D1Database, signal?:AbortSignal) {
   
   if (!doi) {
     return new Response(
@@ -57,7 +57,7 @@ export async function citationResponse(doi: string | null, db?: D1Database) {
     const apiUrl = `https://api.semanticscholar.org/graph/v1/paper/DOI:${encodeURIComponent(doi)}?fields=citationCount,influentialCitationCount,referenceCount,year`;
     
     const res = await fetch(apiUrl, {
-      signal: AbortSignal.timeout(6000),
+      signal: signal?AbortSignal.any([signal,AbortSignal.timeout(6000)]):AbortSignal.timeout(6000),
       headers: {
         'Accept': 'application/json',
       },
@@ -103,6 +103,7 @@ export async function citationResponse(doi: string | null, db?: D1Database) {
     });
     
   } catch (error) {
+    signal?.throwIfAborted();
     console.error("Citation fetch error:", error);
     
     if (staleData) {

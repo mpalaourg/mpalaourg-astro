@@ -1,3 +1,4 @@
+import {registerRun,abortRun,checkRun} from '../../../lib/chat/cancellation';
 import {createChatTrace,scheduleTrace} from '../../../lib/chat/tracing';
 import type { APIRoute } from 'astro';
 import {validTurnstile,localChatHost,type TurnstileVerification} from '../../../lib/chat/turnstile';
@@ -59,6 +60,7 @@ export const ALL: APIRoute = async ({ request, locals, cookies, url }) => {
     await db.batch([
       db.prepare('DELETE FROM chat_threads WHERE updated_at < ?').bind(now - 30 * 86400000),
       db.prepare('DELETE FROM chat_usage WHERE day < ?').bind(day - 2),
+      db.prepare('DELETE FROM chat_attempts WHERE created_at < ?').bind(now-2*86400000),
       db.prepare('DELETE FROM chat_visitors WHERE updated_at < ?').bind(now - 48 * 3600000),
       db.prepare("UPDATE chat_messages SET status='failed',answer=? WHERE status='pending' AND created_at < ?").bind('The request was interrupted. Please ask again.', now - CHAT_TIMING.pending),
     ]);
@@ -77,7 +79,7 @@ export const ALL: APIRoute = async ({ request, locals, cookies, url }) => {
         const thread = await db.prepare('SELECT id,title,archived,questions,updated_at,persona FROM chat_threads WHERE id=? AND owner=?').bind(id, owner).first<Thread>();
         if (!thread) return reply({ error: 'Conversation not found.' }, 404);
         stage = 'read_messages';
-        const messages = await db.prepare('SELECT id,question,answer,sources,model,status,created_at,persona,context_sources FROM chat_messages WHERE thread_id=? ORDER BY created_at,id').bind(id).all();
+        const messages = await db.prepare("SELECT id,question,answer,sources,model,status,created_at,persona,context_sources FROM chat_messages WHERE thread_id=? AND status<>'superseded' ORDER BY created_at,id").bind(id).all();
         return reply({ thread, messages: messages.results.map(m => ({ ...m, answer: m.status === 'failed' && typeof m.answer === 'string' ? chatText(m.answer, lang) : m.answer, sources: savedCitations(m.sources), context_sources: savedCitations(m.context_sources) })) });
       }
       stage = 'list_threads';
@@ -119,6 +121,14 @@ export const ALL: APIRoute = async ({ request, locals, cookies, url }) => {
     stage = 'lookup_thread';
     const thread = await db.prepare('SELECT id,title,archived,questions,updated_at,persona FROM chat_threads WHERE id=? AND owner=?').bind(id, owner).first<Thread>();
     if (!thread) return reply({ error: 'Conversation not found.' }, 404);
+    if (action === 'cancel') {
+      if (!idValid(body.requestId)) return reply({error:'Invalid request.'},400);
+      const stopped=await db.prepare("UPDATE chat_messages SET status='cancelled',answer='Response stopped.',sources='[]',model=NULL WHERE id=? AND thread_id=? AND status='pending'").bind(body.requestId,id).run();
+      if(stopped.meta.changes)abortRun(body.requestId);
+      const message=await db.prepare('SELECT status FROM chat_messages WHERE id=? AND thread_id=?').bind(body.requestId,id).first<{status:string}>();
+      if(!message)return reply({error:'Message not found.'},404);
+      return reply({ok:true,status:message.status});
+    }
     if (action === 'persona') {
       stage = 'change_persona';
       if (!isPersona(body.persona)) return reply({ error: 'Choose an available answer style.' }, 400);
@@ -146,7 +156,9 @@ export const ALL: APIRoute = async ({ request, locals, cookies, url }) => {
     }
     if (action !== 'ask') return reply({ error: 'Unknown action.' }, 400);
     if (!enabled || !visitor) return reply({ error: 'The site guide is currently unavailable.' }, 503);
-    const { question, requestId } = body;
+    const { question, requestId, replaceMessageId } = body;
+    if(replaceMessageId!==undefined&&!idValid(replaceMessageId))return reply({error:'Invalid message replacement.'},400);
+    if(replaceMessageId===requestId)return reply({error:'Invalid message replacement.'},400);
     const attached = body.sourceUrls ?? [];
     if (!Array.isArray(attached) || attached.length > MAX_ATTACHED_SOURCES || attached.some(url => typeof url !== 'string' || !isIndexedSource(url)) || new Set(attached).size !== attached.length) return reply({ error: 'Choose up to five pages or files from the source menu.' }, 400);
     const persona: Persona = body.persona || thread.persona;
@@ -176,15 +188,22 @@ export const ALL: APIRoute = async ({ request, locals, cookies, url }) => {
     }
     stage = 'read_index';
     if (!await db.prepare('SELECT id FROM chat_index_meta WHERE id=1').first()) return reply({ error: 'The site guide is waiting for its content index.' }, 503);
-    const needsTitle = thread.questions === 0 && thread.title === 'New conversation';
+    let replacement: {status:string}|null=null;
+    if(replaceMessageId){
+      replacement=await db.prepare("SELECT id,status FROM chat_messages WHERE thread_id=? AND status<>'superseded' ORDER BY created_at DESC,id DESC LIMIT 1").bind(id).first<{id:string;status:string}>().then(row=>row?.id===replaceMessageId?row:null);
+      if(!replacement||replacement.status==='pending')return reply({error:'Only the latest stopped or completed message can be edited.'},409);
+    }
+    const previousQuestions=thread.questions-(replacement?.status==='done'?1:0);
+    const needsTitle = previousQuestions === 0 && thread.title === 'New conversation';
     const fallbackTitle = question.trim().replace(/\s+/g, ' ').slice(0, 64);
-    // Reservation and message creation are one atomic D1 batch. Failures and
-    // refusals count toward budgets; retries with the same ID never count twice.
+    // Reserve atomically. Unsuccessful runs release their reservation through
+    // a status trigger; completed replacements retain their daily usage.
     try {
       stage = 'reserve_question';
       await db.batch([
+        ...(replaceMessageId?[db.prepare("UPDATE chat_messages SET status='superseded' WHERE id=? AND thread_id=? AND status IN ('done','failed','cancelled') AND id=(SELECT id FROM chat_messages WHERE thread_id=? AND status<>'superseded' ORDER BY created_at DESC,id DESC LIMIT 1)").bind(replaceMessageId,id,id)]:[]),
         db.prepare('INSERT INTO chat_usage(id,thread_id,visitor,day,created_at) VALUES(?,?,?,?,?)').bind(requestId, id, visitor, day, now),
-        db.prepare('INSERT INTO chat_messages(id,thread_id,question,created_at,persona,context_sources) VALUES(?,?,?,?,?,?)').bind(requestId, id, question.trim(), now, persona, JSON.stringify(contextSources)),
+        db.prepare('INSERT INTO chat_messages(id,thread_id,question,created_at,persona,context_sources,replaces_id) VALUES(?,?,?,?,?,?,?)').bind(requestId, id, question.trim(), now, persona, JSON.stringify(contextSources),replaceMessageId||null),
         db.prepare('UPDATE chat_threads SET persona=? WHERE id=? AND owner=?').bind(persona, id, owner),
         ...(needsTitle ? [db.prepare("UPDATE chat_threads SET title=? WHERE id=? AND owner=? AND title='New conversation'").bind(fallbackTitle, id, owner)] : []),
       ]);
@@ -195,12 +214,23 @@ export const ALL: APIRoute = async ({ request, locals, cookies, url }) => {
       if (message.includes('chat_visitor_limit')) return reply({ error: 'You’ve used your 10 daily questions. Please return tomorrow.' }, 429, retryHeaders(Math.ceil((localWindow.resetsAt - now) / 1000)));
       if (message.includes('chat_burst_limit')) return reply({ error: 'Please wait a minute before asking another question.' }, 429, retryHeaders(60));
       if (message.includes('chat_thread_limit')) return reply({ error: 'Start a new conversation to continue. Each chat allows four questions.' }, 409);
+      if(message.includes('chat_invalid_replacement'))return reply({error:'The latest message changed. Reopen the conversation and try again.'},409);
       if (message.includes('chat_busy') || message.includes('UNIQUE')) return reply({ error: 'A question is already being processed. Refresh the conversation shortly.' }, 409);
       throw error;
     }
     const context = (locals as { runtime?: { ctx?: { waitUntil(promise: Promise<unknown>): void } } }).runtime?.ctx;
     const trace=createChatTrace(env,{threadId:id,requestId,question:question.trim(),language:body.lang==='el'?'el':'en',persona,hostname:url.hostname});
-    const tracedEnv={...env,CHAT_TRACE:trace};
+    const controller=new AbortController();
+    const unregister=registerRun(requestId,controller);
+    let checking=false;
+    const watch=setInterval(async()=>{
+      if(checking||controller.signal.aborted)return;
+      checking=true;
+      try{const row=await db.prepare('SELECT status FROM chat_messages WHERE id=?').bind(requestId).first<{status:string}>();if(!row||row.status!=='pending')controller.abort(new DOMException('Run stopped','AbortError'));}
+      catch(error){trace?.start('D1 · run state','tool').end({stage:'watch_run'},'storage_failure',undefined,error);logStorageFailure('watch_run',error);controller.abort(new DOMException('Run state unavailable','AbortError'));}
+      finally{checking=false;}
+    },750);
+    const tracedEnv={...env,CHAT_TRACE:trace,CHAT_ABORT_SIGNAL:controller.signal};
     let titleTask: Promise<void> = Promise.resolve();
     const generate = async (emit?: (event: import('../../../lib/chat/stream').ChatStreamEvent) => void) => {
       // The title is its own persisted task. It can finish before OR after the
@@ -212,7 +242,7 @@ export const ALL: APIRoute = async ({ request, locals, cookies, url }) => {
             ? await db.prepare('SELECT title,body FROM chat_knowledge WHERE url=? LIMIT 3').bind(attached[0]).all<{ title: string; body: string }>()
             : {results:[]};
           const title = await generateChatTitle(tracedEnv, question.trim(), body.lang === 'el' ? 'el' : 'en', pages.results);
-          if (!title) return; // The first-question fallback is already durable.
+          if (!title || controller.signal.aborted) return; // The first-question fallback is already durable.
           // A manual rename to a different value wins; normal conversation
           // activity and concurrent chats do not suppress a generated title.
           titleSave=trace?.start('Background · save title','tool');titleSave?.input({title});
@@ -223,19 +253,23 @@ export const ALL: APIRoute = async ({ request, locals, cookies, url }) => {
       })() : Promise.resolve();
       context?.waitUntil(titleTask);
       const answerSpan=trace?.start('Answer pipeline','chain');
-      answerSpan?.input({question:question.trim(),language:body.lang==='el'?'el':'en',persona,attachment_count:attached.length,remaining_turns:Math.max(0,LIMITS.thread-thread.questions-1)});
+      answerSpan?.input({question:question.trim(),language:body.lang==='el'?'el':'en',persona,attachment_count:attached.length,remaining_turns:Math.max(0,LIMITS.thread-previousQuestions-1)});
       if(trace&&context)scheduleTrace(()=>trace.publish(),context);
       let saveSpan:ReturnType<NonNullable<typeof trace>['start']>|undefined;
       try {
+        checkRun(tracedEnv);
         stage = 'answer_history';
         const history = await db.prepare("SELECT question,answer,sources FROM chat_messages WHERE thread_id=? AND id<>? AND status='done' ORDER BY created_at LIMIT 3").bind(id, requestId).all<{ question: string; answer: string | null; sources: string }>();
         stage = 'generate_answer';
         const answerEnv={...tracedEnv,CHAT_TRACE_PARENT:answerSpan};
         const trackedEmit=emit?((event:import('../../../lib/chat/stream').ChatStreamEvent)=>{if(event.type==='answer'&&event.answer)trace?.firstAnswer();emit(event)}):undefined;
-        const result = await answerQuestion(answerEnv, question.trim(), history.results.map(item => ({ ...item, sources: savedCitations(item.sources) })), body.lang === 'el' ? 'el' : 'en', trackedEmit, persona, attached, Math.max(0, LIMITS.thread - thread.questions - 1));
+        const result = await answerQuestion(answerEnv, question.trim(), history.results.map(item => ({ ...item, sources: savedCitations(item.sources).map(({title,url})=>({title,url})) })), body.lang === 'el' ? 'el' : 'en', trackedEmit, persona, attached, Math.max(0, LIMITS.thread - previousQuestions - 1));
+        checkRun(tracedEnv);
         stage = 'save_answer';
         saveSpan=answerSpan?.start('D1 · save reply','tool');saveSpan?.input({status:'done'});
-        await db.prepare("UPDATE chat_messages SET answer=?,sources=?,model=?,status='done' WHERE id=? AND status='pending'").bind(result.answer, JSON.stringify(result.sources), result.model, requestId).run();
+        const savedAnswer=await db.prepare("UPDATE chat_messages SET answer=?,sources=?,model=?,status='done' WHERE id=? AND status='pending'").bind(result.answer, JSON.stringify(result.sources), result.model, requestId).run();
+        if(!savedAnswer.meta.changes){controller.abort(new DOMException('Run stopped','AbortError'));checkRun(tracedEnv);}
+        clearInterval(watch);unregister();
         saveSpan?.output({saved:true,status:'done'});saveSpan?.end();
         answerSpan?.output({messages:[{role:'assistant',content:result.answer}],model:result.model,sources:result.sources});answerSpan?.end();
         trace?.result(result);if(trace&&context)scheduleTrace(()=>trace.publish(),context);
@@ -243,6 +277,12 @@ export const ALL: APIRoute = async ({ request, locals, cookies, url }) => {
         emit?.({ type: 'done', ...result });
         return reply({ ok: true, status: 'done' });
       } catch (cause) {
+        if(controller.signal.aborted){
+          await db.prepare("UPDATE chat_messages SET status='cancelled',answer='Response stopped.',sources='[]',model=NULL WHERE id=? AND status='pending'").bind(requestId).run();
+          answerSpan?.end({cancelled:true});trace?.annotate({cancelled:true});
+          emit?.({type:'cancelled'});
+          return reply({ok:true,status:'cancelled'});
+        }
         const storageFailure = cause instanceof ChatStorageError || stage !== 'generate_answer';
         const failureDetails={stage:cause instanceof ChatStorageError?cause.stage:stage,kind:storageFailure?storageFailureDetails(cause).kind:'models_unavailable',http_status:502};
         saveSpan?.end(failureDetails,'save_reply_failed',undefined,cause);answerSpan?.end(failureDetails,storageFailure?'storage_failure':'provider_failure',undefined,cause);trace?.fail(failureDetails,cause);
@@ -257,6 +297,7 @@ export const ALL: APIRoute = async ({ request, locals, cookies, url }) => {
         emit?.({ type: 'error', error: chatText(error, lang), recorded: true });
         return reply({ error, recorded: true }, 502);
       } finally {
+        clearInterval(watch);unregister();
         if(trace)scheduleTrace(()=>Promise.allSettled([titleTask]).then(()=>trace.flush()),context);
       }
     };

@@ -1,3 +1,4 @@
+import {f1Snapshots,type ChatCitation} from './f1-results-data';
 export class ChatStorageError extends Error {
   constructor(public stage: string, cause: unknown) {
     super('Chat storage failed', { cause });
@@ -19,7 +20,8 @@ export function storageFailureDetails(error: unknown) {
   let migration: string | undefined;
   if (/no such (?:table|column)|has no column named/i.test(message)) {
     kind = 'schema_missing';
-    if (/\b(?:context_sources|persona|model|time_zone|chat_(?:threads|messages|usage|knowledge|index_meta|visitors))\b/i.test(message)) migration = '0004_chat.sql';
+    if (/\b(?:chat_attempts|replaces_id)\b/i.test(message)) migration='0006_chat_runs.sql';
+    else if (/\b(?:context_sources|persona|model|time_zone|chat_(?:threads|messages|usage|knowledge|index_meta|visitors))\b/i.test(message)) migration = '0004_chat.sql';
   } else if (/SQLITE_BUSY|SQLITE_LOCKED|database is locked|database table is locked/i.test(message)) kind = 'busy';
   else if (/disposed|resetting|reset because|code (?:was )?updated|invalidated|stub.*(?:closed|invalid)/i.test(message)) kind = 'runtime_reset';
   else if (/SQLITE_CORRUPT|SQLITE_NOTADB|database disk image is malformed/i.test(message)) kind = 'corrupt';
@@ -33,14 +35,14 @@ export function logStorageFailure(stage: string, error: unknown) {
   console.error('chat_storage_failure', { stage, ...storageFailureDetails(error) });
 }
 
-export function savedCitations(value: unknown): { title: string; url: string }[] {
-  if (typeof value !== 'string' || value.length > 16000) return [];
+export function savedCitations(value: unknown): ChatCitation[] {
+  if (typeof value !== 'string' || value.length > 64000) return [];
   try {
     const parsed: unknown = JSON.parse(value);
     if (!Array.isArray(parsed)) return [];
     return parsed.filter(item => item && typeof item === 'object'
       && typeof item.title === 'string' && item.title.length <= 400
       && typeof item.url === 'string' && /^\/(?!\/)[a-z0-9/._-]*$/i.test(item.url)).slice(0, 6)
-      .map(item => ({ title: item.title, url: item.url }));
+      .map(item => {const cards=/^\/(?:el\/)?formula\/$/.test(item.url)?f1Snapshots(item.f1Results):[];return {title:item.title,url:item.url,...(cards.length?{f1Results:cards}:{})};});
   } catch { return []; }
 }

@@ -66,7 +66,7 @@ test('concurrent messages isolate projects, inputs, threads and errors',async()=
 test('the real SDK exports a complete bounded batch, and HTTP failures never escape',async()=>{
  const native=globalThis.fetch;let calls=0,payload,transport;
  globalThis.fetch=async(url,options)=>{calls++;transport={url:String(url),keyMatches:new Headers(options.headers).get('x-api-key')===secret,redirect:options.redirect,hasSignal:!!options.signal,bodyType:typeof options.body};payload=JSON.parse(typeof options.body==='string'?options.body:new TextDecoder().decode(options.body));return new Response('',{status:202})};
- try{const trace=createChatTrace(env,context);trace.result({answer:'Verified answer',model:'actual/model',sources:[]});await trace.flush();assert.equal(calls,1);assert.deepEqual(transport,{url:'https://eu.api.smith.langchain.com/runs/batch',keyMatches:true,redirect:'error',hasSignal:true,bodyType:'object'});assert.equal(payload.post[0].session_name,'mpalaourg-chat-development');assert.ok(!JSON.stringify(payload).includes(secret));
+ try{const trace=createChatTrace(env,context);trace.result({answer:'Verified answer',model:'actual/model',sources:[]});await trace.flush();assert.equal(calls,1);assert.deepEqual(transport,{url:'https://eu.api.smith.langchain.com/runs/batch',keyMatches:true,redirect:'manual',hasSignal:true,bodyType:'object'});assert.equal(payload.post[0].session_name,'mpalaourg-chat-development');assert.ok(!JSON.stringify(payload).includes(secret));
  globalThis.fetch=async()=>{calls++;throw new Error('fixture-network-secret')};const failed=createChatTrace(env,context);await assert.doesNotReject(failed.flush());assert.equal(calls,2);
  }finally{globalThis.fetch=native}
 });
@@ -116,4 +116,10 @@ test('a transport ignoring cancellation is bounded and does not retry queued sna
  const trace=createChatTrace(env,context);let calls=0;const client={batchIngestRuns(){calls++;return new Promise(()=>{})}};
  const initial=trace.publish(client),final=trace.flush(client);
  assert.deepEqual(await Promise.all([initial,final]),[false,false]);assert.equal(calls,1);
+});
+
+test('trace transport rejects redirects without following them or failing the answer',async()=>{
+ const native=globalThis.fetch;const calls=[];
+ globalThis.fetch=async(url,init)=>{calls.push({url:String(url),redirect:init.redirect});return new Response('',{status:302,headers:{Location:'https://untrusted.example/collect'}})};
+ try{const trace=createChatTrace(env,context);trace.result({answer:'A valid answer',model:null,sources:[]});assert.equal(await trace.flush(),false);assert.deepEqual(calls,[{url:'https://eu.api.smith.langchain.com/runs/batch',redirect:'manual'}]);}finally{globalThis.fetch=native}
 });

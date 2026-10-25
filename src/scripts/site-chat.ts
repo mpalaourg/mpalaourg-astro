@@ -1,3 +1,5 @@
+import {renderF1Cards} from './chat-f1-results';
+import type {ChatCitation} from '../lib/chat/f1-results-data';
 import {CHAT_STARTERS} from '../lib/chat/starters';
 import { hasChatConsent } from '../lib/chat/consent';
 import { chatText } from '../lib/chat/copy';
@@ -13,7 +15,7 @@ import { replyFiles, replyZip } from '../lib/chat/downloads';
 type ChatData = { error?: string; threads: Thread[]; enabled: boolean; remaining: number; globalRemaining: number; messages: ChatMessage[]; thread: Thread; id: string; turnstileSiteKey: string | null; recorded?: boolean; resetsAt: number; globalResetsAt: number; timeZone: string };
 type Thread = { id: string; title: string; archived: number; questions: number; updated_at: number; persona?: Persona };
 export {};
-type ChatMessage = { id: string; question: string; answer: string | null; sources: { title: string; url: string }[]; context_sources?: { title: string; url: string }[]; status: string; model?: string | null; persona?: Persona };
+type ChatMessage = { id: string; question: string; answer: string | null; sources: ChatCitation[]; context_sources?: { title: string; url: string }[]; status: string; model?: string | null; persona?: Persona };
 type Turnstile = { render: (target: HTMLElement, options: Record<string, unknown>) => string; reset: (id: string) => void; remove: (id: string) => void };
 declare global { interface Window { turnstile?: Turnstile } }
 class ChatRequestError extends Error { constructor(message: string, public recorded = false) { super(message); } }
@@ -26,7 +28,10 @@ class SiteChat extends HTMLElement {
   private renameSaving = false;
   private renameError = '';
   private busy = false;
-  private running = new Map<string, { messages: ChatMessage[]; turns: number; persona: Persona; progress: 'searching' | 'thinking' }>();
+  private running = new Map<string, { messages: ChatMessage[]; turns: number; persona: Persona; progress: 'searching' | 'thinking'; controller:AbortController; stopping:boolean; admitted:Promise<void>; admit:()=>void; finished:Promise<void>;finish:()=>void }>();
+  private messageEditId='';
+  private messageEditText='';
+  private editSending=false;
   private unconfirmedThreads = new Set<string>();
   private drafts = new Map<string, { text: string; attached: ChatSource[] }>();
   private viewVersion = 0;
@@ -114,6 +119,7 @@ class SiteChat extends HTMLElement {
   private challengeKey = '';
   private challengeId?: string;
   private challengeLoading = false;
+  private challengeHideTimer?:ReturnType<typeof setTimeout>;
   private noticeSource: 'general' | 'challenge' = 'general';
   private t(en: string, el: string) { return this.el ? el : en; }
   private q<T extends HTMLElement = HTMLElement>(selector: string) { return this.querySelector<T>(selector)!; }
@@ -123,7 +129,7 @@ class SiteChat extends HTMLElement {
   private panelOpen = false;
   private onViewportResize = () => { if (this.dataset.mode === 'bubble') this.fitPanel(); };
   private saveDraft = () => { if (!hasChatConsent()) return; this.drafts.set(this.active, { text: this.input.value, attached: [...this.attached] }); try { sessionStorage.setItem('site-chat-draft', this.input.value); sessionStorage.setItem('site-chat-sources', JSON.stringify(this.attached)); } catch {} };
-  private get input() { return this.q<HTMLTextAreaElement>('textarea'); }
+  private get input() { return this.q<HTMLTextAreaElement>('form.chat-compose textarea'); }
   connectedCallback() {
     document.addEventListener('pointerdown', this.onMenuOutside);
     document.addEventListener('click', this.onMenuOutside);
@@ -157,6 +163,7 @@ class SiteChat extends HTMLElement {
       const target = (e.target as HTMLElement).closest<HTMLElement>('[data-action]');
       if (target) { this.closeMenus(); void this.action(target.dataset.action!, target.dataset.id); }
     });
+    this.addEventListener('input',event=>{const target=event.target;if(target instanceof HTMLTextAreaElement&&target.matches('.chat-message-edit-input')){this.messageEditText=target.value;this.resizeMessageEdit();}});
     this.addEventListener('change', event => {
       const input = event.target;
       if (!this.personaNavigation && input instanceof HTMLInputElement && input.closest('.chat-persona-options') && isPersona(input.value)) void this.choosePersona(input.value);
@@ -218,12 +225,13 @@ class SiteChat extends HTMLElement {
     this.resizeInput();
     if (this.dataset.mode === 'page') void this.load();
   }
-  disconnectedCallback() { clearTimeout(this.titleTimer); this.downloads.forEach(controller => controller.abort()); this.downloads.clear(); clearTimeout(this.copyTimer); this.closeSources(); document.removeEventListener('pointerdown', this.onMenuOutside); document.removeEventListener('click', this.onMenuOutside); document.removeEventListener('focusin', this.onMenuOutside); document.removeEventListener('keydown', this.onMenuEscape); this.stopThinking(); window.removeEventListener('site-cookie-choice', this.onConsentChange); this.inputObserver?.disconnect(); clearTimeout(this.pollTimer); clearTimeout(this.resetTimer); this.panelAnimation?.cancel(); window.removeEventListener('resize', this.onViewportResize); window.removeEventListener('pagehide', this.saveDraft); if (this.challengeId) window.turnstile?.remove(this.challengeId); }
+  disconnectedCallback() { clearTimeout(this.challengeHideTimer); clearTimeout(this.titleTimer); this.downloads.forEach(controller => controller.abort()); this.downloads.clear(); clearTimeout(this.copyTimer); this.closeSources(); document.removeEventListener('pointerdown', this.onMenuOutside); document.removeEventListener('click', this.onMenuOutside); document.removeEventListener('focusin', this.onMenuOutside); document.removeEventListener('keydown', this.onMenuEscape); this.stopThinking(); window.removeEventListener('site-cookie-choice', this.onConsentChange); this.inputObserver?.disconnect(); clearTimeout(this.pollTimer); clearTimeout(this.resetTimer); this.panelAnimation?.cancel(); window.removeEventListener('resize', this.onViewportResize); window.removeEventListener('pagehide', this.saveDraft); if (this.challengeId) window.turnstile?.remove(this.challengeId); }
   private onConsentChange = () => {
     const accepted = this.applyConsent();
     if (accepted) { if (this.dataset.mode === 'page' || this.panelOpen) void this.load(); }
     else {
       this.stopThinking(); clearTimeout(this.copyTimer); clearTimeout(this.pollTimer); clearTimeout(this.resetTimer);
+      this.querySelectorAll<HTMLDialogElement>('.chat-f1-dialog').forEach(dialog=>dialog.close());
       this.downloads.forEach(controller => controller.abort()); this.downloads.clear();
       this.enabled = false; this.threads = []; this.messages = []; this.active = ''; this.editingId = ''; this.turns = 0; this.retries.clear(); this.running.clear(); this.pendingTitles.clear(); clearTimeout(this.titleTimer); this.unconfirmedThreads.clear(); this.drafts.clear(); this.viewVersion++;
       this.persona = 'baseline'; this.renderPersona(); this.closeMenus();
@@ -231,6 +239,7 @@ class SiteChat extends HTMLElement {
       this.input.value = ''; this.q('.chat-thread-list').replaceChildren(); this.q('.chat-messages').replaceChildren();
       this.q('.chat-notice').textContent = ''; this.q<HTMLDialogElement>('.chat-confirm').close();
       if (this.challengeId) window.turnstile?.remove(this.challengeId);
+      clearTimeout(this.challengeHideTimer);
       this.challengeId = undefined; this.challengeToken = ''; this.challengeKey = ''; this.q('.chat-challenge').hidden = true;
       try { for (let i = sessionStorage.length - 1; i >= 0; i--) { const key = sessionStorage.key(i); if (key?.startsWith('site-chat-')) sessionStorage.removeItem(key); } } catch {}
     }
@@ -245,6 +254,7 @@ class SiteChat extends HTMLElement {
     this.input.disabled = !accepted || this.busy || this.answering || this.loadingConversation || this.threadLoadFailed || !this.enabled;
     return accepted;
   }
+  private resizeMessageEdit(){const field=this.querySelector<HTMLTextAreaElement>('.chat-message-edit-input');if(!field)return;field.style.height='auto';field.style.height=`${Math.min(120,Math.max(26,field.scrollHeight))}px`;}
   private resizeInput() {
     if (!this.input.clientWidth) return;
     const line = parseFloat(getComputedStyle(this.input).lineHeight) || 22;
@@ -347,11 +357,11 @@ class SiteChat extends HTMLElement {
   private tourSteps() {
     return [
       [this.t('A little more about me.', 'Ας γνωριστούμε λίγο καλύτερα.'), this.t('Ask about my work, background, research, or Formula 1 writing. First, the assistant checks whether your question is about me or this site. Then it finds relevant material and writes an answer, linking published sources where available. Follow the links for the full picture.', 'Ρωτήστε για τη δουλειά, τη διαδρομή, την έρευνά μου ή τα άρθρα για τη Formula 1. Ο βοηθός ελέγχει πρώτα αν η ερώτηση αφορά εμένα ή τον ιστότοπο. Μετά βρίσκει το σχετικό υλικό και συνθέτει την απάντηση, με συνδέσμους στις δημοσιευμένες πηγές όπου υπάρχουν.'), 'page'],
-      [this.t('Point to what you mean.', 'Δείξτε τι έχετε κατά νου.'), this.t('Type @ followed by a topic to filter pages and files, including CVs, papers and presentations. You’ll see up to five matches of each kind. Attach up to five sources to keep the next question focused on that material. Remove a source with ×, or open the menu with Sources.', 'Γράψτε @ και μετά ένα θέμα για να φιλτράρετε σελίδες και αρχεία, όπως βιογραφικά, εργασίες και παρουσιάσεις. Θα δείτε έως πέντε αποτελέσματα ανά κατηγορία. Προσθέστε έως πέντε πηγές για να βασιστεί η επόμενη απάντηση σε αυτό το υλικό. Αφαιρέστε μια πηγή με το × ή ανοίξτε το μενού από τις «Πηγές».'), 'mention'],
+      [this.t('Point to what you mean.', 'Δείξτε τι έχετε κατά νου.'), this.t('Type @ followed by a topic to filter pages and files, including CVs, papers and presentations. You’ll see up to five matching pages and files. Attach up to five sources to keep the next question focused on that material. Remove a source with ×, or open the menu with Sources.', 'Γράψτε @ και μετά ένα θέμα για να φιλτράρετε σελίδες και αρχεία, όπως βιογραφικά, εργασίες και παρουσιάσεις. Θα δείτε έως πέντε αποτελέσματα από σελίδες και αρχεία. Προσθέστε έως πέντε πηγές για να βασιστεί η επόμενη απάντηση σε αυτό το υλικό. Αφαιρέστε μια πηγή με το × ή ανοίξτε το μενού από τις «Πηγές».'), 'mention'],
       [this.t('Your kind of delivery.', 'Στο ύφος που σας ταιριάζει.'), this.t('Open Style to choose Baseline, Fun, Race Engineer, Formal, or Quick Take. The choice applies to the next answer in this chat. Earlier replies keep their style; the facts and allowed topics stay the same.', 'Από το «Ύφος» διαλέξτε απλό ύφος, χιούμορ, μηχανικό αγώνα, επίσημο ύφος ή σύντομη απάντηση. Η επιλογή ισχύει από την επόμενη απάντηση αυτής της συνομιλίας. Οι προηγούμενες απαντήσεις μένουν όπως είναι και τα θέματα που καλύπτει ο βοηθός δεν αλλάζουν.'), 'persona'],
-      [this.t('Take something with you.', 'Κρατήστε ό,τι σας χρειάζεται.'), this.t('Under each reply, copy the text as Markdown or plain text. Download the referenced files individually, or together as a ZIP when there are several. Unavailable download options stay dimmed. Links to another website ask you to confirm before leaving.', 'Κάτω από κάθε απάντηση, αντιγράψτε το κείμενο σε Markdown ή ως απλό κείμενο. Κατεβάστε τα αρχεία που αναφέρονται ξεχωριστά ή μαζί σε ZIP, όταν είναι περισσότερα από ένα. Οι μη διαθέσιμες επιλογές εμφανίζονται ανενεργές. Πριν ανοίξει σύνδεσμος προς άλλον ιστότοπο, θα σας ζητηθεί επιβεβαίωση.'), 'download'],
+      [this.t('Your reply tools.', 'Τα εργαλεία της απάντησης.'), this.t('The square in the Send position stops a running reply. Use the pencil on your last question to edit it, then Cancel or Send again. Copy replies as Markdown or plain text, and download referenced files individually or as a ZIP. External links ask you to confirm before leaving.', 'Το τετράγωνο στη θέση της αποστολής σταματά την απάντηση. Με το μολύβι στην τελευταία ερώτηση αλλάζετε το κείμενό της και επιλέγετε «Ακύρωση» ή «Αποστολή». Αντιγράψτε απαντήσεις σε Markdown ή ως απλό κείμενο και κατεβάστε τα αρχεία ξεχωριστά ή σε ZIP. Οι εξωτερικοί σύνδεσμοι ζητούν επιβεβαίωση πριν ανοίξουν.'), 'download'],
       [this.t('Keep exploring.', 'Συνεχίστε την εξερεύνηση.'), this.t('You can switch chats or start a new one while a reply is being written. Return to the original chat to see its progress. With the chat bubble, keep browsing the site, minimize it back to its button, or drag its edges to resize. Use ↗ to open the full chat page.', 'Μπορείτε να αλλάξετε συνομιλία ή να ξεκινήσετε νέα όσο γράφεται μια απάντηση. Επιστρέψτε στην αρχική για να δείτε την πρόοδό της. Με το μικρό παράθυρο συνομιλίας μπορείτε να περιηγείστε στον ιστότοπο, να το ελαχιστοποιείτε ή να σύρετε τις άκρες του για αλλαγή μεγέθους. Το ↗ ανοίγει την πλήρη σελίδα συνομιλίας.'), 'external'],
-      [this.t('A few good questions.', 'Λίγες καλές ερωτήσεις.'), this.t('Four questions per chat; ten per day shared by your IP, resetting at local midnight. The site has 200 shared questions per UTC day. Rename, archive or delete chats from ⋯. When a chat fills up, start another or use the contact link to continue the discussion with me.', 'Τέσσερις ερωτήσεις ανά συνομιλία και δέκα την ημέρα, από κοινού με όσους χρησιμοποιούν την ίδια IP, με ανανέωση τα τοπικά μεσάνυχτα. Ο ιστότοπος διαθέτει συνολικά 200 ερωτήσεις την ημέρα, με ανανέωση τα μεσάνυχτα UTC. Από το ⋯ αλλάξτε τίτλο, αρχειοθετήστε ή διαγράψτε μια συνομιλία. Όταν συμπληρωθούν οι τέσσερις ερωτήσεις, ξεκινήστε νέα ή επικοινωνήστε μαζί μου από τον σχετικό σύνδεσμο.'), 'history'],
+      [this.t('A few good questions.', 'Λίγες καλές ερωτήσεις.'), this.t('Each chat has four turns. Ten completed replies per local day are shared by visitors on your IP, within the site’s 200-question UTC-day budget. Failed or cancelled runs don’t use your daily allowance. Completed replies still count when you edit and resend. Manage chats from ⋯. When a chat fills up, start another or contact me.', 'Κάθε συνομιλία χωρά τέσσερις ερωτήσεις. Η IP σας μοιράζεται δέκα ολοκληρωμένες απαντήσεις ανά τοπική ημέρα, μέσα στο συνολικό όριο των 200 ανά ημέρα UTC. Αποτυχίες και ακυρώσεις επιστρέφουν τη θέση που είχαν δεσμεύσει· οι ολοκληρωμένες απαντήσεις συνεχίζουν να μετράνε όταν διορθώνετε την ερώτηση. Από το ⋯ διαχειρίζεστε τις συνομιλίες. Όταν γεμίσει μία, ξεκινήστε νέα ή επικοινωνήστε μαζί μου.'), 'history'],
     ];
   }
   private renderTour() {
@@ -447,12 +457,12 @@ class SiteChat extends HTMLElement {
     };
     handle.addEventListener('pointermove', move); handle.addEventListener('pointerup', stop); handle.addEventListener('pointercancel', stop);
   }
-  private async api(body?: object, id?: string, onEvent?: (event: ChatStreamEvent) => void): Promise<ChatData> {
+  private async api(body?: object, id?: string, onEvent?: (event: ChatStreamEvent) => void, signal?:AbortSignal): Promise<ChatData> {
     if (!hasChatConsent()) throw new ChatRequestError(this.t('Accept cookies to use the chat.', 'Για να χρησιμοποιήσετε τη συνομιλία, χρειάζεται να αποδεχτείτε τα cookies.'));
     const response = await fetch('/api/chat/' + (id ? `?id=${encodeURIComponent(id)}` : ''), {
       method: body ? 'POST' : 'GET', credentials: 'same-origin', cache: 'no-store',
       headers: { ...(body ? { 'Content-Type': 'application/json' } : {}), 'X-Chat-Language': this.el ? 'el' : 'en', 'X-Chat-Time-Zone': Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC' }, body: body ? JSON.stringify(body) : undefined,
-      signal: AbortSignal.timeout(CHAT_TIMING.request),
+      signal: signal?AbortSignal.any([signal,AbortSignal.timeout(CHAT_TIMING.request)]):AbortSignal.timeout(CHAT_TIMING.request),
     });
     if (response.ok && response.headers.get('content-type')?.includes('text/event-stream') && response.body) {
       let complete = false;
@@ -460,7 +470,7 @@ class SiteChat extends HTMLElement {
         const event = JSON.parse(data) as ChatStreamEvent;
         if (!hasChatConsent()) throw new ChatRequestError(this.t('Accept cookies to use the chat.', 'Για να χρησιμοποιήσετε τη συνομιλία, χρειάζεται να αποδεχτείτε τα cookies.'));
         if (event.type === 'error') throw new ChatRequestError(event.error, event.recorded);
-        if (event.type === 'done') complete = true;
+        if (event.type === 'done'||event.type==='cancelled') complete = true;
         onEvent?.(event);
         if (complete) break; // A separate title task must not lock a finished answer.
       }
@@ -521,7 +531,8 @@ class SiteChat extends HTMLElement {
     if (error instanceof Error && error.name === 'TimeoutError') return this.t('The request took too long. Please try again.', 'Η απάντηση καθυστέρησε. Δοκιμάστε ξανά.');
     return this.t(error instanceof Error ? error.message : 'Something went wrong. Please try again.', 'Κάτι δεν πήγε καλά. Δοκιμάστε ξανά.');
   }
-  private setActive(id: string) { this.active = id; this.loadingThread = ''; this.threadLoadFailed = false; this.viewVersion++; this.detailRequest++; if (hasChatConsent()) try { sessionStorage.setItem('site-chat-active', id); } catch {} }
+  private setActive(id: string) {
+    this.messageEditId='';this.messageEditText=''; this.active = id; this.loadingThread = ''; this.threadLoadFailed = false; this.viewVersion++; this.detailRequest++; if (hasChatConsent()) try { sessionStorage.setItem('site-chat-active', id); } catch {} }
   private async loadMessages(forceScroll = true) {
     clearTimeout(this.pollTimer);
     const selected = this.active, version = this.viewVersion, request = ++this.detailRequest;
@@ -652,7 +663,26 @@ class SiteChat extends HTMLElement {
       this.add(intro, suggestions); this.add(area, intro);
     }
     for (const message of this.messages) {
-      const question = this.node('div', 'chat-message chat-user'); this.add(question, this.node('span', 'chat-speaker', this.t('You', 'Εσείς')), this.node('p', '', message.question));
+      const question = this.node('div', 'chat-message chat-user');
+      this.add(question,this.node('span','chat-speaker',this.t('You','Εσείς')));
+      const latest=message===this.messages.at(-1);
+      if(latest&&this.messageEditId===message.id){
+        const field=this.node('textarea','chat-message-edit-input') as HTMLTextAreaElement;
+        field.value=this.messageEditText;field.maxLength=LIMITS.question;field.rows=1;field.disabled=this.editSending;
+        field.setAttribute('aria-label',this.t('Edit your last question','Επεξεργασία τελευταίας ερώτησης'));
+        const tools=this.node('div','chat-message-edit-actions');
+        for(const [action,label]of [['cancel-message-edit',this.t('Cancel','Ακύρωση')],['save-message-edit',this.t('Send','Αποστολή')]]){
+          const button=this.node('button','',label) as HTMLButtonElement;button.type='button';button.dataset.action=action;button.disabled=this.editSending||(action==='save-message-edit'&&(this.remaining<=0||this.globalRemaining<=0||!!this.challengeKey&&!this.challengeToken));this.add(tools,button);
+        }
+        this.add(question,field,tools);
+      }else{
+        this.add(question,this.node('p','',message.question));
+        if(latest&&!this.threads.find(thread=>thread.id===this.active)?.archived){
+          const edit=this.node('button','chat-message-edit') as HTMLButtonElement;
+          edit.type='button';edit.dataset.action='edit-message';edit.dataset.id=message.id;edit.disabled=this.busy||this.editSending;
+          edit.setAttribute('aria-label',this.t('Edit last question','Επεξεργασία τελευταίας ερώτησης'));edit.title=this.t('Edit last question','Επεξεργασία τελευταίας ερώτησης');this.add(edit,this.icon('rename'));this.add(question,edit);
+        }
+      }
       if (message.context_sources?.length) {
         const context = this.node('div', 'chat-question-sources');
         for (const source of message.context_sources) {
@@ -683,10 +713,11 @@ class SiteChat extends HTMLElement {
       } else {
         const content = this.node('div', 'chat-answer-content');
         const body = (message.status === 'failed' && message.answer ? chatText(message.answer, this.el ? 'el' : 'en') : message.answer) || '';
-        if (message.status === 'failed') content.textContent = body;
+        if (message.status === 'failed'||message.status==='cancelled') content.textContent = message.status==='cancelled'?this.t('Response stopped.','Η απάντηση σταμάτησε.'):body;
         else renderChatMarkdown(content, body);
         this.add(answer, content);
       }
+      if(message.status==='done')renderF1Cards(answer,message.sources,this.el?'el':'en');
       if (message.sources.length) {
         const sources = this.node('div', 'chat-sources'); this.add(sources, this.node('span', '', this.t('On this site', 'Πηγές στον ιστότοπο')));
         for (const source of uniqueCitations(message.sources, this.el ? 'el' : 'en')) {
@@ -709,20 +740,31 @@ class SiteChat extends HTMLElement {
         this.add(meta, this.node('span', '', this.t('Answered with', 'Απάντηση από')), badge);
         this.add(answer, meta);
       }
+
       if (message.status === 'done' && message.answer?.trim()) this.add(answer, this.copyControl(message));
       this.add(area, question, answer);
     }
+    this.resizeMessageEdit();
     this.syncThinking();
     area.scrollTo({ top: follow ? area.scrollHeight : scroll, behavior: 'instant' });
     this.updateControls();
   }
   private updateControls() {
+    const editSave=this.querySelector<HTMLButtonElement>('[data-action=save-message-edit]');
+    if(editSave)editSave.disabled=this.editSending||this.remaining<=0||this.globalRemaining<=0||!!this.challengeKey&&!this.challengeToken;
     const thread = this.threads.find(t => t.id === this.active);
     const pending = this.answering || this.messages.some(m => m.status === 'pending');
-    const locked = !hasChatConsent() || this.busy || this.loadingConversation || this.threadLoadFailed || this.personaSaving || pending || !this.enabled || this.turns >= 4 || !!thread?.archived || this.remaining <= 0 || this.globalRemaining <= 0;
+    const locked = !hasChatConsent() || !!this.messageEditId || this.busy || this.loadingConversation || this.threadLoadFailed || this.personaSaving || pending || !this.enabled || this.turns >= 4 || !!thread?.archived || this.remaining <= 0 || this.globalRemaining <= 0;
     this.q<HTMLFieldSetElement>('.chat-persona-options').disabled = !hasChatConsent() || this.busy || this.loadingConversation || this.threadLoadFailed || this.personaSaving || pending || !!thread?.archived;
     this.input.disabled = locked;
-    this.q<HTMLButtonElement>('.chat-compose button[type="submit"]').disabled = locked || !this.input.value.trim() || (!!this.challengeKey && !this.challengeToken);
+    const send=this.q<HTMLButtonElement>('.chat-compose-submit');
+    send.type=pending?'button':'submit';
+    send.classList.toggle('chat-compose-stop',pending);
+    send.textContent=pending?'':'↑';
+    const sendLabel=pending?(this.running.get(this.active)?.stopping?this.t('Stopping…','Σταματάει…'):this.t('Stop response','Διακοπή απάντησης')):this.t('Send question','Αποστολή ερώτησης');
+    send.setAttribute('aria-label',sendLabel);send.title=sendLabel;
+    if(pending)send.dataset.action='stop';else delete send.dataset.action;
+    send.disabled=pending?!!this.running.get(this.active)?.stopping:locked||!this.input.value.trim()||!!this.challengeKey&&!this.challengeToken;
     this.q<HTMLButtonElement>('[data-action="mention"]').disabled = locked;
     this.querySelectorAll<HTMLButtonElement>('[data-remove-source]').forEach(button => { button.disabled = locked; });
     this.q<HTMLButtonElement>('[data-action="clear"]').disabled = this.busy || this.running.size > 0;
@@ -745,7 +787,41 @@ class SiteChat extends HTMLElement {
     else if (this.enabled && this.globalRemaining <= 0) this.notice(this.t('All 200 shared questions have been used today. Please return after the shared budget resets at 00:00 UTC.', 'Εξαντλήθηκε το ημερήσιο όριο των 200 ερωτήσεων για τον ιστότοπο. Μπορείτε να ρωτήσετε ξανά μετά τις 00:00 UTC.'));
     else if (this.enabled && this.remaining <= 0) this.notice(this.t('You’ve reached your daily limit of 10 questions. Your allowance resets at local midnight.', 'Φτάσατε τις 10 ερωτήσεις για σήμερα. Μπορείτε να ρωτήσετε ξανά μετά τα μεσάνυχτα.'));
   }
+  private async cancelRun() {
+    const threadId=this.active,run=this.running.get(threadId);
+    if(!run){const message=this.messages.at(-1);if(message?.status!=='pending')return;try{await this.api({action:'cancel',id:threadId,requestId:message.id});await this.load(false);await this.loadMessages(false);}catch(error){this.notice(this.errorText(error));}return;}
+    if(run.stopping)return;
+    run.stopping=true;this.renderMessages(false);
+    try{
+      await run.admitted;
+      if(this.running.get(threadId)!==run)return;
+      const message=run.messages.at(-1)!;
+      const data=await this.api({action:'cancel',id:threadId,requestId:message.id}) as ChatData&{status:string};
+      if(data.status==='cancelled'){message.status='cancelled';message.answer=this.t('Response stopped.','Η απάντηση σταμάτησε.');message.sources=[];run.controller.abort();await run.finished;}else if(data.status==='done'){await run.finished;}
+    }catch(error){if(this.active===threadId)this.notice(this.errorText(error));}
+    finally{run.stopping=false;if(this.active===threadId){this.renderMessages(false);this.updateControls();}}
+  }
+  private async editMessage(id:string) {
+    const message=this.messages.at(-1);if(!message||message.id!==id||this.busy||this.editSending)return;
+    const threadId=this.active;
+    if(message.status==='pending')await this.cancelRun();
+    if(this.active!==threadId||this.running.has(threadId))return;
+    this.messageEditId=id;this.messageEditText=message.question;this.renderMessages(false);
+    this.q<HTMLTextAreaElement>('.chat-message-edit-input')?.focus();
+  }
+  private async saveMessageEdit(){
+    const message=this.messages.at(-1),question=this.messageEditText.trim();
+    if(!message||message.id!==this.messageEditId||!question||question.length>LIMITS.question||this.editSending)return;
+    this.editSending=true;
+    try{await this.send(message,question);}
+    finally{this.editSending=false;this.renderMessages(false);}
+  }
   private async action(action: string, id?: string) {
+    if(action==='stop'){await this.cancelRun();return;}
+    if(action==='edit-message'&&id){await this.editMessage(id);return;}
+    if(action==='cancel-message-edit'){this.messageEditId='';this.messageEditText='';this.renderMessages(false);return;}
+    if(action==='save-message-edit'){await this.saveMessageEdit();return;}
+
     if (action === 'download-zip' && id) { await this.downloadReplyZip(id); return; }
     if ((action === 'copy-markdown' || action === 'copy-plain') && id) { await this.copyReply(id, action === 'copy-plain'); return; }
     if (action === 'cookie-settings') { window.dispatchEvent(new Event('site-cookie-settings')); return; }
@@ -1056,23 +1132,23 @@ class SiteChat extends HTMLElement {
       });
       if (!hasChatConsent()) return;
       this.challengeId = window.turnstile!.render(container, { sitekey: key, action: 'site-chat', theme: document.documentElement.classList.contains('dark') ? 'dark' : 'light', size: container.clientWidth < 300 ? 'compact' : 'normal', appearance: 'interaction-only', retry: 'auto', language: this.el ? 'el' : 'en',
-        callback: (token: string) => { delete container.dataset.interactive; this.challengeToken = token; container.hidden = true; this.clearChallengeNotice(); this.updateControls(); },
-        'before-interactive-callback': () => { container.hidden = false; container.dataset.interactive = 'true'; this.clearChallengeNotice(); },
-        'after-interactive-callback': () => { delete container.dataset.interactive; container.hidden = !!this.challengeToken; },
-        'expired-callback': () => { this.challengeToken = ''; container.hidden = false; this.updateControls(); },
-        'timeout-callback': () => { this.challengeToken = ''; container.hidden = false; this.updateControls(); },
-        'error-callback': () => { this.challengeToken = ''; container.hidden = false; this.notice(this.t('The security check was interrupted. Please try the check below.', 'Ο έλεγχος ασφαλείας διακόπηκε. Δοκιμάστε ξανά παρακάτω.'), 'challenge'); this.updateControls(); },
+        callback: (token: string) => { clearTimeout(this.challengeHideTimer);delete container.dataset.interactive;this.challengeToken=token;container.hidden=false;this.clearChallengeNotice();this.challengeHideTimer=setTimeout(()=>{if(this.challengeToken===token&&hasChatConsent())container.hidden=true;},1500);this.updateControls(); },
+        'before-interactive-callback': () => { clearTimeout(this.challengeHideTimer);container.hidden = false; container.dataset.interactive = 'true'; this.clearChallengeNotice(); },
+        'after-interactive-callback': () => { delete container.dataset.interactive; if(!this.challengeToken)container.hidden=false; },
+        'expired-callback': () => { clearTimeout(this.challengeHideTimer);this.challengeToken = ''; container.hidden = false; this.updateControls(); },
+        'timeout-callback': () => { clearTimeout(this.challengeHideTimer);this.challengeToken = ''; container.hidden = false; this.updateControls(); },
+        'error-callback': () => { clearTimeout(this.challengeHideTimer);this.challengeToken = ''; container.hidden = false; this.notice(this.t('The security check was interrupted. Please try the check below.', 'Ο έλεγχος ασφαλείας διακόπηκε. Δοκιμάστε ξανά παρακάτω.'), 'challenge'); this.updateControls(); },
       });
     } catch (error) { this.notice(this.errorText(error), 'challenge'); }
     finally { this.challengeLoading = false; this.updateControls(); }
   }
-  private async send() {
+  private async send(replacement?:ChatMessage,editedQuestion?:string) {
     if (!this.applyConsent()) return;
-    const question = this.input.value.trim();
-    if (!hasChatConsent() || !question || this.busy || this.answering || this.input.disabled || (this.challengeKey && !this.challengeToken)) return;
+    const question = editedQuestion??this.input.value.trim();
+    if (!hasChatConsent() || !question || this.busy || this.answering || (!replacement&&this.input.disabled) || (this.challengeKey && !this.challengeToken)) return;
     const threadId = this.active || crypto.randomUUID(), persona = this.persona, challengeToken = this.challengeToken;
     this.detailRequest++;
-    this.challengeToken = ''; if (this.challengeId) { this.q('.chat-challenge').hidden = false; window.turnstile?.reset(this.challengeId); }
+    clearTimeout(this.challengeHideTimer);this.challengeToken = ''; if (this.challengeId) { this.q('.chat-challenge').hidden = false; window.turnstile?.reset(this.challengeId); }
     if (!this.active) {
       this.setActive(threadId); this.unconfirmedThreads.add(threadId);
       this.threads.unshift({ id: threadId, title: 'New conversation', archived: 0, questions: 0, updated_at: Date.now(), persona });
@@ -1083,14 +1159,16 @@ class SiteChat extends HTMLElement {
       this.threads = this.threads.map(thread => thread.id === threadId ? { ...thread, title: fallback } : thread);
       this.scheduleTitles();
     }
-    const attachments = [...this.attached], sourceKey = attachments.map(source => source.url).sort().join('|');
+    const attachments = replacement?(replacement.context_sources||[]).map(source=>({...source,kind:/\.(pdf|pptx)$/.test(source.url)?'file' as const:'page' as const})):[...this.attached], sourceKey = attachments.map(source => source.url).sort().join('|');
     let retry = this.retries.get(threadId);
     if (!retry || retry.question !== question || retry.sourceKey !== sourceKey) {
       retry = { question, id: crypto.randomUUID(), sourceKey }; this.retries.set(threadId, retry);
     }
     const optimistic: ChatMessage = { id: retry.id, question, answer: null, sources: [], context_sources: attachments, status: 'pending', persona };
-    const run = { messages: [...this.messages.filter(message => message.id !== optimistic.id), optimistic], turns: this.turns + 1, persona, progress: 'searching' as 'searching' | 'thinking' };
+    let admit!:()=>void,finish!:()=>void;const admitted=new Promise<void>(resolve=>{admit=resolve}),finished=new Promise<void>(resolve=>{finish=resolve});
+    const run = { messages: [...this.messages.filter(message => message.id !== optimistic.id&&message.id!==replacement?.id), optimistic], turns: this.turns + 1-(replacement?.status==='done'?1:0), persona, progress: 'searching' as 'searching' | 'thinking',controller:new AbortController(),stopping:false,admitted,admit,finished,finish };
     this.running.set(threadId, run); this.messages = run.messages; this.turns = run.turns; this.progress = run.progress;
+    this.messageEditId='';this.messageEditText='';
     this.notice(''); this.attached = []; this.input.value = ''; this.renderAttachments(); this.closeSources(); this.closeMenus();
     clearTimeout(this.pollTimer); this.input.dispatchEvent(new Event('input')); this.renderThreads(); this.renderMessages(true);
     // Move directly to this reply, including when older answers filled the view.
@@ -1103,7 +1181,8 @@ class SiteChat extends HTMLElement {
       if (this.unconfirmedThreads.has(threadId)) {
         await this.api({ action: 'create', id: threadId, persona }); this.unconfirmedThreads.delete(threadId);
       }
-      await this.api({ action: 'ask', id: threadId, question, sourceUrls: attachments.map(source => source.url), requestId: retry.id, persona, lang: this.el ? 'el' : 'en', challengeToken, stream: true }, undefined, event => {
+      await this.api({ action: 'ask', id: threadId, question, sourceUrls: attachments.map(source => source.url), requestId: retry.id, ...(replacement?{replaceMessageId:replacement.id}:{}), persona, lang: this.el ? 'el' : 'en', challengeToken, stream: true }, undefined, event => {
+        run.admit();
         if (event.type === 'title') {
           if (event.id !== threadId || !hasChatConsent()) return;
           this.listRequest++; this.pendingTitles.delete(threadId); this.scheduleTitles();
@@ -1111,22 +1190,26 @@ class SiteChat extends HTMLElement {
           this.renderThreads(); return;
         }
         if (this.running.get(threadId) !== run || !hasChatConsent()) return;
+        if(event.type==='cancelled'){optimistic.status='cancelled';optimistic.answer=this.t('Response stopped.','Η απάντηση σταμάτησε.');optimistic.sources=[];}
         if (event.type === 'status') run.progress = event.phase;
         else if (event.type === 'answer') optimistic.answer = event.answer;
         else if (event.type === 'done') { optimistic.answer = event.answer; optimistic.sources = event.sources; optimistic.model = event.model; optimistic.status = 'done'; }
         if (this.active === threadId) { this.progress = run.progress; this.renderLiveAnswer(optimistic); }
-      });
+      },run.controller.signal);
       accepted = true; this.retries.delete(threadId);
     } catch (error) {
       if (error instanceof ChatRequestError && error.recorded) { this.retries.delete(threadId); accepted = true; }
-      failure = this.errorText(error);
-      if (!accepted && hasChatConsent()) {
+      if(run.controller.signal.aborted){accepted=true;this.retries.delete(threadId);}
+      else failure = this.errorText(error);
+      if(!accepted&&replacement){this.messageEditId=replacement.id;this.messageEditText=question;}
+      if (!accepted && !replacement && hasChatConsent()) {
         this.drafts.set(threadId, { text: question, attached: attachments });
         if (this.active === threadId) { this.input.value = question; this.attached = attachments; this.renderAttachments(); }
       }
     } finally {
-      if (this.running.get(threadId) !== run) return;
-      this.running.delete(threadId);
+      run.admit();
+      if (this.running.get(threadId) !== run){run.finish();return;}
+      this.running.delete(threadId);run.finish();
       if (!hasChatConsent()) return;
       await this.load(false);
       if (this.active === threadId) {

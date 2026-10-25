@@ -125,6 +125,10 @@ A **POST-based SSE connection** carries structured response events. The client e
 
 **Each conversation owns its generation state across view changes.** Stream callbacks update their originating thread, and late responses cannot overwrite another conversation. Accepted server work can continue across view changes. Independent title tasks and idempotent message identifiers keep concurrent requests associated with the correct saved records.
 
+The **Stop control** replaces Send while a response is running. It sends an ownership-checked cancellation to the backend, where a shared `AbortSignal` interrupts model calls, retrieval and cached-answer playback. D1 holds the run state so cancellation also reaches a request executing in another worker. A completion that has already been saved remains complete.
+
+The latest question can be edited in place and submitted again with its original source attachments. Replacement and admission of the new run share an **atomic D1 transaction**. The previous turn leaves the active conversation history and the next model context. Completed answers retain their daily usage; failed and cancelled runs release their reservation. Short-term attempt limits remain active across retries.
+
 <figure class="my-10 text-center">
   <div class="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-slate-700">
     <img src="/projects/site-assistant/streaming.svg" alt="Sequence of the browser, API, model and D1: stream answer previews, validate the completed response, persist it, then send the final reply." width="1200" height="620" loading="lazy" decoding="async" class="mx-auto h-auto w-full" />

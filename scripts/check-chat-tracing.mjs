@@ -8,7 +8,7 @@ const{createChatTrace,tracingConfig}=await import(pathToFileURL(modulePath));
 const env=Object.fromEntries(['CHAT_ENVIRONMENT','LANGSMITH_API_KEY','LANGSMITH_ENDPOINT','LANGSMITH_WORKSPACE_ID','LANGSMITH_PROJECT'].map(key=>[key,process.env[key]]));
 Object.assign(env,{LANGSMITH_TRACING:'true',LANGSMITH_SAMPLE_RATE:'1',LANGSMITH_CAPTURE_CONTENT:'true'});
 if(process.argv.includes('--cached')){
- const{DatabaseSync}=await import('node:sqlite');const db=new DatabaseSync(':memory:');for(const name of ['0004_chat','0005_chat_pinecone'])db.exec(await readFile(`migrations/${name}.sql`,'utf8'));db.exec(await readFile('.chat/index.sql','utf8'));
+ const{DatabaseSync}=await import('node:sqlite');const db=new DatabaseSync(':memory:');for(const name of ['0004_chat','0005_chat_pinecone','0006_chat_runs'])db.exec(await readFile(`migrations/${name}.sql`,'utf8'));db.exec(await readFile('.chat/index.sql','utf8'));
  const serverPath=resolve('.chat/check-tracing-server.mjs');await build({stdin:{contents:"export {answerQuestion} from './src/lib/chat/server'; export {generateChatTitle} from './src/lib/chat/title'; export {CHAT_STARTERS} from './src/lib/chat/starters';",resolveDir:process.cwd()},bundle:true,platform:'node',format:'esm',packages:'external',outfile:serverPath});
  const{answerQuestion,generateChatTitle,CHAT_STARTERS}=await import(pathToFileURL(serverPath));
  const question=CHAT_STARTERS.en[2],id=crypto.randomUUID();const trace=createChatTrace(env,{hostname:'localhost',threadId:crypto.randomUUID(),requestId:id,question,language:'en',persona:'baseline',synthetic:true});if(!trace)throw new Error('Configure LangSmith before this check');

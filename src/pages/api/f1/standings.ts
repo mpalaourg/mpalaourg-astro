@@ -60,6 +60,7 @@ export const GET: APIRoute = async ({ url, locals }) => {
     return respond({
       source: "cache",
       standings: JSON.parse(cached.standings_json),
+      afterRound: cached.after_round, fetchedAt: cached.fetched_at,
     });
   }
 
@@ -72,17 +73,17 @@ export const GET: APIRoute = async ({ url, locals }) => {
       } catch (error) {
         console.error("F1 standings cache write failed:", error);
       }
-      return respond({ source: "cache", standings });
+      return respond({ source: "cache", standings, afterRound: cached.after_round, fetchedAt: new Date().toISOString() });
     }
     try {
       await upsertStandings(db, season, type, snapshot.round, snapshot.standings);
     } catch (error) {
       console.error("F1 standings cache write failed:", error);
     }
-    return respond({ source: "upstream", standings: snapshot.standings });
+    return respond({ source: "upstream", standings: snapshot.standings, afterRound: snapshot.round, fetchedAt: new Date().toISOString() });
   } catch {
     if (cached) {
-      return respond({ source: "stale_cache", standings: JSON.parse(cached.standings_json) }, 5);
+      return respond({ source: "stale_cache", standings: JSON.parse(cached.standings_json), afterRound: cached.after_round, fetchedAt: cached.fetched_at }, 5);
     }
     return err("Failed to fetch standings", 502);
   }

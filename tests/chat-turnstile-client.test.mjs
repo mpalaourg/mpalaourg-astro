@@ -17,28 +17,31 @@ async function fixture(){
  await c.configureChallenge('public-site-key');
  return {c,container,notice,callbacks,get renders(){return renders},get updates(){return updates}};
 }
-test('successful verification clears a previous challenge error and hides the success widget',async()=>{
+test('successful verification clears a previous challenge error and hides the success widget',async(t)=>{
+ t.mock.timers.enable({apis:['setTimeout']});
  const f=await fixture();
  f.callbacks['error-callback']();
  assert.ok(f.notice.textContent);assert.equal(f.container.hidden,false);assert.equal(f.c.challengeToken,'');
  f.callbacks.callback('verified-token');
- assert.equal(f.notice.textContent,'');assert.equal(f.container.hidden,true);assert.equal(f.c.challengeToken,'verified-token');
- f.callbacks['after-interactive-callback']();assert.equal(f.container.hidden,true);
+ assert.equal(f.notice.textContent,'');assert.equal(f.container.hidden,false);assert.equal(f.c.challengeToken,'verified-token');
+ f.callbacks['after-interactive-callback']();assert.equal(f.container.hidden,false);t.mock.timers.tick(1499);assert.equal(f.container.hidden,false);t.mock.timers.tick(1);assert.equal(f.container.hidden,true);
  await f.c.configureChallenge('public-site-key');assert.equal(f.renders,1);assert.equal(f.container.hidden,true);
 });
-test('an interactive retry clears its old error and expiry makes the next challenge available',async()=>{
+test('an interactive retry clears its old error and expiry makes the next challenge available',async(t)=>{
+ t.mock.timers.enable({apis:['setTimeout']});
  const f=await fixture();assert.equal(f.callbacks.retry,'auto');
  f.callbacks['error-callback']();f.callbacks['before-interactive-callback']();
  assert.equal(f.notice.textContent,'');assert.equal(f.container.dataset.interactive,'true');assert.equal(f.container.hidden,false);
  f.callbacks['after-interactive-callback']();assert.equal(f.container.hidden,false);
- f.callbacks.callback('verified-token');assert.equal(f.container.hidden,true);
+ f.callbacks.callback('verified-token');assert.equal(f.container.hidden,false);
  f.callbacks['expired-callback']();assert.equal(f.container.hidden,false);assert.equal(f.c.challengeToken,'');
  f.callbacks['before-interactive-callback']();f.callbacks.callback('fresh-token');
- assert.equal(f.container.hidden,true);assert.equal(f.container.dataset.interactive,undefined);assert.equal(f.c.challengeToken,'fresh-token');
- f.callbacks['timeout-callback']();assert.equal(f.container.hidden,false);assert.equal(f.c.challengeToken,'');
+ assert.equal(f.container.hidden,false);assert.equal(f.container.dataset.interactive,undefined);assert.equal(f.c.challengeToken,'fresh-token');
+ f.callbacks['timeout-callback']();t.mock.timers.tick(2000);assert.equal(f.container.hidden,false);assert.equal(f.c.challengeToken,'');
 });
-test('verification recovery preserves unrelated API, allowance and conversation notices',async()=>{
+test('verification recovery preserves unrelated API, allowance and conversation notices',async(t)=>{
+ t.mock.timers.enable({apis:['setTimeout']});
  const f=await fixture();f.callbacks['error-callback']();f.c.notice('Your daily allowance is exhausted.');
  f.callbacks['before-interactive-callback']();assert.equal(f.notice.textContent,'Your daily allowance is exhausted.');
- f.callbacks.callback('verified-token');assert.equal(f.notice.textContent,'Your daily allowance is exhausted.');assert.equal(f.container.hidden,true);
+ f.callbacks.callback('verified-token');assert.equal(f.notice.textContent,'Your daily allowance is exhausted.');assert.equal(f.container.hidden,false);t.mock.timers.tick(1500);assert.equal(f.container.hidden,true);
 });

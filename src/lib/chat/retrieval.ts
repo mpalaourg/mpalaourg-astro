@@ -6,7 +6,7 @@ import { ownerBackgroundSources,type OwnerBackgroundEnv } from './owner-backgrou
 import {retrievePineconeSources,pineconeQuery,retrievalSettings,type PineconeEnv} from './pinecone';
 
 export type ChatHistory = { question: string; answer: string | null; sources?: { title: string; url: string }[] };
-export type RetrievalPlan = { queries: string[]; sourceUrls: string[]; citationPapers: string[] };
+export type RetrievalPlan = { queries: string[]; sourceUrls: string[]; citationPapers: string[]; f1Results?: import('./f1-results').F1ToolKind[] };
 const MAX_CONTEXT = 24000;
 
 export async function chatCatalog(db: D1Database) {

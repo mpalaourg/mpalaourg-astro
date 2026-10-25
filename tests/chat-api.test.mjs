@@ -11,7 +11,7 @@ const refusalResponse=()=>Response.json({choices:[{message:{content:JSON.stringi
 beforeEach(() => { globalThis.fetch = withEvidencePlan(async (_url,init) => init.headers['X-OpenRouter-Title']==='Georgios - Chat titles'?new Response('',{status:503}):refusalResponse()); });
 afterEach(() => { globalThis.fetch = nativeFetch; });
 function setup() {
-  const sql = new DatabaseSync(':memory:'); sql.exec('PRAGMA foreign_keys=ON'); sql.exec(readFileSync('migrations/0004_chat.sql', 'utf8'));
+  const sql = new DatabaseSync(':memory:'); sql.exec('PRAGMA foreign_keys=ON'); sql.exec(readFileSync('migrations/0004_chat.sql', 'utf8')); sql.exec(readFileSync('migrations/0006_chat_runs.sql','utf8'));
   sql.prepare('INSERT INTO chat_knowledge VALUES(?,?,?)').run('About Georgios', '/about/', 'Georgios is a machine learning engineer. His work includes production systems.');
   sql.prepare('INSERT INTO chat_index_meta VALUES(1,?,?)').run('test-version', '2026-10-20');
   const DB = {
@@ -110,14 +110,14 @@ test('final-turn continuation uses reserved questions even when prior attempts h
     assert.ok(inspected);assert.equal((await app.request(undefined,{id})).data.thread.questions,4);
   }finally{app.sql.close();}
 });
-test('provider errors are persisted and charged, and the kill switch still allows history deletion', async () => {
+test('provider errors are persisted and refunded, and the kill switch still allows history deletion', async () => {
   const app = setup(); await app.request();
   const id = (await app.request({ action: 'create' })).data.id;
   const originalFetch = globalThis.fetch; globalThis.fetch = withEvidencePlan(async () => new Response('', { status: 503 }));
   try {
     assert.equal((await app.request({ action: 'ask', id, requestId: crypto.randomUUID(), question: 'What does Georgios work on?' })).status, 502);
     assert.equal((await app.request(undefined, { id })).data.messages[0].status, 'failed');
-    assert.equal((await app.request()).data.remaining, 9);
+    assert.equal((await app.request()).data.remaining, 10);
     app.env.CHAT_ENABLED = 'false';
     assert.equal((await app.request()).data.enabled, false);
     assert.equal((await app.request({ action: 'create' })).status, 503);
@@ -647,4 +647,106 @@ test('a stalled LangSmith export cannot delay or fail an otherwise successful sa
   await waitForTrace(()=>started);finishExport();await new Promise(resolve=>setImmediate(resolve));
   const detail=await app.request(undefined,{id});assert.equal(detail.data.messages[0].status,'done');assert.ok(detail.data.messages[0].answer);
  }finally{clearTimeout(deadline);finishExport?.();app.sql.close()}
+});
+
+test('explicit cancellation aborts provider execution and refunds an unfinished run exactly once',async()=>{
+ const app=setup();await app.request();const id=(await app.request({action:'create'})).data.id,requestId=crypto.randomUUID();
+ let started;const ready=new Promise(resolve=>{started=resolve});let providerSignal;
+ globalThis.fetch=withEvidencePlan(async(_url,init)=>{
+  if(init.headers['X-OpenRouter-Title']==='Georgios - Chat titles')return new Response('',{status:503});
+  providerSignal=init.signal;started();
+  return new Promise((_,reject)=>init.signal.addEventListener('abort',()=>reject(init.signal.reason),{once:true}));
+ });
+ const response=await app.request({action:'ask',id,requestId,question:'His work?',stream:true},{streamResponse:true});
+ const output=response.text();await ready;
+ assert.equal((await app.request()).data.remaining,9,'pending runs reserve a slot');
+ assert.equal((await app.request({action:'cancel',id,requestId})).data.status,'cancelled');
+ assert.equal(providerSignal.aborted,true);assert.match(await output,/"type":"cancelled"/);
+ assert.equal((await app.request({action:'cancel',id,requestId})).data.status,'cancelled');
+ assert.equal((await app.request()).data.remaining,10);
+ const detail=(await app.request(undefined,{id})).data;assert.equal(detail.thread.questions,0);assert.equal(detail.messages[0].status,'cancelled');
+ assert.equal(app.sql.prepare('SELECT COUNT(*) n FROM chat_attempts').get().n,1);
+ app.sql.close();
+});
+test('editing the latest completed message replaces its context and preserves its daily charge',async()=>{
+ const app=setup();await app.request();const id=(await app.request({action:'create'})).data.id;
+ const first=crypto.randomUUID(),second=crypto.randomUUID(),edited=crypto.randomUUID();
+ await app.request({action:'ask',id,requestId:first,question:'His work?'});
+ await app.request({action:'ask',id,requestId:second,question:'Original follow-up?'});
+ const histories=[];
+ globalThis.fetch=withEvidencePlan(async(_url,init)=>{if(init.headers['X-OpenRouter-Title']==='Georgios - Chat titles')return new Response('',{status:503});histories.push(JSON.parse(JSON.parse(init.body).messages[1].content).history);return refusalResponse()});
+ assert.equal((await app.request({action:'ask',id,requestId:edited,replaceMessageId:second,question:'Edited follow-up?'})).status,200);
+ const detail=(await app.request(undefined,{id})).data;
+ assert.equal(detail.messages.length,2);assert.deepEqual(detail.messages.map(m=>m.question),['His work?','Edited follow-up?']);assert.equal(detail.thread.questions,2);
+ assert.equal((await app.request()).data.remaining,7);assert.equal(app.sql.prepare('SELECT status FROM chat_messages WHERE id=?').get(second).status,'superseded');
+ assert.ok(histories.every(h=>h.length===1&&h[0].question==='His work?'));
+ assert.equal((await app.request({action:'cancel',id,requestId:edited})).data.status,'done');assert.equal((await app.request()).data.remaining,7);
+ assert.equal((await app.request({action:'ask',id,requestId:crypto.randomUUID(),replaceMessageId:first,question:'Cannot edit older turn'})).status,409);
+ app.sql.close();
+});
+test('a failed replacement releases its own reservation while the old completed answer stays charged',async()=>{
+ const app=setup();await app.request();const id=(await app.request({action:'create'})).data.id,old=crypto.randomUUID();
+ await app.request({action:'ask',id,requestId:old,question:'His work?'});
+ globalThis.fetch=withEvidencePlan(async()=>new Response('',{status:503}));
+ assert.equal((await app.request({action:'ask',id,requestId:crypto.randomUUID(),replaceMessageId:old,question:'Edited work question'})).status,502);
+ const detail=(await app.request(undefined,{id})).data;
+ assert.equal(detail.messages.length,1);assert.equal(detail.messages[0].status,'failed');assert.equal(detail.thread.questions,0);assert.equal((await app.request()).data.remaining,9);
+ app.sql.close();
+});
+test('failed attempts retain burst protection without consuming the daily allowance',async()=>{
+ const app=setup();await app.request();const id=(await app.request({action:'create'})).data.id;
+ globalThis.fetch=withEvidencePlan(async()=>new Response('',{status:503}));
+ for(let i=0;i<3;i++)assert.equal((await app.request({action:'ask',id,requestId:crypto.randomUUID(),question:'His work?'})).status,502);
+ assert.equal((await app.request()).data.remaining,10);
+ const next=await app.request({action:'ask',id,requestId:crypto.randomUUID(),question:'His work?'});assert.equal(next.status,429);assert.equal(next.headers.get('Retry-After'),'60');
+ app.sql.close();
+});
+test('unsuccessful replacement admission restores the existing conversation atomically',async()=>{
+ const app=setup();await app.request();const id=(await app.request({action:'create'})).data.id,old=crypto.randomUUID();
+ await app.request({action:'ask',id,requestId:old,question:'His work?'});
+ // A full daily allowance rejects the new reservation after the old turn is
+ // marked superseded inside the same transaction; rollback must restore it.
+ const visitor=app.sql.prepare('SELECT visitor FROM chat_usage LIMIT 1').get().visitor,day=Math.floor(Date.now()/86400000);
+ for(let i=8;i>=0;i--){const other=crypto.randomUUID();app.sql.prepare('INSERT INTO chat_threads(id,owner,title,created_at,updated_at) VALUES(?,?,?,?,?)').run(other,'other','Test',1,1);app.sql.prepare('INSERT INTO chat_usage VALUES(?,?,?,?,?)').run(crypto.randomUUID(),other,visitor,day,Date.now()-120000-i*60001)}
+ assert.equal((await app.request({action:'ask',id,requestId:crypto.randomUUID(),replaceMessageId:old,question:'Edited work?'})).status,429);
+ const detail=(await app.request(undefined,{id})).data;assert.equal(detail.messages.length,1);assert.equal(detail.messages[0].id,old);assert.equal(detail.messages[0].status,'done');assert.equal(detail.thread.questions,1);
+ app.sql.close();
+});
+
+test('a worker observes cancellation persisted by another isolate and cannot save a late answer',async()=>{
+ const app=setup();await app.request();const id=(await app.request({action:'create'})).data.id,requestId=crypto.randomUUID();
+ let started;const ready=new Promise(resolve=>{started=resolve});let signal;
+ globalThis.fetch=withEvidencePlan(async(_url,init)=>{
+  if(init.headers['X-OpenRouter-Title']==='Georgios - Chat titles')return new Response('',{status:503});
+  signal=init.signal;started();return new Promise((_,reject)=>signal.addEventListener('abort',()=>reject(signal.reason),{once:true}));
+ });
+ const response=await app.request({action:'ask',id,requestId,question:'His work?',stream:true},{streamResponse:true});const output=response.text();await ready;
+ // Another worker has its own in-memory controller map and persists the stop.
+ app.sql.prepare("UPDATE chat_messages SET status='cancelled',answer='Response stopped.' WHERE id=?").run(requestId);
+ assert.match(await output,/"type":"cancelled"/);assert.equal(signal.aborted,true);
+ assert.equal(app.sql.prepare('SELECT status FROM chat_messages WHERE id=?').get(requestId).status,'cancelled');assert.equal((await app.request()).data.remaining,10);
+ app.sql.close();
+});
+test('a cancelled last turn can be edited without charging the unfinished original',async()=>{
+ const app=setup();await app.request();const id=(await app.request({action:'create'})).data.id,old=crypto.randomUUID();
+ // Admit a pending run with the same transactional reservation as the route.
+ const visitorProfile=app.sql.prepare('SELECT visitor FROM chat_visitors LIMIT 1').get();assert.ok(visitorProfile);
+ const usageVisitor='test-visitor';
+ await app.env.DB.batch([app.env.DB.prepare('INSERT INTO chat_usage VALUES(?,?,?,?,?)').bind(old,id,usageVisitor,Math.floor(Date.now()/86400000),Date.now()),app.env.DB.prepare('INSERT INTO chat_messages(id,thread_id,question,created_at) VALUES(?,?,?,?)').bind(old,id,'Unfinished question',Date.now())]);
+ assert.equal((await app.request({action:'cancel',id,requestId:old})).data.status,'cancelled');
+ const edited=crypto.randomUUID();assert.equal((await app.request({action:'ask',id,requestId:edited,replaceMessageId:old,question:'His work?'})).status,200);
+ const detail=(await app.request(undefined,{id})).data;assert.equal(detail.thread.questions,1);assert.equal(detail.messages.length,1);assert.equal(detail.messages[0].id,edited);
+ assert.equal(app.sql.prepare('SELECT COUNT(*) n FROM chat_usage').get().n,1);assert.equal((await app.request()).data.remaining,9);
+ app.sql.close();
+});
+
+test('the fourth completed turn can be replaced without increasing the conversation turn count',async()=>{
+ const app=setup();await app.request();const id=(await app.request({action:'create'})).data.id;let last;
+ for(let i=0;i<4;i++){
+  last=crypto.randomUUID();assert.equal((await app.request({action:'ask',id,requestId:last,question:`His work ${i}?`})).status,200);
+  app.sql.prepare('UPDATE chat_attempts SET created_at=created_at-61000').run();
+ }
+ assert.equal((await app.request({action:'ask',id,requestId:crypto.randomUUID(),replaceMessageId:last,question:'Revised fourth question?'})).status,200);
+ const detail=(await app.request(undefined,{id})).data;assert.equal(detail.thread.questions,4);assert.equal(detail.messages.length,4);assert.equal((await app.request()).data.remaining,5);
+ app.sql.close();
 });

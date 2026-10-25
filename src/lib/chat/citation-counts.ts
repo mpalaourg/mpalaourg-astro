@@ -9,11 +9,11 @@ export const citationPapers = [
   { title: 'Explaining video summarization based on the focus of attention', doi: '10.1109/ISM55400.2022.00029', file: '/media/files/ism2022_preprint.pdf', slug: 'ism2022' },
 ];
 
-export async function citationCountSources(db: D1Database | undefined, slugs: string[], attached: string[], lang: 'en' | 'el' = 'en'): Promise<Source[]> {
+export async function citationCountSources(db: D1Database | undefined, slugs: string[], attached: string[], lang: 'en' | 'el' = 'en', signal?:AbortSignal): Promise<Source[]> {
   const selected = citationPapers.filter(paper => slugs.includes(paper.slug) && (!attached.length || attached.some(url => url === paper.file || url.endsWith(`/publications/${paper.slug}/`))));
   return Promise.all(selected.map(async paper => {
     let data: { citationCount?: unknown; checkedAt?: unknown; stale?: boolean } = {};
-    try { data = await (await citationResponse(paper.doi, db)).json(); } catch { /* Missing evidence is explicit below. */ }
+    try { data = await (await citationResponse(paper.doi, db,signal)).json(); } catch { signal?.throwIfAborted(); /* Missing evidence is explicit below. */ }
     const dated = typeof data.checkedAt === 'string' && Number.isFinite(Date.parse(data.checkedAt));
     const available = Number.isSafeInteger(data.citationCount) && (data.citationCount as number) >= 0 && dated;
     return {

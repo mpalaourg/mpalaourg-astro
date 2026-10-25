@@ -160,7 +160,24 @@ export class ChatTrace{
   private async exporter(){
     this.client??=(async()=>{const{Client}=await import('langsmith');return new Client({apiKey:this.env.LANGSMITH_API_KEY,apiUrl:this.config.endpoint,workspaceId:this.env.LANGSMITH_WORKSPACE_ID,
       autoBatchTracing:false,manualFlushMode:true,omitTracedRuntimeInfo:true,disablePromptCache:true,debug:false,timeout_ms:3000,callerOptions:{maxRetries:0},tracingMode:'langsmith',
-      fetchImplementation:async(input,init)=>{const response=await fetch(input,{...init,redirect:'error',signal:AbortSignal.timeout(3000)});if(response.status===422){let validation:unknown;try{const data=await response.clone().json() as {detail?:{loc?:unknown;type?:unknown}[]};validation=Array.isArray(data.detail)?data.detail.slice(0,6).map(detail=>({path:Array.isArray(detail.loc)?detail.loc.filter(v=>typeof v==='number'||typeof v==='string'&&/^[A-Za-z0-9_.-]{1,60}$/.test(v)):[],type:typeof detail.type==='string'&&/^[a-z0-9_.-]{1,80}$/i.test(detail.type)?detail.type:undefined})):undefined}catch{}throw Object.assign(new Error('trace_payload_rejected'),{status:422,validation})}return response;}});})();return this.client;
+      fetchImplementation:async(input,init)=>{
+        // Workers supports manual redirects. Never forward tracing credentials
+        // to a redirect destination, even when the SDK would accept the reply.
+        const response=await fetch(input,{...init,redirect:'manual',signal:AbortSignal.timeout(3000)});
+        if(response.status>=300&&response.status<400){
+          await response.body?.cancel();
+          throw Object.assign(new Error('trace_redirect_rejected'),{status:response.status});
+        }
+        if(response.status===422){
+          let validation:unknown;
+          try{
+            const data=await response.clone().json() as {detail?:{loc?:unknown;type?:unknown}[]};
+            validation=Array.isArray(data.detail)?data.detail.slice(0,6).map(detail=>({path:Array.isArray(detail.loc)?detail.loc.filter(v=>typeof v==='number'||typeof v==='string'&&/^[A-Za-z0-9_.-]{1,60}$/.test(v)):[],type:typeof detail.type==='string'&&/^[a-z0-9_.-]{1,80}$/i.test(detail.type)?detail.type:undefined})):undefined;
+          }catch{/* Provider response bodies stay out of diagnostics. */}
+          throw Object.assign(new Error('trace_payload_rejected'),{status:422,validation});
+        }
+        return response;
+      }});})();return this.client;
   }
   private exportSnapshot(client?:Exporter):Promise<boolean>{
     if(this.unavailable)return Promise.resolve(false);
@@ -181,7 +198,7 @@ export class ChatTrace{
           return await Promise.race([send(),new Promise<never>((_,reject)=>{timeout=setTimeout(()=>reject(new Error('trace_export_timeout')),3000)})]);
         }catch(error){
           this.unavailable=true;
-          attempt(()=>{const status=(error as {status?:unknown})?.status;console.warn('chat_tracing_unavailable',{project:this.config.project,traceId:this.root.id,...(typeof status==='number'?{status}:{}),...((error as {validation?:unknown})?.validation?{validation:(error as {validation:unknown}).validation}:{})})},undefined);
+          attempt(()=>{const status=(error as {status?:unknown})?.status;console.warn('chat_tracing_unavailable',{project:this.config.project,traceId:this.root.id,errorName:error instanceof Error&&/^[A-Za-z]+Error$/.test(error.name)?error.name:'Error',...(typeof status==='number'?{status}:{}),...((error as {validation?:unknown})?.validation?{validation:(error as {validation:unknown}).validation}:{})})},undefined);
           return false;
         }finally{if(timeout!==undefined)clearTimeout(timeout)}
       });return this.queue;

@@ -1,17 +1,17 @@
 {
   "schema": 2,
-  "reviewedAt": "2026-10-25T14:05:54.471Z",
+  "reviewedAt": "2026-10-25T19:31:44.887Z",
   "policyHashes": {
-    "en:baseline": "978c2b98448fdcd0cf3eb538cb5154561af07c68dbfd984d67869931b1dd41a7",
-    "en:fun": "38c7e65e7c33f1e52bb2e9669739e1b2cf2ab065aae6e7eda0c53ba64b47237d",
-    "en:race-engineer": "0bf421f8cdc320beaed2b625d01a699a52bae7310a6201913f518c16d00bf761",
-    "en:formal": "7d72c2a420fca4eb4bacbef8c360f728b69149bd9bd77b86e589b56cb93bd4de",
-    "en:concise": "a0659a840c0a7d3fb11638360f7594c5367b6d8f4e42e0ad0d9b1c53d37b19d1",
-    "el:baseline": "7066478f1f5f646d5069b5316f038bd8f625ee80174369f9d0ba02b4dd430e6b",
-    "el:fun": "c15ef9ea6318bf4c119c077d616db9cb28b7b67a7de6fc96095cf8c52a3cd770",
-    "el:race-engineer": "df41a607a1ebbe92555fc0a2361b6ab9163aad117d71c91e02b0947f3fd4e976",
-    "el:formal": "7220f79a04ce28288a960778d87b4915e1ecef4edb24382ef0aeff6bae1d6a05",
-    "el:concise": "75cb8dcca3925a71a0bf66029184bbb4894a3eecc49aaf3c642cf65feac93d32"
+    "en:baseline": "647a6c7b009686583aed1d9324f30a4e7e47d1745478cfe1ba277eb9228500c4",
+    "en:fun": "c41b81198879dbfae6b52beb7791e0cf8d4d93a3f5ac838186e243b448a47c55",
+    "en:race-engineer": "7900e6a5455bf819a432c28796f42e372cfb300de64be18d60cb62e8e14ca47d",
+    "en:formal": "974ab7843f0ea3e8fdd9910d31c565921226317549b5f8d36facae8ec6b9e450",
+    "en:concise": "6f8e90ef65f5c9445ff728f24b6d54ad402678cd7ef382a55b0b74d712e88036",
+    "el:baseline": "6c9eb5b526aa66cc053b97848263268c63b58d848b9f1f5f7311f45c1a331578",
+    "el:fun": "400c7afd42b7c56cf0ef087115017f3edb2c7e8eaf6a595a462a451ca3a10011",
+    "el:race-engineer": "b2e4a3e6e840ca0c66883843b4ec24bae7ffbce6e155ad39392ea79dfebaa6b0",
+    "el:formal": "f32ff9baaf9934a827b480a9f68f2c46135728e3fccae0e9d059db151e58bc99",
+    "el:concise": "4709d717907c7f8f4c65f1a4be05394b275da44d5cd750dc5aafd3f26a023a0d"
   },
   "topics": [
     {
@@ -432,5 +432,15 @@
     "/el/formula/champions/": "a9633f9097cc1f1da59205161b15d4c111d155f5f55d29d9200398c8292e31eb",
     "/projects/": "431c4f5da9d23179455f787392fd49754129bbf32b02a0a0cf4ace111aadf69a",
     "/el/projects/": "231e0118b15138eeacc3612162babd4999fd7261b160266b543e980932ab2ab3"
-  }
+  },
+  "policyReviews": [
+    {
+      "reviewedAt": "2026-10-25T19:11:57.161Z",
+      "note": "Added a bounded current F1 results tool. Existing starter topics and answers require no live classifications; evidence and generation attribution retained."
+    },
+    {
+      "reviewedAt": "2026-10-25T19:31:44.887Z",
+      "note": "Expanded the existing F1 tool to the Formula page current/next-season calendar and upcoming-event questions. Starter answers concern durable published topics; their copy, supporting evidence and generation attribution are unchanged."
+    }
+  ]
 }

@@ -45,7 +45,7 @@ const panelId = full ? 'site-chat-page' : 'site-chat-panel';
           </div>
         </div>
         <div class="chat-challenge" role="group" aria-label={el ? 'Έλεγχος ασφαλείας' : 'Security verification'} hidden></div>
-        <form class="chat-compose"><label class="sr-only" for={full ? 'chat-question-page' : 'chat-question-bubble'}>{el ? 'Η ερώτησή σας' : 'Your question'}</label><textarea id={full ? 'chat-question-page' : 'chat-question-bubble'} name="question" rows="1" maxlength={LIMITS.question} required placeholder={el ? 'Τι θα θέλατε να μάθετε;' : 'What would you like to know?'}></textarea><button type="submit" aria-label={el ? 'Αποστολή ερώτησης' : 'Send question'} disabled>↑</button>
+        <form class="chat-compose"><label class="sr-only" for={full ? 'chat-question-page' : 'chat-question-bubble'}>{el ? 'Η ερώτησή σας' : 'Your question'}</label><textarea id={full ? 'chat-question-page' : 'chat-question-bubble'} name="question" rows="1" maxlength={LIMITS.question} required placeholder={el ? 'Τι θα θέλατε να μάθετε;' : 'What would you like to know?'}></textarea><button class="chat-compose-submit" type="submit" aria-label={el ? 'Αποστολή ερώτησης' : 'Send question'} disabled>↑</button>
         <div class="chat-selected-sources" aria-label={el ? 'Επιλεγμένες πηγές' : 'Attached sources'} hidden></div>
         <div class="chat-mention-menu" id={`${panelId}-sources`} role="listbox" aria-label={el ? 'Σελίδες και αρχεία' : 'Pages and files'} hidden></div>
         <span class="chat-source-status sr-only" role="status"></span>
