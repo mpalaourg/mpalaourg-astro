@@ -522,3 +522,16 @@ The client validates the bounded snapshot schema and renders provider text with
 DOM text nodes. Reopening a saved message preserves its original snapshot.
 Historical snapshots are stripped from model history to keep follow-up prompts
 bounded. No additional schema migration is needed.
+
+### Factual fun-fact requests and quiet verification
+
+A fun, interesting or random fact about Georgios follows factual routing and
+retrieval in both languages. The answer selects supported evidence, including
+approved background when relevant. Origin, upbringing and residence keep their
+separate meanings; a place of origin supplies no additional childhood facts.
+
+Each submitted question still needs a fresh, single-use Turnstile token and
+server-side Siteverify validation. Automatic checks and refreshes use a collapsed
+background container. The interactive callback reveals the widget when human
+interaction is required. Interactive success or error recovery stays visible for
+1.5 seconds before collapsing. Ordinary automatic success stays silent.

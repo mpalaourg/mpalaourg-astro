@@ -239,3 +239,6 @@ body[data-chat-page]>.cookie-notice-reopen{position:static;align-self:flex-start
 .chat-assistant>.chat-f1-card{width:calc(100% - 38px);margin-left:38px}
 .chat-f1-preview li>.chat-f1-metrics{flex:0 0 auto;display:flex;flex-direction:row;align-items:center;gap:22px;text-align:right;max-width:48%}.chat-f1-metric{display:flex;flex-direction:column;gap:3px}.chat-f1-metric-label{color:var(--chat-muted);font-size:9px;line-height:1.3;white-space:nowrap}.chat-f1-preview .chat-f1-metric-value{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:12px;font-weight:500;line-height:1.4;color:var(--chat-ink);font-variant-numeric:tabular-nums;white-space:nowrap}
 @media(max-width:520px){.chat-f1-card-header{align-items:flex-start;flex-wrap:wrap}.chat-f1-preview li{gap:10px}.chat-f1-preview li>.chat-f1-metrics{gap:7px;flex-direction:column;align-items:flex-end}.chat-f1-preview .chat-f1-metric-value{font-size:11px}.chat-f1-metric-label{font-size:8px}.chat-f1-preview strong{font-size:11px}.chat-f1-position{width:17px;font-size:15px}}
+
+/* Renew single-use tokens without opening a visible verification panel. */
+.chat-challenge[data-background]{height:0;max-height:0;min-height:0;margin:0;overflow:hidden}

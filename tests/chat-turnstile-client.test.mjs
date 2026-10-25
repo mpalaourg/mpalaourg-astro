@@ -45,3 +45,20 @@ test('verification recovery preserves unrelated API, allowance and conversation 
  f.callbacks['before-interactive-callback']();assert.equal(f.notice.textContent,'Your daily allowance is exhausted.');
  f.callbacks.callback('verified-token');assert.equal(f.notice.textContent,'Your daily allowance is exhausted.');assert.equal(f.container.hidden,false);t.mock.timers.tick(1500);assert.equal(f.container.hidden,true);
 });
+
+test('automatic checks and token renewal stay quiet while each question gets a fresh token',async(t)=>{
+ t.mock.timers.enable({apis:['setTimeout']});
+ const f=await fixture();assert.equal(f.callbacks.appearance,'interaction-only');assert.equal(f.container.dataset.background,'true');
+ f.callbacks.callback('first-token');assert.equal(f.c.challengeToken,'first-token');assert.equal(f.container.hidden,true);
+ let resets=0;window.turnstile.reset=id=>{assert.equal(id,'widget');resets++};
+ f.c.refreshChallenge();assert.equal(resets,1);assert.equal(f.c.challengeToken,'');assert.equal(f.container.dataset.background,'true');assert.equal(f.container.dataset.interactive,undefined);
+ f.callbacks.callback('second-token');assert.equal(f.container.hidden,true);assert.equal(f.c.challengeToken,'second-token');
+ t.mock.timers.tick(2000);assert.equal(f.container.hidden,true);
+});
+test('required interaction becomes visible and keeps a brief success confirmation',async(t)=>{
+ t.mock.timers.enable({apis:['setTimeout']});const f=await fixture();
+ f.callbacks['before-interactive-callback']();assert.equal(f.container.dataset.background,undefined);assert.equal(f.container.hidden,false);
+ f.callbacks['after-interactive-callback']();f.callbacks.callback('interactive-token');assert.equal(f.container.hidden,false);
+ t.mock.timers.tick(1500);assert.equal(f.container.hidden,true);
+ f.c.refreshChallenge();f.callbacks.callback('automatic-token');assert.equal(f.container.hidden,true);
+});

@@ -68,3 +68,21 @@ test('the server supplies its indexed catalog to routing before a bilingual arch
  const result=await answerQuestion({DB:database},question,[],'el');
  assert.equal(completions,2);assert.equal(result.sources.length,2);
 });
+
+test('bilingual fun-fact requests acquire profile evidence in the selected persona',async()=>{
+ for(const [lang,question,answer]of [['en','tell me a fun fact for george','Georgios built a JPEG encoder as a side project.'],['el','πες μου κάτι ενδιαφέρον για τον Γιώργο','Ο Γιώργος έφτιαξε έναν JPEG encoder ως προσωπικό project.']]){
+  const project={title:'JPEG project',url:'/projects/jpeg-encoder/',body:'Georgios built a JPEG encoder as a side project.'};
+  const database={prepare(){return{bind(){return this},async all(){return{results:[project]}}}}};let stages=0;
+  globalThis.fetch=withDecisionMock(async(_url,init)=>{
+   const request=JSON.parse(init.body),state=JSON.parse(request.messages[1].content);stages++;
+   if(state.stage==='plan'){
+    assert.match(request.messages[0].content,/fun\/interesting\/random fact/);
+    return reply({retrieve:{queries:['Georgios JPEG project'],sourceUrls:[project.url]}});
+   }
+   assert.ok(state.sources.some(source=>source.body===project.body));
+   return reply({allowed:true,sourceIds:[1],answer,kind:'answer',followUp:null});
+  });
+  const result=await answerQuestion({DB:database},question,[],lang,undefined,'fun');
+  assert.equal(stages,2);assert.equal(result.answer,answer);assert.equal(result.sources[0].url,project.url);
+ }
+});

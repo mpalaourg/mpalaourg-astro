@@ -1,17 +1,17 @@
 {
   "schema": 2,
-  "reviewedAt": "2026-10-25T19:31:44.887Z",
+  "reviewedAt": "2026-10-25T19:48:28.090Z",
   "policyHashes": {
-    "en:baseline": "647a6c7b009686583aed1d9324f30a4e7e47d1745478cfe1ba277eb9228500c4",
-    "en:fun": "c41b81198879dbfae6b52beb7791e0cf8d4d93a3f5ac838186e243b448a47c55",
-    "en:race-engineer": "7900e6a5455bf819a432c28796f42e372cfb300de64be18d60cb62e8e14ca47d",
-    "en:formal": "974ab7843f0ea3e8fdd9910d31c565921226317549b5f8d36facae8ec6b9e450",
-    "en:concise": "6f8e90ef65f5c9445ff728f24b6d54ad402678cd7ef382a55b0b74d712e88036",
-    "el:baseline": "6c9eb5b526aa66cc053b97848263268c63b58d848b9f1f5f7311f45c1a331578",
-    "el:fun": "400c7afd42b7c56cf0ef087115017f3edb2c7e8eaf6a595a462a451ca3a10011",
-    "el:race-engineer": "b2e4a3e6e840ca0c66883843b4ec24bae7ffbce6e155ad39392ea79dfebaa6b0",
-    "el:formal": "f32ff9baaf9934a827b480a9f68f2c46135728e3fccae0e9d059db151e58bc99",
-    "el:concise": "4709d717907c7f8f4c65f1a4be05394b275da44d5cd750dc5aafd3f26a023a0d"
+    "en:baseline": "938274c318085d47eeda0f35aa2b069f6ff1f681d978bfee30ac36ff00d1c9d3",
+    "en:fun": "403f3c5e5cd93d3926f1274e24227103bfd7cdfd1f687ed6e9281e5f0e721744",
+    "en:race-engineer": "a502b47d9549b61d3c7e71a70f1ca7f4f1be59d9bfe7cf700b408f70c491b3ff",
+    "en:formal": "1f82d2b7652a7754124b88dfc304a4338206afb8bf15989608f27703a9c6a15c",
+    "en:concise": "e1238bdf1dbe6e6db5910137c131875c98e86f172361826fdaa84c6be343ba89",
+    "el:baseline": "63817bdf21cd5ceeed15f44bfa935ffd4c513854b1249a803cb9dd0648060b03",
+    "el:fun": "aab93add2cfde312533827260bb6feb1e53736686c31b6b01bbc1b0b56728e36",
+    "el:race-engineer": "4c847e0d43d5cdd7025f9e1087cdab36211279dd6f41c76aa369f67e5e6af84f",
+    "el:formal": "48cf071604d93ab165da6cd7dc8829600e9566b69063f264a84b72c4877e82b6",
+    "el:concise": "c44c9fde4cbde3fcf0502732af69b91d7ba129e55c9af02e375f36ef219b6776"
   },
   "topics": [
     {
@@ -441,6 +441,14 @@
     {
       "reviewedAt": "2026-10-25T19:31:44.887Z",
       "note": "Expanded the existing F1 tool to the Formula page current/next-season calendar and upcoming-event questions. Starter answers concern durable published topics; their copy, supporting evidence and generation attribution are unchanged."
+    },
+    {
+      "reviewedAt": "2026-10-25T19:41:33.023Z",
+      "note": "Clarified fun/interesting/random facts about Georgios as factual evidence-selection requests. Existing starter answers, evidence hashes and generation attribution are preserved."
+    },
+    {
+      "reviewedAt": "2026-10-25T19:48:28.090Z",
+      "note": "Clarified fun/interesting/random facts about Georgios as factual evidence-selection requests. Existing starter answers, evidence hashes and generation attribution are preserved."
     }
   ]
 }
